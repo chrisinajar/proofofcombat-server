@@ -1,0 +1,32 @@
+{
+  "name": "proofofcombat-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Chris Vickery",
+  "license": "MIT",
+  "dependencies": {
+    "@graphql-codegen/cli": "^2.6.2",
+    "@graphql-codegen/typescript": "^2.4.4",
+    "@graphql-codegen/typescript-resolvers": "^2.5.1",
+    "@graphql-tools/merge": "^8.2.2",
+    "@graphql-tools/schema": "^8.3.1",
+    "@types/sha.js": "^2.4.0",
+    "apollo-server": "^3.6.3",
+    "dotenv": "^16.0.0",
+    "graphql": "^16.3.0",
+    "level-ts": "^2.1.0",
+    "sha.js": "^2.4.11",
+    "tsc": "^2.0.4",
+    "typescript": "^4.5.5",
+    "uuidv4": "^6.2.12"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15",
+    "ts-node": "^10.5.0"
+  },
+  "scripts": {
+    "prepare": "husky install",
+    "generate": "graphql-codegen",
+    "dev": "nodemon --exec ts-node ./index.ts"
+  }
+}

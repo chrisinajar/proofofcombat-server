@@ -1,0 +1,14 @@
+schema:
+  - schema/typedefs.ts
+generates:
+  types.ts:
+    config:
+      contextType: schema/context#ContextType
+      skipTypename: true
+
+    plugins:
+      - typescript
+      - typescript-resolvers
+
+require:
+  - "ts-node/register/transpile-only"
