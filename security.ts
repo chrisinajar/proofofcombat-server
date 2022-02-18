@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { BaseAccount } from "./types";
 import { hash } from "./hash";
 
-const secretKey = hash("secret");
+const secretKey = hash(`secret ${process.env.SECRET}`);
 
 export type WebTokenData = {
   id: string;

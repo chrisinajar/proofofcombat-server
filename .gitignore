@@ -5,3 +5,4 @@ data/
 certificate.pem
 privatekey.pem
 csr.csr
+.env
