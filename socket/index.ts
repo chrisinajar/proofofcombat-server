@@ -8,7 +8,7 @@ const port = 4001;
 export function addSocketToServer(httpServer: HttpServer) {
   const io = new Server(httpServer, {
     cors: {
-      origin: "http://localhost:3000",
+      origin: true,
       methods: ["GET", "POST"],
       allowedHeaders: ["Authorization"],
       credentials: true,

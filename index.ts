@@ -12,31 +12,50 @@ import type { ContextType } from "./schema/context";
 import db from "./db";
 import { confirm } from "./security";
 
-import { startSocketServer } from "./socket";
+import { addSocketToServer } from "./socket";
 
 const port = 4000;
 const httpsPort = 4333;
+const socketIoPort = 5000;
 
-function getHttpsServer(app: express.Application): http.Server {
+function getHttpsServer(app: express.Application | null): http.Server {
   try {
     const privateKey = fs.readFileSync("privatekey.pem");
     const certificate = fs.readFileSync("certificate.pem");
 
-    return https.createServer(
-      {
+    if (app) {
+      return https.createServer(
+        {
+          key: privateKey,
+          cert: certificate,
+        },
+        app
+      );
+    } else {
+      return https.createServer({
         key: privateKey,
         cert: certificate,
-      },
-      app
-    );
+      });
+    }
   } catch (e) {
-    return http.createServer(app);
+    if (app) {
+      return http.createServer(app);
+    } else {
+      return http.createServer();
+    }
   }
 }
 
 const app = express();
 const httpServer = http.createServer(app);
 const httpsServer = getHttpsServer(app);
+const socketioHttpsServer = getHttpsServer();
+
+addSocketToServer(socketioHttpsServer);
+
+socketioHttpsServer.listen(socketIoPort, () => {
+  console.log(`🚀  Socket ready on ${socketIoPort}`);
+});
 
 async function startApolloServer() {
   // The ApolloServer constructor requires two parameters: your schema
@@ -87,4 +106,3 @@ async function startApolloServer() {
 }
 
 startApolloServer();
-startSocketServer();
