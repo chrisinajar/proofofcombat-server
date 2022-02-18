@@ -9,8 +9,12 @@ export default class DatabaseInterface<Model extends BaseModel> {
     this.db = new Level<Model>(`./data/${database}`);
   }
 
+  upgrade(data: Model): Model {
+    return data;
+  }
+
   async get(id: string): Promise<Model> {
-    return this.db.get(id);
+    return this.upgrade(await this.db.get(id));
   }
 
   async exists(id: string): Promise<boolean> {
@@ -18,7 +22,7 @@ export default class DatabaseInterface<Model extends BaseModel> {
   }
 
   async put(data: Model) {
-    return this.db.put(data.id, data);
+    return this.db.put(data.id, this.upgrade(data));
   }
 
   // async create(data: Omit<Model, "id">) {

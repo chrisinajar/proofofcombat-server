@@ -7,3 +7,5 @@ export type ContextType = {
   };
   db: DatabaseList;
 };
+
+export type AuthorizedContextType = Required<ContextType>;

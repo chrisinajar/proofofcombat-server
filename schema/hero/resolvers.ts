@@ -19,7 +19,6 @@ const resolvers: Resolvers = {
   },
   BaseAccount: {
     async hero(parent, args, context: ContextType): Promise<Hero> {
-      console.log(parent);
       if (context.auth && context.auth.id !== parent.id) {
         throw new ForbiddenError(
           "You do not have permission to access that hero"

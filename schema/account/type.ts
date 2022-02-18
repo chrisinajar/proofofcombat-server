@@ -2,15 +2,14 @@ import { gql } from "apollo-server";
 
 export default gql`
   type Query {
-    login(name: String!, password: String!): LoginResponse!
+    me: LoginResponse! @auth @proof(level: 1)
+    chat: ChatResponse! @auth @proof(level: 3)
   }
 
   type Mutation {
+    login(name: String!, password: String!): LoginResponse! @proof(level: 2)
     createAccount(name: String!, password: String!): BaseAccount!
-  }
-
-  interface BaseModel {
-    id: ID!
+      @proof(level: 3)
   }
 
   type BaseAccount implements BaseModel {
@@ -23,6 +22,10 @@ export default gql`
 
   type LoginResponse {
     account: BaseAccount!
+    token: String!
+  }
+
+  type ChatResponse {
     token: String!
   }
 `;
