@@ -1,35 +1,42 @@
 import { Server, Socket } from "socket.io";
-import { createServer } from "http";
+import { createServer, Server as HttpServer } from "http";
 
 import { confirm, ChatTokenData } from "../security";
 
-const httpServer = createServer();
-const io = new Server(httpServer, {
-  cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Authorization"],
-    credentials: true,
-  },
-});
+const port = 4001;
 
-io.use((socket, next) => {
-  const token = socket.handshake.auth.token;
+export function addSocketToServer(httpServer: HttpServer) {
+  const io = new Server(httpServer, {
+    cors: {
+      origin: "http://localhost:3000",
+      methods: ["GET", "POST"],
+      allowedHeaders: ["Authorization"],
+      credentials: true,
+    },
+  });
 
-  const data = confirm<ChatTokenData>(token);
+  io.use((socket, next) => {
+    const token = socket.handshake.auth.token;
 
-  if (data && data.chat) {
-    next();
-  }
-});
+    const data = confirm<ChatTokenData>(token);
 
-io.on("connection", (socket: Socket) => {
-  console.log("New socket!");
-  socket.on("chat", () => {});
-});
+    if (data && data.chat) {
+      next();
+    }
+  });
 
-const port = 5000;
+  io.on("connection", (socket: Socket) => {
+    console.log("New socket!");
+    socket.on("chat", () => {});
+  });
+}
 
-httpServer.listen(port, () => {
-  console.log(`🚀  Socket ready on ${port}`);
-});
+export function startSocketServer() {
+  const httpServer = createServer();
+
+  addSocketToServer(httpServer);
+
+  httpServer.listen(port, () => {
+    console.log(`🚀  Socket ready on ${port}`);
+  });
+}
