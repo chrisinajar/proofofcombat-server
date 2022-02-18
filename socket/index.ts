@@ -3,8 +3,6 @@ import { createServer, Server as HttpServer } from "http";
 
 import { confirm, ChatTokenData } from "../security";
 
-const port = 4001;
-
 export function addSocketToServer(httpServer: HttpServer) {
   const io = new Server(httpServer, {
     cors: {
@@ -28,15 +26,5 @@ export function addSocketToServer(httpServer: HttpServer) {
   io.on("connection", (socket: Socket) => {
     console.log("New socket!");
     socket.on("chat", () => {});
-  });
-}
-
-export function startSocketServer() {
-  const httpServer = createServer();
-
-  addSocketToServer(httpServer);
-
-  httpServer.listen(port, () => {
-    console.log(`🚀  Socket ready on ${port}`);
   });
 }

@@ -14,11 +14,11 @@ import { confirm } from "./security";
 
 import { addSocketToServer } from "./socket";
 
-const port = 4000;
-const httpsPort = 4333;
-const socketIoPort = 5000;
+const port = process.env.HTTP_PORT ?? 4000;
+const httpsPort = process.env.HTTPS_PORT ?? 4333;
+const socketIoPort = process.env.SOCKET_PORT ?? 5000;
 
-function getHttpsServer(app: express.Application | null): http.Server {
+function getHttpsServer(app?: express.Application): http.Server {
   try {
     const privateKey = fs.readFileSync("privatekey.pem");
     const certificate = fs.readFileSync("certificate.pem");
