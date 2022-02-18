@@ -1,5 +1,5 @@
 import { ForbiddenError } from "apollo-server";
-import urlencode from "urlencode";
+import escapeHtml from "escape-html";
 
 import { Resolvers, BaseAccount, LoginResponse, ChatResponse } from "types";
 import type { ContextType, AuthorizedContextType } from "schema/context";
@@ -46,7 +46,7 @@ const resolvers: Resolvers = {
       args,
       context: ContextType
     ): Promise<BaseAccount> {
-      const name = urlencode(context.db.account.cleanName(args.name));
+      const name = escapeHtml(context.db.account.cleanName(args.name));
       const id = context.db.account.nameToId(args.name);
       const exists = await context.db.account.exists(id);
       if (exists) {

@@ -6,6 +6,7 @@ import express from "express";
 import fs from "fs";
 import http from "http";
 import https from "https";
+import cors from "cors";
 
 import schema from "./schema";
 import type { ContextType } from "./schema/context";
@@ -17,6 +18,12 @@ import { addSocketToServer } from "./socket";
 const port = process.env.HTTP_PORT ?? 4000;
 const httpsPort = process.env.HTTPS_PORT ?? 4333;
 const socketIoPort = process.env.SOCKET_PORT ?? 5000;
+
+const corsOptions = {
+  origin: true,
+  credentials: true,
+  allowedHeaders: ["Authorization", "Content-Type"],
+};
 
 function getHttpsServer(app?: express.Application): http.Server {
   try {
@@ -50,6 +57,8 @@ const app = express();
 const httpServer = http.createServer(app);
 const httpsServer = getHttpsServer(app);
 const socketioHttpsServer = getHttpsServer();
+
+app.use(cors(corsOptions));
 
 addSocketToServer(socketioHttpsServer);
 
@@ -90,10 +99,7 @@ async function startApolloServer() {
 
   server.applyMiddleware({
     app,
-    cors: {
-      origin: true,
-      credentials: true,
-    },
+    cors: corsOptions,
   });
 
   httpServer.listen(port, () => {

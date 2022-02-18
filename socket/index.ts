@@ -3,6 +3,14 @@ import { createServer, Server as HttpServer } from "http";
 
 import { confirm, ChatTokenData } from "../security";
 
+import { getChatCache, addChatMessage } from "./cache";
+
+type ExtendedSocket = Socket & {
+  name?: string;
+};
+
+let chatIdNumber = 0;
+
 export function addSocketToServer(httpServer: HttpServer) {
   const io = new Server(httpServer, {
     cors: {
@@ -13,18 +21,39 @@ export function addSocketToServer(httpServer: HttpServer) {
     },
   });
 
-  io.use((socket, next) => {
+  io.use((socket: ExtendedSocket, next) => {
     const token = socket.handshake.auth.token;
 
     const data = confirm<ChatTokenData>(token);
 
     if (data && data.chat) {
+      socket.name = data.name;
       next();
     }
   });
 
-  io.on("connection", (socket: Socket) => {
-    console.log("New socket!");
-    socket.on("chat", () => {});
+  io.on("connection", (socket: ExtendedSocket) => {
+    if (!socket.name) {
+      return;
+    }
+    console.log("New socket!", socket.name);
+    socket.emit("hello", {
+      chat: getChatCache(),
+    });
+    socket.on("chat", (data, callback) => {
+      if (!socket.name) {
+        return;
+      }
+      console.log(socket.name, data);
+      const message = {
+        id: chatIdNumber++,
+        message: data.message.trim(),
+        from: socket.name,
+      };
+      addChatMessage(message);
+      socket.broadcast.emit("chat", message);
+
+      callback(message);
+    });
   });
 }
