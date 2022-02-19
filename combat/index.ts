@@ -37,10 +37,12 @@ export async function fightMonster(
 
     console.log(
       hero.name,
+      `(${hero.level})`,
       "dealt",
       heroDamage,
       "to",
       monster.name,
+      `(${monster.level})`,
       "with",
       heroAttackType
     );
@@ -74,10 +76,12 @@ export async function fightMonster(
     });
     console.log(
       monster.name,
+      `(${monster.level})`,
       "dealt",
       monsterDamage,
       "to",
       hero.name,
+      `(${hero.level})`,
       "with",
       monasterAttackType
     );

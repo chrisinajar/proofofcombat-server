@@ -107,7 +107,6 @@ const resolvers: Resolvers = {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
       }
-      console.log("Challenging a", args.monster);
       const hero = await context.db.hero.get(context.auth.id);
       const monster = await getMonster(args.monster);
 
