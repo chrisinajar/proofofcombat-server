@@ -3,6 +3,7 @@ import { makeExecutableSchema } from "@graphql-tools/schema";
 
 import { authDirectiveTransformer } from "./directives/auth";
 import { proofDirectiveTransformer } from "./directives/proof";
+import { delayDirectiveTransformer } from "./directives/delay";
 import typeDefs from "./typedefs";
 
 import accountResolvers from "./account/resolvers";
@@ -20,5 +21,6 @@ let schema = makeExecutableSchema({
 
 schema = authDirectiveTransformer(schema, "auth");
 schema = proofDirectiveTransformer(schema, "proof");
+schema = delayDirectiveTransformer(schema, "delay");
 
 export default schema;

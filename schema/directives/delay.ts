@@ -1,4 +1,4 @@
-import { ForbiddenError } from "apollo-server";
+import { ForbiddenError, UserInputError } from "apollo-server";
 
 import { mapSchema, getDirective, MapperKind } from "@graphql-tools/utils";
 import { defaultFieldResolver, GraphQLSchema } from "graphql";
@@ -28,6 +28,30 @@ export function delayDirectiveTransformer(
           context: BaseContext,
           info
         ) {
+          if (!context?.auth?.id) {
+            throw new ForbiddenError("Missing auth");
+          }
+          const now = Date.now();
+          const account = await context.db.account.get(context.auth.id);
+
+          if (account.banned) {
+            if (!context?.auth?.id) {
+              throw new ForbiddenError("You are banned");
+            }
+          }
+          const nextAllowedAction = Number(account.nextAllowedAction);
+          if (nextAllowedAction && now < nextAllowedAction) {
+            account.nextAllowedAction = `${nextAllowedAction + 100}`;
+            context.auth.delay = account.nextAllowedAction;
+            await context.db.account.put(account);
+            throw new UserInputError("You must wait longer before acting", {
+              delay: true,
+              remaining: Number(account.nextAllowedAction) - now,
+            });
+          } else {
+            account.nextAllowedAction = `${now + delayDirective["delay"]}`;
+            await context.db.account.put(account);
+          }
           // console.log("proov it!");
           // do nothing for now, placeholder basically..
           return resolve(source, args, context, info);

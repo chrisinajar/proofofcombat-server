@@ -46,11 +46,13 @@ const resolvers: Resolvers = {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
       }
+      const account = await context.db.account.get(context.auth.id);
       const hero = await context.db.hero.get(context.auth.id);
       const monster = await context.db.monsterInstances.get(args.monster);
 
       if (hero.combat.health <= 0) {
         return {
+          account,
           victory: false,
           log: [],
           hero,
@@ -90,6 +92,7 @@ const resolvers: Resolvers = {
       await context.db.hero.put(hero);
 
       return {
+        account,
         hero,
         monster,
         log: fightResult.log,

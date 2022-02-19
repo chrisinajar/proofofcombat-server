@@ -14,6 +14,7 @@ const resolvers: Resolvers = {
       const account = await context.db.account.get(context.auth.id);
 
       return {
+        now: `${Date.now()}`,
         account,
         token: tokenForAccount(account),
       };
@@ -78,6 +79,7 @@ const resolvers: Resolvers = {
         // this lets the hero field resolver work
         context.auth = account;
         return {
+          now: `${Date.now()}`,
           account,
           token: tokenForAccount(account),
         };

@@ -1,21 +1,26 @@
 import { ForbiddenError } from "apollo-server";
 
-import { Resolvers, Hero, FightResult } from "types";
+import { Resolvers, Hero, HealResponse } from "types";
 import type { BaseContext } from "schema/context";
 
 const resolvers: Resolvers = {
   Query: {},
   Mutation: {
-    async heal(parent, args, context: BaseContext): Promise<Hero> {
+    async heal(parent, args, context: BaseContext): Promise<HealResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
       }
 
+      const account = await context.db.account.get(context.auth.id);
       const hero = await context.db.hero.get(context.auth.id);
+      console.log("Healing", hero.name);
       hero.combat.health = hero.combat.maxHealth;
       await context.db.hero.put(hero);
 
-      return hero;
+      return {
+        hero,
+        account,
+      };
     },
   },
   BaseAccount: {

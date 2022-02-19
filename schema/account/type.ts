@@ -17,12 +17,16 @@ export default gql`
     name: String!
     password: String!
 
+    banned: Boolean!
+    nextAllowedAction: String
+
     hero: Hero
   }
 
   type LoginResponse {
     account: BaseAccount!
     token: String!
+    now: String!
   }
 
   type ChatResponse {

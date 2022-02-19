@@ -6,7 +6,12 @@ export default gql`
   }
 
   type Mutation {
-    heal: Hero! @auth
+    heal: HealResponse! @auth @delay(delay: 800)
+  }
+
+  type HealResponse {
+    account: BaseAccount!
+    hero: Hero!
   }
 
   type Hero implements BaseModel {

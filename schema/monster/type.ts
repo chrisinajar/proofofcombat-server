@@ -9,10 +9,11 @@ export default gql`
 
   type Mutation {
     challenge(monster: ID!): MonsterInstance! @auth
-    fight(monster: ID!): FightResult! @auth
+    fight(monster: ID!): FightResult! @auth @delay(delay: 200)
   }
 
   type FightResult {
+    account: BaseAccount!
     hero: Hero!
     monster: MonsterInstance!
     log: [CombatEntry!]!
