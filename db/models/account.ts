@@ -1,4 +1,4 @@
-import { BaseAccount } from "types";
+import { BaseAccount } from "types/graphql";
 import DatabaseInterface from "../interface";
 
 import { hash } from "../../hash";

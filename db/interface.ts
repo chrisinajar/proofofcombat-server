@@ -1,6 +1,6 @@
 import Level from "level-ts";
 // import { uuid } from 'uuidv4';
-import { BaseModel } from "types";
+import { BaseModel } from "types/graphql";
 
 export default class DatabaseInterface<Model extends BaseModel> {
   db: Level<Model>;

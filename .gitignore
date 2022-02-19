@@ -6,3 +6,4 @@ certificate.pem
 privatekey.pem
 csr.csr
 .env
+types/graphql.ts

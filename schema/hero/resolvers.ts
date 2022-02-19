@@ -1,6 +1,13 @@
 import { ForbiddenError } from "apollo-server";
 
-import { Resolvers, Hero, HealResponse } from "types";
+import {
+  Resolvers,
+  Hero,
+  HealResponse,
+  MonsterInstance,
+  MoveResponse,
+  MoveDirection,
+} from "types/graphql";
 import type { BaseContext } from "schema/context";
 
 const resolvers: Resolvers = {
@@ -21,6 +28,55 @@ const resolvers: Resolvers = {
         hero,
         account,
       };
+    },
+    async move(parent, args, context: BaseContext): Promise<MoveResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      switch (args.direction) {
+        case MoveDirection.North:
+          hero.location.y = hero.location.y - 1;
+          console.log(hero.name, "moving", args.direction);
+          break;
+        case MoveDirection.South:
+          hero.location.y = hero.location.y + 1;
+          console.log(hero.name, "moving", args.direction);
+          break;
+        case MoveDirection.East:
+          hero.location.x = hero.location.x + 1;
+          console.log(hero.name, "moving", args.direction);
+          break;
+        case MoveDirection.West:
+          hero.location.x = hero.location.x + 1;
+          console.log(hero.name, "moving", args.direction);
+          break;
+      }
+
+      hero.location.y = Math.min(9, Math.max(0, hero.location.y));
+      hero.location.x = Math.min(9, Math.max(0, hero.location.x));
+
+      await context.db.hero.put(hero);
+
+      return {
+        hero,
+        account,
+        monsters: [],
+      };
+    },
+  },
+  MoveResponse: {
+    async monsters(
+      parent,
+      args,
+      context: BaseContext
+    ): Promise<MonsterInstance[]> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      return context.db.monsterInstances.getInLocation(parent.hero.location);
     },
   },
   BaseAccount: {

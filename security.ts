@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { BaseAccount } from "./types";
+import { BaseAccount } from "types/graphql";
 import { hash } from "./hash";
 
 const secretKey = hash(`secret ${process.env.SECRET}`);

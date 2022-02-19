@@ -1,4 +1,4 @@
-import { Hero, BaseAccount } from "types";
+import { Hero, BaseAccount } from "types/graphql";
 import DatabaseInterface from "../interface";
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;

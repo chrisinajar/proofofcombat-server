@@ -1,4 +1,4 @@
-import { Hero, MonsterInstance, CombatEntry, AttackType } from "../types";
+import { Hero, MonsterInstance, CombatEntry, AttackType } from "types/graphql";
 
 type MonsterHeroCombatResult = {
   monsterDamage: number;

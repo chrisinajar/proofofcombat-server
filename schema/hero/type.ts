@@ -7,6 +7,20 @@ export default gql`
 
   type Mutation {
     heal: HealResponse! @auth @delay(delay: 1000)
+    move(direction: MoveDirection!): MoveResponse! @auth @delay(delay: 1000)
+  }
+
+  enum MoveDirection {
+    NORTH
+    SOUTH
+    EAST
+    WEST
+  }
+
+  type MoveResponse {
+    hero: Hero!
+    account: BaseAccount!
+    monsters: [MonsterInstance!]!
   }
 
   type HealResponse {

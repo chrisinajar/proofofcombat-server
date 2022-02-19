@@ -1,4 +1,4 @@
-import { MonsterInstance, Location } from "types";
+import { MonsterInstance, Location } from "types/graphql";
 
 import DatabaseInterface from "../interface";
 import { hash } from "../../hash";

@@ -1,6 +1,11 @@
 import { UserInputError, ForbiddenError } from "apollo-server";
 
-import { Resolvers, Monster, MonsterInstance, FightResult } from "types";
+import {
+  Resolvers,
+  Monster,
+  MonsterInstance,
+  FightResult,
+} from "types/graphql";
 import type { BaseContext } from "schema/context";
 
 import { fightMonster } from "../../combat";

@@ -1,6 +1,11 @@
 import { ForbiddenError } from "apollo-server";
 
-import { Resolvers, BaseAccount, LoginResponse, ChatResponse } from "types";
+import {
+  Resolvers,
+  BaseAccount,
+  LoginResponse,
+  ChatResponse,
+} from "types/graphql";
 import type { BaseContext } from "schema/context";
 import { tokenForAccount, sign } from "../../security";
 import { hash } from "../../hash";
