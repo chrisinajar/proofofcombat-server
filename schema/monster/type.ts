@@ -17,6 +17,8 @@ export default gql`
     monster: MonsterInstance!
     log: [CombatEntry!]!
     victory: Boolean!
+    experience: Int
+    didLevel: Boolean
   }
 
   type MonsterInstance implements BaseModel {

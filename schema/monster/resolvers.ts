@@ -6,17 +6,26 @@ import type { BaseContext } from "schema/context";
 import { fightMonster } from "../../combat";
 
 const MONSTERS: Monster[] = [
-  {
-    id: "rat",
+  "Monsterous rat",
+  "Giant crab",
+  "Rabid bear",
+  "Forest imp",
+  "Goblin",
+  "Traveling bandit",
+  "Hobgoblin",
+  "Brass dragon wyrmling",
+  "Orc war chief",
+  "Minotaur skeleton",
+].map((name, i) => ({
+  id: name,
 
-    level: 1,
-    name: "Rat",
-    combat: {
-      health: 10,
-      maxHealth: 10,
-    },
+  level: i + 1,
+  name: name,
+  combat: {
+    health: Math.ceil(Math.pow(1.3, i) * 10),
+    maxHealth: Math.ceil(Math.pow(1.3, i) * 10),
   },
-];
+}));
 
 async function getMonster(id: string): Promise<Monster | undefined> {
   return MONSTERS.find((entry) => entry.id === id);
@@ -40,7 +49,10 @@ const resolvers: Resolvers = {
         };
       }
 
+      const startLevel = hero.level;
+
       const fightResult = await fightMonster(hero, monster);
+      const experienceRewards = monster.monster.level * 10;
 
       if (fightResult.monsterDamage) {
         hero.combat.health = Math.max(
@@ -59,7 +71,7 @@ const resolvers: Resolvers = {
         );
         if (fightResult.monsterDied) {
           console.log(hero.name, "killed a", monster.monster.name);
-          context.db.hero.addExperience(hero, monster.monster.level * 10);
+          context.db.hero.addExperience(hero, experienceRewards);
           await context.db.monsterInstances.del(monster);
         } else {
           await context.db.monsterInstances.put(monster);
@@ -73,6 +85,8 @@ const resolvers: Resolvers = {
         monster,
         log: fightResult.log,
         victory: fightResult.monsterDied,
+        experience: fightResult.monsterDied ? experienceRewards : undefined,
+        didLevel: hero.level !== startLevel,
       };
     },
 

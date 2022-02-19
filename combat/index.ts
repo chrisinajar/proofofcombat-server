@@ -20,11 +20,13 @@ export async function fightMonster(
   const battleResults: CombatEntry[] = [];
   const heroAttackType = AttackType.Melee;
   const heroDidHit =
-    hero.stats.strength + randomNumber(0, 20) > monster.level * 10;
+    hero.stats.strength + randomNumber(0, 20) > monster.level + 10;
   let heroDamage = 0;
 
   if (heroDidHit) {
-    heroDamage = Math.round(randomNumber(1, 5) + hero.stats.strength / 5);
+    heroDamage = Math.round(
+      randomNumber(1, 5) + Math.max(1, hero.stats.strength - monster.level)
+    );
     battleResults.push({
       attackType: heroAttackType,
       damage: heroDamage,
@@ -49,12 +51,14 @@ export async function fightMonster(
   let monsterDamage = 0;
 
   if (monsterDidHit) {
-    monsterDamage = Math.round(randomNumber(1, 5) + monster.level);
+    monsterDamage = Math.round(
+      randomNumber(monster.level, monster.combat.maxHealth)
+    );
 
     battleResults.push({
       attackType: monasterAttackType,
       damage: monsterDamage,
-      success: false,
+      success: true,
       from: monster.name,
       to: hero.name,
     });
