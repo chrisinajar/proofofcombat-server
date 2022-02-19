@@ -16,6 +16,15 @@ const MONSTERS: Monster[] = [
   "Brass dragon wyrmling",
   "Orc war chief",
   "Minotaur skeleton",
+  "Gelatinous cube",
+  "Ankheg",
+  "Duergar",
+  "Umber hulk",
+  "Quaggoth thonot",
+  "Grell",
+  "Half-red dragon veteran",
+  "Air Elemental",
+  "Troll",
 ].map((name, i) => ({
   id: name,
 

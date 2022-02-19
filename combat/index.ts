@@ -34,6 +34,16 @@ export async function fightMonster(
       from: hero.name,
       to: monster.name,
     });
+
+    console.log(
+      hero.name,
+      "dealt",
+      heroDamage,
+      "to",
+      monster.name,
+      "with",
+      heroAttackType
+    );
   } else {
     battleResults.push({
       attackType: heroAttackType,
@@ -62,6 +72,15 @@ export async function fightMonster(
       from: monster.name,
       to: hero.name,
     });
+    console.log(
+      monster.name,
+      "dealt",
+      monsterDamage,
+      "to",
+      hero.name,
+      "with",
+      monasterAttackType
+    );
   } else {
     battleResults.push({
       attackType: monasterAttackType,
