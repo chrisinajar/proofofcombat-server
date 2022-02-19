@@ -13,7 +13,7 @@ const resolvers: Resolvers = {
 
       const hero = await context.db.hero.get(context.auth.id);
       hero.combat.health = hero.combat.maxHealth;
-      await context.db.hero.put(context.auth.id);
+      await context.db.hero.put(hero);
 
       return hero;
     },

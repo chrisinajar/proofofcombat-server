@@ -40,11 +40,7 @@ const resolvers: Resolvers = {
         };
       }
 
-      console.log("Fighting a", monster.monster.name);
-
       const fightResult = await fightMonster(hero, monster);
-
-      console.log(fightResult);
 
       if (fightResult.monsterDamage) {
         hero.combat.health = Math.max(
@@ -53,7 +49,7 @@ const resolvers: Resolvers = {
         );
 
         if (fightResult.heroDied) {
-          console.log("HERO DIED!!");
+          console.log(monster.monster.name, "killed", hero.name);
         }
       }
       if (fightResult.heroDamage) {
@@ -62,7 +58,7 @@ const resolvers: Resolvers = {
           monster.monster.combat.health - fightResult.heroDamage
         );
         if (fightResult.monsterDied) {
-          console.log("MONSTER DIED!!");
+          console.log(hero.name, "killed a", monster.monster.name);
           context.db.hero.addExperience(hero, monster.monster.level * 10);
           await context.db.monsterInstances.del(monster);
         } else {

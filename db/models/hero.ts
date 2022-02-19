@@ -16,7 +16,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   recalculateStats(hero: Hero): Hero {
     const maxHealthBefore = hero.combat.maxHealth;
     hero.combat.maxHealth = (8 + hero.stats.constitution) * hero.level;
-    hero.needed = this.experienceNeededForLevel(hero.level + 1);
+    hero.needed = this.experienceNeededForLevel(hero.level);
 
     return hero;
   }
@@ -32,7 +32,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     const { level } = hero;
     const startingExperience = hero.experience;
     let newExperience = hero.experience + experience;
-    const experienceNeeded = this.experienceNeededForLevel(level + 1);
+    const experienceNeeded = this.experienceNeededForLevel(level);
     if (newExperience >= experienceNeeded) {
       // we never over-level
       newExperience = experienceNeeded;
@@ -55,7 +55,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   experienceNeededForLevel(level: number): number {
-    return level * level * 100;
+    return level * level * 10;
   }
 
   // turn old heroes into new heroes

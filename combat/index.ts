@@ -24,7 +24,7 @@ export async function fightMonster(
   let heroDamage = 0;
 
   if (heroDidHit) {
-    heroDamage = randomNumber(1, 5) + hero.stats.strength / 5;
+    heroDamage = Math.round(randomNumber(1, 5) + hero.stats.strength / 5);
     battleResults.push({
       attackType: heroAttackType,
       damage: heroDamage,
@@ -49,7 +49,7 @@ export async function fightMonster(
   let monsterDamage = 0;
 
   if (monsterDidHit) {
-    monsterDamage = randomNumber(1, 5);
+    monsterDamage = Math.round(randomNumber(1, 5) + monster.level);
 
     battleResults.push({
       attackType: monasterAttackType,
