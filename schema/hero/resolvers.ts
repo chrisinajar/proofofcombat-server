@@ -50,13 +50,13 @@ const resolvers: Resolvers = {
           console.log(hero.name, "moving", args.direction);
           break;
         case MoveDirection.West:
-          hero.location.x = hero.location.x + 1;
+          hero.location.x = hero.location.x - 1;
           console.log(hero.name, "moving", args.direction);
           break;
       }
 
-      hero.location.y = Math.min(99, Math.max(0, hero.location.y));
-      hero.location.x = Math.min(132, Math.max(0, hero.location.x));
+      hero.location.y = Math.min(95, Math.max(0, hero.location.y));
+      hero.location.x = Math.min(127, Math.max(0, hero.location.x));
 
       await context.db.hero.put(hero);
 
