@@ -114,6 +114,16 @@ const resolvers: Resolvers = {
       const hero = await context.db.hero.get(context.auth.id);
       return context.db.monsterInstances.getInLocation(hero.location);
     },
+    async challenges(parent, args, context: BaseContext): Promise<Monster[]> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      const hero = await context.db.hero.get(context.auth.id);
+      // take location into account?
+      // oh well!
+
+      return MONSTERS;
+    },
   },
 };
 

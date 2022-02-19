@@ -4,6 +4,7 @@ export default gql`
   type Query {
     monster(id: ID!): Monster!
     monsters: [MonsterInstance!]! @auth
+    challenges: [Monster!]! @auth
   }
 
   type Mutation {
@@ -14,7 +15,7 @@ export default gql`
   type FightResult {
     hero: Hero!
     monster: MonsterInstance!
-    log: [CombatEntry!]
+    log: [CombatEntry!]!
     victory: Boolean!
   }
 
