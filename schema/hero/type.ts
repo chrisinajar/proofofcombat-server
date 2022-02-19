@@ -6,7 +6,7 @@ export default gql`
   }
 
   type Mutation {
-    heal: HealResponse! @auth @delay(delay: 800)
+    heal: HealResponse! @auth @delay(delay: 1000)
   }
 
   type HealResponse {
