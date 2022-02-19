@@ -25,7 +25,7 @@ export async function fightMonster(
 
   if (heroDidHit) {
     heroDamage = Math.round(
-      randomNumber(1, 5) + Math.max(1, hero.stats.strength - monster.level)
+      randomNumber(1, 5) * Math.max(1, hero.stats.strength - monster.level)
     );
     battleResults.push({
       attackType: heroAttackType,
