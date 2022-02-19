@@ -2,7 +2,7 @@ import { ForbiddenError } from "apollo-server";
 
 import { mapSchema, getDirective, MapperKind } from "@graphql-tools/utils";
 import { defaultFieldResolver, GraphQLSchema } from "graphql";
-import type { ContextType } from "schema/context";
+import type { BaseContext } from "schema/context";
 
 export function authDirectiveTransformer(
   schema: GraphQLSchema,
@@ -25,7 +25,7 @@ export function authDirectiveTransformer(
         fieldConfig.resolve = async function (
           source,
           args,
-          context: ContextType,
+          context: BaseContext,
           info
         ) {
           if (!context.auth) {

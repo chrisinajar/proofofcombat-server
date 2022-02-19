@@ -4,5 +4,12 @@ import interfaces from "./interfaces";
 import directives from "./directives/type";
 import accountTypes from "./account/type";
 import heroTypes from "./hero/type";
+import monsterTypes from "./monster/type";
 
-export default mergeTypeDefs([directives, interfaces, accountTypes, heroTypes]);
+export default mergeTypeDefs([
+  directives,
+  interfaces,
+  accountTypes,
+  heroTypes,
+  monsterTypes,
+]);

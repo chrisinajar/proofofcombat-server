@@ -3,7 +3,7 @@ schema:
 generates:
   types.ts:
     config:
-      contextType: schema/context#ContextType
+      contextType: schema/context#BaseContext
       skipTypename: true
 
     plugins:

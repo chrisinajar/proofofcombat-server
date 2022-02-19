@@ -1,18 +1,16 @@
 import { ForbiddenError } from "apollo-server";
-import escapeHtml from "escape-html";
 
 import { Resolvers, BaseAccount, LoginResponse, ChatResponse } from "types";
-import type { ContextType, AuthorizedContextType } from "schema/context";
+import type { BaseContext } from "schema/context";
 import { tokenForAccount, sign } from "../../security";
 import { hash } from "../../hash";
 
 const resolvers: Resolvers = {
   Query: {
-    async me(
-      parent,
-      args,
-      context: AuthorizedContextType
-    ): Promise<LoginResponse> {
+    async me(parent, args, context: BaseContext): Promise<LoginResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
       const account = await context.db.account.get(context.auth.id);
 
       return {
@@ -20,11 +18,10 @@ const resolvers: Resolvers = {
         token: tokenForAccount(account),
       };
     },
-    async chat(
-      parent,
-      args,
-      context: AuthorizedContextType
-    ): Promise<ChatResponse> {
+    async chat(parent, args, context: BaseContext): Promise<ChatResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
       // todo: check banned
       // const account = await context.db.account.get(context.auth.id);
       const hero = await context.db.hero.get(context.auth.id);
@@ -44,9 +41,9 @@ const resolvers: Resolvers = {
     async createAccount(
       root,
       args,
-      context: ContextType
+      context: BaseContext
     ): Promise<BaseAccount> {
-      const name = escapeHtml(context.db.account.cleanName(args.name));
+      const name = context.db.account.cleanName(args.name);
       const id = context.db.account.nameToId(args.name);
       const exists = await context.db.account.exists(id);
       if (exists) {
@@ -60,13 +57,15 @@ const resolvers: Resolvers = {
       });
       account.hero = await context.db.hero.create(account);
 
+      console.log("Created a new account for", name);
+
       // authorize the rest of this request
       // this lets the hero field resolver work
       context.auth = account;
 
       return account;
     },
-    async login(root, args, context: ContextType): Promise<LoginResponse> {
+    async login(root, args, context: BaseContext): Promise<LoginResponse> {
       const id: string = context.db.account.nameToId(args.name);
       try {
         const account = await context.db.account.get(id);

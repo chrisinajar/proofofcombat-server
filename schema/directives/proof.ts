@@ -2,7 +2,7 @@ import { ForbiddenError } from "apollo-server";
 
 import { mapSchema, getDirective, MapperKind } from "@graphql-tools/utils";
 import { defaultFieldResolver, GraphQLSchema } from "graphql";
-import type { ContextType } from "schema/context";
+import type { BaseContext } from "schema/context";
 
 export function proofDirectiveTransformer(
   schema: GraphQLSchema,
@@ -25,10 +25,10 @@ export function proofDirectiveTransformer(
         fieldConfig.resolve = async function (
           source,
           args,
-          context: ContextType,
+          context: BaseContext,
           info
         ) {
-          console.log("proov it!");
+          // console.log("proov it!");
           // do nothing for now, placeholder basically..
           return resolve(source, args, context, info);
         };

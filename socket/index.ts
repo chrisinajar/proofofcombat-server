@@ -37,8 +37,11 @@ export function addSocketToServer(httpServer: HttpServer) {
       return;
     }
     console.log("New socket!", socket.name);
-    socket.emit("hello", {
-      chat: getChatCache(),
+
+    socket.join("public");
+
+    socket.on("disconnect", (reason) => {
+      listClients();
     });
     socket.on("chat", (data, callback) => {
       if (!socket.name) {
@@ -55,5 +58,17 @@ export function addSocketToServer(httpServer: HttpServer) {
 
       callback(message);
     });
+
+    socket.emit("hello", {
+      chat: getChatCache(),
+    });
+
+    listClients();
   });
+
+  function listClients() {
+    io.sockets.sockets.forEach((socket: ExtendedSocket, id: string) => {
+      console.log(socket.name);
+    });
+  }
 }

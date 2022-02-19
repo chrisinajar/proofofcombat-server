@@ -7,10 +7,15 @@ import typeDefs from "./typedefs";
 
 import accountResolvers from "./account/resolvers";
 import heroResolvers from "./hero/resolvers";
+import monsterResolvers from "./monster/resolvers";
 
 let schema = makeExecutableSchema({
   typeDefs,
-  resolvers: mergeResolvers([accountResolvers, heroResolvers]),
+  resolvers: mergeResolvers([
+    accountResolvers,
+    heroResolvers,
+    monsterResolvers,
+  ]),
 });
 
 schema = authDirectiveTransformer(schema, "auth");

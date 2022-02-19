@@ -6,11 +6,7 @@ export default gql`
   }
 
   type Mutation {
-    fight(monster: ID!): FightResult!
-  }
-
-  type FightResult {
-    victory: Boolean
+    heal: Hero! @auth
   }
 
   type Hero implements BaseModel {
@@ -19,6 +15,7 @@ export default gql`
 
     level: Int!
     experience: Int!
+    needed: Int!
     gold: Int!
     location: Location!
 

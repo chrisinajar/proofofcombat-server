@@ -1,25 +1,26 @@
 import { ForbiddenError } from "apollo-server";
 
 import { Resolvers, Hero, FightResult } from "types";
-import type { ContextType } from "schema/context";
+import type { BaseContext } from "schema/context";
 
 const resolvers: Resolvers = {
+  Query: {},
   Mutation: {
-    async fight(parent, args, context: ContextType): Promise<FightResult> {
-      if (!context.auth) {
-        throw new ForbiddenError("You must be logged in");
+    async heal(parent, args, context: BaseContext): Promise<Hero> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
       }
-      console.log("Fighting a", args.monster);
-      const hero = await context.db.hero.get(context.auth.id);
 
-      return {
-        victory: true,
-      };
+      const hero = await context.db.hero.get(context.auth.id);
+      hero.combat.health = hero.combat.maxHealth;
+      await context.db.hero.put(context.auth.id);
+
+      return hero;
     },
   },
   BaseAccount: {
-    async hero(parent, args, context: ContextType): Promise<Hero> {
-      if (context.auth && context.auth.id !== parent.id) {
+    async hero(parent, args, context: BaseContext): Promise<Hero> {
+      if (context?.auth?.id !== parent.id) {
         throw new ForbiddenError(
           "You do not have permission to access that hero"
         );

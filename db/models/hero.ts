@@ -5,7 +5,7 @@ type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
 type PartialHero = Optional<
   Hero,
-  "combat" | "stats" | "level" | "experience" | "gold" | "location"
+  "combat" | "stats" | "level" | "experience" | "gold" | "location" | "needed"
 >;
 
 export default class HeroModel extends DatabaseInterface<Hero> {
@@ -14,9 +14,48 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   recalculateStats(hero: Hero): Hero {
+    const maxHealthBefore = hero.combat.maxHealth;
     hero.combat.maxHealth = (8 + hero.stats.constitution) * hero.level;
+    hero.needed = this.experienceNeededForLevel(hero.level + 1);
 
     return hero;
+  }
+
+  luckRoll(luck: number, min: number, max: number): number {
+    luck = Math.max(2, luck);
+    return Math.min(
+      max,
+      Math.round(Math.random() * (luck / (luck - 1)) * (max - min)) + min
+    );
+  }
+  addExperience(hero: Hero, experience: number): Hero {
+    const { level } = hero;
+    const startingExperience = hero.experience;
+    let newExperience = hero.experience + experience;
+    const experienceNeeded = this.experienceNeededForLevel(level + 1);
+    if (newExperience >= experienceNeeded) {
+      // we never over-level
+      newExperience = experienceNeeded;
+      hero.stats.strength += this.luckRoll(hero.stats.luck, 0, 1);
+      hero.stats.dexterity += this.luckRoll(hero.stats.luck, 0, 1);
+      hero.stats.constitution += this.luckRoll(hero.stats.luck, 0, 1);
+      hero.stats.intelligence += this.luckRoll(hero.stats.luck, 0, 1);
+      hero.stats.wisdom += this.luckRoll(hero.stats.luck, 0, 1);
+      hero.stats.charisma += this.luckRoll(hero.stats.luck, 0, 1);
+      hero.stats.luck += this.luckRoll(2, 0, 1);
+      hero.level = hero.level + 1;
+
+      hero = this.recalculateStats(hero);
+      hero.combat.health = hero.combat.maxHealth;
+    }
+
+    hero.experience = newExperience;
+
+    return hero;
+  }
+
+  experienceNeededForLevel(level: number): number {
+    return level * level * 100;
   }
 
   // turn old heroes into new heroes
@@ -29,8 +68,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.experience = data.experience ?? 0;
     if (!data.combat) {
       data.combat = {
-        health: 10,
-        maxHealth: 10,
+        health: 13,
+        maxHealth: 13,
       };
     }
     if (!data.stats) {

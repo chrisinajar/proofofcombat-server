@@ -9,7 +9,7 @@ import https from "https";
 import cors from "cors";
 
 import schema from "./schema";
-import type { ContextType } from "./schema/context";
+import type { BaseContext } from "./schema/context";
 import db from "./db";
 import { confirm } from "./security";
 
@@ -76,9 +76,9 @@ async function startApolloServer() {
       ApolloServerPluginDrainHttpServer({ httpServer: httpsServer }),
     ],
 
-    context: async ({ res, req }): Promise<ContextType> => {
+    context: async ({ res, req }): Promise<BaseContext> => {
       let token = req.headers.authorization;
-      const context: ContextType = { db };
+      const context: BaseContext = { db };
 
       if (token) {
         if (token.toLowerCase().startsWith("bearer ")) {

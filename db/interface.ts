@@ -24,6 +24,9 @@ export default class DatabaseInterface<Model extends BaseModel> {
   async put(data: Model) {
     return this.db.put(data.id, this.upgrade(data));
   }
+  async del(data: Model) {
+    return this.db.del(data.id);
+  }
 
   // async create(data: Omit<Model, "id">) {
   //   const id = uuid();
