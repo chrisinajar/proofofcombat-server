@@ -55,8 +55,8 @@ const resolvers: Resolvers = {
           break;
       }
 
-      hero.location.y = Math.min(9, Math.max(0, hero.location.y));
-      hero.location.x = Math.min(9, Math.max(0, hero.location.x));
+      hero.location.y = Math.min(99, Math.max(0, hero.location.y));
+      hero.location.x = Math.min(132, Math.max(0, hero.location.x));
 
       await context.db.hero.put(hero);
 
