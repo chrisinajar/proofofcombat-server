@@ -64,6 +64,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     hero.level = hero.level + 1;
     hero.attributePoints = hero.attributePoints + 1;
 
+    hero.experience = 0;
+
     hero = this.recalculateStats(hero);
     hero.combat.health = hero.combat.maxHealth;
 
