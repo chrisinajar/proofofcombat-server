@@ -30,7 +30,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   luckRoll(luck: number, min: number, max: number): number {
-    luck = Math.max(2, luck);
+    luck = Math.max(5, luck);
     return Math.max(
       min,
       Math.min(
