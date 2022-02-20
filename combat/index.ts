@@ -157,12 +157,12 @@ export async function fightMonster(
   }
 
   const attackOptions = [
-    AttackType.Blood,
-    AttackType.Holy,
+    AttackType.Melee,
+    AttackType.Ranged,
     AttackType.Wizard,
     AttackType.Elemental,
-    AttackType.Ranged,
-    AttackType.Melee,
+    AttackType.Blood,
+    AttackType.Holy,
   ];
   const monsterAttackType = attackOptions[monster.level % attackOptions.length];
   const monsterAttributeTypes = attributesForAttack(monsterAttackType);
