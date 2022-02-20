@@ -68,6 +68,22 @@ export default gql`
 
     name: String!
     type: InventoryItemType!
+    level: Int!
+    enchantment: EnchantmentType
+  }
+
+  enum EnchantmentType {
+    BonusStrength
+    BonusDexterity
+    BonusConstitution
+    BonusIntelligence
+    BonusWisdom
+    BonusCharisma
+    BonusLuck
+
+    BonusPhysical
+    BonusMental
+    BonusAllStats
   }
 
   enum InventoryItemType {

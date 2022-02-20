@@ -51,6 +51,7 @@ export default gql`
     success: Boolean!
     from: String!
     to: String!
+    critical: Boolean!
   }
 
   enum AttackType {

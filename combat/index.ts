@@ -118,20 +118,25 @@ export async function fightMonster(
   const heroAttackType = attackType;
   const heroAttributeTypes = attributesForAttack(heroAttackType);
   const heroAttributes = hero.stats;
-  const heroLuck = Math.max(2, heroAttributes.luck);
   const monsterAttributes = createMonsterStats(monster);
   const heroDidHit = didHit(heroAttributes, heroAttackType, monsterAttributes);
   let heroDamage = 0;
 
-  const luckModifier = 1 - 20 / heroLuck;
+  const smallLuckModifier = 1 - 5 / Math.max(5, heroAttributes.luck);
+  const bigLuckModifier = 1 - 20 / Math.max(20, heroAttributes.luck);
+  const ultraLuckModifier = bigLuckModifier * bigLuckModifier * bigLuckModifier;
 
   if (heroDidHit) {
     heroDamage = Math.round(
-      randomNumber(1, 5) *
+      (1.2 - Math.random() * (1 - smallLuckModifier)) *
         Math.max(1, hero.stats[heroAttributeTypes.damage] - monster.level)
     );
-    if (Math.random() < luckModifier) {
-      heroDamage = heroDamage * 2;
+    const didCrit = Math.random() < bigLuckModifier;
+    if (didCrit) {
+      heroDamage = heroDamage * 3;
+      if (Math.random() < ultraLuckModifier) {
+        heroDamage = heroDamage * 3;
+      }
     }
     battleResults.push({
       attackType: heroAttackType,
@@ -139,12 +144,13 @@ export async function fightMonster(
       success: true,
       from: hero.name,
       to: monster.name,
+      critical: didCrit,
     });
 
     console.log(
       hero.name,
       `(${hero.level})`,
-      "dealt",
+      didCrit ? "crit" : "dealt",
       heroDamage,
       "to",
       monster.name,
@@ -159,6 +165,7 @@ export async function fightMonster(
       success: false,
       from: hero.name,
       to: monster.name,
+      critical: false,
     });
   }
 
@@ -171,12 +178,17 @@ export async function fightMonster(
 
   if (monsterDidHit) {
     monsterDamage = Math.round(
-      randomNumber(1, 5) *
+      (Math.random() + 2.75) *
         Math.max(
           1,
           monsterAttributes[monsterAttributeTypes.damage] - hero.level
         )
     );
+
+    const didCrit = Math.random() < 0.2;
+    if (didCrit) {
+      monsterDamage = monsterDamage * 5;
+    }
 
     battleResults.push({
       attackType: monster.attackType,
@@ -184,11 +196,12 @@ export async function fightMonster(
       success: true,
       from: monster.name,
       to: hero.name,
+      critical: didCrit,
     });
     console.log(
       monster.name,
       `(${monster.level})`,
-      "dealt",
+      didCrit ? "dealt" : "crit",
       monsterDamage,
       "to",
       hero.name,
@@ -203,6 +216,7 @@ export async function fightMonster(
       success: false,
       from: monster.name,
       to: hero.name,
+      critical: false,
     });
   }
 
