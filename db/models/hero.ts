@@ -73,7 +73,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   experienceNeededForLevel(level: number): number {
-    return level * level * 10;
+    return level * 60;
   }
 
   // turn old heroes into new heroes
