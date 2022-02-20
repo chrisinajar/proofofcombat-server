@@ -118,15 +118,21 @@ export async function fightMonster(
   const heroAttackType = attackType;
   const heroAttributeTypes = attributesForAttack(heroAttackType);
   const heroAttributes = hero.stats;
+  const heroLuck = Math.max(2, heroAttributes.luck);
   const monsterAttributes = createMonsterStats(monster);
   const heroDidHit = didHit(heroAttributes, heroAttackType, monsterAttributes);
   let heroDamage = 0;
+
+  const luckModifier = 1 - 20 / heroLuck;
 
   if (heroDidHit) {
     heroDamage = Math.round(
       randomNumber(1, 5) *
         Math.max(1, hero.stats[heroAttributeTypes.damage] - monster.level)
     );
+    if (Math.random() < luckModifier) {
+      heroDamage = heroDamage * 2;
+    }
     battleResults.push({
       attackType: heroAttackType,
       damage: heroDamage,

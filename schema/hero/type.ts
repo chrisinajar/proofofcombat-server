@@ -62,6 +62,27 @@ export default gql`
     stats: HeroStats!
   }
 
+  type InventoryItem implements BaseModel {
+    id: ID!
+    owner: ID!
+
+    name: String!
+    type: InventoryItemType!
+  }
+
+  enum InventoryItemType {
+    Quest
+    Weapon
+    Shield
+    SpellFocus
+    BodyArmor
+    HandArmor
+    LegArmor
+    HeadArmor
+    FootArmor
+    Accessory
+  }
+
   type HeroCombatStats implements ComatStats {
     health: Int!
     maxHealth: Int!

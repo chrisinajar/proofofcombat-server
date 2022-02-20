@@ -33,9 +33,10 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     luck = Math.max(2, luck);
     return Math.min(
       max,
-      Math.round(Math.random() * (luck / (luck - 1)) * (max - min)) + min
+      Math.round(Math.random() * (1.9 - 5 / luck) * (max - min)) + min
     );
   }
+
   addExperience(hero: Hero, experience: number): Hero {
     const { level } = hero;
     const startingExperience = hero.experience;

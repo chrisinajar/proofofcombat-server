@@ -12,22 +12,16 @@ import type { BaseContext } from "schema/context";
 import { fightMonster } from "../../combat";
 
 const MONSTERS: Monster[] = [
-  { name: "Monsterous rat", attackType: AttackType.Melee },
   { name: "Giant crab", attackType: AttackType.Melee },
-  { name: "Rabid bear", attackType: AttackType.Melee },
   { name: "Forest imp", attackType: AttackType.Elemental },
-  { name: "Goblin", attackType: AttackType.Melee },
   { name: "Traveling bandit", attackType: AttackType.Ranged },
   { name: "Hobgoblin", attackType: AttackType.Ranged },
   { name: "Brass dragon wyrmling", attackType: AttackType.Melee },
   { name: "Orc war chief", attackType: AttackType.Melee },
   { name: "Minotaur skeleton", attackType: AttackType.Melee },
   { name: "Gelatinous cube", attackType: AttackType.Melee },
-  { name: "Ankheg", attackType: AttackType.Melee },
   { name: "Duergar", attackType: AttackType.Melee },
   { name: "Umber hulk", attackType: AttackType.Melee },
-  { name: "Quaggoth thonot", attackType: AttackType.Melee },
-  { name: "Grell", attackType: AttackType.Melee },
   { name: "Half-red dragon veteran", attackType: AttackType.Melee },
   { name: "Air Elemental", attackType: AttackType.Elemental },
   { name: "Troll", attackType: AttackType.Melee },
@@ -59,8 +53,8 @@ const MONSTERS: Monster[] = [
   name,
   attackType,
   combat: {
-    health: Math.ceil(Math.pow(1.3, i) * 10),
-    maxHealth: Math.ceil(Math.pow(1.3, i) * 10),
+    health: Math.ceil(Math.pow(1.4, i) * 8),
+    maxHealth: Math.ceil(Math.pow(1.4, i) * 8),
   },
 }));
 

@@ -36,18 +36,19 @@ export function addSocketToServer(httpServer: HttpServer) {
     if (!socket.name) {
       return;
     }
-    console.log("New socket!", socket.name);
+    console.log(socket.name, "join the game");
 
     socket.join("public");
 
     socket.on("disconnect", (reason) => {
+      console.log(socket.name, "left the game");
       listClients();
     });
     socket.on("chat", (data, callback) => {
       if (!socket.name) {
         return;
       }
-      console.log(socket.name, data);
+      console.log(socket.name, data.message);
       const message = {
         id: chatIdNumber++,
         message: data.message.trim(),
@@ -68,7 +69,7 @@ export function addSocketToServer(httpServer: HttpServer) {
 
   function listClients() {
     io.sockets.sockets.forEach((socket: ExtendedSocket, id: string) => {
-      console.log(socket.name);
+      console.log(" *", socket.name);
     });
   }
 }
