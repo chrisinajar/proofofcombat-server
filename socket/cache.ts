@@ -18,6 +18,7 @@ const chatCache: ChatMessage[] = [
     id: -1,
   },
 ];
+
 const chatCacheSize = 50;
 let currentOffset = 1;
 

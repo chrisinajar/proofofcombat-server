@@ -62,7 +62,11 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   // as heroes are saved/loaded they run through this
   // any time we add a new field we need to make sure to populate it here
   upgrade(data: PartialHero): Hero {
-    data.location = data.location ?? { x: 0, y: 0, map: "default" };
+    data.location = data.location ?? {
+      x: Math.round(Math.random() * 128),
+      y: Math.round(Math.random() * 96),
+      map: "default",
+    };
     data.gold = data.gold ?? 0;
     data.level = data.level ?? 1;
     data.experience = data.experience ?? 0;
