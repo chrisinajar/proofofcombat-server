@@ -31,6 +31,27 @@ const MONSTERS: Monster[] = [
   "Half-red dragon veteran",
   "Air Elemental",
   "Troll",
+  "Ogre zombie",
+  "Griffon",
+  "Grick alpha",
+  "Young black dragon",
+  "Drow mage",
+  "Flesh Golem",
+  "Werebear",
+  "Mezzoloth",
+  "Green slaad",
+  "Spirit naga",
+  "Chain devil",
+  "Hydra",
+  "Marilith",
+  "Githyanki knight",
+  "Iron golem",
+  "Adult blue dragon",
+  "Goristro",
+  "Fire Giant",
+  "Nycaloth",
+  "Yochlol",
+  "Demilich",
 ].map((name, i) => ({
   id: name,
 
@@ -73,7 +94,7 @@ const resolvers: Resolvers = {
       const experienceRewards = Math.round(
         Math.min(
           hero.needed / 3,
-          (monster.monster.level + Math.pow(1.9, monster.monster.level)) * 10
+          (monster.monster.level + Math.pow(1.7, monster.monster.level)) * 10
         )
       );
 
@@ -87,6 +108,7 @@ const resolvers: Resolvers = {
           console.log(monster.monster.name, "killed", hero.name);
         }
       }
+
       if (fightResult.heroDamage) {
         monster.monster.combat.health = Math.max(
           0,

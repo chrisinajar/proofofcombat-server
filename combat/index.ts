@@ -25,14 +25,15 @@ type AttackAttributes = {
   damage: Attribute;
   dodge: Attribute;
 };
+
 function createMonsterStats(monster: Monster): Attributes {
   return {
-    strength: monster.combat.maxHealth / 2,
-    dexterity: monster.combat.maxHealth / 2,
-    constitution: monster.combat.maxHealth / 2,
-    intelligence: monster.combat.maxHealth / 2,
-    wisdom: monster.combat.maxHealth / 2,
-    charisma: monster.combat.maxHealth / 2,
+    strength: monster.combat.maxHealth,
+    dexterity: monster.combat.maxHealth,
+    constitution: monster.combat.maxHealth,
+    intelligence: monster.combat.maxHealth,
+    wisdom: monster.combat.maxHealth,
+    charisma: monster.combat.maxHealth,
   };
 }
 
@@ -91,10 +92,20 @@ function didHit(
   victim: Attributes
 ): boolean {
   const attackAttributes = attributesForAttack(attackType);
-  return (
-    attacker[attackAttributes.toHit] + randomNumber(0, 20) >
-    victim[attackAttributes.dodge]
-  );
+
+  // rarely massive, 1 when even, 0.5 when dodge is double, etc
+  // "how many times bigger is attack than dodge"
+  const baseChange =
+    attacker[attackAttributes.toHit] / victim[attackAttributes.dodge];
+
+  const oddBase = ((baseChange - 1) / baseChange + 1) / 2;
+
+  if (oddBase < 0) {
+    // attacker has less than half the attackers dodge stat
+    return Math.random() * Math.random() * Math.random() * 100 + oddBase > 0;
+  }
+
+  return Math.random() < oddBase;
 }
 
 export async function fightMonster(
@@ -145,7 +156,15 @@ export async function fightMonster(
     });
   }
 
-  const monsterAttackType = AttackType.Melee;
+  const attackOptions = [
+    AttackType.Blood,
+    AttackType.Holy,
+    AttackType.Wizard,
+    AttackType.Elemental,
+    AttackType.Ranged,
+    AttackType.Melee,
+  ];
+  const monsterAttackType = attackOptions[monster.level % attackOptions.length];
   const monsterAttributeTypes = attributesForAttack(monsterAttackType);
   const monsterDidHit =
     heroDamage < monster.combat.health &&
