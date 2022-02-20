@@ -8,6 +8,24 @@ export default gql`
   type Mutation {
     heal: HealResponse! @auth @delay(delay: 1000)
     move(direction: MoveDirection!): MoveResponse! @auth @delay(delay: 1000)
+    increaseAttribute(attribute: AttributeType!): LevelUpResponse!
+      @auth
+      @delay(delay: 1000)
+  }
+
+  type LevelUpResponse {
+    hero: Hero!
+    account: BaseAccount!
+  }
+
+  enum AttributeType {
+    strength
+    dexterity
+    constitution
+    intelligence
+    wisdom
+    charisma
+    luck
   }
 
   enum MoveDirection {
@@ -30,6 +48,7 @@ export default gql`
 
   type Hero implements BaseModel {
     id: ID!
+    version: Int!
     name: String!
 
     level: Int!
@@ -37,6 +56,7 @@ export default gql`
     needed: Int!
     gold: Int!
     location: Location!
+    attributePoints: Int!
 
     combat: HeroCombatStats!
     stats: HeroStats!

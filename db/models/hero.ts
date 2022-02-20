@@ -5,7 +5,15 @@ type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
 type PartialHero = Optional<
   Hero,
-  "combat" | "stats" | "level" | "experience" | "gold" | "location" | "needed"
+  | "version"
+  | "combat"
+  | "stats"
+  | "level"
+  | "experience"
+  | "gold"
+  | "location"
+  | "needed"
+  | "attributePoints"
 >;
 
 export default class HeroModel extends DatabaseInterface<Hero> {
@@ -33,23 +41,31 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     const startingExperience = hero.experience;
     let newExperience = hero.experience + experience;
     const experienceNeeded = this.experienceNeededForLevel(level);
+    // LEVEL UP
     if (newExperience >= experienceNeeded) {
-      // we never over-level
       newExperience = experienceNeeded;
-      hero.stats.strength += this.luckRoll(hero.stats.luck, 0, 1);
-      hero.stats.dexterity += this.luckRoll(hero.stats.luck, 0, 1);
-      hero.stats.constitution += this.luckRoll(hero.stats.luck, 0, 1);
-      hero.stats.intelligence += this.luckRoll(hero.stats.luck, 0, 1);
-      hero.stats.wisdom += this.luckRoll(hero.stats.luck, 0, 1);
-      hero.stats.charisma += this.luckRoll(hero.stats.luck, 0, 1);
-      hero.stats.luck += this.luckRoll(2, 0, 1);
-      hero.level = hero.level + 1;
-
-      hero = this.recalculateStats(hero);
-      hero.combat.health = hero.combat.maxHealth;
+      hero = this.levelUp(hero);
     }
 
     hero.experience = newExperience;
+
+    return hero;
+  }
+
+  levelUp(hero: Hero): Hero {
+    // we never over-level
+    hero.stats.strength += this.luckRoll(hero.stats.luck, 0, 1);
+    hero.stats.dexterity += this.luckRoll(hero.stats.luck, 0, 1);
+    hero.stats.constitution += this.luckRoll(hero.stats.luck, 0, 1);
+    hero.stats.intelligence += this.luckRoll(hero.stats.luck, 0, 1);
+    hero.stats.wisdom += this.luckRoll(hero.stats.luck, 0, 1);
+    hero.stats.charisma += this.luckRoll(hero.stats.luck, 0, 1);
+    hero.stats.luck += this.luckRoll(2, 0, 1);
+    hero.level = hero.level + 1;
+    hero.attributePoints = hero.attributePoints + 1;
+
+    hero = this.recalculateStats(hero);
+    hero.combat.health = hero.combat.maxHealth;
 
     return hero;
   }
@@ -88,6 +104,20 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
         luck: 5,
       };
+    }
+
+    // numbered versions!
+    if (!data.version) {
+      data.version = 0;
+    }
+    if (data.version < 1) {
+      // first version, this is right before stat allocations came out
+      data.attributePoints = (data.level - 1) * 2; // could be level 1 - 1 = 0
+
+      data.version = 1;
+    }
+    if (data.version < 2) {
+      // future
     }
     return this.recalculateStats(data as Hero);
   }

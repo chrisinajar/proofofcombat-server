@@ -7,12 +7,51 @@ import {
   MonsterInstance,
   MoveResponse,
   MoveDirection,
+  BaseAccount,
+  LevelUpResponse,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
 const resolvers: Resolvers = {
   Query: {},
   Mutation: {
+    async increaseAttribute(
+      parent,
+      args,
+      context: BaseContext
+    ): Promise<LevelUpResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      let hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      if (hero.attributePoints <= 0) {
+        return {
+          hero,
+          account,
+        };
+      }
+
+      if (!hero.stats[args.attribute]) {
+        return {
+          hero,
+          account,
+        };
+      }
+
+      hero.stats[args.attribute] = hero.stats[args.attribute] + 1;
+      hero.attributePoints = hero.attributePoints - 1;
+      hero = context.db.hero.recalculateStats(hero);
+
+      await context.db.hero.put(hero);
+
+      return {
+        hero,
+        account,
+      };
+    },
     async heal(parent, args, context: BaseContext): Promise<HealResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
