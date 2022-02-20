@@ -4,6 +4,8 @@ import {
   Monster,
   CombatEntry,
   AttackType,
+  HeroStats,
+  Attributes,
 } from "types/graphql";
 
 type MonsterHeroCombatResult = {
@@ -17,29 +19,82 @@ type MonsterHeroCombatResult = {
 function randomNumber(min: number, max: number) {
   return Math.round(Math.random() * (max - min) + min);
 }
+type Attribute = keyof Attributes;
+type AttackAttributes = {
+  toHit: Attribute;
+  damage: Attribute;
+  dodge: Attribute;
+};
+function createMonsterStats(monster: Monster): Attributes {
+  return {
+    strength: monster.level + 10,
+    dexterity: monster.level + 10,
+    constitution: monster.level + 10,
+    intelligence: monster.level + 10,
+    wisdom: monster.level + 10,
+    charisma: monster.level + 10,
+  };
+}
 
-function didHit(hero: Hero, attackType: AttackType, monster: Monster): boolean {
+function attributesForAttack(attackType: AttackType): AttackAttributes {
   switch (attackType) {
     case AttackType.Blood:
-      return hero.stats.constitution + randomNumber(0, 20) > monster.level + 10;
+      return {
+        toHit: "constitution",
+        damage: "constitution",
+        dodge: "constitution",
+      };
       break;
     case AttackType.Holy:
-      return hero.stats.charisma + randomNumber(0, 20) > monster.level + 10;
+      return {
+        toHit: "charisma",
+        damage: "charisma",
+        dodge: "intelligence",
+      };
       break;
     case AttackType.Wizard:
-      return hero.stats.intelligence + randomNumber(0, 20) > monster.level + 10;
+      return {
+        toHit: "intelligence",
+        damage: "intelligence",
+        dodge: "wisdom",
+      };
       break;
     case AttackType.Elemental:
-      return hero.stats.wisdom + randomNumber(0, 20) > monster.level + 10;
+      return {
+        toHit: "wisdom",
+        damage: "wisdom",
+        dodge: "dexterity",
+      };
       break;
     case AttackType.Ranged:
-      return hero.stats.dexterity + randomNumber(0, 20) > monster.level + 10;
+      return {
+        toHit: "dexterity",
+        damage: "dexterity",
+        dodge: "dexterity",
+      };
       break;
     case AttackType.Melee:
     default:
-      return hero.stats.strength + randomNumber(0, 20) > monster.level + 10;
+      return {
+        toHit: "strength",
+        damage: "strength",
+        dodge: "constitution",
+      };
       break;
   }
+}
+
+// D20 needs to scale with stats, these values will enter the 10's of thousands, if not millions
+function didHit(
+  attacker: Attributes,
+  attackType: AttackType,
+  victim: Attributes
+): boolean {
+  const attackAttributes = attributesForAttack(attackType);
+  return (
+    attacker[attackAttributes.toHit] + randomNumber(0, 20) >
+    victim[attackAttributes.dodge]
+  );
 }
 
 export async function fightMonster(
@@ -50,13 +105,16 @@ export async function fightMonster(
   const { monster } = monsterInstance;
   const battleResults: CombatEntry[] = [];
   const heroAttackType = attackType;
-  const heroDidHit =
-    hero.stats.strength + randomNumber(0, 20) > monster.level + 10;
+  const heroAttributeTypes = attributesForAttack(heroAttackType);
+  const heroAttributes = hero.stats;
+  const monsterAttributes = createMonsterStats(monster);
+  const heroDidHit = didHit(heroAttributes, heroAttackType, monsterAttributes);
   let heroDamage = 0;
 
   if (heroDidHit) {
     heroDamage = Math.round(
-      randomNumber(1, 5) * Math.max(1, hero.stats.strength - monster.level)
+      randomNumber(1, 5) *
+        Math.max(1, hero.stats[heroAttributeTypes.damage] - monster.level)
     );
     battleResults.push({
       attackType: heroAttackType,
@@ -87,19 +145,21 @@ export async function fightMonster(
     });
   }
 
-  const monasterAttackType = AttackType.Melee;
+  const monsterAttackType = AttackType.Melee;
+  const monsterAttributeTypes = attributesForAttack(monsterAttackType);
   const monsterDidHit =
     heroDamage < monster.combat.health &&
-    monster.level * 10 + randomNumber(0, 20) > hero.stats.dexterity;
+    didHit(monsterAttributes, monsterAttackType, heroAttributes);
+
   let monsterDamage = 0;
 
   if (monsterDidHit) {
     monsterDamage = Math.round(
-      randomNumber(monster.level, monster.combat.maxHealth)
+      randomNumber(monster.combat.maxHealth / 2, monster.combat.maxHealth)
     );
 
     battleResults.push({
-      attackType: monasterAttackType,
+      attackType: monsterAttackType,
       damage: monsterDamage,
       success: true,
       from: monster.name,
@@ -114,11 +174,11 @@ export async function fightMonster(
       hero.name,
       `(${hero.level})`,
       "with",
-      monasterAttackType
+      monsterAttackType
     );
   } else {
     battleResults.push({
-      attackType: monasterAttackType,
+      attackType: monsterAttackType,
       damage: 0,
       success: false,
       from: monster.name,

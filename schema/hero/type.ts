@@ -47,7 +47,7 @@ export default gql`
     maxHealth: Int!
   }
 
-  type HeroStats {
+  type HeroStats implements Attributes {
     strength: Int!
     dexterity: Int!
     constitution: Int!

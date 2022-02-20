@@ -9,4 +9,14 @@ export default gql`
     health: Int!
     maxHealth: Int!
   }
+
+  interface Attributes {
+    strength: Int!
+    dexterity: Int!
+    constitution: Int!
+
+    intelligence: Int!
+    wisdom: Int!
+    charisma: Int!
+  }
 `;

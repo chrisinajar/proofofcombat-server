@@ -70,7 +70,9 @@ const resolvers: Resolvers = {
       const attackType: AttackType = args.attackType || AttackType.Melee;
 
       const fightResult = await fightMonster(hero, monster, attackType);
-      const experienceRewards = monster.monster.level * 10;
+      const experienceRewards = Math.round(
+        Math.pow(1.3, monster.monster.level) * 10
+      );
 
       if (fightResult.monsterDamage) {
         hero.combat.health = Math.max(
