@@ -4,9 +4,17 @@ type ChatMessage = {
   id: number;
 };
 
-const chatCache: ChatMessage[] = [];
+const serverStartTime = new Date();
+
+const chatCache: ChatMessage[] = [
+  {
+    from: `${serverStartTime.toLocaleDateString()}`,
+    message: `Server booted up at ${serverStartTime.toLocaleTimeString()} 🚀`,
+    id: -1,
+  },
+];
 const chatCacheSize = 50;
-let currentOffset = 0;
+let currentOffset = 1;
 
 export function addChatMessage(message: ChatMessage) {
   if (!chatCache[currentOffset]) {
