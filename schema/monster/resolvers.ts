@@ -71,7 +71,10 @@ const resolvers: Resolvers = {
 
       const fightResult = await fightMonster(hero, monster, attackType);
       const experienceRewards = Math.round(
-        (monster.monster.level + Math.pow(2, monster.monster.level)) * 10
+        Math.min(
+          hero.needed / 3,
+          (monster.monster.level + Math.pow(2, monster.monster.level)) * 10
+        )
       );
 
       if (fightResult.monsterDamage) {
