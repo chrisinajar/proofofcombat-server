@@ -58,8 +58,8 @@ const MONSTERS: Monster[] = [
   level: i + 1,
   name: name,
   combat: {
-    health: Math.ceil(Math.pow(1.3, i) * 10),
-    maxHealth: Math.ceil(Math.pow(1.3, i) * 10),
+    health: Math.ceil(Math.pow(1.3, i) * 10) - 5,
+    maxHealth: Math.ceil(Math.pow(1.3, i) * 10) - 5,
   },
 }));
 
