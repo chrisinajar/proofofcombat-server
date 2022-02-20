@@ -27,12 +27,12 @@ type AttackAttributes = {
 };
 function createMonsterStats(monster: Monster): Attributes {
   return {
-    strength: monster.level + 10,
-    dexterity: monster.level + 10,
-    constitution: monster.level + 10,
-    intelligence: monster.level + 10,
-    wisdom: monster.level + 10,
-    charisma: monster.level + 10,
+    strength: monster.combat.maxHealth,
+    dexterity: monster.combat.maxHealth,
+    constitution: monster.combat.maxHealth,
+    intelligence: monster.combat.maxHealth,
+    wisdom: monster.combat.maxHealth,
+    charisma: monster.combat.maxHealth,
   };
 }
 
