@@ -156,19 +156,10 @@ export async function fightMonster(
     });
   }
 
-  const attackOptions = [
-    AttackType.Holy,
-    AttackType.Melee,
-    AttackType.Ranged,
-    AttackType.Wizard,
-    AttackType.Elemental,
-    AttackType.Blood,
-  ];
-  const monsterAttackType = attackOptions[monster.level % attackOptions.length];
-  const monsterAttributeTypes = attributesForAttack(monsterAttackType);
+  const monsterAttributeTypes = attributesForAttack(monster.attackType);
   const monsterDidHit =
     heroDamage < monster.combat.health &&
-    didHit(monsterAttributes, monsterAttackType, heroAttributes);
+    didHit(monsterAttributes, monster.attackType, heroAttributes);
 
   let monsterDamage = 0;
 
@@ -182,7 +173,7 @@ export async function fightMonster(
     );
 
     battleResults.push({
-      attackType: monsterAttackType,
+      attackType: monster.attackType,
       damage: monsterDamage,
       success: true,
       from: monster.name,
@@ -197,11 +188,11 @@ export async function fightMonster(
       hero.name,
       `(${hero.level})`,
       "with",
-      monsterAttackType
+      monster.attackType
     );
   } else {
     battleResults.push({
-      attackType: monsterAttackType,
+      attackType: monster.attackType,
       damage: 0,
       success: false,
       from: monster.name,

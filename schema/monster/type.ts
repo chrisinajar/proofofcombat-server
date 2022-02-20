@@ -37,6 +37,7 @@ export default gql`
     level: Int!
 
     combat: MonsterCombatStats!
+    attackType: AttackType!
   }
 
   type MonsterCombatStats implements ComatStats {
