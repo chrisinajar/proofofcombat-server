@@ -174,7 +174,11 @@ export async function fightMonster(
 
   if (monsterDidHit) {
     monsterDamage = Math.round(
-      randomNumber(monster.combat.maxHealth / 2, monster.combat.maxHealth)
+      randomNumber(1, 5) *
+        Math.max(
+          1,
+          monsterAttributes[monsterAttributeTypes.damage] - hero.level
+        )
     );
 
     battleResults.push({
