@@ -1,3 +1,5 @@
+import { serverBootMessages } from "./motd";
+
 type ChatMessage = {
   message: string;
   from: string;
@@ -6,15 +8,22 @@ type ChatMessage = {
 
 const serverStartTime = new Date();
 
+const randomStartupMessage =
+  serverBootMessages[Math.floor(serverBootMessages.length * Math.random())];
+
 const chatCache: ChatMessage[] = [
+  {
+    from: randomStartupMessage.from,
+    message: randomStartupMessage.message,
+    id: -2,
+  },
   {
     from: `${serverStartTime.toLocaleDateString("en-US", {
       timeZone: "America/Los_Angeles",
-    })}`,
-    message: `Server booted up at ${serverStartTime.toLocaleTimeString(
-      "en-US",
-      { timeZone: "America/Los_Angeles" }
-    )} PST 🚀`,
+    })} ${serverStartTime.toLocaleTimeString("en-US", {
+      timeZone: "America/Los_Angeles",
+    })} PST`,
+    message: `Server booted up 🚀`,
     id: -1,
   },
 ];
