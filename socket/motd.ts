@@ -33,6 +33,6 @@ export const serverBootMessages = [
   },
   {
     from: "Traveling Bandit",
-    message: "This game has updates than wordle! :thinking_face:",
+    message: "This game has more updates than wordle! :thinking_face:",
   },
 ];
