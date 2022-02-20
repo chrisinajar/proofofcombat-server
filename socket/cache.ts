@@ -8,8 +8,13 @@ const serverStartTime = new Date();
 
 const chatCache: ChatMessage[] = [
   {
-    from: `${serverStartTime.toLocaleDateString()}`,
-    message: `Server booted up at ${serverStartTime.toLocaleTimeString()} 🚀`,
+    from: `${serverStartTime.toLocaleDateString("en-US", {
+      timeZone: "America/Los_Angeles",
+    })}`,
+    message: `Server booted up at ${serverStartTime.toLocaleTimeString(
+      "en-US",
+      { timeZone: "America/Los_Angeles" }
+    )} 🚀`,
     id: -1,
   },
 ];
