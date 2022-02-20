@@ -45,6 +45,8 @@ const resolvers: Resolvers = {
       hero.attributePoints = hero.attributePoints - 1;
       hero = context.db.hero.recalculateStats(hero);
 
+      console.log(hero.name, "increasing their", args.attribute);
+
       await context.db.hero.put(hero);
 
       return {
