@@ -9,8 +9,6 @@ type ExtendedSocket = Socket & {
   name?: string;
 };
 
-let chatIdNumber = 0;
-
 export function addSocketToServer(httpServer: HttpServer) {
   const io = new Server(httpServer, {
     cors: {
@@ -44,17 +42,15 @@ export function addSocketToServer(httpServer: HttpServer) {
       console.log(socket.name, "left the game");
       listClients();
     });
-    socket.on("chat", (data, callback) => {
+    socket.on("chat", async (data, callback) => {
       if (!socket.name) {
         return;
       }
       console.log(socket.name, data.message);
-      const message = {
-        id: chatIdNumber++,
+      const message = await addChatMessage({
         message: data.message.trim(),
         from: socket.name,
-      };
-      addChatMessage(message);
+      });
       socket.broadcast.emit("chat", message);
 
       callback(message);

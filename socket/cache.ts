@@ -1,43 +1,65 @@
+import { ChatMessage } from "../db/models/system";
+import Databases from "../db";
 import { serverBootMessages } from "./motd";
 
-type ChatMessage = {
-  message: string;
-  from: string;
-  id: number;
-};
+let chatIdNumber = 0;
 
-const serverStartTime = new Date();
+async function loadCacheCache() {
+  console.log("Loading chat cache...");
+  const systemData = await Databases.system.getSystemSettings();
 
-const randomStartupMessage =
-  serverBootMessages[Math.floor(serverBootMessages.length * Math.random())];
+  chatCache = systemData.chat.map((chat) => {
+    chat.id = chatIdNumber++;
+    return chat;
+  });
+  currentOffset = systemData.currentOffset;
 
-const chatCache: ChatMessage[] = [
-  {
-    from: randomStartupMessage.from,
-    message: randomStartupMessage.message,
-    id: -2,
-  },
-  {
+  addChatMessage({
     from: `${serverStartTime.toLocaleDateString("en-US", {
       timeZone: "America/Los_Angeles",
     })} ${serverStartTime.toLocaleTimeString("en-US", {
       timeZone: "America/Los_Angeles",
     })} PST`,
     message: `Server booted up 🚀`,
-    id: -1,
-  },
-];
+  });
+  addChatMessage({
+    from: randomStartupMessage.from,
+    message: randomStartupMessage.message,
+  });
+}
+
+const serverStartTime = new Date();
+
+const randomStartupMessage =
+  serverBootMessages[Math.floor(serverBootMessages.length * Math.random())];
+
+let chatCache: ChatMessage[] = [];
 
 const chatCacheSize = 50;
-let currentOffset = 1;
+let currentOffset = 0;
 
-export function addChatMessage(message: ChatMessage) {
+export async function addChatMessage(
+  partialMessage: Omit<ChatMessage, "id">
+): Promise<ChatMessage> {
+  const message: ChatMessage = {
+    ...partialMessage,
+    id: chatIdNumber++,
+  };
   if (!chatCache[currentOffset]) {
     chatCache.push(message);
   } else {
     chatCache[currentOffset] = message;
   }
   currentOffset = (currentOffset + 1) % chatCacheSize;
+
+  const systemData = await Databases.system.getSystemSettings();
+
+  systemData.chat = chatCache;
+  systemData.currentOffset = currentOffset;
+
+  await Databases.system.put(systemData);
+
+  return message;
 }
 
 export function getChatCache(): ChatMessage[] {
@@ -49,3 +71,5 @@ export function getChatCache(): ChatMessage[] {
 
   return result.reverse();
 }
+
+loadCacheCache();
