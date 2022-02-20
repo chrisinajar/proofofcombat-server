@@ -14,7 +14,7 @@ const chatCache: ChatMessage[] = [
     message: `Server booted up at ${serverStartTime.toLocaleTimeString(
       "en-US",
       { timeZone: "America/Los_Angeles" }
-    )} 🚀`,
+    )} PST 🚀`,
     id: -1,
   },
 ];
