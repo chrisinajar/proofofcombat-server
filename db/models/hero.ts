@@ -45,9 +45,9 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     if (newExperience >= experienceNeeded) {
       newExperience = experienceNeeded;
       hero = this.levelUp(hero);
+    } else {
+      hero.experience = newExperience;
     }
-
-    hero.experience = newExperience;
 
     return hero;
   }
