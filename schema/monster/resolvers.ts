@@ -73,7 +73,7 @@ const resolvers: Resolvers = {
       const experienceRewards = Math.round(
         Math.min(
           hero.needed / 3,
-          (monster.monster.level + Math.pow(2, monster.monster.level)) * 10
+          (monster.monster.level + Math.pow(1.9, monster.monster.level)) * 10
         )
       );
 
