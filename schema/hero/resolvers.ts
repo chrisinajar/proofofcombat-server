@@ -127,7 +127,14 @@ const resolvers: Resolvers = {
           "You do not have permission to access that hero"
         );
       }
-      return context.db.hero.get(parent.id);
+      try {
+        return await context.db.hero.get(parent.id);
+      } catch (e: any) {
+        if (e.type === "NotFoundError") {
+          return context.db.hero.create(parent);
+        }
+        throw e;
+      }
     },
   },
 };
