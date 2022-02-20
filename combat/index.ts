@@ -28,12 +28,12 @@ type AttackAttributes = {
 
 function createMonsterStats(monster: Monster): Attributes {
   return {
-    strength: monster.combat.maxHealth,
-    dexterity: monster.combat.maxHealth,
-    constitution: monster.combat.maxHealth,
-    intelligence: monster.combat.maxHealth,
-    wisdom: monster.combat.maxHealth,
-    charisma: monster.combat.maxHealth,
+    strength: monster.combat.maxHealth - 5,
+    dexterity: monster.combat.maxHealth - 5,
+    constitution: monster.combat.maxHealth - 5,
+    intelligence: monster.combat.maxHealth - 5,
+    wisdom: monster.combat.maxHealth - 5,
+    charisma: monster.combat.maxHealth - 5,
   };
 }
 
@@ -157,12 +157,12 @@ export async function fightMonster(
   }
 
   const attackOptions = [
+    AttackType.Holy,
     AttackType.Melee,
     AttackType.Ranged,
     AttackType.Wizard,
     AttackType.Elemental,
     AttackType.Blood,
-    AttackType.Holy,
   ];
   const monsterAttackType = attackOptions[monster.level % attackOptions.length];
   const monsterAttributeTypes = attributesForAttack(monsterAttackType);
