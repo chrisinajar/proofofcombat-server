@@ -1,4 +1,10 @@
-import { Hero, MonsterInstance, CombatEntry, AttackType } from "types/graphql";
+import {
+  Hero,
+  MonsterInstance,
+  Monster,
+  CombatEntry,
+  AttackType,
+} from "types/graphql";
 
 type MonsterHeroCombatResult = {
   monsterDamage: number;
@@ -12,13 +18,38 @@ function randomNumber(min: number, max: number) {
   return Math.round(Math.random() * (max - min) + min);
 }
 
+function didHit(hero: Hero, attackType: AttackType, monster: Monster): boolean {
+  switch (attackType) {
+    case AttackType.Blood:
+      return hero.stats.constitution + randomNumber(0, 20) > monster.level + 10;
+      break;
+    case AttackType.Holy:
+      return hero.stats.charisma + randomNumber(0, 20) > monster.level + 10;
+      break;
+    case AttackType.Wizard:
+      return hero.stats.intelligence + randomNumber(0, 20) > monster.level + 10;
+      break;
+    case AttackType.Elemental:
+      return hero.stats.wisdom + randomNumber(0, 20) > monster.level + 10;
+      break;
+    case AttackType.Ranged:
+      return hero.stats.dexterity + randomNumber(0, 20) > monster.level + 10;
+      break;
+    case AttackType.Melee:
+    default:
+      return hero.stats.strength + randomNumber(0, 20) > monster.level + 10;
+      break;
+  }
+}
+
 export async function fightMonster(
   hero: Hero,
-  monsterInstance: MonsterInstance
+  monsterInstance: MonsterInstance,
+  attackType: AttackType
 ): Promise<MonsterHeroCombatResult> {
   const { monster } = monsterInstance;
   const battleResults: CombatEntry[] = [];
-  const heroAttackType = AttackType.Melee;
+  const heroAttackType = attackType;
   const heroDidHit =
     hero.stats.strength + randomNumber(0, 20) > monster.level + 10;
   let heroDamage = 0;

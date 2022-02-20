@@ -5,6 +5,7 @@ import {
   Monster,
   MonsterInstance,
   FightResult,
+  AttackType,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -66,8 +67,9 @@ const resolvers: Resolvers = {
       }
 
       const startLevel = hero.level;
+      const attackType: AttackType = args.attackType || AttackType.Melee;
 
-      const fightResult = await fightMonster(hero, monster);
+      const fightResult = await fightMonster(hero, monster, attackType);
       const experienceRewards = monster.monster.level * 10;
 
       if (fightResult.monsterDamage) {
