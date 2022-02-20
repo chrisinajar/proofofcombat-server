@@ -31,4 +31,8 @@ export const serverBootMessages = [
     from: "dutchie",
     message: "We're hiring 👌",
   },
+  {
+    from: "Traveling Bandit",
+    message: "This game has updates than wordle! :thinking_face:",
+  },
 ];
