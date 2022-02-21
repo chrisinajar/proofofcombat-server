@@ -231,8 +231,12 @@ function calculateDamage(
 
 function addItemToCombatant(
   combatant: Combatant,
-  item: InventoryItem
+  item: InventoryItem,
+  attackType: AttackType
 ): Combatant {
+  if (!doesWeaponAffectAttack(item, attackType)) {
+    return combatant;
+  }
   if (
     item.type === InventoryItemType.MeleeWeapon ||
     item.type === InventoryItemType.RangedWeapon
@@ -243,6 +247,65 @@ function addItemToCombatant(
   }
 
   return combatant;
+}
+
+function doesWeaponAffectAttack(
+  weapon: InventoryItem,
+  attackType: AttackType
+): boolean {
+  switch (attackType) {
+    case AttackType.Blood:
+      if (
+        weapon.type === InventoryItemType.RangedWeapon ||
+        weapon.type === InventoryItemType.MeleeWeapon
+      ) {
+        return false;
+      }
+      break;
+    case AttackType.Holy:
+      if (
+        weapon.type === InventoryItemType.MeleeWeapon ||
+        weapon.type === InventoryItemType.RangedWeapon
+      ) {
+        return false;
+      }
+      break;
+    case AttackType.Wizard:
+      if (
+        weapon.type === InventoryItemType.MeleeWeapon ||
+        weapon.type === InventoryItemType.RangedWeapon
+      ) {
+        return false;
+      }
+      break;
+    case AttackType.Elemental:
+      if (
+        weapon.type === InventoryItemType.MeleeWeapon ||
+        weapon.type === InventoryItemType.RangedWeapon
+      ) {
+        return false;
+      }
+      break;
+    case AttackType.Ranged:
+      if (
+        weapon.type === InventoryItemType.MeleeWeapon ||
+        weapon.type === InventoryItemType.SpellFocus
+      ) {
+        return false;
+      }
+      break;
+    case AttackType.Melee:
+      if (
+        weapon.type === InventoryItemType.SpellFocus ||
+        weapon.type === InventoryItemType.RangedWeapon
+      ) {
+        return false;
+      }
+      break;
+    default:
+      break;
+  }
+  return true;
 }
 
 export async function fightMonster(
@@ -277,25 +340,25 @@ export async function fightMonster(
   };
 
   if (hero.equipment.leftHand) {
-    addItemToCombatant(heroCombatant, hero.equipment.leftHand);
+    addItemToCombatant(heroCombatant, hero.equipment.leftHand, heroAttackType);
   }
   if (hero.equipment.rightHand) {
-    addItemToCombatant(heroCombatant, hero.equipment.rightHand);
+    addItemToCombatant(heroCombatant, hero.equipment.rightHand, heroAttackType);
   }
   if (hero.equipment.bodyArmor) {
-    addItemToCombatant(heroCombatant, hero.equipment.bodyArmor);
+    addItemToCombatant(heroCombatant, hero.equipment.bodyArmor, heroAttackType);
   }
   if (hero.equipment.handArmor) {
-    addItemToCombatant(heroCombatant, hero.equipment.handArmor);
+    addItemToCombatant(heroCombatant, hero.equipment.handArmor, heroAttackType);
   }
   if (hero.equipment.legArmor) {
-    addItemToCombatant(heroCombatant, hero.equipment.legArmor);
+    addItemToCombatant(heroCombatant, hero.equipment.legArmor, heroAttackType);
   }
   if (hero.equipment.headArmor) {
-    addItemToCombatant(heroCombatant, hero.equipment.headArmor);
+    addItemToCombatant(heroCombatant, hero.equipment.headArmor, heroAttackType);
   }
   if (hero.equipment.footArmor) {
-    addItemToCombatant(heroCombatant, hero.equipment.footArmor);
+    addItemToCombatant(heroCombatant, hero.equipment.footArmor, heroAttackType);
   }
 
   const monsterCombatant = {
