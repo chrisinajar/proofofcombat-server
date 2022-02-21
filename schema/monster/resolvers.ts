@@ -128,17 +128,18 @@ const resolvers: Resolvers = {
 
       // victory
       if (fightResult.monsterDied) {
-        console.log(hero.name, "killed a", monster.monster.name);
+        console.log(hero.name, "killed a", monster.monster.name, goldReward);
         context.db.hero.addExperience(hero, experienceRewards);
         hero.gold = hero.gold + goldReward;
 
         // drop chances!!
         const luck = hero.stats.luck;
         const monsterAntiLuck = goldReward;
-        const dropOdds = luck / (luck + monsterAntiLuck);
+        const dropOdds = luck / (luck + monsterAntiLuck) / 10;
         if (Math.random() < dropOdds) {
           console.log(" DROP!! Odds:", {
             luck,
+            monsterAntiLuck,
             dropOdds: Math.round(dropOdds * 1000) / 1000,
           });
 
