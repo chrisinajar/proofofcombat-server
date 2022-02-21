@@ -159,6 +159,9 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       };
       data.version = 2;
     }
+    data.gold = Math.round(data.gold);
+    data.experience = Math.round(data.experience);
+
     return this.recalculateStats(data as Hero);
   }
 

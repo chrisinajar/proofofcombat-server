@@ -103,6 +103,9 @@ const resolvers: Resolvers = {
       }
       const baseItem = BaseItems[baseItemName];
 
+      if (!baseItem.cost) {
+        throw new UserInputError("Item cannot be bought!");
+      }
       if (baseItem.cost > hero.gold) {
         throw new UserInputError("You do not have enough gold for that item!");
       }
@@ -121,6 +124,60 @@ const resolvers: Resolvers = {
         account,
       };
     },
+    async sell(parent, args, context: BaseContext): Promise<LevelUpResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      const itemId: string = args.item;
+      const item: InventoryItem | undefined = hero.inventory.find(
+        (item: InventoryItem) => item.id === itemId
+      );
+
+      console.log(item);
+
+      if (!item) {
+        throw new UserInputError(`Unknown item: ${itemId}`);
+      }
+      const baseItem = BaseItems[item.baseItem];
+
+      if (!baseItem.cost) {
+        throw new UserInputError("Item cannot be sold!");
+      }
+      if (baseItem.cost > hero.gold) {
+        throw new UserInputError("You do not have enough gold for that item!");
+      }
+      console.log("Trying to sell a", item.baseItem);
+
+      if (
+        itemId === hero.equipment.leftHand?.id ||
+        itemId === hero.equipment.rightHand?.id ||
+        itemId === hero.equipment.bodyArmor?.id ||
+        itemId === hero.equipment.handArmor?.id ||
+        itemId === hero.equipment.legArmor?.id ||
+        itemId === hero.equipment.headArmor?.id ||
+        itemId === hero.equipment.footArmor?.id
+      ) {
+        throw new UserInputError("You cannot sell equipped items!");
+      }
+
+      hero.gold = hero.gold + Math.round(baseItem.cost / 3);
+
+      hero.inventory = hero.inventory.filter(
+        (item: InventoryItem) => item.id !== itemId
+      );
+
+      await context.db.hero.put(hero);
+
+      return {
+        hero,
+        account,
+      };
+    },
+
     async increaseAttribute(
       parent,
       args,
