@@ -174,23 +174,23 @@ function calculateDamage(
     return amp * (1 + weapon.level / (weapon.level + 60));
   }, percentageDamageIncrease);
 
-  console.log(
-    "base damage",
-    attacker.attributes[attributeTypes.damage],
-    percentageDamageIncrease,
-    "against DR",
-    victim.damageReduction,
-    "%DR",
-    percentageDamageReduction
-  );
+  // console.log(
+  //   "base damage",
+  //   attacker.attributes[attributeTypes.damage],
+  //   percentageDamageIncrease,
+  //   "against DR",
+  //   victim.damageReduction,
+  //   "%DR",
+  //   percentageDamageReduction
+  // );
 
-  console.log(
-    "Base result is",
-    attacker.attributes[attributeTypes.damage] *
-      percentageDamageIncrease *
-      percentageDamageReduction -
-      victim.damageReduction
-  );
+  // console.log(
+  //   "Base result is",
+  //   attacker.attributes[attributeTypes.damage] *
+  //     percentageDamageIncrease *
+  //     percentageDamageReduction -
+  //     victim.damageReduction
+  // );
 
   damage =
     (1.2 - Math.random() * (1 - attacker.luck.smallModifier)) *

@@ -84,6 +84,7 @@ const resolvers: Resolvers = {
 
       const startLevel = hero.level;
       const attackType: AttackType = args.attackType || AttackType.Melee;
+      const goldReward = monster.monster.combat.maxHealth;
 
       const fightResult = await fightMonster(hero, monster, attackType);
       const experienceRewards = Math.round(
@@ -114,7 +115,7 @@ const resolvers: Resolvers = {
       if (fightResult.monsterDied) {
         console.log(hero.name, "killed a", monster.monster.name);
         context.db.hero.addExperience(hero, experienceRewards);
-        hero.gold = hero.gold + monster.monster.combat.maxHealth;
+        hero.gold = hero.gold + goldReward;
         await context.db.monsterInstances.del(monster);
       } else {
         await context.db.monsterInstances.put(monster);
@@ -128,6 +129,7 @@ const resolvers: Resolvers = {
         monster,
         log: fightResult.log,
         victory: fightResult.monsterDied,
+        gold: fightResult.monsterDied ? goldReward : undefined,
         experience: fightResult.monsterDied ? experienceRewards : undefined,
         didLevel: hero.level !== startLevel,
       };

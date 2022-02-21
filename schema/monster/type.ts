@@ -21,6 +21,7 @@ export default gql`
     log: [CombatEntry!]!
     victory: Boolean!
     experience: Int
+    gold: Int
     didLevel: Boolean
   }
 
