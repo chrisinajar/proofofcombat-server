@@ -131,7 +131,7 @@ const resolvers: Resolvers = {
 
         // drop chances!!
         // 5% chance of drops
-        const dropOdds = 0.01 + context.db.hero.ultraLuck(hero.stats.luck);
+        const dropOdds = 0.01 + context.db.hero.ultraLuck(hero.stats.luck) / 10;
         if (Math.random() < dropOdds) {
           console.log(" DROP!! Odds:", {
             luck: hero.stats.luck,
