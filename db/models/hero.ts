@@ -41,7 +41,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     } // If the end of the iterable is reached, iterator.end() is callend.
     await iterator.end();
 
-    return resultList.slice(0, 10).reverse();
+    return resultList.reverse().slice(0, 10);
   }
 
   recalculateStats(hero: Hero): Hero {
