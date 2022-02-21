@@ -12,6 +12,7 @@ import {
   InventoryItem,
   EquipmentSlots,
   ShopItem,
+  LeadboardEntry,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -20,6 +21,20 @@ import type { BaseItem } from "./items";
 
 const resolvers: Resolvers = {
   Query: {
+    async leaderboard(
+      parent,
+      args,
+      context: BaseContext
+    ): Promise<LeadboardEntry[]> {
+      return (await context.db.hero.getTopHeros()).map<LeadboardEntry>(
+        (hero: Hero) => ({
+          name: hero.name,
+          gold: hero.gold,
+          level: hero.level,
+          id: hero.id,
+        })
+      );
+    },
     async shopItems(parent, args, context: BaseContext): Promise<ShopItem[]> {
       return Object.values<BaseItem>(BaseItems)
         .sort((a, b) => a.level - b.level)

@@ -23,6 +23,27 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     super("hero");
   }
 
+  async getTopHeros(): Promise<Hero[]> {
+    const resultList: Hero[] = [];
+    const iterator = this.db.iterate({});
+    // ? iterator.seek(...); // You can first seek if you'd like.
+    for await (const { key, value } of iterator) {
+      let index = -1;
+      resultList.forEach((hero, i) => {
+        if (hero.level < value.level) {
+          index = i;
+        }
+      });
+
+      if (resultList.length < 10 || index > -1) {
+        resultList.splice(index + 1, 0, value);
+      }
+    } // If the end of the iterable is reached, iterator.end() is callend.
+    await iterator.end();
+
+    return resultList.slice(0, 10).reverse();
+  }
+
   recalculateStats(hero: Hero): Hero {
     const healthPercentBefore = hero.combat.health / hero.combat.maxHealth;
     hero.combat.maxHealth = hero.stats.constitution * 10 + hero.level * 10;

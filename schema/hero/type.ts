@@ -3,6 +3,7 @@ import { gql } from "apollo-server";
 export default gql`
   type Query {
     shopItems: [ShopItem!]! @auth
+    leaderboard: [LeadboardEntry!]!
   }
 
   type Mutation {
@@ -14,6 +15,13 @@ export default gql`
 
     buy(baseItem: ID!): LevelUpResponse! @auth @delay(delay: 200)
     equip(item: ID!, slot: String!): LevelUpResponse! @auth @delay(delay: 200)
+  }
+
+  type LeadboardEntry {
+    id: ID!
+    name: String!
+    gold: Int!
+    level: Int!
   }
 
   type LevelUpResponse {
