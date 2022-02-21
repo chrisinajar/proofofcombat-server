@@ -22,6 +22,7 @@ export default gql`
     victory: Boolean!
     experience: Int
     gold: Int
+    drop: InventoryItem
     didLevel: Boolean
   }
 

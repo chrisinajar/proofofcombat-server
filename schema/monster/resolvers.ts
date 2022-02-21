@@ -6,6 +6,7 @@ import {
   MonsterInstance,
   FightResult,
   AttackType,
+  InventoryItem,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -123,6 +124,8 @@ const resolvers: Resolvers = {
         );
       }
 
+      let droppedItem: null | InventoryItem = null;
+
       // victory
       if (fightResult.monsterDied) {
         console.log(hero.name, "killed a", monster.monster.name);
@@ -130,12 +133,13 @@ const resolvers: Resolvers = {
         hero.gold = hero.gold + goldReward;
 
         // drop chances!!
-        // 5% chance of drops
-        const dropOdds = 0.01 + context.db.hero.ultraLuck(hero.stats.luck) / 10;
+        const luck = hero.stats.luck;
+        const monsterAntiLuck = goldReward;
+        const dropOdds = luck / (luck + monsterAntiLuck);
         if (Math.random() < dropOdds) {
           console.log(" DROP!! Odds:", {
-            luck: hero.stats.luck,
-            dropOdds: Math.round(dropOdds * 100) / 100,
+            luck,
+            dropOdds: Math.round(dropOdds * 1000) / 1000,
           });
 
           const monsterLevel = monster.monster.level;
@@ -148,6 +152,7 @@ const resolvers: Resolvers = {
           );
 
           console.log(itemInstance);
+          droppedItem = itemInstance;
           hero.inventory.push(itemInstance);
         }
 
@@ -164,6 +169,7 @@ const resolvers: Resolvers = {
         monster,
         log: fightResult.log,
         victory: fightResult.monsterDied,
+        drop: droppedItem ?? undefined,
         gold: fightResult.monsterDied ? goldReward : undefined,
         experience: fightResult.monsterDied ? experienceRewards : undefined,
         didLevel: hero.level !== startLevel,
