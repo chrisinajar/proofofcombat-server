@@ -167,11 +167,14 @@ function calculateDamage(
   let percentageDamageIncrease = 1;
 
   percentageDamageReduction = victim.equipment.armor.reduce((dr, armor) => {
-    return dr * (1 - armor.level / (armor.level + 60));
+    return dr * (1 - armor.level / (armor.level + 20));
   }, percentageDamageReduction);
 
   percentageDamageIncrease = victim.equipment.weapons.reduce((amp, weapon) => {
-    return amp * (1 + weapon.level / (weapon.level + 60));
+    return (
+      amp *
+      (1 + (weapon.level / (weapon.level + 40)) * Math.pow(1.3, weapon.level))
+    );
   }, percentageDamageIncrease);
 
   // melee does double damage
