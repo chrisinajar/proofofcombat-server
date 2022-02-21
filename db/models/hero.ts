@@ -14,6 +14,8 @@ type PartialHero = Optional<
   | "location"
   | "needed"
   | "attributePoints"
+  | "inventory"
+  | "equipment"
 >;
 
 export default class HeroModel extends DatabaseInterface<Hero> {
@@ -124,6 +126,11 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     }
     if (data.version < 2) {
       // future
+      data.inventory = [];
+      data.equipment = {
+        accessories: [],
+      };
+      data.version = 2;
     }
     return this.recalculateStats(data as Hero);
   }

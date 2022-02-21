@@ -1,4 +1,4 @@
-import { ForbiddenError } from "apollo-server";
+import { ForbiddenError, UserInputError } from "apollo-server";
 
 import {
   Resolvers,
@@ -9,12 +9,103 @@ import {
   MoveDirection,
   BaseAccount,
   LevelUpResponse,
+  InventoryItem,
+  EquipmentSlots,
+  ShopItem,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
+import { BaseItems, createItemInstance } from "./items";
+import type { BaseItem } from "./items";
+
 const resolvers: Resolvers = {
-  Query: {},
+  Query: {
+    async shopItems(parent, args, context: BaseContext): Promise<ShopItem[]> {
+      return Object.values<BaseItem>(BaseItems)
+        .sort((a, b) => a.level - b.level)
+        .map((baseItem) => ({
+          id: baseItem.id,
+          name: baseItem.name,
+          type: baseItem.type,
+          cost: baseItem.cost,
+        }));
+    },
+  },
   Mutation: {
+    async equip(parent, args, context: BaseContext): Promise<LevelUpResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      const slotNames = [
+        "leftHand",
+        "rightHand",
+        "bodyArmor",
+        "handArmor",
+        "legArmor",
+        "headArmor",
+        "footArmor",
+      ];
+
+      if (slotNames.indexOf(args.slot) < 0) {
+        throw new UserInputError("Invalid slot name!");
+      }
+
+      const inventoryItem = hero.inventory.find(
+        (item: InventoryItem) => item.id === args.item
+      );
+
+      if (!inventoryItem) {
+        throw new UserInputError("Could not find that item in your inventory!");
+      }
+
+      console.log("Equipping", inventoryItem, "to slot", args.slot);
+
+      hero.equipment[args.slot] = inventoryItem;
+
+      await context.db.hero.put(hero);
+
+      return {
+        hero,
+        account,
+      };
+    },
+    async buy(parent, args, context: BaseContext): Promise<LevelUpResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      const baseItemName: string = args.baseItem;
+
+      if (!BaseItems[baseItemName]) {
+        throw new UserInputError(`Unknown item: ${baseItemName}`);
+      }
+      const baseItem = BaseItems[baseItemName];
+
+      if (baseItem.cost > hero.gold) {
+        throw new UserInputError("You do not have enough gold for that item!");
+      }
+      console.log("Trying to buy a", baseItem);
+
+      hero.gold = hero.gold - baseItem.cost;
+
+      const itemInstance = createItemInstance(baseItem, hero);
+
+      hero.inventory.push(itemInstance);
+
+      await context.db.hero.put(hero);
+
+      return {
+        hero,
+        account,
+      };
+    },
     async increaseAttribute(
       parent,
       args,
@@ -135,6 +226,60 @@ const resolvers: Resolvers = {
         }
         throw e;
       }
+    },
+  },
+  EquipmentSlots: {
+    id(parent): string | null {
+      return parent?.id ?? null;
+    },
+  },
+  Hero: {
+    async equipment(
+      parent,
+      args,
+      context: BaseContext
+    ): Promise<EquipmentSlots> {
+      const hero = parent;
+      function findItem(
+        hero: Hero,
+        item: string | InventoryItem | undefined | null
+      ): InventoryItem | undefined {
+        if (!item) {
+          return;
+        }
+        const itemId: string = typeof item === "string" ? item : item.id;
+
+        const inventoryItem = hero.inventory.find((item) => item.id === itemId);
+        if (!inventoryItem) {
+          return;
+        }
+        if (inventoryItem.owner !== parent.id) {
+          console.log(
+            "Stray item left in inventory! I think I belong to",
+            inventoryItem.owner,
+            "but im in",
+            parent.id,
+            parent.name,
+            "inventory instead"
+          );
+          return;
+        }
+
+        return inventoryItem;
+      }
+
+      return {
+        leftHand: findItem(hero, hero.equipment.leftHand),
+        rightHand: findItem(hero, hero.equipment.rightHand),
+        bodyArmor: findItem(hero, hero.equipment.bodyArmor),
+        handArmor: findItem(hero, hero.equipment.handArmor),
+        legArmor: findItem(hero, hero.equipment.legArmor),
+        headArmor: findItem(hero, hero.equipment.headArmor),
+        footArmor: findItem(hero, hero.equipment.footArmor),
+        accessories: hero.equipment.accessories
+          .filter((item) => !!findItem(hero, item))
+          .map((item) => findItem(hero, item) as InventoryItem),
+      };
     },
   },
 };

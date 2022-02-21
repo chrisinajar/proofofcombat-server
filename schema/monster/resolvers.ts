@@ -109,14 +109,15 @@ const resolvers: Resolvers = {
           0,
           monster.monster.combat.health - fightResult.heroDamage
         );
-        if (fightResult.monsterDied) {
-          console.log(hero.name, "killed a", monster.monster.name);
-          context.db.hero.addExperience(hero, experienceRewards);
-          hero.gold = hero.gold + monster.monster.combat.maxHealth;
-          await context.db.monsterInstances.del(monster);
-        } else {
-          await context.db.monsterInstances.put(monster);
-        }
+      }
+
+      if (fightResult.monsterDied) {
+        console.log(hero.name, "killed a", monster.monster.name);
+        context.db.hero.addExperience(hero, experienceRewards);
+        hero.gold = hero.gold + monster.monster.combat.maxHealth;
+        await context.db.monsterInstances.del(monster);
+      } else {
+        await context.db.monsterInstances.put(monster);
       }
 
       await context.db.hero.put(hero);

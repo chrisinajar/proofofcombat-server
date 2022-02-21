@@ -2,7 +2,7 @@ import { gql } from "apollo-server";
 
 export default gql`
   type Query {
-    hello: String
+    shopItems: [ShopItem!]! @auth
   }
 
   type Mutation {
@@ -11,6 +11,9 @@ export default gql`
     increaseAttribute(attribute: AttributeType!): LevelUpResponse!
       @auth
       @delay(delay: 1000)
+
+    buy(baseItem: ID!): LevelUpResponse! @auth @delay(delay: 200)
+    equip(item: ID!, slot: String!): LevelUpResponse! @auth @delay(delay: 200)
   }
 
   type LevelUpResponse {
@@ -60,11 +63,34 @@ export default gql`
 
     combat: HeroCombatStats!
     stats: HeroStats!
+
+    inventory: [InventoryItem!]!
+    equipment: EquipmentSlots!
+  }
+
+  type EquipmentSlots {
+    id: ID
+    leftHand: InventoryItem
+    rightHand: InventoryItem
+    bodyArmor: InventoryItem
+    handArmor: InventoryItem
+    legArmor: InventoryItem
+    headArmor: InventoryItem
+    footArmor: InventoryItem
+    accessories: [InventoryItem!]!
+  }
+
+  type ShopItem {
+    id: ID!
+    name: String!
+    type: InventoryItemType!
+    cost: Int
   }
 
   type InventoryItem implements BaseModel {
     id: ID!
     owner: ID!
+    baseItem: ID!
 
     name: String!
     type: InventoryItemType!
@@ -88,7 +114,8 @@ export default gql`
 
   enum InventoryItemType {
     Quest
-    Weapon
+    MeleeWeapon
+    RangedWeapon
     Shield
     SpellFocus
     BodyArmor
