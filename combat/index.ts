@@ -8,6 +8,7 @@ import {
   Attributes,
   InventoryItem,
   InventoryItemType,
+  EnchantmentType,
 } from "types/graphql";
 
 import Databases from "../db";
@@ -122,6 +123,7 @@ function attributesForAttack(attackType: AttackType): AttackAttributes {
 
 type CombatGear = {
   level: number;
+  enchantment?: EnchantmentType | null;
 };
 type Combatant = {
   equipment: {
@@ -145,6 +147,24 @@ function didHit(
 ): boolean {
   const attackAttributes = attributesForAttack(attackType);
 
+  const enchantments: EnchantmentType[] = [];
+
+  victim.equipment.armor.forEach((armor) => {
+    if (armor.enchantment) {
+      enchantments.push(armor.enchantment);
+    }
+  });
+
+  victim.equipment.weapons.forEach((weapon) => {
+    if (weapon.enchantment) {
+      enchantments.push(weapon.enchantment);
+    }
+  });
+
+  const enchantedStats = getEnchantedAttributes(attacker, victim, enchantments);
+  attacker = enchantedStats.attacker;
+  victim = enchantedStats.victim;
+
   // rarely massive, 1 when even, 0.5 when dodge is double, etc
   // "how many times bigger is attack than dodge"
   const baseChange =
@@ -161,6 +181,65 @@ function didHit(
   return Math.random() < oddBase;
 }
 
+function getEnchantedAttributes(
+  attacker: Combatant,
+  victim: Combatant,
+  enchantments: EnchantmentType[]
+): { attacker: Combatant; victim: Combatant } {
+  attacker = { ...attacker, attributes: { ...attacker.attributes } };
+  victim = { ...victim, attributes: { ...victim.attributes } };
+
+  enchantments.forEach((enchantment) => {
+    switch (enchantment) {
+      case EnchantmentType.BonusStrength:
+        attacker.attributes.strength *= 1.2;
+        break;
+      case EnchantmentType.BonusDexterity:
+        attacker.attributes.dexterity *= 1.2;
+        break;
+      case EnchantmentType.BonusConstitution:
+        attacker.attributes.constitution *= 1.2;
+        break;
+      case EnchantmentType.BonusIntelligence:
+        attacker.attributes.intelligence *= 1.2;
+        break;
+      case EnchantmentType.BonusWisdom:
+        attacker.attributes.wisdom *= 1.2;
+        break;
+      case EnchantmentType.BonusCharisma:
+        attacker.attributes.charisma *= 1.2;
+        break;
+      case EnchantmentType.BonusLuck:
+        attacker.luck.smallModifier = (attacker.luck.smallModifier * 5 + 1) / 6;
+        attacker.luck.largeModifier =
+          (attacker.luck.smallModifier * 10 + 1) / 11;
+        attacker.luck.ultraModifier =
+          (attacker.luck.smallModifier * 50 + 1) / 51;
+        break;
+      case EnchantmentType.BonusPhysical:
+        attacker.attributes.strength *= 1.1;
+        attacker.attributes.dexterity *= 1.1;
+        attacker.attributes.constitution *= 1.1;
+        break;
+      case EnchantmentType.BonusMental:
+        attacker.attributes.intelligence *= 1.1;
+        attacker.attributes.wisdom *= 1.1;
+        attacker.attributes.charisma *= 1.1;
+        break;
+      case EnchantmentType.BonusAllStats:
+        attacker.attributes.strength *= 1.1;
+        attacker.attributes.dexterity *= 1.1;
+        attacker.attributes.constitution *= 1.1;
+        attacker.attributes.intelligence *= 1.1;
+        attacker.attributes.wisdom *= 1.1;
+        attacker.attributes.charisma *= 1.1;
+        break;
+    }
+  });
+
+  return { attacker, victim };
+}
+
 function calculateDamage(
   attacker: Combatant,
   attackType: AttackType,
@@ -171,17 +250,30 @@ function calculateDamage(
   const attributeTypes = attributesForAttack(attackType);
   let percentageDamageReduction = 1;
   let percentageDamageIncrease = 1;
+  const enchantments: EnchantmentType[] = [];
 
-  percentageDamageReduction = victim.equipment.armor.reduce((dr, armor) => {
-    return dr * (1 - armor.level / (armor.level + 20));
-  }, percentageDamageReduction);
+  victim.equipment.armor.forEach((armor) => {
+    percentageDamageReduction =
+      percentageDamageReduction * (1 - armor.level / (armor.level + 20));
 
-  percentageDamageIncrease = victim.equipment.weapons.reduce((amp, weapon) => {
-    return (
-      amp *
-      (1 + (weapon.level / (weapon.level + 40)) * Math.pow(1.1, weapon.level))
-    );
-  }, percentageDamageIncrease);
+    if (armor.enchantment) {
+      enchantments.push(armor.enchantment);
+    }
+  });
+
+  victim.equipment.weapons.forEach((weapon) => {
+    percentageDamageIncrease =
+      percentageDamageIncrease *
+      (1 + (weapon.level / (weapon.level + 40)) * Math.pow(1.1, weapon.level));
+
+    if (weapon.enchantment) {
+      enchantments.push(weapon.enchantment);
+    }
+  });
+
+  const enchantedStats = getEnchantedAttributes(attacker, victim, enchantments);
+  attacker = enchantedStats.attacker;
+  victim = enchantedStats.victim;
 
   // melee does double damage
   if (attackType === AttackType.Melee) {
@@ -247,9 +339,15 @@ function addItemToCombatant(
     item.type === InventoryItemType.MeleeWeapon ||
     item.type === InventoryItemType.RangedWeapon
   ) {
-    combatant.equipment.weapons.push({ level: item.level });
+    combatant.equipment.weapons.push({
+      level: item.level,
+      enchantment: item.enchantment,
+    });
   } else {
-    combatant.equipment.armor.push({ level: item.level });
+    combatant.equipment.armor.push({
+      level: item.level,
+      enchantment: item.enchantment,
+    });
   }
 
   return combatant;
