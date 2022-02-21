@@ -9,6 +9,12 @@ import {
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
+import {
+  randomBaseItem,
+  randomEnchantment,
+  createItemInstance,
+  enchantItem,
+} from "../hero/items";
 import { fightMonster } from "../../combat";
 
 const MONSTERS: Monster[] = [
@@ -117,10 +123,34 @@ const resolvers: Resolvers = {
         );
       }
 
+      // victory
       if (fightResult.monsterDied) {
         console.log(hero.name, "killed a", monster.monster.name);
         context.db.hero.addExperience(hero, experienceRewards);
         hero.gold = hero.gold + goldReward;
+
+        // drop chances!!
+        // 5% chance of drops
+        const dropOdds = 0.01 + context.db.hero.ultraLuck(hero.stats.luck);
+        if (Math.random() < dropOdds) {
+          console.log(" DROP!! Odds:", {
+            luck: hero.stats.luck,
+            dropOdds: Math.round(dropOdds * 100) / 100,
+          });
+
+          const monsterLevel = monster.monster.level;
+
+          const baseItem = randomBaseItem(monsterLevel);
+          const enchantment = randomEnchantment(monsterLevel);
+          const itemInstance = enchantItem(
+            createItemInstance(baseItem, hero),
+            enchantment
+          );
+
+          console.log(itemInstance);
+          hero.inventory.push(itemInstance);
+        }
+
         await context.db.monsterInstances.del(monster);
       } else {
         await context.db.monsterInstances.put(monster);

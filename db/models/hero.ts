@@ -58,13 +58,25 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     return hero;
   }
 
+  // 0-1
+  smallLuck(luck: number): number {
+    return luck / (luck + 20);
+  }
+  largeLuck(luck: number): number {
+    return luck / (luck + 200);
+  }
+  ultraLuck(luck: number): number {
+    return luck / (luck + 2000);
+  }
+
   luckRoll(luck: number, min: number, max: number): number {
     luck = Math.max(5, luck);
     return Math.max(
       min,
       Math.min(
         max,
-        Math.round(Math.random() * (1.9 - 5 / luck) * (max - min)) + min
+        Math.round(Math.random() * (2 * this.smallLuck(luck)) * (max - min)) +
+          min
       )
     );
   }

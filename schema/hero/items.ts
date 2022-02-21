@@ -1,4 +1,9 @@
-import { InventoryItemType, InventoryItem, Hero } from "types/graphql";
+import {
+  InventoryItemType,
+  InventoryItem,
+  Hero,
+  EnchantmentType,
+} from "types/graphql";
 import { v4 as uuidv4 } from "uuid";
 
 export type BaseItem = {
@@ -26,6 +31,50 @@ export type BaseItem = {
 */
 
 type BaseItemMap = { [x: string]: BaseItem };
+
+export function enchantItem(
+  item: InventoryItem,
+  enchantment: EnchantmentType
+): InventoryItem {
+  item.enchantment = enchantment;
+  return item;
+}
+
+export function randomEnchantment(level: number): EnchantmentType {
+  const options = [
+    EnchantmentType.BonusStrength,
+    EnchantmentType.BonusDexterity,
+    EnchantmentType.BonusConstitution,
+    EnchantmentType.BonusIntelligence,
+    EnchantmentType.BonusWisdom,
+    EnchantmentType.BonusCharisma,
+    EnchantmentType.BonusLuck,
+    EnchantmentType.BonusPhysical,
+    EnchantmentType.BonusMental,
+    EnchantmentType.BonusAllStats,
+  ];
+
+  return options[Math.floor(Math.random() * options.length)];
+}
+
+export function randomBaseItem(level: number): BaseItem {
+  let maxLevel = 0;
+
+  let options = Object.values(BaseItems).filter((item) => {
+    if (item.level < level) {
+      maxLevel = Math.max(item.level, maxLevel);
+    }
+    return item.level === level;
+  });
+
+  if (!options.length) {
+    options = Object.values(BaseItems).filter(
+      (item) => item.level === maxLevel
+    );
+  }
+
+  return options[Math.floor(Math.random() * options.length)];
+}
 
 export function createItemInstance(item: BaseItem, owner: Hero): InventoryItem {
   const id = uuidv4();

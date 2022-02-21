@@ -10,6 +10,8 @@ import {
   InventoryItemType,
 } from "types/graphql";
 
+import Databases from "../db";
+
 type MonsterHeroCombatResult = {
   monsterDamage: number;
   heroDamage: number;
@@ -42,11 +44,14 @@ function createMonsterStats(monster: Monster): Attributes {
 
 function createMonsterLuck(monster: Monster) {
   // damage spread
-  const smallModifier = monster.level / (monster.level + 2);
+  const smallModifier =
+    monster.combat.maxHealth / (monster.combat.maxHealth + 20);
   // critical
-  const largeModifier = monster.level / (monster.level + 10);
+  const largeModifier =
+    monster.combat.maxHealth / (monster.combat.maxHealth + 100);
   // super crit
-  const ultraModifier = monster.level / (monster.level + 15);
+  const ultraModifier =
+    monster.combat.maxHealth / (monster.combat.maxHealth + 500);
 
   return { smallModifier, largeModifier, ultraModifier };
 }
@@ -321,10 +326,9 @@ export async function fightMonster(
   const heroAttributes = hero.stats;
   const monsterAttributes = createMonsterStats(monster);
 
-  const smallLuckModifier = 1 - 5 / Math.max(5, heroAttributes.luck);
-  const largeLuckModifier = 1 - 20 / Math.max(20, heroAttributes.luck);
-  const ultraLuckModifier =
-    largeLuckModifier * largeLuckModifier * largeLuckModifier;
+  const smallLuckModifier = Databases.hero.smallLuck(heroAttributes.luck);
+  const largeLuckModifier = Databases.hero.largeLuck(heroAttributes.luck);
+  const ultraLuckModifier = Databases.hero.ultraLuck(heroAttributes.luck);
 
   const heroCombatant = {
     equipment: {
