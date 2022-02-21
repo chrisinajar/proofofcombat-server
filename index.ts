@@ -59,8 +59,21 @@ const httpsServer = getHttpsServer(app);
 const socketioHttpsServer = getHttpsServer();
 
 app.use(cors(corsOptions));
+const io = addSocketToServer(socketioHttpsServer);
 
-addSocketToServer(socketioHttpsServer);
+app.get("/external-api/github-ui-release", (req, res) => {
+  const auth = req.headers.authorization || "";
+  if (process.env.GITHUB_RELEASE_KEY === auth) {
+    console.log("🚀🚀🚀 New GitHub UI!!!");
+    io.emit("system-message", {
+      color: "success",
+      message:
+        "A new version of the UI is available! Refresh your browser to use it! 🚀",
+    });
+  }
+
+  res.sendStatus(200);
+});
 
 socketioHttpsServer.listen(socketIoPort, () => {
   console.log(`🚀  Socket ready on ${socketIoPort}`);

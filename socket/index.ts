@@ -9,7 +9,7 @@ type ExtendedSocket = Socket & {
   name?: string;
 };
 
-export function addSocketToServer(httpServer: HttpServer) {
+export function addSocketToServer(httpServer: HttpServer): Server {
   const io = new Server(httpServer, {
     cors: {
       origin: true,
@@ -68,4 +68,6 @@ export function addSocketToServer(httpServer: HttpServer) {
       console.log(" *", socket.name);
     });
   }
+
+  return io;
 }
