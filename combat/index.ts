@@ -173,7 +173,7 @@ function calculateDamage(
   percentageDamageIncrease = victim.equipment.weapons.reduce((amp, weapon) => {
     return (
       amp *
-      (1 + (weapon.level / (weapon.level + 40)) * Math.pow(1.3, weapon.level))
+      (1 + (weapon.level / (weapon.level + 40)) * Math.pow(1.1, weapon.level))
     );
   }, percentageDamageIncrease);
 
