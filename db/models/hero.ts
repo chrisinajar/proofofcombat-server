@@ -24,8 +24,14 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   recalculateStats(hero: Hero): Hero {
-    const maxHealthBefore = hero.combat.maxHealth;
-    hero.combat.maxHealth = (8 + hero.stats.constitution) * hero.level;
+    const healthPercentBefore = hero.combat.health / hero.combat.maxHealth;
+    hero.combat.maxHealth = hero.stats.constitution * 10 + hero.level * 10;
+    hero.combat.health = Math.round(
+      Math.min(
+        hero.combat.maxHealth,
+        healthPercentBefore * hero.combat.maxHealth
+      )
+    );
     hero.needed = this.experienceNeededForLevel(hero.level);
 
     return hero;

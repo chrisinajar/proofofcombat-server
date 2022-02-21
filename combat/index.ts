@@ -29,6 +29,7 @@ type AttackAttributes = {
 };
 
 function createMonsterStats(monster: Monster): Attributes {
+  console.log(monster.name, "has", monster.combat.maxHealth - 5, "stats");
   return {
     strength: monster.combat.maxHealth - 5,
     dexterity: monster.combat.maxHealth - 5,

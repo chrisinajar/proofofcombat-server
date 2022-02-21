@@ -110,6 +110,7 @@ export const BaseItems: BaseItemMap = {
     "Flail",
     "Halberd",
     "Dragontooth Sword",
+    "Warlord's Longsword",
   ]),
   ...generateItems(InventoryItemType.RangedWeapon, [
     "Makeshift Slingshot",
@@ -129,6 +130,7 @@ export const BaseItems: BaseItemMap = {
     "Ashen Bow",
     "Heavy Crossbow",
     "Elvenwood Bow",
+    "Dwarven Crossbow",
   ]),
   ...generateItems(InventoryItemType.Shield, [
     "Makeshift Shield",
@@ -148,6 +150,7 @@ export const BaseItems: BaseItemMap = {
     "Studded Targe",
     "Alloy Metal Shield",
     "Dragonscale Shield",
+    "Warlord's Shield",
   ]),
   ...generateItems(InventoryItemType.SpellFocus, [
     "Feathered Stick",
@@ -167,6 +170,7 @@ export const BaseItems: BaseItemMap = {
     "Griffon's Feather",
     "Ancient Vice",
     "Dragon's Eye",
+    "Pouch of Stardust",
   ]),
   ...generateArmorItems([
     "Torn Cotten",
@@ -186,5 +190,6 @@ export const BaseItems: BaseItemMap = {
     "Full Plate",
     "Dwarven Forged",
     "Dragonscale",
+    "Warlord's Plate",
   ]),
 };
