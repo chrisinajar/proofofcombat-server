@@ -174,6 +174,16 @@ function calculateDamage(
     return amp * (1 + weapon.level / (weapon.level + 60));
   }, percentageDamageIncrease);
 
+  // melee does double damage
+  if (attackType === AttackType.Melee) {
+    percentageDamageIncrease *= 2;
+  }
+
+  // holy ignores half of armor
+  if (attackType === AttackType.Holy) {
+    percentageDamageReduction += (1 - percentageDamageReduction) / 2;
+  }
+
   // console.log(
   //   "base damage",
   //   attacker.attributes[attributeTypes.damage],
@@ -205,9 +215,10 @@ function calculateDamage(
   }
 
   damage *= percentageDamageIncrease;
+  damage -= victim.damageReduction;
   damage *= percentageDamageReduction;
 
-  damage = Math.round(Math.max(1, damage - victim.damageReduction));
+  damage = Math.round(Math.max(1, damage));
 
   return {
     damage,
@@ -286,7 +297,7 @@ export async function fightMonster(
 
   const monsterCombatant = {
     equipment: createMonsterEquipment(monster),
-    damageReduction: monsterAttributes.constitution,
+    damageReduction: monsterAttributes.constitution / 2,
     attributes: monsterAttributes,
     luck: createMonsterLuck(monster),
   };
