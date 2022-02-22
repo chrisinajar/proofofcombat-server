@@ -16,6 +16,7 @@ type PartialHero = Optional<
   | "attributePoints"
   | "inventory"
   | "equipment"
+  | "questLog"
 >;
 
 import { checkHero } from "../../schema/quests/washed-up";
@@ -186,7 +187,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.gold = Math.round(data.gold);
     data.experience = Math.round(data.experience);
 
-    return checkHero(this.recalculateStats(data as Hero));
+    return this.recalculateStats(data as Hero);
+    // return checkHero(this.recalculateStats(data as Hero));
   }
 
   async create(account: BaseAccount): Promise<Hero> {

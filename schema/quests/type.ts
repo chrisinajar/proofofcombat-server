@@ -34,5 +34,6 @@ export default gql`
     started: Boolean!
     finished: Boolean!
     progress: Int!
+    lastEvent: QuestEvent
   }
 `;

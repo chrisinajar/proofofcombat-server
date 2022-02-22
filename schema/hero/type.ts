@@ -37,7 +37,7 @@ export default gql`
     inventory: [InventoryItem!]!
     equipment: EquipmentSlots!
     currentQuest: QuestEvent
-    questLog: QuestLog
+    questLog: QuestLog!
   }
 
   type LeadboardEntry {

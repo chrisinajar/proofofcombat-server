@@ -8,15 +8,17 @@ export type LocationData = {
   terrain: TerrainType;
 };
 
+export type SpecialLocation = {
+  x: number;
+  y: number;
+  name: string;
+  type: SpecialLocationType;
+};
+
 export type LocationDataType = {
   [x in MapNames]: {
     locations: LocationData[][];
-    specialLocations: {
-      x: number;
-      y: number;
-      name: string;
-      type: SpecialLocationType;
-    }[];
+    specialLocations: SpecialLocation[];
   };
 };
 

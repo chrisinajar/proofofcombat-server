@@ -1,4 +1,10 @@
-import { TerrainType, LocationData } from "./constants";
+import { TerrainType, LocationData, SpecialLocation } from "./constants";
+
+export function specialLocations(x: number, y: number): SpecialLocation[] {
+  return LocationData.default.specialLocations.filter(
+    (location) => location.x === x && location.y === y
+  );
+}
 
 export function findTerrainType(
   x: number,
