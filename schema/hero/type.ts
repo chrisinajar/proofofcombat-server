@@ -19,6 +19,27 @@ export default gql`
     equip(item: ID!, slot: String!): LevelUpResponse! @auth @delay(delay: 200)
   }
 
+  type Hero implements BaseModel {
+    id: ID!
+    version: Int!
+    name: String!
+
+    level: Int!
+    experience: Int!
+    needed: Int!
+    gold: Int!
+    location: Location!
+    attributePoints: Int!
+
+    combat: HeroCombatStats!
+    stats: HeroStats!
+
+    inventory: [InventoryItem!]!
+    equipment: EquipmentSlots!
+    currentQuest: QuestEvent
+    questLog: QuestLog
+  }
+
   type LeadboardEntry {
     id: ID!
     name: String!
@@ -57,25 +78,6 @@ export default gql`
   type HealResponse {
     account: BaseAccount!
     hero: Hero!
-  }
-
-  type Hero implements BaseModel {
-    id: ID!
-    version: Int!
-    name: String!
-
-    level: Int!
-    experience: Int!
-    needed: Int!
-    gold: Int!
-    location: Location!
-    attributePoints: Int!
-
-    combat: HeroCombatStats!
-    stats: HeroStats!
-
-    inventory: [InventoryItem!]!
-    equipment: EquipmentSlots!
   }
 
   type EquipmentSlots {

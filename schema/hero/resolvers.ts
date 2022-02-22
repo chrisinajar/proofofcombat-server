@@ -16,6 +16,8 @@ import {
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
+import { LocationData, MapNames } from "../../constants";
+
 import { BaseItems, createItemInstance } from "./items";
 import type { BaseItem } from "./items";
 
@@ -240,6 +242,15 @@ const resolvers: Resolvers = {
       const hero = await context.db.hero.get(context.auth.id);
       const account = await context.db.account.get(context.auth.id);
 
+      if (hero.combat.health <= 0) {
+        throw new UserInputError("You cannot move while dead!");
+      }
+
+      const location =
+        LocationData[hero.location.map as MapNames]?.locations[hero.location.x][
+          hero.location.y
+        ];
+
       switch (args.direction) {
         case MoveDirection.North:
           hero.location.y = hero.location.y - 1;
@@ -261,6 +272,12 @@ const resolvers: Resolvers = {
 
       hero.location.y = Math.min(95, Math.max(0, hero.location.y));
       hero.location.x = Math.min(127, Math.max(0, hero.location.x));
+
+      const destination =
+        LocationData[hero.location.map as MapNames]?.locations[hero.location.x][
+          hero.location.y
+        ];
+      console.log({ location, destination });
 
       await context.db.hero.put(hero);
 

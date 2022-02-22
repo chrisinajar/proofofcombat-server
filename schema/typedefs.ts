@@ -5,6 +5,7 @@ import directives from "./directives/type";
 import accountTypes from "./account/type";
 import heroTypes from "./hero/type";
 import monsterTypes from "./monster/type";
+import questsTypes from "./quests/type";
 
 export default mergeTypeDefs([
   directives,
@@ -12,4 +13,5 @@ export default mergeTypeDefs([
   accountTypes,
   heroTypes,
   monsterTypes,
+  questsTypes,
 ]);

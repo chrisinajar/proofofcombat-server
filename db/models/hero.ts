@@ -18,6 +18,8 @@ type PartialHero = Optional<
   | "equipment"
 >;
 
+import { checkHero } from "../../schema/quests/washed-up";
+
 export default class HeroModel extends DatabaseInterface<Hero> {
   constructor() {
     super("hero");
@@ -164,17 +166,27 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       data.version = 1;
     }
     if (data.version < 2) {
-      // future
       data.inventory = [];
       data.equipment = {
         accessories: [],
       };
       data.version = 2;
     }
+    if (data.version < 3) {
+      data.currentQuest = null;
+      data.questLog = {
+        id: data.id,
+      };
+
+      data.version = 3;
+    }
+    if (data.version < 4) {
+      // future
+    }
     data.gold = Math.round(data.gold);
     data.experience = Math.round(data.experience);
 
-    return this.recalculateStats(data as Hero);
+    return checkHero(this.recalculateStats(data as Hero));
   }
 
   async create(account: BaseAccount): Promise<Hero> {
