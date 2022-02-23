@@ -102,6 +102,7 @@ function checkPub(hero: Hero): Hero {
   console.log(hero.name, "is at pub location!!");
 
   hero = giveQuestItem(hero, "fishermans-luck");
+  hero.gold = Math.round(hero.gold / 2);
 
   hero.currentQuest = {
     id: `WashedUp-${hero.id}-pub`,

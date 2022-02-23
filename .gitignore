@@ -8,3 +8,4 @@ csr.csr
 .env
 types/graphql.ts
 .DS-Store
+.DS_Store

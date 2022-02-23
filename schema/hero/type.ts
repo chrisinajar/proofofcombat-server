@@ -22,6 +22,7 @@ export default gql`
     id: ID!
     version: Int!
     name: String!
+    class: HeroClasses!
 
     level: Int!
     experience: Int!
@@ -37,6 +38,17 @@ export default gql`
     equipment: EquipmentSlots!
     currentQuest: QuestEvent
     questLog: QuestLog!
+  }
+
+  enum HeroClasses {
+    Adventurer
+    Gambler
+    Fighter
+    Ranger
+    BloodMage
+    Wizard
+    Elementalist
+    Cleric
   }
 
   type LeadboardEntry {

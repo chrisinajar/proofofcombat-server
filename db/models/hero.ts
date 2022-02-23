@@ -17,9 +17,11 @@ type PartialHero = Optional<
   | "inventory"
   | "equipment"
   | "questLog"
+  | "class"
 >;
 
 import { checkHero } from "../../schema/quests/helpers";
+import { getClass } from "./hero/classes";
 
 export default class HeroModel extends DatabaseInterface<Hero> {
   constructor() {
@@ -198,8 +200,13 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.gold = Math.round(data.gold);
     data.experience = Math.round(data.experience);
 
+    // recalculate stats and turn it into a real hero object
+    const hero = checkHero(this.recalculateStats(data as Hero));
+    // technically this could still be missing class but we set it here anyway so owell
+    hero.class = getClass(hero);
+
     // return this.recalculateStats(data as Hero);
-    return checkHero(this.recalculateStats(data as Hero));
+    return hero;
   }
 
   async create(account: BaseAccount): Promise<Hero> {
