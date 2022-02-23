@@ -341,7 +341,7 @@ function calculateDamage(
   damage -= victim.damageReduction;
   damage *= percentageDamageReduction;
 
-  damage = Math.round(Math.max(1, damage));
+  damage = Math.round(Math.max(1, Math.min(1000000000, damage)));
 
   return {
     damage,
