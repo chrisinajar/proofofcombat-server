@@ -7,3 +7,4 @@ privatekey.pem
 csr.csr
 .env
 types/graphql.ts
+.DS-Store

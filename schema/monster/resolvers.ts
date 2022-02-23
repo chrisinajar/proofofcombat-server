@@ -15,7 +15,7 @@ import {
   randomEnchantment,
   createItemInstance,
   enchantItem,
-} from "../hero/items";
+} from "../items/helpers";
 import { fightMonster } from "../../combat";
 
 const MONSTERS: Monster[] = [
@@ -135,7 +135,7 @@ const resolvers: Resolvers = {
         // drop chances!!
         const luck = hero.stats.luck;
         const monsterAntiLuck = goldReward;
-        const dropOdds = luck / (luck + monsterAntiLuck) / 10;
+        const dropOdds = 0.005 + luck / (luck + monsterAntiLuck + 5) / 50;
         if (Math.random() < dropOdds) {
           console.log(" DROP!! Odds:", {
             luck,

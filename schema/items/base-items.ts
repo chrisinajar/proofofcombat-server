@@ -1,94 +1,8 @@
-import {
-  InventoryItemType,
-  InventoryItem,
-  Hero,
-  EnchantmentType,
-} from "types/graphql";
-import { v4 as uuidv4 } from "uuid";
+import { InventoryItemType } from "types/graphql";
 
-export type BaseItem = {
-  id: string;
-  name: string;
-  type: InventoryItemType;
-  level: number;
-  cost: number;
-  canBuy: boolean;
-};
+import { BaseItem, BaseItemMap } from "./";
 
-/*
-  enum InventoryItemType {
-    Quest
-    Weapon
-    Shield
-    SpellFocus
-    BodyArmor
-    HandArmor
-    LegArmor
-    HeadArmor
-    FootArmor
-    Accessory
-  }
-*/
-
-type BaseItemMap = { [x: string]: BaseItem };
-
-export function enchantItem(
-  item: InventoryItem,
-  enchantment: EnchantmentType
-): InventoryItem {
-  item.enchantment = enchantment;
-  return item;
-}
-
-export function randomEnchantment(level: number): EnchantmentType {
-  const options = [
-    EnchantmentType.BonusStrength,
-    EnchantmentType.BonusDexterity,
-    EnchantmentType.BonusConstitution,
-    EnchantmentType.BonusIntelligence,
-    EnchantmentType.BonusWisdom,
-    EnchantmentType.BonusCharisma,
-    EnchantmentType.BonusLuck,
-    EnchantmentType.BonusPhysical,
-    EnchantmentType.BonusMental,
-    EnchantmentType.BonusAllStats,
-  ];
-
-  return options[Math.floor(Math.random() * options.length)];
-}
-
-export function randomBaseItem(level: number): BaseItem {
-  let maxLevel = 0;
-
-  let options = Object.values(BaseItems).filter((item) => {
-    if (item.level < level) {
-      maxLevel = Math.max(item.level, maxLevel);
-    }
-    return item.level === level;
-  });
-
-  if (!options.length) {
-    options = Object.values(BaseItems).filter(
-      (item) => item.level === maxLevel
-    );
-  }
-
-  return options[Math.floor(Math.random() * options.length)];
-}
-
-export function createItemInstance(item: BaseItem, owner: Hero): InventoryItem {
-  const id = uuidv4();
-  return {
-    id,
-    owner: owner.id,
-    baseItem: item.id,
-
-    name: item.name,
-    type: item.type,
-    level: item.level,
-    enchantment: null,
-  };
-}
+import { getQuestRewards } from "../quests/items";
 
 function generateArmorItems(itemNames: string[]): BaseItemMap {
   return {
@@ -124,7 +38,7 @@ function generateItems(
     const level = i + 1;
     const cost = Math.round(Math.pow(2.3, i) * 10);
     const id = name.toLowerCase().replace(/\s+/g, "-");
-    console.log("Level", level, "item", name, "costs", cost, id);
+    // console.log("Level", level, "item", name, "costs", cost, id);
 
     results[id] = {
       id,
@@ -256,4 +170,5 @@ export const BaseItems: BaseItemMap = {
     "Spellforged",
     "Heavenly Plate",
   ]),
+  ...getQuestRewards(),
 };

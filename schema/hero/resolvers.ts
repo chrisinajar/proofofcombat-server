@@ -5,8 +5,6 @@ import {
   Hero,
   HealResponse,
   MonsterInstance,
-  MoveResponse,
-  MoveDirection,
   BaseAccount,
   LevelUpResponse,
   InventoryItem,
@@ -16,10 +14,9 @@ import {
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
-import { LocationData, MapNames } from "../../constants";
-
-import { BaseItems, createItemInstance } from "./items";
-import type { BaseItem } from "./items";
+import { BaseItems } from "../items/base-items";
+import { createItemInstance } from "../items/helpers";
+import type { BaseItem } from "../items";
 
 const resolvers: Resolvers = {
   Query: {
@@ -105,7 +102,7 @@ const resolvers: Resolvers = {
       }
       const baseItem = BaseItems[baseItemName];
 
-      if (!baseItem.cost) {
+      if (!baseItem.cost || !baseItem.canBuy) {
         throw new UserInputError("Item cannot be bought!");
       }
       if (baseItem.cost > hero.gold) {
@@ -146,11 +143,14 @@ const resolvers: Resolvers = {
       }
       const baseItem = BaseItems[item.baseItem];
 
-      if (!baseItem.cost) {
+      if (!baseItem.cost || !baseItem.canBuy) {
         throw new UserInputError("Item cannot be sold!");
       }
       if (baseItem.cost > hero.gold) {
         throw new UserInputError("You do not have enough gold for that item!");
+      }
+      if (item.enchantment) {
+        throw new UserInputError("You cannot sell enchanted items!");
       }
       console.log("Trying to sell a", item.baseItem);
 
@@ -234,70 +234,6 @@ const resolvers: Resolvers = {
         hero,
         account,
       };
-    },
-    async move(parent, args, context: BaseContext): Promise<MoveResponse> {
-      if (!context?.auth?.id) {
-        throw new ForbiddenError("Missing auth");
-      }
-      const hero = await context.db.hero.get(context.auth.id);
-      const account = await context.db.account.get(context.auth.id);
-
-      if (hero.combat.health <= 0) {
-        throw new UserInputError("You cannot move while dead!");
-      }
-
-      const location =
-        LocationData[hero.location.map as MapNames]?.locations[hero.location.x][
-          hero.location.y
-        ];
-
-      switch (args.direction) {
-        case MoveDirection.North:
-          hero.location.y = hero.location.y - 1;
-          console.log(hero.name, "moving", args.direction);
-          break;
-        case MoveDirection.South:
-          hero.location.y = hero.location.y + 1;
-          console.log(hero.name, "moving", args.direction);
-          break;
-        case MoveDirection.East:
-          hero.location.x = hero.location.x + 1;
-          console.log(hero.name, "moving", args.direction);
-          break;
-        case MoveDirection.West:
-          hero.location.x = hero.location.x - 1;
-          console.log(hero.name, "moving", args.direction);
-          break;
-      }
-
-      hero.location.y = Math.min(95, Math.max(0, hero.location.y));
-      hero.location.x = Math.min(127, Math.max(0, hero.location.x));
-
-      const destination =
-        LocationData[hero.location.map as MapNames]?.locations[hero.location.x][
-          hero.location.y
-        ];
-      console.log({ location, destination });
-
-      await context.db.hero.put(hero);
-
-      return {
-        hero,
-        account,
-        monsters: [],
-      };
-    },
-  },
-  MoveResponse: {
-    async monsters(
-      parent,
-      args,
-      context: BaseContext
-    ): Promise<MonsterInstance[]> {
-      if (!context?.auth?.id) {
-        throw new ForbiddenError("Missing auth");
-      }
-      return context.db.monsterInstances.getInLocation(parent.hero.location);
     },
   },
   BaseAccount: {

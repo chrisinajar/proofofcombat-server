@@ -3,6 +3,48 @@ import { LocationData, MapNames, SpecialLocation } from "../../constants";
 import { Hero, Quest } from "types/graphql";
 import { findTerrainType, specialLocations } from "../../helpers";
 
+import { giveQuestItem } from "./helpers";
+import { questEvents } from "./text/washed-up-text";
+
+/*
+
+0 - wash up on shore
+
+visit 6 docks
+visit pub
+reward
+
+*/
+
+type WashedUpDock = {
+  name: string;
+};
+
+const docks: WashedUpDock[] = [
+  {
+    // the first dock is anything *but* Valtham Landing
+    name: "Valtham Landing",
+  },
+  {
+    name: "Valtham Landing",
+  },
+  {
+    name: "Boatwright Docks",
+  },
+  {
+    name: "Northern Point",
+  },
+  {
+    name: "Sherlam Landing",
+  },
+  {
+    name: "Rotherham Docks",
+  },
+  {
+    name: "Canogeo Harbor",
+  },
+];
+
 export function checkHero(hero: Hero): Hero {
   // already done
   if (hero.questLog.washedUp?.finished) {
@@ -11,17 +53,167 @@ export function checkHero(hero: Hero): Hero {
 
   hero = checkInitialWashedUp(hero);
   // haven't started
-  if (!hero.questLog.washedUp?.started) {
+  if (!hero.questLog.washedUp || !hero.questLog.washedUp.started) {
     return hero;
   }
 
-  // in progress
+  hero = checkDock(hero);
+  hero = checkPub(hero);
+
+  if (hero.currentQuest && hero.questLog.washedUp) {
+    hero.questLog.washedUp.lastEvent = hero.currentQuest;
+  }
+
+  return hero;
+}
+
+function checkPub(hero: Hero): Hero {
+  if (hero.currentQuest) {
+    return hero;
+  }
+  if (!hero.questLog?.washedUp) {
+    return hero;
+  }
+  const questLogEntry = hero.questLog.washedUp;
+
+  if (questLogEntry.progress !== 7) {
+    return hero;
+  }
+
   const locations: SpecialLocation[] = specialLocations(
     hero.location.x,
-    hero.location.y
-  );
+    hero.location.y,
+    hero.location.map as MapNames
+  ).filter((loc) => loc.name === "The Hidden Stump Inn");
 
-  // console.log(locations);
+  if (!locations.length) {
+    return hero;
+  }
+
+  console.log("Hero is at pub llocation!!");
+
+  // hero = giveQuestItem(hero, "old-boot");
+
+  hero.currentQuest = {
+    id: `WashedUp-${hero.id}-pub`,
+    message: questEvents.brewconia,
+    quest: Quest.WashedUp,
+  };
+
+  // hero.questLog.washedUp = {
+  //   id: `WashedUp-${hero.id}`,
+  //   started: true,
+  //   finished: true,
+  //   progress: 8,
+  //   lastEvent: hero.currentQuest,
+  // };
+
+  return hero;
+}
+
+function checkDock(hero: Hero): Hero {
+  // *don't* override existing quest messages for docks
+  // let them leave it up / chain messages one after another
+  if (hero.currentQuest) {
+    return hero;
+  }
+  if (!hero.questLog?.washedUp) {
+    return hero;
+  }
+  const questLogEntry = hero.questLog.washedUp;
+
+  const nextDock = docks[hero.questLog.washedUp.progress];
+  if (!nextDock) {
+    // quest is passed the docks part now
+    return hero;
+  }
+  // fetch quests are in progress
+  const locations: SpecialLocation[] = specialLocations(
+    hero.location.x,
+    hero.location.y,
+    hero.location.map as MapNames
+  ).filter((loc) => loc.type === "dock");
+
+  const isAtNextDock = locations.find((loc) => loc.name === nextDock.name);
+
+  if (!locations.length) {
+    return hero;
+  }
+
+  if (questLogEntry.progress === 0) {
+    // has no "fetch quest" yet
+    if (isAtNextDock) {
+      // at the first fetch quest destination, make them go somewhere else
+      hero.currentQuest = {
+        id: `WashedUp-${hero.id}-dock0`,
+        message: questEvents.startingDock,
+        quest: Quest.WashedUp,
+      };
+    } else {
+      // at any dock, send off on first fetch quest
+      // give old boot
+      hero = giveQuestItem(hero, "old-boot");
+
+      hero.currentQuest = {
+        id: `WashedUp-${hero.id}-dock1`,
+        message: questEvents.docks[0],
+        quest: Quest.WashedUp,
+      };
+
+      hero.questLog.washedUp = {
+        id: `WashedUp-${hero.id}`,
+        started: true,
+        finished: false,
+        progress: 1,
+        lastEvent: hero.currentQuest,
+      };
+    }
+    return hero;
+  }
+
+  // after the first location, you now *must* go to the next correct one each time
+  if (!isAtNextDock) {
+    return hero;
+  }
+
+  console.log(hero.name, "AT THE NEXT DOCK!");
+
+  const questItems = [
+    "old-boot",
+    "old-pocket-watch",
+    "old-fishing-rod",
+    "old-fishing-book",
+    "old-walking-stick",
+    "old-coin",
+  ];
+
+  if (questLogEntry.progress > 0) {
+    if (questItems[questLogEntry.progress - 1]) {
+      hero.inventory = hero.inventory.filter(
+        (item) => item.baseItem !== questItems[questLogEntry.progress - 1]
+      );
+    }
+    // add pocket watch
+    if (questItems[questLogEntry.progress]) {
+      hero = giveQuestItem(hero, questItems[questLogEntry.progress]);
+    }
+  }
+
+  hero.currentQuest = {
+    id: `WashedUp-${hero.id}-dock${questLogEntry.progress}`,
+    message: questEvents.docks[questLogEntry.progress],
+    quest: Quest.WashedUp,
+  };
+
+  console.log(questLogEntry.progress, "going to", questLogEntry.progress + 1);
+
+  hero.questLog.washedUp = {
+    id: `WashedUp-${hero.id}`,
+    started: true,
+    finished: false,
+    progress: questLogEntry.progress + 1,
+    lastEvent: hero.currentQuest,
+  };
 
   return hero;
 }
@@ -46,14 +238,11 @@ function checkInitialWashedUp(hero: Hero): Hero {
     hero.location.x = newX;
     hero.location.y = newY;
 
+    // overwrites existing currentQuest messages
+    // mostly since it kills/moves you
     hero.currentQuest = {
-      id: `WashedUp-${hero.id}`,
-      message: [
-        "You wake up.",
-        "How long were you out?",
-        "Your clothes are still damp with sea water. The sound of the waves crashing almost jogs your memory for a moment, but it's all a blur.",
-        "There's a port nearby, maybe the fishermen there can help.",
-      ],
+      id: `WashedUp-${hero.id}-wakeUp`,
+      message: questEvents.wakeUp,
       quest: Quest.WashedUp,
     };
 

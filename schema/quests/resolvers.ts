@@ -9,8 +9,10 @@ import {
 
 import type { BaseContext } from "schema/context";
 
-import { getQuestDescription } from "./quest-descriptions";
 import { LocationData, MapNames } from "../../constants";
+
+import { getQuestDescription } from "./text/quest-descriptions";
+import { checkHero } from "./helpers";
 
 const resolvers: Resolvers = {
   Query: {
@@ -31,10 +33,12 @@ const resolvers: Resolvers = {
         throw new ForbiddenError("Missing auth");
       }
 
-      const hero = await context.db.hero.get(context.auth.id);
+      let hero = await context.db.hero.get(context.auth.id);
       const account = await context.db.account.get(context.auth.id);
 
       hero.currentQuest = null;
+
+      hero = checkHero(hero);
 
       await context.db.hero.put(hero);
 

@@ -1,8 +1,14 @@
-import RawLocationData from "./locations.json";
+import DefaultLocations from "./maps/default-locations.json";
+import DefaultTerrain from "./maps/default-terrain.json";
 
 export type TerrainType = "land" | "water" | "forbidden";
 export type MapNames = "default";
-export type SpecialLocationType = "dock" | "quest" | "city" | "bridge";
+export type SpecialLocationType =
+  | "dock"
+  | "quest"
+  | "city"
+  | "bridge"
+  | "tavern";
 
 export type LocationData = {
   terrain: TerrainType;
@@ -22,5 +28,9 @@ export type LocationDataType = {
   };
 };
 
-export const LocationData: LocationDataType =
-  RawLocationData as LocationDataType;
+export const LocationData: LocationDataType = {
+  default: {
+    locations: DefaultTerrain as LocationData[][],
+    specialLocations: DefaultLocations as SpecialLocation[],
+  },
+};

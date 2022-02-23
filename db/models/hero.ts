@@ -19,7 +19,7 @@ type PartialHero = Optional<
   | "questLog"
 >;
 
-import { checkHero } from "../../schema/quests/washed-up";
+import { checkHero } from "../../schema/quests/helpers";
 
 export default class HeroModel extends DatabaseInterface<Hero> {
   constructor() {
@@ -121,7 +121,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   experienceNeededForLevel(level: number): number {
-    return level * 60;
+    return Math.ceil((level * 60 - (1 / level) * 50) / 10) * 10;
   }
 
   // turn old heroes into new heroes
@@ -129,8 +129,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   // any time we add a new field we need to make sure to populate it here
   upgrade(data: PartialHero): Hero {
     data.location = data.location ?? {
-      x: Math.round(Math.random() * 128),
-      y: Math.round(Math.random() * 96),
+      x: Math.floor(Math.random() * 128),
+      y: Math.floor(Math.random() * 96),
       map: "default",
     };
     data.gold = data.gold ?? 0;
@@ -184,11 +184,16 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     if (data.version < 4) {
       // future
     }
+
+    // data.questLog = {
+    //   id: data.id,
+    // };
+
     data.gold = Math.round(data.gold);
     data.experience = Math.round(data.experience);
 
-    return this.recalculateStats(data as Hero);
-    // return checkHero(this.recalculateStats(data as Hero));
+    // return this.recalculateStats(data as Hero);
+    return checkHero(this.recalculateStats(data as Hero));
   }
 
   async create(account: BaseAccount): Promise<Hero> {

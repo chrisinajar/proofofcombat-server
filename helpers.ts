@@ -1,7 +1,16 @@
-import { TerrainType, LocationData, SpecialLocation } from "./constants";
+import {
+  TerrainType,
+  LocationData,
+  SpecialLocation,
+  MapNames,
+} from "./constants";
 
-export function specialLocations(x: number, y: number): SpecialLocation[] {
-  return LocationData.default.specialLocations.filter(
+export function specialLocations(
+  x: number,
+  y: number,
+  map: MapNames
+): SpecialLocation[] {
+  return LocationData[map].specialLocations.filter(
     (location) => location.x === x && location.y === y
   );
 }
@@ -45,4 +54,13 @@ export function findTerrainType(
     magnitude++;
   }
   return findTerrainType(x, y, terrain, direction, maxMagnitude, magnitude);
+}
+
+type DistanceableLocation = {
+  x: number;
+  y: number;
+};
+
+export function distance2d(a: DistanceableLocation, b: DistanceableLocation) {
+  return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 }

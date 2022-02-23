@@ -332,15 +332,14 @@ function addItemToCombatant(
   item: InventoryItem,
   attackType: AttackType
 ): Combatant {
-  if (!doesWeaponAffectAttack(item, attackType)) {
-    return combatant;
-  }
+  const affectsAttackType = doesWeaponAffectAttack(item, attackType);
+
   if (
     item.type === InventoryItemType.MeleeWeapon ||
     item.type === InventoryItemType.RangedWeapon
   ) {
     combatant.equipment.weapons.push({
-      level: item.level,
+      level: affectsAttackType ? item.level : 1,
       enchantment: item.enchantment,
     });
   } else {
