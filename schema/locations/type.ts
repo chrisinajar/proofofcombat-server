@@ -6,8 +6,8 @@ export default gql`
     docks(map: String): [SpecialLocation!]! @auth
   }
   type Mutation {
-    sail(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 6000)
-    move(direction: MoveDirection!): MoveResponse! @auth @delay(delay: 500)
+    sail(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 5000)
+    move(direction: MoveDirection!): MoveResponse! @auth @delay(delay: 200)
     increaseAttribute(attribute: AttributeType!): LevelUpResponse!
       @auth
       @delay(delay: 1000)
