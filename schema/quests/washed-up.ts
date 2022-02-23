@@ -259,7 +259,7 @@ function checkInitialWashedUp(hero: Hero): Hero {
       id: `WashedUp-${hero.id}`,
       started: true,
       finished: false,
-      progress: 0,
+      progress: hero.questLog?.washedUp?.progress || 0,
       lastEvent: hero.currentQuest,
     };
 
