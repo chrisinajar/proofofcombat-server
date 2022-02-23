@@ -148,8 +148,8 @@ function didHit(
   const attackAttributes = attributesForAttack(attackType);
 
   const enchantedStats = getEnchantedAttributes(attacker, victim);
-  attacker = enchantedStats.victim;
-  victim = enchantedStats.attacker;
+  attacker = enchantedStats.attacker;
+  victim = enchantedStats.victim;
 
   // rarely massive, 1 when even, 0.5 when dodge is double, etc
   // "how many times bigger is attack than dodge"
@@ -178,7 +178,7 @@ function getEnchantedAttributes(
   if (!attacker.enchanted) {
     attacker = enchantAttacker(attacker, victim);
   }
-  if (!attacker.enchanted) {
+  if (!victim.enchanted) {
     victim = enchantVictim(attacker, victim);
   }
 
@@ -294,8 +294,8 @@ function calculateDamage(
   });
 
   const enchantedStats = getEnchantedAttributes(attacker, victim);
-  attacker = enchantedStats.victim;
-  victim = enchantedStats.attacker;
+  attacker = enchantedStats.attacker;
+  victim = enchantedStats.victim;
 
   // melee does double damage
   if (attackType === AttackType.Melee) {
