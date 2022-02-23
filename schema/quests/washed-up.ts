@@ -16,6 +16,15 @@ reward
 
 */
 
+const WashedUpRewards = [
+  "fishermans-strength",
+  "fishermans-dexterity",
+  "fishermans-constitution",
+  "fishermans-intelligence",
+  "fishermans-wisdom",
+  "fishermans-charisma",
+];
+
 type WashedUpDock = {
   name: string;
 };
@@ -90,7 +99,7 @@ function checkPub(hero: Hero): Hero {
     return hero;
   }
 
-  console.log("Hero is at pub llocation!!");
+  console.log(hero.name, "is at pub location!!");
 
   // hero = giveQuestItem(hero, "old-boot");
 
@@ -199,13 +208,13 @@ function checkDock(hero: Hero): Hero {
     }
   }
 
+  hero = getNewAward(hero);
+
   hero.currentQuest = {
     id: `WashedUp-${hero.id}-dock${questLogEntry.progress}`,
     message: questEvents.docks[questLogEntry.progress],
     quest: Quest.WashedUp,
   };
-
-  console.log(questLogEntry.progress, "going to", questLogEntry.progress + 1);
 
   hero.questLog.washedUp = {
     id: `WashedUp-${hero.id}`,
@@ -255,6 +264,25 @@ function checkInitialWashedUp(hero: Hero): Hero {
     };
 
     hero.combat.health = 0;
+  }
+
+  return hero;
+}
+
+function getNewAward(hero: Hero): Hero {
+  const options = WashedUpRewards.filter((questItem) => {
+    const existingItem = hero.inventory.find(
+      (inventoryItem) => inventoryItem.baseItem === questItem
+    );
+
+    return !existingItem;
+  });
+
+  if (options.length) {
+    hero = giveQuestItem(
+      hero,
+      options[Math.floor(options.length * Math.random())]
+    );
   }
 
   return hero;

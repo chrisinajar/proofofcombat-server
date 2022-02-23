@@ -6,7 +6,7 @@ import { BaseItems } from "../items/base-items";
 
 export function checkHero(hero: Hero): Hero {
   // disabled washed up for now
-  // hero = checkHeroForWashedUp(hero);
+  hero = checkHeroForWashedUp(hero);
 
   return hero;
 }

@@ -3,6 +3,7 @@ import { InventoryItemType } from "types/graphql";
 
 export function getQuestRewards() {
   return {
+    // "washed up" quest line mundane items
     "old-boot": {
       id: "old-boot",
       name: "Old Boot",
@@ -41,6 +42,50 @@ export function getQuestRewards() {
     "old-coin": {
       id: "old-coin",
       name: "Old Coin",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+
+    // "washed up" quest line reward items
+    "fishermans-strength": {
+      id: "fishermans-strength",
+      name: "Hero's Bracelet",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+    "fishermans-dexterity": {
+      id: "fishermans-dexterity",
+      name: "Rod of Speed",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+    "fishermans-constitution": {
+      id: "fishermans-constitution",
+      name: "Fortitude Ring",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+    "fishermans-intelligence": {
+      id: "fishermans-intelligence",
+      name: "Occult Tome",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+    "fishermans-wisdom": {
+      id: "fishermans-wisdom",
+      name: "Wisdom Statue",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+    "fishermans-charisma": {
+      id: "fishermans-charisma",
+      name: "Worship Disc",
       type: InventoryItemType.Quest,
       level: 1,
       canBuy: false,
