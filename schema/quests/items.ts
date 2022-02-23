@@ -90,6 +90,13 @@ export function getQuestRewards() {
       level: 1,
       canBuy: false,
     },
+    "fishermans-luck": {
+      id: "fishermans-luck",
+      name: "Lucky Coin",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
   };
 }
 

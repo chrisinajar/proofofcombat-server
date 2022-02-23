@@ -101,7 +101,7 @@ function checkPub(hero: Hero): Hero {
 
   console.log(hero.name, "is at pub location!!");
 
-  // hero = giveQuestItem(hero, "old-boot");
+  hero = giveQuestItem(hero, "fishermans-luck");
 
   hero.currentQuest = {
     id: `WashedUp-${hero.id}-pub`,
@@ -109,13 +109,13 @@ function checkPub(hero: Hero): Hero {
     quest: Quest.WashedUp,
   };
 
-  // hero.questLog.washedUp = {
-  //   id: `WashedUp-${hero.id}`,
-  //   started: true,
-  //   finished: true,
-  //   progress: 8,
-  //   lastEvent: hero.currentQuest,
-  // };
+  hero.questLog.washedUp = {
+    id: `WashedUp-${hero.id}`,
+    started: true,
+    finished: false,
+    progress: 8,
+    lastEvent: hero.currentQuest,
+  };
 
   return hero;
 }
