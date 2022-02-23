@@ -9,7 +9,6 @@ export default gql`
 
   type Mutation {
     heal: HealResponse! @auth @delay(delay: 2000)
-    move(direction: MoveDirection!): MoveResponse! @auth @delay(delay: 1000)
     increaseAttribute(attribute: AttributeType!): LevelUpResponse!
       @auth
       @delay(delay: 1000)
@@ -40,20 +39,6 @@ export default gql`
     questLog: QuestLog!
   }
 
-  type LocationDetails {
-    location: Location!
-    specialLocations: [SpecialLocation!]!
-    terrain: TerrainData!
-  }
-  type SpecialLocation {
-    location: Location!
-    name: String!
-    type: String!
-  }
-  type TerrainData {
-    terrain: String!
-  }
-
   type LeadboardEntry {
     id: ID!
     name: String!
@@ -74,6 +59,7 @@ export default gql`
     wisdom
     charisma
     luck
+    all
   }
 
   enum MoveDirection {
@@ -167,16 +153,5 @@ export default gql`
     charisma: Int!
 
     luck: Int!
-  }
-
-  type Location {
-    x: Int!
-    y: Int!
-    map: ID!
-  }
-  input LocationInput {
-    x: Int!
-    y: Int!
-    map: ID!
   }
 `;

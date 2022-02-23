@@ -199,14 +199,24 @@ const resolvers: Resolvers = {
         };
       }
 
-      if (!hero.stats[args.attribute]) {
+      if (args.attribute === "all") {
+        hero.stats[args.attribute] = hero.stats[args.attribute] + 7;
+        hero.stats.strength = hero.stats.strength + 1;
+        hero.stats.dexterity = hero.stats.dexterity + 1;
+        hero.stats.constitution = hero.stats.constitution + 1;
+        hero.stats.intelligence = hero.stats.intelligence + 1;
+        hero.stats.wisdom = hero.stats.wisdom + 1;
+        hero.stats.charisma = hero.stats.charisma + 1;
+        hero.stats.luck = hero.stats.luck + 1;
+      } else if (!hero.stats[args.attribute]) {
         return {
           hero,
           account,
         };
+      } else {
+        hero.stats[args.attribute] = hero.stats[args.attribute] + 7;
       }
 
-      hero.stats[args.attribute] = hero.stats[args.attribute] + 1;
       hero.attributePoints = hero.attributePoints - 1;
       hero = context.db.hero.recalculateStats(hero);
 

@@ -102,13 +102,13 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
   levelUp(hero: Hero): Hero {
     // we never over-level
-    hero.stats.strength += this.luckRoll(hero.stats.luck, 0, 1);
-    hero.stats.dexterity += this.luckRoll(hero.stats.luck, 0, 1);
-    hero.stats.constitution += this.luckRoll(hero.stats.luck, 0, 1);
-    hero.stats.intelligence += this.luckRoll(hero.stats.luck, 0, 1);
-    hero.stats.wisdom += this.luckRoll(hero.stats.luck, 0, 1);
-    hero.stats.charisma += this.luckRoll(hero.stats.luck, 0, 1);
-    hero.stats.luck += this.luckRoll(2, 0, 1);
+    hero.stats.strength = hero.stats.strength + 1;
+    hero.stats.dexterity = hero.stats.dexterity + 1;
+    hero.stats.constitution = hero.stats.constitution + 1;
+    hero.stats.intelligence = hero.stats.intelligence + 1;
+    hero.stats.wisdom = hero.stats.wisdom + 1;
+    hero.stats.charisma = hero.stats.charisma + 1;
+    hero.stats.luck = hero.stats.luck + 1;
     hero.level = hero.level + 1;
     hero.attributePoints = hero.attributePoints + 1;
 
