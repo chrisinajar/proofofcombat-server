@@ -147,44 +147,7 @@ function didHit(
 ): boolean {
   const attackAttributes = attributesForAttack(attackType);
 
-  const attackerEnchantments: EnchantmentType[] = [];
-
-  attacker.equipment.armor.forEach((armor) => {
-    if (armor.enchantment) {
-      attackerEnchantments.push(armor.enchantment);
-    }
-  });
-
-  attacker.equipment.weapons.forEach((weapon) => {
-    if (weapon.enchantment) {
-      attackerEnchantments.push(weapon.enchantment);
-    }
-  });
-
-  const victimEnchantments: EnchantmentType[] = [];
-
-  victim.equipment.armor.forEach((armor) => {
-    if (armor.enchantment) {
-      victimEnchantments.push(armor.enchantment);
-    }
-  });
-
-  victim.equipment.weapons.forEach((weapon) => {
-    if (weapon.enchantment) {
-      victimEnchantments.push(weapon.enchantment);
-    }
-  });
-
-  const attackerEnchantedStats = getEnchantedAttributes(
-    attacker,
-    victim,
-    attackerEnchantments
-  );
-  const enchantedStats = getEnchantedAttributes(
-    attackerEnchantedStats.victim,
-    attackerEnchantedStats.attacker,
-    victimEnchantments
-  );
+  const enchantedStats = getEnchantedAttributes(attacker, victim);
   attacker = enchantedStats.victim;
   victim = enchantedStats.attacker;
 
@@ -204,13 +167,58 @@ function didHit(
   return Math.random() < oddBase;
 }
 
+type EnchantedCombatant = Combatant & {
+  enchanted?: true;
+};
+
 function getEnchantedAttributes(
-  attacker: Combatant,
-  victim: Combatant,
-  enchantments: EnchantmentType[]
-): { attacker: Combatant; victim: Combatant } {
-  attacker = { ...attacker, attributes: { ...attacker.attributes } };
-  victim = { ...victim, attributes: { ...victim.attributes } };
+  attacker: EnchantedCombatant,
+  victim: EnchantedCombatant
+): { attacker: EnchantedCombatant; victim: EnchantedCombatant } {
+  if (!attacker.enchanted) {
+    attacker = enchantAttacker(attacker, victim);
+  }
+  if (!attacker.enchanted) {
+    victim = enchantVictim(attacker, victim);
+  }
+
+  return { attacker, victim };
+}
+
+function enchantVictim(
+  attacker: EnchantedCombatant,
+  victim: EnchantedCombatant
+): EnchantedCombatant {
+  // symmetrical right now!
+  return enchantAttacker(victim, attacker);
+}
+
+function enchantAttacker(
+  attacker: EnchantedCombatant,
+  victim: EnchantedCombatant
+): EnchantedCombatant {
+  if (attacker.enchanted) {
+    return attacker;
+  }
+  attacker = {
+    ...attacker,
+    attributes: { ...attacker.attributes },
+    enchanted: true,
+  };
+
+  const enchantments: EnchantmentType[] = [];
+
+  attacker.equipment.armor.forEach((armor) => {
+    if (armor.enchantment) {
+      enchantments.push(armor.enchantment);
+    }
+  });
+
+  attacker.equipment.weapons.forEach((weapon) => {
+    if (weapon.enchantment) {
+      enchantments.push(weapon.enchantment);
+    }
+  });
 
   enchantments.forEach((enchantment) => {
     switch (enchantment) {
@@ -260,7 +268,7 @@ function getEnchantedAttributes(
     }
   });
 
-  return { attacker, victim };
+  return attacker;
 }
 
 function calculateDamage(
@@ -273,49 +281,19 @@ function calculateDamage(
   const attributeTypes = attributesForAttack(attackType);
   let percentageDamageReduction = 1;
   let percentageDamageIncrease = 1;
-  const attackerEnchantments: EnchantmentType[] = [];
-  const victimEnchantments: EnchantmentType[] = [];
-
-  attacker.equipment.armor.forEach((armor) => {
-    if (armor.enchantment) {
-      attackerEnchantments.push(armor.enchantment);
-    }
-  });
 
   victim.equipment.armor.forEach((armor) => {
     percentageDamageReduction =
       percentageDamageReduction * (1 - armor.level / (armor.level + 20));
-
-    if (armor.enchantment) {
-      victimEnchantments.push(armor.enchantment);
-    }
   });
 
-  victim.equipment.weapons.forEach((weapon) => {
-    if (weapon.enchantment) {
-      victimEnchantments.push(weapon.enchantment);
-    }
-  });
   attacker.equipment.weapons.forEach((weapon) => {
     percentageDamageIncrease =
       percentageDamageIncrease *
       (1 + (weapon.level / (weapon.level + 40)) * Math.pow(1.1, weapon.level));
-
-    if (weapon.enchantment) {
-      attackerEnchantments.push(weapon.enchantment);
-    }
   });
 
-  const attackerEnchantedStats = getEnchantedAttributes(
-    attacker,
-    victim,
-    attackerEnchantments
-  );
-  const enchantedStats = getEnchantedAttributes(
-    attackerEnchantedStats.victim,
-    attackerEnchantedStats.attacker,
-    victimEnchantments
-  );
+  const enchantedStats = getEnchantedAttributes(attacker, victim);
   attacker = enchantedStats.victim;
   victim = enchantedStats.attacker;
 
