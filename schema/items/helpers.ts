@@ -41,7 +41,12 @@ export function randomBaseItem(level: number): BaseItem {
     if (item.level < level) {
       maxLevel = Math.max(item.level, maxLevel);
     }
-    return item.level === level;
+    return (
+      item.canBuy &&
+      item.cost &&
+      item.type !== InventoryItemType.Quest &&
+      item.level === level
+    );
   });
 
   if (!options.length) {
