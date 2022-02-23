@@ -7,7 +7,7 @@ export default gql`
   }
   type Mutation {
     sail(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 5000)
-    move(direction: MoveDirection!): MoveResponse! @auth @delay(delay: 200)
+    move(direction: MoveDirection!): MoveResponse! @auth @delay(delay: 500)
     increaseAttribute(attribute: AttributeType!): LevelUpResponse!
       @auth
       @delay(delay: 1000)
