@@ -146,9 +146,6 @@ const resolvers: Resolvers = {
       if (!baseItem.cost || !baseItem.canBuy) {
         throw new UserInputError("Item cannot be sold!");
       }
-      if (baseItem.cost > hero.gold) {
-        throw new UserInputError("You do not have enough gold for that item!");
-      }
       if (item.enchantment) {
         throw new UserInputError("You cannot sell enchanted items!");
       }
