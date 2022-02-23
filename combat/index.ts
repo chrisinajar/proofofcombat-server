@@ -147,23 +147,46 @@ function didHit(
 ): boolean {
   const attackAttributes = attributesForAttack(attackType);
 
-  const enchantments: EnchantmentType[] = [];
+  const attackerEnchantments: EnchantmentType[] = [];
+
+  attacker.equipment.armor.forEach((armor) => {
+    if (armor.enchantment) {
+      attackerEnchantments.push(armor.enchantment);
+    }
+  });
+
+  attacker.equipment.weapons.forEach((weapon) => {
+    if (weapon.enchantment) {
+      attackerEnchantments.push(weapon.enchantment);
+    }
+  });
+
+  const victimEnchantments: EnchantmentType[] = [];
 
   victim.equipment.armor.forEach((armor) => {
     if (armor.enchantment) {
-      enchantments.push(armor.enchantment);
+      victimEnchantments.push(armor.enchantment);
     }
   });
 
   victim.equipment.weapons.forEach((weapon) => {
     if (weapon.enchantment) {
-      enchantments.push(weapon.enchantment);
+      victimEnchantments.push(weapon.enchantment);
     }
   });
 
-  const enchantedStats = getEnchantedAttributes(attacker, victim, enchantments);
-  attacker = enchantedStats.attacker;
-  victim = enchantedStats.victim;
+  const attackerEnchantedStats = getEnchantedAttributes(
+    attacker,
+    victim,
+    attackerEnchantments
+  );
+  const enchantedStats = getEnchantedAttributes(
+    attackerEnchantedStats.victim,
+    attackerEnchantedStats.attacker,
+    victimEnchantments
+  );
+  attacker = enchantedStats.victim;
+  victim = enchantedStats.attacker;
 
   // rarely massive, 1 when even, 0.5 when dodge is double, etc
   // "how many times bigger is attack than dodge"
@@ -250,30 +273,51 @@ function calculateDamage(
   const attributeTypes = attributesForAttack(attackType);
   let percentageDamageReduction = 1;
   let percentageDamageIncrease = 1;
-  const enchantments: EnchantmentType[] = [];
+  const attackerEnchantments: EnchantmentType[] = [];
+  const victimEnchantments: EnchantmentType[] = [];
+
+  attacker.equipment.armor.forEach((armor) => {
+    if (armor.enchantment) {
+      attackerEnchantments.push(armor.enchantment);
+    }
+  });
 
   victim.equipment.armor.forEach((armor) => {
     percentageDamageReduction =
       percentageDamageReduction * (1 - armor.level / (armor.level + 20));
 
     if (armor.enchantment) {
-      enchantments.push(armor.enchantment);
+      victimEnchantments.push(armor.enchantment);
     }
   });
 
   victim.equipment.weapons.forEach((weapon) => {
+    if (weapon.enchantment) {
+      victimEnchantments.push(weapon.enchantment);
+    }
+  });
+  attacker.equipment.weapons.forEach((weapon) => {
     percentageDamageIncrease =
       percentageDamageIncrease *
       (1 + (weapon.level / (weapon.level + 40)) * Math.pow(1.1, weapon.level));
 
     if (weapon.enchantment) {
-      enchantments.push(weapon.enchantment);
+      attackerEnchantments.push(weapon.enchantment);
     }
   });
 
-  const enchantedStats = getEnchantedAttributes(attacker, victim, enchantments);
-  attacker = enchantedStats.attacker;
-  victim = enchantedStats.victim;
+  const attackerEnchantedStats = getEnchantedAttributes(
+    attacker,
+    victim,
+    attackerEnchantments
+  );
+  const enchantedStats = getEnchantedAttributes(
+    attackerEnchantedStats.victim,
+    attackerEnchantedStats.attacker,
+    victimEnchantments
+  );
+  attacker = enchantedStats.victim;
+  victim = enchantedStats.attacker;
 
   // melee does double damage
   if (attackType === AttackType.Melee) {
