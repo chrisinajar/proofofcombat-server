@@ -51,7 +51,11 @@ export function randomBaseItem(level: number): BaseItem {
 
   if (!options.length) {
     options = Object.values(BaseItems).filter(
-      (item) => item.level === maxLevel
+      (item) =>
+        item.canBuy &&
+        item.cost &&
+        item.type !== InventoryItemType.Quest &&
+        item.level === maxLevel
     );
   }
 

@@ -1,4 +1,4 @@
-import { Hero, BaseAccount } from "types/graphql";
+import { Hero, BaseAccount, InventoryItemType } from "types/graphql";
 import DatabaseInterface from "../interface";
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
@@ -188,6 +188,12 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     // data.questLog = {
     //   id: data.id,
     // };
+
+    if (data.inventory) {
+      data.inventory = data.inventory.filter(
+        (item) => !(item.type === InventoryItemType.Quest && item.enchantment)
+      );
+    }
 
     data.gold = Math.round(data.gold);
     data.experience = Math.round(data.experience);
