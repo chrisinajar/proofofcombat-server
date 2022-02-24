@@ -272,11 +272,7 @@ export function enchantAttacker(
         attacker.attributes.charisma *= 1.2;
         break;
       case EnchantmentType.BonusLuck:
-        attacker.luck.smallModifier = (attacker.luck.smallModifier * 5 + 1) / 6;
-        attacker.luck.largeModifier =
-          (attacker.luck.smallModifier * 10 + 1) / 11;
-        attacker.luck.ultraModifier =
-          (attacker.luck.smallModifier * 50 + 1) / 51;
+        attacker.attributes.luck *= 1.2;
         break;
       case EnchantmentType.BonusPhysical:
         attacker.attributes.strength *= 1.1;
@@ -360,11 +356,7 @@ export function enchantAttacker(
         attacker.attributes.charisma *= 1.5;
         break;
       case EnchantmentType.FishermansLuck:
-        attacker.luck.smallModifier = (attacker.luck.smallModifier * 5 + 1) / 6;
-        attacker.luck.largeModifier =
-          (attacker.luck.smallModifier * 10 + 1) / 11;
-        attacker.luck.ultraModifier =
-          (attacker.luck.smallModifier * 50 + 1) / 51;
+        attacker.attributes.luck *= 1.5;
         break;
     }
   });
