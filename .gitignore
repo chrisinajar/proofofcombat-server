@@ -9,3 +9,4 @@ csr.csr
 types/graphql.ts
 .DS-Store
 .DS_Store
+test-data/

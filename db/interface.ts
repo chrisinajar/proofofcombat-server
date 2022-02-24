@@ -2,11 +2,13 @@ import Level from "level-ts";
 // import { uuid } from 'uuidv4';
 import { BaseModel } from "types/graphql";
 
+const rootDataPath = process.env.NODE_ENV === "test" ? "./test-data" : "./data";
+
 export default class DatabaseInterface<Model extends BaseModel> {
   db: Level<Model>;
 
   constructor(database: string) {
-    this.db = new Level<Model>(`./data/${database}`);
+    this.db = new Level<Model>(`${rootDataPath}/${database}`);
   }
 
   upgrade(data: Model): Model {

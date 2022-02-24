@@ -148,8 +148,7 @@ export type Combatant = {
   };
 };
 
-// D20 needs to scale with stats, these values will enter the 10's of thousands, if not millions
-function didHit(
+export function didHit(
   attackerInput: Combatant,
   attackType: AttackType,
   victimInput: Combatant
@@ -190,10 +189,10 @@ export function getEnchantedAttributes(
   let attacker = attackerInput as EnchantedCombatant;
   let victim = victimInput as EnchantedCombatant;
   if (!attacker.enchanted) {
-    attacker = enchantAttacker(attacker, victim);
+    enchantAttacker(attacker, victim);
   }
   if (!victim.enchanted) {
-    victim = enchantVictim(attacker, victim);
+    enchantVictim(attacker, victim);
   }
 
   attacker.luck = createLuck(attacker.attributes.luck);
@@ -205,7 +204,7 @@ export function getEnchantedAttributes(
 function enchantVictim(
   attackerInput: Combatant,
   victimInput: Combatant
-): EnchantedCombatant {
+): { attacker: EnchantedCombatant; victim: EnchantedCombatant } {
   let attacker = attackerInput as EnchantedCombatant;
   let victim = victimInput as EnchantedCombatant;
   // symmetrical right now!
@@ -215,27 +214,23 @@ function enchantVictim(
 export function enchantAttacker(
   attackerInput: Combatant,
   victimInput: Combatant
-): EnchantedCombatant {
+): { attacker: EnchantedCombatant; victim: EnchantedCombatant } {
   let attacker = attackerInput as EnchantedCombatant;
   let victim = victimInput as EnchantedCombatant;
 
   if (attacker.enchanted) {
     return attacker;
   }
-  attacker = {
-    ...attacker,
-    attributes: { ...attacker.attributes },
-    percentageDamageIncrease: attacker.percentageDamageIncrease ?? 1,
-    percentageDamageReduction: attacker.percentageDamageReduction ?? 1,
-    enchanted: true,
-  };
-  victim = {
-    ...victim,
-    attributes: { ...victim.attributes },
-    percentageDamageIncrease: victim.percentageDamageIncrease ?? 1,
-    percentageDamageReduction: victim.percentageDamageReduction ?? 1,
-    enchanted: true,
-  };
+
+  attacker.attributes = { ...attacker.attributes };
+  attacker.percentageDamageIncrease = attacker.percentageDamageIncrease ?? 1;
+  attacker.percentageDamageReduction = attacker.percentageDamageReduction ?? 1;
+  attacker.enchanted = true;
+
+  victim.attributes = { ...victim.attributes };
+  victim.percentageDamageIncrease = victim.percentageDamageIncrease ?? 1;
+  victim.percentageDamageReduction = victim.percentageDamageReduction ?? 1;
+  victim.enchanted = true;
 
   let enchantments: EnchantmentType[] = [];
 
@@ -368,7 +363,7 @@ export function enchantAttacker(
     }
   });
 
-  return attacker;
+  return { attacker, victim };
 }
 
 function calculateDamage(
