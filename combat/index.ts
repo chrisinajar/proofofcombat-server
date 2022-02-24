@@ -298,10 +298,10 @@ export function enchantAttacker(
         break;
 
       case EnchantmentType.MinusEnemyArmor:
-        victim.percentageDamageReduction *= 1.2;
+        victim.percentageDamageReduction *= 0.8;
         break;
       case EnchantmentType.BonusArmor:
-        attacker.percentageDamageReduction *= 0.8;
+        attacker.percentageDamageReduction *= 1.2;
         break;
       case EnchantmentType.MinusEnemyStrength:
         victim.attributes.strength *= 0.8;
@@ -441,11 +441,15 @@ function calculateDamage(
 
   damage *= percentageDamageIncrease;
   damage -= victim.damageReduction;
-  damage *= percentageDamageReduction;
-  const drFromArmor = 1 - (0.05 * totalArmor) / (1 + 0.05 * totalArmor);
+  totalArmor *= percentageDamageReduction;
+  const drFromArmor = 1 - (0.03 * totalArmor) / (1 + 0.04 * totalArmor);
   damage *= drFromArmor;
 
-  console.log(victim.name, { totalArmor, drFromArmor });
+  console.log(victim.name, {
+    percentageDamageReduction,
+    totalArmor,
+    drFromArmor,
+  });
 
   damage = Math.round(Math.max(1, Math.min(1000000000, damage)));
 
