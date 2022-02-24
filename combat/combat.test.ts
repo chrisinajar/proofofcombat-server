@@ -6,6 +6,11 @@ function generateHero(): Hero {
   const hero = Databases.hero.upgrade({
     name: "test",
     password: "sadfasdf",
+    location: {
+      x: 0,
+      y: 0,
+      map: "default",
+    },
   });
   hero.combat.health = hero.combat.maxHealth;
 
@@ -50,7 +55,6 @@ describe("combat", () => {
         entry.attackType,
         hero2Combatant
       );
-      console.log(oddsBefore, oddsAfter);
       expect(oddsBefore).toBeLessThan(oddsAfter);
     });
   });
