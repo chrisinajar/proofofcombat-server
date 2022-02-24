@@ -28,11 +28,11 @@ export function getClass(hero: Hero): HeroClasses {
   const highestStatValue = hero.stats[highestStat];
 
   if (highestStatValue < 12) {
-    console.log("Advanturer?", hero.name, hero.stats, {
-      highestStatValue,
-      value: hero.stats[highestStat],
-    });
     return HeroClasses.Adventurer;
+  }
+
+  if ((highestStat as string) === "all") {
+    return HeroClasses.JackOfAllTrades;
   }
 
   switch (highestStat) {
@@ -65,6 +65,5 @@ export function getClass(hero: Hero): HeroClasses {
       break;
   }
 
-  console.log("Advanturer?", hero.name, hero.stats, highestStat);
   return HeroClasses.Adventurer;
 }

@@ -61,6 +61,7 @@ export default gql`
     Wizard
     Elementalist
     Cleric
+    JackOfAllTrades
   }
 
   type LeadboardEntry {
