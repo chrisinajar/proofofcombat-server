@@ -301,6 +301,8 @@ const resolvers: Resolvers = {
       }
       const attacker = createHeroCombatant(parent, attackType);
       const victim = {
+        level: 1,
+        name: "System",
         equipment: { armor: [], weapons: [], quests: [] },
         damageReduction: 1,
         attributes: {

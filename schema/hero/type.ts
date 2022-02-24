@@ -54,6 +54,7 @@ export default gql`
   enum HeroClasses {
     Adventurer
     Gambler
+    Berserker
     Fighter
     Ranger
     BloodMage

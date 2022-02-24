@@ -1,4 +1,4 @@
-import { Hero, HeroClasses, HeroStats } from "types/graphql";
+import { Hero, HeroClasses, HeroStats, InventoryItemType } from "types/graphql";
 
 type HeroStatName = keyof HeroStats;
 
@@ -28,11 +28,21 @@ export function getClass(hero: Hero): HeroClasses {
   const highestStatValue = hero.stats[highestStat];
 
   if (highestStatValue < 12) {
+    console.log(hero.stats, {
+      highestStatValue,
+      value: hero.stats[highestStat],
+    });
     return HeroClasses.Adventurer;
   }
 
   switch (highestStat) {
     case "strength":
+      if (
+        hero.equipment.leftHand?.type === InventoryItemType.MeleeWeapon &&
+        hero.equipment.rightHand?.type === InventoryItemType.MeleeWeapon
+      ) {
+        return HeroClasses.Berserker;
+      }
       return HeroClasses.Fighter;
       break;
     case "dexterity":

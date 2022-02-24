@@ -134,6 +134,8 @@ type QuestItem = {
   baseItem: string;
 };
 export type Combatant = {
+  level: number;
+  name: string;
   equipment: {
     armor: CombatGear[];
     weapons: CombatGear[];
@@ -148,7 +150,7 @@ export type Combatant = {
   };
 };
 
-export function didHit(
+export function calculateHit(
   attackerInput: Combatant,
   attackType: AttackType,
   victimInput: Combatant
@@ -296,10 +298,10 @@ export function enchantAttacker(
         break;
 
       case EnchantmentType.MinusEnemyArmor:
-        victim.percentageDamageReduction *= 0.8;
+        victim.percentageDamageReduction *= 1.2;
         break;
       case EnchantmentType.BonusArmor:
-        attacker.percentageDamageReduction *= 1.2;
+        attacker.percentageDamageReduction *= 0.8;
         break;
       case EnchantmentType.MinusEnemyStrength:
         victim.attributes.strength *= 0.8;
@@ -370,9 +372,10 @@ function calculateDamage(
   attackerInput: Combatant,
   attackType: AttackType,
   victimInput: Combatant
-): { damage: number; critical: boolean } {
+): { damage: number; critical: boolean; doubleCritical: boolean } {
   let damage = 0;
   let critical = false;
+  let doubleCritical = false;
 
   const { attacker, victim } = getEnchantedAttributes(
     attackerInput,
@@ -381,17 +384,13 @@ function calculateDamage(
 
   const attributeTypes = attributesForAttack(attackType);
 
-  let percentageDamageReduction = 1;
+  let percentageDamageReduction = attacker.percentageDamageIncrease;
   let percentageDamageIncrease = attacker.percentageDamageIncrease;
+  let totalArmor = 0;
 
   victim.equipment.armor.forEach((armor) => {
-    percentageDamageReduction =
-      percentageDamageReduction * (1 - armor.level / (armor.level + 20));
+    totalArmor += Math.pow(1.3, armor.level);
   });
-
-  // "amounr of armor" reduced, then turned back into inverse
-  percentageDamageReduction =
-    1 - (1 - percentageDamageReduction) * victim.percentageDamageReduction;
 
   attacker.equipment.weapons.forEach((weapon) => {
     percentageDamageIncrease =
@@ -434,7 +433,8 @@ function calculateDamage(
   critical = Math.random() < attacker.luck.largeModifier;
   if (critical) {
     damage = damage * 3;
-    if (Math.random() < attacker.luck.ultraModifier) {
+    doubleCritical = Math.random() < attacker.luck.ultraModifier;
+    if (doubleCritical) {
       damage = damage * 3;
     }
   }
@@ -442,12 +442,14 @@ function calculateDamage(
   damage *= percentageDamageIncrease;
   damage -= victim.damageReduction;
   damage *= percentageDamageReduction;
+  damage *= 1 - (0.05 * totalArmor) / (1 + 0.05 * totalArmor);
 
   damage = Math.round(Math.max(1, Math.min(1000000000, damage)));
 
   return {
     damage,
     critical,
+    doubleCritical,
   };
 }
 
@@ -552,6 +554,8 @@ export function createHeroCombatant(
   attackType: AttackType
 ): Combatant {
   const heroCombatant = {
+    level: hero.level,
+    name: hero.name,
     equipment: {
       armor: [],
       weapons: [],
@@ -587,6 +591,69 @@ export function createHeroCombatant(
   return heroCombatant;
 }
 
+function attackCombatant(
+  attacker: Combatant,
+  victim: Combatant,
+  attackType: AttackType
+): {
+  hit: boolean;
+  damage: number;
+  critical: boolean;
+  doubleCritical: boolean;
+  combatLog: CombatEntry[];
+} {
+  const hit = calculateHit(attacker, attackType, victim);
+  let damage = 0;
+  let critical = false;
+  let doubleCritical = false;
+  const combatLog: CombatEntry[] = [];
+
+  if (hit) {
+    const damageResult = calculateDamage(attacker, attackType, victim);
+    damage = damageResult.damage;
+    critical = damageResult.critical;
+    doubleCritical = damageResult.doubleCritical;
+
+    combatLog.push({
+      attackType: attackType,
+      success: true,
+      from: attacker.name,
+      to: victim.name,
+      damage,
+      critical,
+    });
+
+    console.log(
+      attacker.name,
+      `(${attacker.level})`,
+      critical ? "crit" : "dealt",
+      damage,
+      "to",
+      victim.name,
+      `(${victim.level})`,
+      "with",
+      attackType
+    );
+  } else {
+    combatLog.push({
+      attackType: attackType,
+      damage: 0,
+      success: false,
+      from: attacker.name,
+      to: victim.name,
+      critical: false,
+    });
+  }
+
+  return {
+    hit,
+    damage,
+    critical,
+    doubleCritical,
+    combatLog,
+  };
+}
+
 export async function fightMonster(
   hero: Hero,
   monsterInstance: MonsterInstance,
@@ -601,13 +668,25 @@ export async function fightMonster(
   const heroCombatant = createHeroCombatant(hero, heroAttackType);
 
   const monsterCombatant = {
+    level: monster.level,
+    name: monster.name,
     equipment: createMonsterEquipment(monster),
     damageReduction: monsterAttributes.constitution / 2,
     attributes: monsterAttributes,
     luck: createMonsterLuck(monster),
   };
 
-  const heroDidHit = didHit(heroCombatant, heroAttackType, monsterCombatant);
+  const heroAttack = attackCombatant(
+    heroCombatant,
+    monsterCombatant,
+    attackType
+  );
+
+  const heroDidHit = calculateHit(
+    heroCombatant,
+    heroAttackType,
+    monsterCombatant
+  );
   let heroDamage = 0;
 
   if (heroDidHit) {
@@ -652,7 +731,7 @@ export async function fightMonster(
   const monsterAttributeTypes = attributesForAttack(monster.attackType);
   const monsterDidHit =
     heroDamage < monster.combat.health &&
-    didHit(monsterCombatant, monster.attackType, heroCombatant);
+    calculateHit(monsterCombatant, monster.attackType, heroCombatant);
 
   let monsterDamage =
     heroDidHit && heroAttackType === AttackType.Blood
