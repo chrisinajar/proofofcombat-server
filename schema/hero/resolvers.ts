@@ -11,12 +11,15 @@ import {
   EquipmentSlots,
   ShopItem,
   LeadboardEntry,
+  AttackType,
+  HeroClasses,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
 import { BaseItems } from "../items/base-items";
 import { createItemInstance } from "../items/helpers";
 import type { BaseItem } from "../items";
+import { createHeroCombatant, getEnchantedAttributes } from "../../combat";
 
 const resolvers: Resolvers = {
   Query: {
@@ -266,6 +269,57 @@ const resolvers: Resolvers = {
     },
   },
   Hero: {
+    combatStats(parent) {
+      let attackType = AttackType.Melee;
+      switch (parent.class) {
+        case HeroClasses.Adventurer:
+          attackType = AttackType.Melee;
+          break;
+        case HeroClasses.Gambler:
+          attackType = AttackType.Melee;
+          break;
+        case HeroClasses.Fighter:
+          attackType = AttackType.Melee;
+          break;
+        case HeroClasses.Ranger:
+          attackType = AttackType.Ranged;
+          break;
+        case HeroClasses.BloodMage:
+          attackType = AttackType.Blood;
+          break;
+        case HeroClasses.Wizard:
+          attackType = AttackType.Wizard;
+          break;
+        case HeroClasses.Elementalist:
+          attackType = AttackType.Elemental;
+          break;
+        case HeroClasses.Cleric:
+          attackType = AttackType.Holy;
+          break;
+      }
+      const attacker = createHeroCombatant(parent, attackType);
+      const victim = {
+        equipment: { armor: [], weapons: [], quests: [] },
+        damageReduction: 1,
+        attributes: {
+          strength: 5,
+          dexterity: 5,
+          constitution: 5,
+          intelligence: 5,
+          wisdom: 5,
+          charisma: 5,
+          luck: 5,
+        },
+        luck: {
+          smallModifier: 0.01,
+          largeModifier: 0.01,
+          ultraModifier: 0.01,
+        },
+      };
+      const enchantedStats = getEnchantedAttributes(attacker, victim);
+
+      return enchantedStats.attacker.attributes;
+    },
     async equipment(
       parent,
       args,

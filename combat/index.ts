@@ -26,14 +26,14 @@ type MonsterHeroCombatResult = {
 function randomNumber(min: number, max: number) {
   return Math.round(Math.random() * (max - min) + min);
 }
-type Attribute = keyof Attributes;
+type Attribute = keyof HeroStats;
 type AttackAttributes = {
   toHit: Attribute;
   damage: Attribute;
   dodge: Attribute;
 };
 
-function createMonsterStats(monster: Monster): Attributes {
+function createMonsterStats(monster: Monster): HeroStats {
   console.log(monster.name, "has", monster.combat.maxHealth - 5, "stats");
   return {
     strength: monster.combat.maxHealth - 5,
@@ -42,6 +42,7 @@ function createMonsterStats(monster: Monster): Attributes {
     intelligence: monster.combat.maxHealth - 5,
     wisdom: monster.combat.maxHealth - 5,
     charisma: monster.combat.maxHealth - 5,
+    luck: monster.combat.maxHealth - 5,
   };
 }
 
@@ -132,13 +133,13 @@ type QuestItem = {
   name: string;
   baseItem: string;
 };
-type Combatant = {
+export type Combatant = {
   equipment: {
     armor: CombatGear[];
     weapons: CombatGear[];
     quests: QuestItem[];
   };
-  attributes: Attributes;
+  attributes: HeroStats;
   damageReduction: number;
   luck: {
     smallModifier: number;
@@ -182,7 +183,7 @@ type EnchantedCombatant = Combatant & {
   enchanted: true;
 };
 
-function getEnchantedAttributes(
+export function getEnchantedAttributes(
   attackerInput: Combatant,
   victimInput: Combatant
 ): { attacker: EnchantedCombatant; victim: EnchantedCombatant } {
@@ -194,6 +195,9 @@ function getEnchantedAttributes(
   if (!victim.enchanted) {
     victim = enchantVictim(attacker, victim);
   }
+
+  attacker.luck = createLuck(attacker.attributes.luck);
+  victim.luck = createLuck(victim.attributes.luck);
 
   return { attacker, victim };
 }
@@ -208,7 +212,7 @@ function enchantVictim(
   return enchantAttacker(victim, attacker);
 }
 
-function enchantAttacker(
+export function enchantAttacker(
   attackerInput: Combatant,
   victimInput: Combatant
 ): EnchantedCombatant {
@@ -533,6 +537,58 @@ function doesWeaponAffectAttack(
   return true;
 }
 
+function createLuck(luck: number): {
+  smallModifier: number;
+  largeModifier: number;
+  ultraModifier: number;
+} {
+  return {
+    smallModifier: Databases.hero.smallLuck(luck),
+    largeModifier: Databases.hero.largeLuck(luck),
+    ultraModifier: Databases.hero.ultraLuck(luck),
+  };
+}
+
+export function createHeroCombatant(
+  hero: Hero,
+  attackType: AttackType
+): Combatant {
+  const heroCombatant = {
+    equipment: {
+      armor: [],
+      weapons: [],
+      quests: hero.inventory.filter((i) => i.type === InventoryItemType.Quest),
+    },
+    damageReduction: hero.level,
+    attributes: hero.stats,
+    luck: createLuck(hero.stats.luck),
+  };
+
+  if (hero.equipment.leftHand) {
+    addItemToCombatant(heroCombatant, hero.equipment.leftHand, attackType);
+  }
+  if (hero.equipment.rightHand) {
+    addItemToCombatant(heroCombatant, hero.equipment.rightHand, attackType);
+  }
+  if (hero.equipment.bodyArmor) {
+    addItemToCombatant(heroCombatant, hero.equipment.bodyArmor, attackType);
+  }
+  if (hero.equipment.handArmor) {
+    addItemToCombatant(heroCombatant, hero.equipment.handArmor, attackType);
+  }
+  if (hero.equipment.legArmor) {
+    addItemToCombatant(heroCombatant, hero.equipment.legArmor, attackType);
+  }
+  if (hero.equipment.headArmor) {
+    addItemToCombatant(heroCombatant, hero.equipment.headArmor, attackType);
+  }
+  if (hero.equipment.footArmor) {
+    addItemToCombatant(heroCombatant, hero.equipment.footArmor, attackType);
+  }
+
+  return heroCombatant;
+}
+
 export async function fightMonster(
   hero: Hero,
   monsterInstance: MonsterInstance,
@@ -544,47 +600,7 @@ export async function fightMonster(
   const heroAttributeTypes = attributesForAttack(heroAttackType);
   const heroAttributes = hero.stats;
   const monsterAttributes = createMonsterStats(monster);
-
-  const smallLuckModifier = Databases.hero.smallLuck(heroAttributes.luck);
-  const largeLuckModifier = Databases.hero.largeLuck(heroAttributes.luck);
-  const ultraLuckModifier = Databases.hero.ultraLuck(heroAttributes.luck);
-
-  const heroCombatant = {
-    equipment: {
-      armor: [],
-      weapons: [],
-      quests: hero.inventory.filter((i) => i.type === InventoryItemType.Quest),
-    },
-    damageReduction: hero.level,
-    attributes: heroAttributes,
-    luck: {
-      smallModifier: smallLuckModifier,
-      largeModifier: largeLuckModifier,
-      ultraModifier: ultraLuckModifier,
-    },
-  };
-
-  if (hero.equipment.leftHand) {
-    addItemToCombatant(heroCombatant, hero.equipment.leftHand, heroAttackType);
-  }
-  if (hero.equipment.rightHand) {
-    addItemToCombatant(heroCombatant, hero.equipment.rightHand, heroAttackType);
-  }
-  if (hero.equipment.bodyArmor) {
-    addItemToCombatant(heroCombatant, hero.equipment.bodyArmor, heroAttackType);
-  }
-  if (hero.equipment.handArmor) {
-    addItemToCombatant(heroCombatant, hero.equipment.handArmor, heroAttackType);
-  }
-  if (hero.equipment.legArmor) {
-    addItemToCombatant(heroCombatant, hero.equipment.legArmor, heroAttackType);
-  }
-  if (hero.equipment.headArmor) {
-    addItemToCombatant(heroCombatant, hero.equipment.headArmor, heroAttackType);
-  }
-  if (hero.equipment.footArmor) {
-    addItemToCombatant(heroCombatant, hero.equipment.footArmor, heroAttackType);
-  }
+  const heroCombatant = createHeroCombatant(hero, heroAttackType);
 
   const monsterCombatant = {
     equipment: createMonsterEquipment(monster),

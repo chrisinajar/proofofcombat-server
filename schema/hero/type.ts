@@ -38,6 +38,8 @@ export default gql`
     equipment: EquipmentSlots!
     currentQuest: QuestEvent
     questLog: QuestLog!
+
+    combatStats: HeroStats
   }
 
   enum HeroClasses {
