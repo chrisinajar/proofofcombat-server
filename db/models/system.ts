@@ -5,6 +5,7 @@ export type ChatMessage = {
   message: string;
   from: string;
   id: number;
+  time: number;
 };
 
 type System = BaseModel & {

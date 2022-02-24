@@ -39,10 +39,11 @@ const chatCacheSize = 50;
 let currentOffset = 0;
 
 export async function addChatMessage(
-  partialMessage: Omit<ChatMessage, "id">
+  partialMessage: Omit<ChatMessage, "id" | "time">
 ): Promise<ChatMessage> {
   const message: ChatMessage = {
     ...partialMessage,
+    time: Math.round(Date.now() / 1000),
     id: chatIdNumber++,
   };
   if (!chatCache[currentOffset]) {
