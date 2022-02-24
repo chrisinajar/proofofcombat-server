@@ -28,7 +28,7 @@ export function getClass(hero: Hero): HeroClasses {
   const highestStatValue = hero.stats[highestStat];
 
   if (highestStatValue < 12) {
-    console.log(hero.stats, {
+    console.log(hero.name, hero.stats, {
       highestStatValue,
       value: hero.stats[highestStat],
     });
