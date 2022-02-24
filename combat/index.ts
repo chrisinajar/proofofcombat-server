@@ -442,7 +442,7 @@ function calculateDamage(
   damage *= percentageDamageIncrease;
   damage -= victim.damageReduction;
   totalArmor *= percentageDamageReduction;
-  const drFromArmor = 1 - (0.03 * totalArmor) / (1 + 0.04 * totalArmor);
+  const drFromArmor = 1 - (0.07 * totalArmor) / (5 + 0.08 * totalArmor);
   damage *= drFromArmor;
 
   damage = Math.round(Math.max(1, Math.min(1000000000, damage)));
