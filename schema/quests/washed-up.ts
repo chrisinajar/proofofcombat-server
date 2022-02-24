@@ -69,10 +69,6 @@ export function checkHero(hero: Hero): Hero {
   hero = checkDock(hero);
   hero = checkPub(hero);
 
-  if (hero.currentQuest && hero.questLog.washedUp) {
-    hero.questLog.washedUp.lastEvent = hero.currentQuest;
-  }
-
   return hero;
 }
 
@@ -261,7 +257,7 @@ function checkInitialWashedUp(hero: Hero): Hero {
       started: true,
       finished: false,
       progress: hero.questLog?.washedUp?.progress || 0,
-      lastEvent: hero.currentQuest,
+      lastEvent: hero.questLog?.washedUp?.lastEvent || hero.currentQuest,
     };
 
     hero.combat.health = 0;

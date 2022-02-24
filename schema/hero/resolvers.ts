@@ -302,13 +302,13 @@ const resolvers: Resolvers = {
         equipment: { armor: [], weapons: [], quests: [] },
         damageReduction: 1,
         attributes: {
-          strength: 5,
-          dexterity: 5,
-          constitution: 5,
-          intelligence: 5,
-          wisdom: 5,
-          charisma: 5,
-          luck: 5,
+          strength: 1000000,
+          dexterity: 1000000,
+          constitution: 1000000,
+          intelligence: 1000000,
+          wisdom: 1000000,
+          charisma: 1000000,
+          luck: 1000000,
         },
         luck: {
           smallModifier: 0.01,
@@ -318,7 +318,13 @@ const resolvers: Resolvers = {
       };
       const enchantedStats = getEnchantedAttributes(attacker, victim);
 
-      return enchantedStats.attacker.attributes;
+      return {
+        damageAmplification: enchantedStats.attacker.percentageDamageIncrease,
+        damageReduction: enchantedStats.attacker.percentageDamageReduction,
+        armorReduction: enchantedStats.victim.percentageDamageReduction,
+        enemyStats: enchantedStats.victim.attributes,
+        stats: enchantedStats.attacker.attributes,
+      };
     },
     async equipment(
       parent,

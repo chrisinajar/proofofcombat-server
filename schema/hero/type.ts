@@ -39,7 +39,16 @@ export default gql`
     currentQuest: QuestEvent
     questLog: QuestLog!
 
-    combatStats: HeroStats
+    combatStats: ExtendedCombatStats
+  }
+
+  type ExtendedCombatStats {
+    damageAmplification: Float!
+    damageReduction: Float!
+    armorReduction: Float!
+
+    enemyStats: HeroStats!
+    stats: HeroStats!
   }
 
   enum HeroClasses {

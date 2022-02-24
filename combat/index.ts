@@ -294,10 +294,10 @@ export function enchantAttacker(
         break;
 
       case EnchantmentType.MinusEnemyArmor:
-        victim.percentageDamageIncrease *= 0.8;
+        victim.percentageDamageReduction *= 0.8;
         break;
       case EnchantmentType.BonusArmor:
-        victim.percentageDamageIncrease *= 1.2;
+        attacker.percentageDamageIncrease *= 1.2;
         break;
       case EnchantmentType.MinusEnemyStrength:
         victim.attributes.strength *= 0.8;
@@ -379,13 +379,17 @@ function calculateDamage(
 
   const attributeTypes = attributesForAttack(attackType);
 
-  let percentageDamageReduction = victim.percentageDamageReduction;
+  let percentageDamageReduction = 1;
   let percentageDamageIncrease = attacker.percentageDamageIncrease;
 
   victim.equipment.armor.forEach((armor) => {
     percentageDamageReduction =
       percentageDamageReduction * (1 - armor.level / (armor.level + 20));
   });
+
+  // "amounr of armor" reduced, then turned back into inverse
+  percentageDamageReduction =
+    1 - (1 - percentageDamageReduction) * victim.percentageDamageReduction;
 
   attacker.equipment.weapons.forEach((weapon) => {
     percentageDamageIncrease =
