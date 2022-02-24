@@ -711,6 +711,7 @@ export async function fightMonster(
       attackType
     );
     heroDamage += heroAttack.damage;
+    battleResults = battleResults.concat(secondHeroAttack.combatLog);
   }
 
   return {
