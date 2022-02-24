@@ -196,14 +196,14 @@ export default gql`
   }
 
   type HeroStats implements Attributes {
-    strength: Int!
-    dexterity: Int!
-    constitution: Int!
+    strength: Float!
+    dexterity: Float!
+    constitution: Float!
 
-    intelligence: Int!
-    wisdom: Int!
-    charisma: Int!
+    intelligence: Float!
+    wisdom: Float!
+    charisma: Float!
 
-    luck: Int!
+    luck: Float!
   }
 `;

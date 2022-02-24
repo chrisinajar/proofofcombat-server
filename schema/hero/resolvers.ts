@@ -13,6 +13,7 @@ import {
   LeadboardEntry,
   AttackType,
   HeroClasses,
+  HeroStats,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -317,6 +318,19 @@ const resolvers: Resolvers = {
         },
       };
       const enchantedStats = getEnchantedAttributes(attacker, victim);
+
+      function cleanStats(stats: HeroStats) {
+        stats.strength = Math.round(stats.strength);
+        stats.dexterity = Math.round(stats.dexterity);
+        stats.constitution = Math.round(stats.constitution);
+        stats.intelligence = Math.round(stats.intelligence);
+        stats.wisdom = Math.round(stats.wisdom);
+        stats.charisma = Math.round(stats.charisma);
+        stats.luck = Math.round(stats.luck);
+      }
+
+      cleanStats(enchantedStats.attacker.attributes);
+      cleanStats(enchantedStats.victim.attributes);
 
       return {
         damageAmplification: enchantedStats.attacker.percentageDamageIncrease,
