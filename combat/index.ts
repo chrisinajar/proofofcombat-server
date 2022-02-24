@@ -13,6 +13,8 @@ import {
 
 import Databases from "../db";
 
+import { BaseItems } from "../schema/items/base-items";
+
 type MonsterHeroCombatResult = {
   monsterDamage: number;
   heroDamage: number;
@@ -70,6 +72,7 @@ function createMonsterEquipment(monster: Monster) {
       { level: monster.level }, // leftHand
       { level: monster.level }, // rightHand
     ],
+    quests: [],
   };
 }
 
@@ -125,10 +128,15 @@ type CombatGear = {
   level: number;
   enchantment?: EnchantmentType | null;
 };
+type QuestItem = {
+  name: string;
+  baseItem: string;
+};
 type Combatant = {
   equipment: {
     armor: CombatGear[];
     weapons: CombatGear[];
+    quests: QuestItem[];
   };
   attributes: Attributes;
   damageReduction: number;
@@ -206,8 +214,15 @@ function enchantAttacker(
     enchanted: true,
   };
 
-  const enchantments: EnchantmentType[] = [];
+  let enchantments: EnchantmentType[] = [];
 
+  attacker.equipment.quests.forEach((questItem) => {
+    const baseItem = BaseItems[questItem.baseItem];
+
+    if (baseItem && baseItem.passiveEnchantments) {
+      enchantments = enchantments.concat(baseItem.passiveEnchantments);
+    }
+  });
   attacker.equipment.armor.forEach((armor) => {
     if (armor.enchantment) {
       enchantments.push(armor.enchantment);
@@ -264,6 +279,33 @@ function enchantAttacker(
         attacker.attributes.intelligence *= 1.1;
         attacker.attributes.wisdom *= 1.1;
         attacker.attributes.charisma *= 1.1;
+        break;
+
+      // quest rewards
+      case EnchantmentType.FishermansStrength:
+        attacker.attributes.strength *= 1.5;
+        break;
+      case EnchantmentType.FishermansDexterity:
+        attacker.attributes.dexterity *= 1.5;
+        break;
+      case EnchantmentType.FishermansConstitution:
+        attacker.attributes.constitution *= 1.5;
+        break;
+      case EnchantmentType.FishermansIntelligence:
+        attacker.attributes.intelligence *= 1.5;
+        break;
+      case EnchantmentType.FishermansWisdom:
+        attacker.attributes.wisdom *= 1.5;
+        break;
+      case EnchantmentType.FishermansCharisma:
+        attacker.attributes.charisma *= 1.5;
+        break;
+      case EnchantmentType.FishermansLuck:
+        attacker.luck.smallModifier = (attacker.luck.smallModifier * 5 + 1) / 6;
+        attacker.luck.largeModifier =
+          (attacker.luck.smallModifier * 10 + 1) / 11;
+        attacker.luck.ultraModifier =
+          (attacker.luck.smallModifier * 50 + 1) / 51;
         break;
     }
   });
@@ -453,6 +495,7 @@ export async function fightMonster(
     equipment: {
       armor: [],
       weapons: [],
+      quests: hero.inventory.filter((i) => i.type === InventoryItemType.Quest),
     },
     damageReduction: hero.level,
     attributes: heroAttributes,

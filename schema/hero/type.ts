@@ -123,6 +123,8 @@ export default gql`
   }
 
   enum EnchantmentType {
+    # Droppable enchantments
+    # base stats
     BonusStrength
     BonusDexterity
     BonusConstitution
@@ -130,10 +132,22 @@ export default gql`
     BonusWisdom
     BonusCharisma
     BonusLuck
-
+    # group stats
     BonusPhysical
     BonusMental
     BonusAllStats
+
+    # End droppable enchantments
+
+    # Quest reward enchantments
+    FishermansStrength
+    FishermansDexterity
+    FishermansConstitution
+    FishermansIntelligence
+    FishermansWisdom
+    FishermansCharisma
+    FishermansLuck
+    # End quest reward enchantments
   }
 
   enum InventoryItemType {

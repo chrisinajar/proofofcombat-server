@@ -1,5 +1,5 @@
 import { BaseItem } from "../items";
-import { InventoryItemType } from "types/graphql";
+import { InventoryItemType, EnchantmentType } from "types/graphql";
 
 export function getQuestRewards() {
   return {
@@ -50,6 +50,7 @@ export function getQuestRewards() {
     // "washed up" quest line reward items
     "fishermans-strength": {
       id: "fishermans-strength",
+      passiveEnchantments: [EnchantmentType.FishermansStrength],
       name: "Hero's Bracelet",
       type: InventoryItemType.Quest,
       level: 1,
@@ -57,6 +58,7 @@ export function getQuestRewards() {
     },
     "fishermans-dexterity": {
       id: "fishermans-dexterity",
+      passiveEnchantments: [EnchantmentType.FishermansDexterity],
       name: "Rod of Speed",
       type: InventoryItemType.Quest,
       level: 1,
@@ -64,6 +66,7 @@ export function getQuestRewards() {
     },
     "fishermans-constitution": {
       id: "fishermans-constitution",
+      passiveEnchantments: [EnchantmentType.FishermansConstitution],
       name: "Fortitude Ring",
       type: InventoryItemType.Quest,
       level: 1,
@@ -71,6 +74,7 @@ export function getQuestRewards() {
     },
     "fishermans-intelligence": {
       id: "fishermans-intelligence",
+      passiveEnchantments: [EnchantmentType.FishermansIntelligence],
       name: "Occult Tome",
       type: InventoryItemType.Quest,
       level: 1,
@@ -78,6 +82,7 @@ export function getQuestRewards() {
     },
     "fishermans-wisdom": {
       id: "fishermans-wisdom",
+      passiveEnchantments: [EnchantmentType.FishermansWisdom],
       name: "Wisdom Statue",
       type: InventoryItemType.Quest,
       level: 1,
@@ -85,6 +90,7 @@ export function getQuestRewards() {
     },
     "fishermans-charisma": {
       id: "fishermans-charisma",
+      passiveEnchantments: [EnchantmentType.FishermansCharisma],
       name: "Worship Disc",
       type: InventoryItemType.Quest,
       level: 1,
@@ -92,6 +98,7 @@ export function getQuestRewards() {
     },
     "fishermans-luck": {
       id: "fishermans-luck",
+      passiveEnchantments: [EnchantmentType.FishermansLuck],
       name: "Lucky Coin",
       type: InventoryItemType.Quest,
       level: 1,
