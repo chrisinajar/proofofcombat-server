@@ -28,7 +28,7 @@ export function getClass(hero: Hero): HeroClasses {
   const highestStatValue = hero.stats[highestStat];
 
   if (highestStatValue < 12) {
-    console.log(hero.name, hero.stats, {
+    console.log("Advanturer?", hero.name, hero.stats, {
       highestStatValue,
       value: hero.stats[highestStat],
     });
@@ -65,5 +65,6 @@ export function getClass(hero: Hero): HeroClasses {
       break;
   }
 
+  console.log("Advanturer?", hero.name, hero.stats, highestStat);
   return HeroClasses.Adventurer;
 }

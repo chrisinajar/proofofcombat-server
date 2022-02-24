@@ -9,6 +9,7 @@ import {
   InventoryItem,
   InventoryItemType,
   EnchantmentType,
+  HeroClasses,
 } from "types/graphql";
 
 import Databases from "../db";
@@ -661,7 +662,7 @@ export async function fightMonster(
   attackType: AttackType
 ): Promise<MonsterHeroCombatResult> {
   const { monster } = monsterInstance;
-  const battleResults: CombatEntry[] = [];
+  let battleResults: CombatEntry[] = [];
   const heroAttackType = attackType;
   const heroAttributeTypes = attributesForAttack(heroAttackType);
   const heroAttributes = hero.stats;
@@ -682,99 +683,34 @@ export async function fightMonster(
     monsterCombatant,
     attackType
   );
-
-  const heroDidHit = calculateHit(
-    heroCombatant,
-    heroAttackType,
-    monsterCombatant
-  );
-  let heroDamage = 0;
-
-  if (heroDidHit) {
-    const { damage, critical } = calculateDamage(
-      heroCombatant,
-      heroAttackType,
-      monsterCombatant
-    );
-    heroDamage = damage;
-
-    battleResults.push({
-      attackType: heroAttackType,
-      success: true,
-      from: hero.name,
-      to: monster.name,
-      damage,
-      critical,
-    });
-
-    console.log(
-      hero.name,
-      `(${hero.level})`,
-      critical ? "crit" : "dealt",
-      heroDamage,
-      "to",
-      monster.name,
-      `(${monster.level})`,
-      "with",
-      heroAttackType
-    );
-  } else {
-    battleResults.push({
-      attackType: heroAttackType,
-      damage: 0,
-      success: false,
-      from: hero.name,
-      to: monster.name,
-      critical: false,
-    });
-  }
-
-  const monsterAttributeTypes = attributesForAttack(monster.attackType);
-  const monsterDidHit =
-    heroDamage < monster.combat.health &&
-    calculateHit(monsterCombatant, monster.attackType, heroCombatant);
+  let heroDamage = heroAttack.damage;
+  battleResults = battleResults.concat(heroAttack.combatLog);
 
   let monsterDamage =
-    heroDidHit && heroAttackType === AttackType.Blood
-      ? hero.combat.health * 0.05
-      : 0;
+    heroAttackType === AttackType.Blood ? hero.combat.health * 0.05 : 0;
 
-  if (monsterDidHit) {
-    const { damage, critical } = calculateDamage(
+  if (heroDamage < monster.combat.health) {
+    const monsterAttack = attackCombatant(
       monsterCombatant,
-      monster.attackType,
-      heroCombatant
-    );
-    monsterDamage += damage;
-
-    battleResults.push({
-      attackType: monster.attackType,
-      success: true,
-      from: monster.name,
-      to: hero.name,
-      critical,
-      damage,
-    });
-    console.log(
-      monster.name,
-      `(${monster.level})`,
-      critical ? "dealt" : "crit",
-      monsterDamage,
-      "to",
-      hero.name,
-      `(${hero.level})`,
-      "with",
+      heroCombatant,
       monster.attackType
     );
-  } else if (heroDamage < monster.combat.health) {
-    battleResults.push({
-      attackType: monster.attackType,
-      damage: 0,
-      success: false,
-      from: monster.name,
-      to: hero.name,
-      critical: false,
-    });
+
+    monsterDamage += monsterAttack.damage;
+    battleResults = battleResults.concat(monsterAttack.combatLog);
+  }
+
+  if (
+    monsterDamage < hero.combat.health &&
+    attackType === AttackType.Melee &&
+    hero.class === HeroClasses.Berserker
+  ) {
+    const secondHeroAttack = attackCombatant(
+      heroCombatant,
+      monsterCombatant,
+      attackType
+    );
+    heroDamage += heroAttack.damage;
   }
 
   return {
