@@ -67,6 +67,7 @@ export default gql`
     name: String!
     gold: Int!
     level: Int!
+    class: String!
   }
 
   type LevelUpResponse {

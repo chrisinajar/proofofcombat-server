@@ -35,6 +35,7 @@ const resolvers: Resolvers = {
           gold: hero.gold,
           level: hero.level,
           id: hero.id,
+          class: hero.class,
         })
       );
     },
