@@ -136,6 +136,17 @@ export default gql`
     BonusPhysical
     BonusMental
     BonusAllStats
+    # non-stats
+    Vampire
+    MinusEnemyArmor
+    BonusArmor
+    # minus enemy stats
+    MinusEnemyStrength
+    MinusEnemyDexterity
+    MinusEnemyConstitution
+    MinusEnemyIntelligence
+    MinusEnemyWisdom
+    MinusEnemyCharisma
 
     # End droppable enchantments
 
