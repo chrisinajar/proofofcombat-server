@@ -64,12 +64,16 @@ const io = addSocketToServer(socketioHttpsServer);
 app.get("/external-api/github-ui-release", (req, res) => {
   const auth = req.headers.authorization || "";
   if (process.env.GITHUB_RELEASE_KEY === auth) {
-    console.log("🚀🚀🚀 New GitHub UI!!!");
-    io.emit("system-message", {
-      color: "success",
-      message:
-        "A new version of the UI is available! Refresh your browser to use it! 🚀",
-    });
+    console.log("🚀 New GitHub UI!");
+
+    setTimeout(() => {
+      console.log("🚀🚀🚀 SENDING THE LAUNCH SIGNAL CAPTAIN");
+      io.emit("system-message", {
+        color: "success",
+        message:
+          "A new version of the UI is available! Refresh your browser to use it! 🚀",
+      });
+    }, 60000);
   }
 
   res.sendStatus(200);

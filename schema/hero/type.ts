@@ -147,6 +147,10 @@ export default gql`
     MinusEnemyIntelligence
     MinusEnemyWisdom
     MinusEnemyCharisma
+    # group stats
+    MinusEnemyPhysical
+    MinusEnemyMental
+    MinusEnemyAllStats
 
     # End droppable enchantments
 
