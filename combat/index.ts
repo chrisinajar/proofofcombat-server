@@ -219,7 +219,7 @@ export function enchantAttacker(
   let victim = victimInput as EnchantedCombatant;
 
   if (attacker.enchanted) {
-    return attacker;
+    return { attacker, victim };
   }
 
   attacker.attributes = { ...attacker.attributes };
