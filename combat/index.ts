@@ -149,15 +149,16 @@ type Combatant = {
 
 // D20 needs to scale with stats, these values will enter the 10's of thousands, if not millions
 function didHit(
-  attacker: Combatant,
+  attackerInput: Combatant,
   attackType: AttackType,
-  victim: Combatant
+  victimInput: Combatant
 ): boolean {
   const attackAttributes = attributesForAttack(attackType);
 
-  const enchantedStats = getEnchantedAttributes(attacker, victim);
-  attacker = enchantedStats.attacker;
-  victim = enchantedStats.victim;
+  const { attacker, victim } = getEnchantedAttributes(
+    attackerInput,
+    victimInput
+  );
 
   // rarely massive, 1 when even, 0.5 when dodge is double, etc
   // "how many times bigger is attack than dodge"
@@ -176,13 +177,17 @@ function didHit(
 }
 
 type EnchantedCombatant = Combatant & {
-  enchanted?: true;
+  percentageDamageIncrease: number;
+  percentageDamageReduction: number;
+  enchanted: true;
 };
 
 function getEnchantedAttributes(
-  attacker: EnchantedCombatant,
-  victim: EnchantedCombatant
+  attackerInput: Combatant,
+  victimInput: Combatant
 ): { attacker: EnchantedCombatant; victim: EnchantedCombatant } {
+  let attacker = attackerInput as EnchantedCombatant;
+  let victim = victimInput as EnchantedCombatant;
   if (!attacker.enchanted) {
     attacker = enchantAttacker(attacker, victim);
   }
@@ -194,23 +199,30 @@ function getEnchantedAttributes(
 }
 
 function enchantVictim(
-  attacker: EnchantedCombatant,
-  victim: EnchantedCombatant
+  attackerInput: Combatant,
+  victimInput: Combatant
 ): EnchantedCombatant {
+  let attacker = attackerInput as EnchantedCombatant;
+  let victim = victimInput as EnchantedCombatant;
   // symmetrical right now!
   return enchantAttacker(victim, attacker);
 }
 
 function enchantAttacker(
-  attacker: EnchantedCombatant,
-  victim: EnchantedCombatant
+  attackerInput: Combatant,
+  victimInput: Combatant
 ): EnchantedCombatant {
+  let attacker = attackerInput as EnchantedCombatant;
+  let victim = victimInput as EnchantedCombatant;
+
   if (attacker.enchanted) {
     return attacker;
   }
   attacker = {
     ...attacker,
     attributes: { ...attacker.attributes },
+    percentageDamageIncrease: 1,
+    percentageDamageReduction: 1,
     enchanted: true,
   };
 
@@ -281,6 +293,49 @@ function enchantAttacker(
         attacker.attributes.charisma *= 1.1;
         break;
 
+      case EnchantmentType.MinusEnemyArmor:
+        victim.percentageDamageIncrease *= 0.8;
+        break;
+      case EnchantmentType.BonusArmor:
+        victim.percentageDamageIncrease *= 1.2;
+        break;
+      case EnchantmentType.MinusEnemyStrength:
+        victim.attributes.strength *= 0.8;
+        break;
+      case EnchantmentType.MinusEnemyDexterity:
+        victim.attributes.dexterity *= 0.8;
+        break;
+      case EnchantmentType.MinusEnemyConstitution:
+        victim.attributes.constitution *= 0.8;
+        break;
+      case EnchantmentType.MinusEnemyIntelligence:
+        victim.attributes.intelligence *= 0.8;
+        break;
+      case EnchantmentType.MinusEnemyWisdom:
+        victim.attributes.wisdom *= 0.8;
+        break;
+      case EnchantmentType.MinusEnemyCharisma:
+        victim.attributes.charisma *= 0.8;
+        break;
+      case EnchantmentType.MinusEnemyPhysical:
+        victim.attributes.strength *= 0.9;
+        victim.attributes.dexterity *= 0.9;
+        victim.attributes.constitution *= 0.9;
+        break;
+      case EnchantmentType.MinusEnemyMental:
+        victim.attributes.intelligence *= 0.9;
+        victim.attributes.wisdom *= 0.9;
+        victim.attributes.charisma *= 0.9;
+        break;
+      case EnchantmentType.MinusEnemyAllStats:
+        victim.attributes.strength *= 0.9;
+        victim.attributes.dexterity *= 0.9;
+        victim.attributes.constitution *= 0.9;
+        victim.attributes.intelligence *= 0.9;
+        victim.attributes.wisdom *= 0.9;
+        victim.attributes.charisma *= 0.9;
+        break;
+
       // quest rewards
       case EnchantmentType.FishermansStrength:
         attacker.attributes.strength *= 1.5;
@@ -314,15 +369,22 @@ function enchantAttacker(
 }
 
 function calculateDamage(
-  attacker: Combatant,
+  attackerInput: Combatant,
   attackType: AttackType,
-  victim: Combatant
+  victimInput: Combatant
 ): { damage: number; critical: boolean } {
   let damage = 0;
   let critical = false;
+
+  const { attacker, victim } = getEnchantedAttributes(
+    attackerInput,
+    victimInput
+  );
+
   const attributeTypes = attributesForAttack(attackType);
-  let percentageDamageReduction = 1;
-  let percentageDamageIncrease = 1;
+
+  let percentageDamageReduction = victim.percentageDamageReduction;
+  let percentageDamageIncrease = attacker.percentageDamageIncrease;
 
   victim.equipment.armor.forEach((armor) => {
     percentageDamageReduction =
@@ -335,19 +397,15 @@ function calculateDamage(
       (1 + (weapon.level / (weapon.level + 40)) * Math.pow(1.1, weapon.level));
   });
 
-  const enchantedStats = getEnchantedAttributes(attacker, victim);
-  attacker = enchantedStats.attacker;
-  victim = enchantedStats.victim;
-
   // melee does double damage
-  if (attackType === AttackType.Melee) {
-    percentageDamageIncrease *= 2;
-  }
+  // if (attackType === AttackType.Melee) {
+  //   percentageDamageIncrease *= 2;
+  // }
 
   // holy ignores half of armor
-  if (attackType === AttackType.Holy) {
-    percentageDamageReduction += (1 - percentageDamageReduction) / 2;
-  }
+  // if (attackType === AttackType.Holy) {
+  //   percentageDamageReduction += (1 - percentageDamageReduction) / 2;
+  // }
 
   // console.log(
   //   "base damage",

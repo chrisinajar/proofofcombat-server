@@ -29,6 +29,17 @@ export function randomEnchantment(level: number): EnchantmentType {
     EnchantmentType.BonusPhysical,
     EnchantmentType.BonusMental,
     EnchantmentType.BonusAllStats,
+    EnchantmentType.MinusEnemyArmor,
+    EnchantmentType.BonusArmor,
+    EnchantmentType.MinusEnemyStrength,
+    EnchantmentType.MinusEnemyDexterity,
+    EnchantmentType.MinusEnemyConstitution,
+    EnchantmentType.MinusEnemyIntelligence,
+    EnchantmentType.MinusEnemyWisdom,
+    EnchantmentType.MinusEnemyCharisma,
+    EnchantmentType.MinusEnemyPhysical,
+    EnchantmentType.MinusEnemyMental,
+    EnchantmentType.MinusEnemyAllStats,
   ];
 
   return options[Math.floor(Math.random() * options.length)];
