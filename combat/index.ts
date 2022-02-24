@@ -445,12 +445,6 @@ function calculateDamage(
   const drFromArmor = 1 - (0.03 * totalArmor) / (1 + 0.04 * totalArmor);
   damage *= drFromArmor;
 
-  console.log(victim.name, {
-    percentageDamageReduction,
-    totalArmor,
-    drFromArmor,
-  });
-
   damage = Math.round(Math.max(1, Math.min(1000000000, damage)));
 
   return {
