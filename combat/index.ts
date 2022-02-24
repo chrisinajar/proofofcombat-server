@@ -654,7 +654,10 @@ export async function fightMonster(
     heroDamage < monster.combat.health &&
     didHit(monsterCombatant, monster.attackType, heroCombatant);
 
-  let monsterDamage = 0;
+  let monsterDamage =
+    heroDidHit && heroAttackType === AttackType.Blood
+      ? hero.combat.health * 0.05
+      : 0;
 
   if (monsterDidHit) {
     const { damage, critical } = calculateDamage(
@@ -662,7 +665,7 @@ export async function fightMonster(
       monster.attackType,
       heroCombatant
     );
-    monsterDamage = damage;
+    monsterDamage += damage;
 
     battleResults.push({
       attackType: monster.attackType,
@@ -683,7 +686,7 @@ export async function fightMonster(
       "with",
       monster.attackType
     );
-  } else {
+  } else if (heroDamage < monster.combat.health) {
     battleResults.push({
       attackType: monster.attackType,
       damage: 0,
