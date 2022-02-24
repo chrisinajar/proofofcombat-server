@@ -15,12 +15,8 @@ async function loadCacheCache() {
   currentOffset = systemData.currentOffset;
 
   addChatMessage({
-    from: `${serverStartTime.toLocaleDateString("en-US", {
-      timeZone: "America/Los_Angeles",
-    })} ${serverStartTime.toLocaleTimeString("en-US", {
-      timeZone: "America/Los_Angeles",
-    })} PST`,
-    message: `Server booted up 🚀`,
+    from: `Server booted up!`,
+    message: ` 🚀`,
   });
   addChatMessage({
     from: randomStartupMessage.from,
