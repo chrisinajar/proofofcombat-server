@@ -225,8 +225,15 @@ export function enchantAttacker(
   attacker = {
     ...attacker,
     attributes: { ...attacker.attributes },
-    percentageDamageIncrease: 1,
-    percentageDamageReduction: 1,
+    percentageDamageIncrease: attacker.percentageDamageIncrease ?? 1,
+    percentageDamageReduction: attacker.percentageDamageReduction ?? 1,
+    enchanted: true,
+  };
+  victim = {
+    ...victim,
+    attributes: { ...victim.attributes },
+    percentageDamageIncrease: victim.percentageDamageIncrease ?? 1,
+    percentageDamageReduction: victim.percentageDamageReduction ?? 1,
     enchanted: true,
   };
 
