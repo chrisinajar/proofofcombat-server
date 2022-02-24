@@ -299,7 +299,7 @@ export function enchantAttacker(
         victim.percentageDamageReduction *= 0.8;
         break;
       case EnchantmentType.BonusArmor:
-        attacker.percentageDamageIncrease *= 1.2;
+        attacker.percentageDamageReduction *= 1.2;
         break;
       case EnchantmentType.MinusEnemyStrength:
         victim.attributes.strength *= 0.8;
