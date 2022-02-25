@@ -770,7 +770,8 @@ export async function fightMonster(
   if (
     monsterDamage < hero.combat.health &&
     attackType === AttackType.Melee &&
-    hero.class === HeroClasses.Berserker
+    hero.class === HeroClasses.Berserker &&
+    Math.random() < 0.5
   ) {
     const secondHeroAttack = attackCombatant(
       heroCombatant,
