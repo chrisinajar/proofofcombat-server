@@ -64,11 +64,11 @@ function createMonsterLuck(monster: Monster) {
 function createMonsterEquipment(monster: Monster) {
   return {
     armor: [
-      { level: monster.level * 1 }, // bodyArmor
-      { level: monster.level * 1 }, // handArmor
-      { level: monster.level * 1 }, // legArmor
-      { level: monster.level * 1 }, // headArmor
-      { level: monster.level * 1 }, // footArmor
+      { level: monster.level * 1, type: InventoryItemType.BodyArmor }, // bodyArmor
+      { level: monster.level * 1, type: InventoryItemType.HandArmor }, // handArmor
+      { level: monster.level * 1, type: InventoryItemType.LegArmor }, // legArmor
+      { level: monster.level * 1, type: InventoryItemType.HeadArmor }, // headArmor
+      { level: monster.level * 1, type: InventoryItemType.FootArmor }, // footArmor
     ],
     weapons: [
       { level: monster.level * 1 }, // leftHand
@@ -127,6 +127,7 @@ function attributesForAttack(attackType: AttackType): AttackAttributes {
 }
 
 type CombatGear = {
+  type?: InventoryItemType;
   level: number;
   enchantment?: EnchantmentType | null;
 };
@@ -401,6 +402,13 @@ function calculateDamage(
 
   victim.equipment.armor.forEach((armor) => {
     totalArmor += armor.level;
+    if (
+      attacker.class === HeroClasses.Cleric &&
+      armor.type === InventoryItemType.Shield
+    ) {
+      percentageDamageIncrease =
+        percentageDamageIncrease * Math.pow(1.3, armor.level);
+    }
   });
 
   attacker.equipment.weapons.forEach((weapon) => {
@@ -485,11 +493,13 @@ function addItemToCombatant(
     combatant.equipment.weapons.push({
       level: affectsAttackType ? item.level : 1,
       enchantment: item.enchantment,
+      type: item.type,
     });
   } else {
     combatant.equipment.armor.push({
       level: item.level,
       enchantment: item.enchantment,
+      type: item.type,
     });
   }
 
