@@ -236,6 +236,15 @@ export function enchantAttacker(
   victim.percentageDamageReduction = victim.percentageDamageReduction ?? 1;
   victim.enchanted = true;
 
+  if (attacker.class === HeroClasses.JackOfAllTrades) {
+    attacker.attributes.strength *= 1.2;
+    attacker.attributes.dexterity *= 1.2;
+    attacker.attributes.constitution *= 1.2;
+    attacker.attributes.intelligence *= 1.2;
+    attacker.attributes.wisdom *= 1.2;
+    attacker.attributes.charisma *= 1.2;
+  }
+
   let enchantments: EnchantmentType[] = [];
 
   attacker.equipment.quests.forEach((questItem) => {
