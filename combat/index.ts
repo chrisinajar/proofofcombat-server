@@ -37,13 +37,13 @@ type AttackAttributes = {
 function createMonsterStats(monster: Monster): HeroStats {
   console.log(monster.name, "has", monster.combat.maxHealth - 5, "stats");
   return {
-    strength: monster.combat.maxHealth - 5,
-    dexterity: monster.combat.maxHealth - 5,
-    constitution: monster.combat.maxHealth - 5,
-    intelligence: monster.combat.maxHealth - 5,
-    wisdom: monster.combat.maxHealth - 5,
-    charisma: monster.combat.maxHealth - 5,
-    luck: monster.combat.maxHealth - 5,
+    strength: (monster.combat.maxHealth - 5) / 2,
+    dexterity: (monster.combat.maxHealth - 5) / 2,
+    constitution: (monster.combat.maxHealth - 5) / 2,
+    intelligence: (monster.combat.maxHealth - 5) / 2,
+    wisdom: (monster.combat.maxHealth - 5) / 2,
+    charisma: (monster.combat.maxHealth - 5) / 2,
+    luck: (monster.combat.maxHealth - 5) / 2,
   };
 }
 
