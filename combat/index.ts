@@ -137,6 +137,7 @@ type QuestItem = {
 export type Combatant = {
   level: number;
   name: string;
+  class: HeroClasses;
   equipment: {
     armor: CombatGear[];
     weapons: CombatGear[];
@@ -438,6 +439,13 @@ function calculateDamage(
     if (doubleCritical) {
       damage = damage * 3;
     }
+
+    if (attacker.class === HeroClasses.Gambler) {
+      const trippleCritical = Math.random() < attacker.luck.ultraModifier / 2;
+      if (trippleCritical) {
+        damage = damage * 3;
+      }
+    }
   }
 
   damage *= percentageDamageIncrease;
@@ -556,6 +564,7 @@ export function createHeroCombatant(
   attackType: AttackType
 ): Combatant {
   const heroCombatant = {
+    class: hero.class,
     level: hero.level,
     name: hero.name,
     equipment: {
@@ -670,6 +679,7 @@ export async function fightMonster(
   const heroCombatant = createHeroCombatant(hero, heroAttackType);
 
   const monsterCombatant = {
+    class: HeroClasses.Adventurer,
     level: monster.level,
     name: monster.name,
     equipment: createMonsterEquipment(monster),
