@@ -732,7 +732,7 @@ export async function fightMonster(
   const heroCombatant = createHeroCombatant(hero, heroAttackType);
 
   const monsterCombatant = {
-    class: HeroClasses.Adventurer,
+    class: HeroClasses.Monster,
     level: monster.level,
     name: monster.name,
     equipment: createMonsterEquipment(monster),
