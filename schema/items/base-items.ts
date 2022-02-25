@@ -185,6 +185,7 @@ export const BaseItems: BaseItemMap = {
     "Hydra's Blood Vial",
     "Fey Wand",
     "Soulgem",
+    "Construct Heart",
     "Bottled Dragon's Breath",
     "Demon's Contract",
     "Eternal Wand",
