@@ -165,8 +165,8 @@ export function calculateHit(
     victimInput
   );
 
-  const attackerAccStat = attacker.attributes[attackAttributes.toHit];
-  const victimDodgeStat = victim.attributes[attackAttributes.dodge];
+  let attackerAccStat = attacker.attributes[attackAttributes.toHit];
+  let victimDodgeStat = victim.attributes[attackAttributes.dodge];
 
   if (attacker.class === HeroClasses.Gambler) {
     attackerAccStat += Math.random() * attacker.attributes.luck;
@@ -240,26 +240,7 @@ export function enchantAttacker(
   victim.percentageDamageReduction = victim.percentageDamageReduction ?? 1;
   victim.enchanted = true;
 
-  let enchantments: EnchantmentType[] = [];
-
-  attacker.equipment.quests.forEach((questItem) => {
-    const baseItem = BaseItems[questItem.baseItem];
-
-    if (baseItem && baseItem.passiveEnchantments) {
-      enchantments = enchantments.concat(baseItem.passiveEnchantments);
-    }
-  });
-  attacker.equipment.armor.forEach((armor) => {
-    if (armor.enchantment) {
-      enchantments.push(armor.enchantment);
-    }
-  });
-
-  attacker.equipment.weapons.forEach((weapon) => {
-    if (weapon.enchantment) {
-      enchantments.push(weapon.enchantment);
-    }
-  });
+  const enchantments = getAllGearEnchantments(attacker);
 
   enchantments.forEach((enchantment) => {
     switch (enchantment) {
@@ -658,6 +639,72 @@ export function createHeroCombatant(
   return heroCombatant;
 }
 
+function getAllGearEnchantments(attacker: Combatant): EnchantmentType[] {
+  let enchantments: EnchantmentType[] = [];
+
+  attacker.equipment.quests.forEach((questItem) => {
+    const baseItem = BaseItems[questItem.baseItem];
+
+    if (baseItem && baseItem.passiveEnchantments) {
+      enchantments = enchantments.concat(baseItem.passiveEnchantments);
+    }
+  });
+  attacker.equipment.armor.forEach((armor) => {
+    if (armor.enchantment) {
+      enchantments.push(armor.enchantment);
+    }
+  });
+
+  attacker.equipment.weapons.forEach((weapon) => {
+    if (weapon.enchantment) {
+      enchantments.push(weapon.enchantment);
+    }
+  });
+
+  return enchantments;
+}
+function calculateEnchantmentDamage(
+  attackerInput: Combatant,
+  victimInput: Combatant,
+  attackType: AttackType
+): {
+  attackerDamage: number;
+  victimDamage: number;
+} {
+  const attackAttributes = attributesForAttack(attackType);
+  let attackerDamage = 0;
+  let victimDamage = 0;
+
+  const { attacker, victim } = getEnchantedAttributes(
+    attackerInput,
+    victimInput
+  );
+
+  const enchantments = getAllGearEnchantments(attacker);
+
+  enchantments.forEach((enchantment) => {
+    switch (enchantment) {
+      case EnchantmentType.LifeHeal:
+        attackerDamage -= attacker.attributes.constitution * 0.2;
+        break;
+
+      case EnchantmentType.LifeDamage:
+        victimDamage += attacker.attributes.constitution * 0.2;
+        break;
+
+      case EnchantmentType.LifeSteal:
+        attackerDamage -= attacker.attributes.constitution * 0.1;
+        victimDamage += attacker.attributes.constitution * 0.1;
+        break;
+    }
+  });
+
+  return {
+    attackerDamage,
+    victimDamage,
+  };
+}
+
 function attackCombatant(
   attacker: Combatant,
   victim: Combatant,
@@ -744,12 +791,18 @@ export async function fightMonster(
     luck: createMonsterLuck(monster),
   };
 
+  const enchantmentBattle = calculateEnchantmentDamage(
+    heroCombatant,
+    monsterCombatant,
+    attackType
+  );
+
   const heroAttack = attackCombatant(
     heroCombatant,
     monsterCombatant,
     attackType
   );
-  let heroDamage = heroAttack.damage;
+  let heroDamage = heroAttack.damage + enchantmentBattle.victimDamage;
   battleResults = battleResults.concat(heroAttack.combatLog);
 
   const bloodMageDamage =
@@ -758,7 +811,11 @@ export async function fightMonster(
       : hero.combat.health * 0.05;
 
   let monsterDamage = heroAttackType === AttackType.Blood ? bloodMageDamage : 0;
+  // enchantments run "before combat"
+  // so even if mob got killed by the above attack, their enchantments still went off
+  monsterDamage += enchantmentBattle.attackerDamage;
 
+  // however, enchantments can still stop a mob from attacking!
   if (heroDamage < monster.combat.health) {
     const monsterAttack = attackCombatant(
       monsterCombatant,
@@ -784,6 +841,16 @@ export async function fightMonster(
     heroDamage += secondHeroAttack.damage;
     battleResults = battleResults.concat(secondHeroAttack.combatLog);
   }
+
+  // do not allow overhealing
+  monsterDamage = Math.max(
+    monsterDamage,
+    hero.combat.health - hero.combat.maxHealth
+  );
+  heroDamage = Math.max(
+    heroDamage,
+    monster.combat.health - monster.combat.maxHealth
+  );
 
   return {
     monsterDamage: monsterDamage,
