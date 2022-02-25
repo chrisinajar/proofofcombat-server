@@ -501,7 +501,7 @@ function calculateDamage(
   damage *= percentageDamageIncrease;
   damage -= victim.damageReduction;
   totalArmor *= percentageDamageReduction;
-  const drFromArmor = Math.pow(0.9, totalArmor);
+  const drFromArmor = Math.pow(0.91, totalArmor);
   damage *= drFromArmor;
 
   damage = Math.round(Math.max(1, Math.min(1000000000, damage)));
