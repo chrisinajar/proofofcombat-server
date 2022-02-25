@@ -373,28 +373,28 @@ export function enchantAttacker(
       attacker.attributes.charisma *= 1.1;
       break;
     case HeroClasses.Gambler:
-      attacker.attributes.strength *= 2;
+      attacker.attributes.strength *= 1.5;
       break;
     case HeroClasses.Berserker:
-      attacker.attributes.strength *= 2;
+      attacker.attributes.strength *= 1.5;
       break;
     case HeroClasses.Fighter:
-      attacker.attributes.strength *= 2;
+      attacker.attributes.strength *= 1.5;
       break;
     case HeroClasses.Ranger:
-      attacker.attributes.dexterity *= 2;
+      attacker.attributes.dexterity *= 1.5;
       break;
     case HeroClasses.BloodMage:
-      attacker.attributes.constitution *= 2;
+      attacker.attributes.constitution *= 1.5;
       break;
     case HeroClasses.Wizard:
-      attacker.attributes.intelligence *= 2;
+      attacker.attributes.intelligence *= 1.5;
       break;
     case HeroClasses.Elementalist:
-      attacker.attributes.wisdom *= 2;
+      attacker.attributes.wisdom *= 1.5;
       break;
     case HeroClasses.Cleric:
-      attacker.attributes.charisma *= 2;
+      attacker.attributes.charisma *= 1.5;
       break;
     case HeroClasses.JackOfAllTrades:
       attacker.attributes.strength *= 1.5;
