@@ -165,12 +165,20 @@ export function calculateHit(
     victimInput
   );
 
+  const attackerAccStat = attacker.attributes[attackAttributes.toHit];
+  const victimDodgeStat = victim.attributes[attackAttributes.dodge];
+
+  if (attacker.class === HeroClasses.Gambler) {
+    attackerAccStat += Math.random() * attacker.attributes.luck;
+  }
+
+  if (victim.class === HeroClasses.Gambler) {
+    victimDodgeStat += Math.random() * victim.attributes.luck;
+  }
+
   // rarely massive, 1 when even, 0.5 when dodge is double, etc
   // "how many times bigger is attack than dodge"
-  const baseChange =
-    attacker.attributes[attackAttributes.toHit] /
-    victim.attributes[attackAttributes.dodge];
-
+  const baseChange = attackerAccStat / victimDodgeStat;
   const oddBase = baseChange / (baseChange + 1);
 
   return Math.random() < oddBase;
