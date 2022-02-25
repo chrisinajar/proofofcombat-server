@@ -64,15 +64,15 @@ function createMonsterLuck(monster: Monster) {
 function createMonsterEquipment(monster: Monster) {
   return {
     armor: [
-      { level: monster.level * 0.9 }, // bodyArmor
-      { level: monster.level * 0.9 }, // handArmor
-      { level: monster.level * 0.9 }, // legArmor
-      { level: monster.level * 0.9 }, // headArmor
-      { level: monster.level * 0.9 }, // footArmor
+      { level: monster.level * 1 }, // bodyArmor
+      { level: monster.level * 1 }, // handArmor
+      { level: monster.level * 1 }, // legArmor
+      { level: monster.level * 1 }, // headArmor
+      { level: monster.level * 1 }, // footArmor
     ],
     weapons: [
-      { level: monster.level * 0.9 }, // leftHand
-      { level: monster.level * 0.9 }, // rightHand
+      { level: monster.level * 1 }, // leftHand
+      { level: monster.level * 1 }, // rightHand
     ],
     quests: [],
   };
