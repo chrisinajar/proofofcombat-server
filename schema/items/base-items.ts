@@ -36,7 +36,7 @@ function generateItems(
   const results: BaseItemMap = {};
   itemNames.forEach((name, i) => {
     const level = i + 1;
-    const cost = Math.round(Math.pow(2.3, i) * 10);
+    const cost = Math.round(Math.pow(1.77827941004, i)) * 10;
     const id = name.toLowerCase().replace(/\s+/g, "-");
     // console.log("Level", level, "item", name, "costs", cost, id);
 
