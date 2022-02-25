@@ -488,6 +488,7 @@ function addItemToCombatant(
 
   if (
     item.type === InventoryItemType.MeleeWeapon ||
+    item.type === InventoryItemType.SpellFocus ||
     item.type === InventoryItemType.RangedWeapon
   ) {
     combatant.equipment.weapons.push({
