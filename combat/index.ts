@@ -37,13 +37,13 @@ type AttackAttributes = {
 function createMonsterStats(monster: Monster): HeroStats {
   console.log(monster.name, "has", monster.combat.maxHealth - 5, "stats");
   return {
-    strength: (monster.combat.maxHealth - 5) / 2,
-    dexterity: (monster.combat.maxHealth - 5) / 2,
-    constitution: (monster.combat.maxHealth - 5) / 2,
-    intelligence: (monster.combat.maxHealth - 5) / 2,
-    wisdom: (monster.combat.maxHealth - 5) / 2,
-    charisma: (monster.combat.maxHealth - 5) / 2,
-    luck: (monster.combat.maxHealth - 5) / 2,
+    strength: monster.combat.maxHealth - 5,
+    dexterity: monster.combat.maxHealth - 5,
+    constitution: monster.combat.maxHealth - 5,
+    intelligence: monster.combat.maxHealth - 5,
+    wisdom: monster.combat.maxHealth - 5,
+    charisma: monster.combat.maxHealth - 5,
+    luck: monster.combat.maxHealth - 5,
   };
 }
 
@@ -64,15 +64,15 @@ function createMonsterLuck(monster: Monster) {
 function createMonsterEquipment(monster: Monster) {
   return {
     armor: [
-      { level: monster.level }, // bodyArmor
-      { level: monster.level }, // handArmor
-      { level: monster.level }, // legArmor
-      { level: monster.level }, // headArmor
-      { level: monster.level }, // footArmor
+      { level: monster.level * 0.75 }, // bodyArmor
+      { level: monster.level * 0.75 }, // handArmor
+      { level: monster.level * 0.75 }, // legArmor
+      { level: monster.level * 0.75 }, // headArmor
+      { level: monster.level * 0.75 }, // footArmor
     ],
     weapons: [
-      { level: monster.level }, // leftHand
-      { level: monster.level }, // rightHand
+      { level: monster.level * 0.75 }, // leftHand
+      { level: monster.level * 0.75 }, // rightHand
     ],
     quests: [],
   };
