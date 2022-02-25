@@ -391,13 +391,12 @@ function calculateDamage(
   let totalArmor = 0;
 
   victim.equipment.armor.forEach((armor) => {
-    totalArmor += Math.pow(1.3, armor.level);
+    totalArmor += armor.level;
   });
 
   attacker.equipment.weapons.forEach((weapon) => {
     percentageDamageIncrease =
-      percentageDamageIncrease *
-      (1 + (weapon.level / (weapon.level + 40)) * Math.pow(1.1, weapon.level));
+      percentageDamageIncrease * Math.pow(1.3, weapon.level);
   });
 
   // melee does double damage
@@ -451,7 +450,7 @@ function calculateDamage(
   damage *= percentageDamageIncrease;
   damage -= victim.damageReduction;
   totalArmor *= percentageDamageReduction;
-  const drFromArmor = 1 - (0.07 * totalArmor) / (5 + 0.08 * totalArmor);
+  const drFromArmor = Math.pow(0.95, totalArmor);
   damage *= drFromArmor;
 
   damage = Math.round(Math.max(1, Math.min(1000000000, damage)));
