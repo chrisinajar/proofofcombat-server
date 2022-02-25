@@ -151,8 +151,11 @@ export default gql`
     BonusPhysical
     BonusMental
     BonusAllStats
+    # vamp / damage
+    LifeHeal
+    LifeDamage
+    LifeSteal
     # non-stats
-    Vampire
     MinusEnemyArmor
     BonusArmor
     # minus enemy stats
