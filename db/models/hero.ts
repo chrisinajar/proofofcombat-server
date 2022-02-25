@@ -20,6 +20,8 @@ type PartialHero = Optional<
   | "class"
 >;
 
+const inMemoryLeaderboardLength = 50;
+
 import { checkHero } from "../../schema/quests/helpers";
 import { getClass } from "./hero/classes";
 
@@ -40,7 +42,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
         }
       });
 
-      if (resultList.length < 10 || index > -1) {
+      if (resultList.length < inMemoryLeaderboardLength || index > -1) {
         resultList.splice(index + 1, 0, value);
       }
     } // If the end of the iterable is reached, iterator.end() is callend.
@@ -48,7 +50,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
     return resultList
       .reverse()
-      .slice(0, 10)
+      .slice(0, inMemoryLeaderboardLength)
       .map((hero) => this.upgrade(hero));
   }
 
