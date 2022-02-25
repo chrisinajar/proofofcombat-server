@@ -171,12 +171,7 @@ export function calculateHit(
     attacker.attributes[attackAttributes.toHit] /
     victim.attributes[attackAttributes.dodge];
 
-  const oddBase = ((baseChange - 1) / baseChange + 1) / 2;
-
-  if (oddBase < 0) {
-    // attacker has less than half the attackers dodge stat
-    return Math.random() * Math.random() * Math.random() * 100 + oddBase > 0;
-  }
+  const oddBase = baseChange / (baseChange + 1);
 
   return Math.random() < oddBase;
 }
@@ -301,10 +296,10 @@ export function enchantAttacker(
         break;
 
       case EnchantmentType.MinusEnemyArmor:
-        victim.percentageDamageReduction *= 0.8;
+        victim.percentageDamageReduction *= 0.5;
         break;
       case EnchantmentType.BonusArmor:
-        attacker.percentageDamageReduction *= 1.2;
+        attacker.percentageDamageReduction *= 2;
         break;
       case EnchantmentType.MinusEnemyStrength:
         victim.attributes.strength *= 0.8;
