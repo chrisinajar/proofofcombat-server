@@ -238,12 +238,12 @@ export function enchantAttacker(
   victim.enchanted = true;
 
   if (attacker.class === HeroClasses.JackOfAllTrades) {
-    attacker.attributes.strength *= 1.2;
-    attacker.attributes.dexterity *= 1.2;
-    attacker.attributes.constitution *= 1.2;
-    attacker.attributes.intelligence *= 1.2;
-    attacker.attributes.wisdom *= 1.2;
-    attacker.attributes.charisma *= 1.2;
+    attacker.attributes.strength *= 1.3;
+    attacker.attributes.dexterity *= 1.3;
+    attacker.attributes.constitution *= 1.3;
+    attacker.attributes.intelligence *= 1.3;
+    attacker.attributes.wisdom *= 1.3;
+    attacker.attributes.charisma *= 1.3;
   }
 
   let enchantments: EnchantmentType[] = [];

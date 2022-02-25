@@ -7,6 +7,7 @@ import {
   FightResult,
   AttackType,
   InventoryItem,
+  HeroClasses,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -99,11 +100,14 @@ const resolvers: Resolvers = {
       const goldReward = monster.monster.combat.maxHealth;
 
       const fightResult = await fightMonster(hero, monster, attackType);
-      const experienceRewards = Math.round(
-        Math.min(
-          hero.needed / 3,
-          (monster.monster.level + Math.pow(1.5, monster.monster.level)) * 10
-        )
+      let experienceRewards =
+        (monster.monster.level + Math.pow(1.5, monster.monster.level)) * 10;
+      if (hero.class === HeroClasses.Adventurer) {
+        experienceRewards *= 3;
+      }
+
+      experienceRewards = Math.round(
+        Math.min(hero.needed / 3, experienceRewards)
       );
 
       if (fightResult.monsterDamage) {

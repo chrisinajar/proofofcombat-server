@@ -13,9 +13,8 @@ const stats: HeroStatName[] = [
 ];
 
 export function getClass(hero: Hero): HeroClasses {
-  const highestStat: HeroStatName = Object.keys(hero.stats)
-    .map<HeroStatName>((i) => i as HeroStatName)
-    .reduce<HeroStatName>((high, current) => {
+  const highestStat: HeroStatName = stats.reduce<HeroStatName>(
+    (high, current) => {
       if (!high) {
         return current;
       }
@@ -23,15 +22,34 @@ export function getClass(hero: Hero): HeroClasses {
         return current;
       }
       return high;
-    }, stats[0]);
+    },
+    stats[0]
+  );
 
   const highestStatValue = hero.stats[highestStat];
 
-  if (highestStatValue < 12) {
+  const statRatios: { [x in HeroStatName]: number } = {
+    strength: 1,
+    dexterity: 1,
+    constitution: 1,
+    intelligence: 1,
+    wisdom: 1,
+    charisma: 1,
+    luck: 1,
+  };
+  let highestStatRatio = 1;
+  stats.forEach((statName) => {
+    statRatios[statName] = highestStatValue / hero.stats[statName];
+    if (statRatios[statName] > highestStatRatio) {
+      highestStatRatio = statRatios[statName];
+    }
+  });
+
+  if (highestStatValue < 20) {
     return HeroClasses.Adventurer;
   }
 
-  if ((highestStat as string) === "all") {
+  if (highestStatRatio < 1.2) {
     return HeroClasses.JackOfAllTrades;
   }
 
