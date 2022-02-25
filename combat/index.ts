@@ -237,15 +237,6 @@ export function enchantAttacker(
   victim.percentageDamageReduction = victim.percentageDamageReduction ?? 1;
   victim.enchanted = true;
 
-  if (attacker.class === HeroClasses.JackOfAllTrades) {
-    attacker.attributes.strength *= 1.3;
-    attacker.attributes.dexterity *= 1.3;
-    attacker.attributes.constitution *= 1.3;
-    attacker.attributes.intelligence *= 1.3;
-    attacker.attributes.wisdom *= 1.3;
-    attacker.attributes.charisma *= 1.3;
-  }
-
   let enchantments: EnchantmentType[] = [];
 
   attacker.equipment.quests.forEach((questItem) => {
@@ -377,6 +368,49 @@ export function enchantAttacker(
     }
   });
 
+  switch (attacker.class) {
+    case HeroClasses.Adventurer:
+      attacker.attributes.strength *= 1.1;
+      attacker.attributes.dexterity *= 1.1;
+      attacker.attributes.constitution *= 1.1;
+      attacker.attributes.intelligence *= 1.1;
+      attacker.attributes.wisdom *= 1.1;
+      attacker.attributes.charisma *= 1.1;
+      break;
+    case HeroClasses.Gambler:
+      attacker.attributes.strength *= 1.5;
+      break;
+    case HeroClasses.Berserker:
+      attacker.attributes.strength *= 1.5;
+      break;
+    case HeroClasses.Fighter:
+      attacker.attributes.strength *= 1.5;
+      break;
+    case HeroClasses.Ranger:
+      attacker.attributes.dexterity *= 1.5;
+      break;
+    case HeroClasses.BloodMage:
+      attacker.attributes.constitution *= 1.5;
+      break;
+    case HeroClasses.Wizard:
+      attacker.attributes.intelligence *= 1.5;
+      break;
+    case HeroClasses.Elementalist:
+      attacker.attributes.wisdom *= 1.5;
+      break;
+    case HeroClasses.Cleric:
+      attacker.attributes.charisma *= 1.5;
+      break;
+    case HeroClasses.JackOfAllTrades:
+      attacker.attributes.strength *= 1.5;
+      attacker.attributes.dexterity *= 1.5;
+      attacker.attributes.constitution *= 1.5;
+      attacker.attributes.intelligence *= 1.5;
+      attacker.attributes.wisdom *= 1.5;
+      attacker.attributes.charisma *= 1.5;
+      break;
+  }
+
   return { attacker, victim };
 }
 
@@ -467,7 +501,7 @@ function calculateDamage(
   damage *= percentageDamageIncrease;
   damage -= victim.damageReduction;
   totalArmor *= percentageDamageReduction;
-  const drFromArmor = Math.pow(0.92, totalArmor);
+  const drFromArmor = Math.pow(0.9, totalArmor);
   damage *= drFromArmor;
 
   damage = Math.round(Math.max(1, Math.min(1000000000, damage)));
