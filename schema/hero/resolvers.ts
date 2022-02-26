@@ -208,7 +208,7 @@ const resolvers: Resolvers = {
         hero.stats.constitution = hero.stats.constitution + 1;
         hero.stats.intelligence = hero.stats.intelligence + 1;
         hero.stats.wisdom = hero.stats.wisdom + 1;
-        hero.stats.charisma = hero.stats.charisma + 1;
+        hero.stats.willpower = hero.stats.willpower + 1;
         hero.stats.luck = hero.stats.luck + 1;
       } else if (!hero.stats[args.attribute]) {
         return {
@@ -283,6 +283,9 @@ const resolvers: Resolvers = {
         case HeroClasses.Fighter:
           attackType = AttackType.Melee;
           break;
+        case HeroClasses.Berserker:
+          attackType = AttackType.Melee;
+          break;
         case HeroClasses.Ranger:
           attackType = AttackType.Ranged;
           break;
@@ -290,13 +293,13 @@ const resolvers: Resolvers = {
           attackType = AttackType.Blood;
           break;
         case HeroClasses.Wizard:
-          attackType = AttackType.Wizard;
+          attackType = AttackType.Cast;
           break;
-        case HeroClasses.Elementalist:
-          attackType = AttackType.Elemental;
+        case HeroClasses.Warlock:
+          attackType = AttackType.Cast;
           break;
-        case HeroClasses.Cleric:
-          attackType = AttackType.Holy;
+        case HeroClasses.Paladin:
+          attackType = AttackType.Smite;
           break;
       }
       const attacker = createHeroCombatant(parent, attackType);
@@ -312,7 +315,7 @@ const resolvers: Resolvers = {
           constitution: 1000000,
           intelligence: 1000000,
           wisdom: 1000000,
-          charisma: 1000000,
+          willpower: 1000000,
           luck: 1000000,
         },
         luck: {
@@ -329,7 +332,7 @@ const resolvers: Resolvers = {
         stats.constitution = Math.round(stats.constitution);
         stats.intelligence = Math.round(stats.intelligence);
         stats.wisdom = Math.round(stats.wisdom);
-        stats.charisma = Math.round(stats.charisma);
+        stats.willpower = Math.round(stats.willpower);
         stats.luck = Math.round(stats.luck);
       }
 

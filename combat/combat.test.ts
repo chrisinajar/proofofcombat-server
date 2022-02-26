@@ -35,7 +35,7 @@ describe("combat", () => {
     { stat: "constitution", attackType: AttackType.Blood },
     { stat: "intelligence", attackType: AttackType.Wizard },
     { stat: "wisdom", attackType: AttackType.Elemental },
-    { stat: "charisma", attackType: AttackType.Holy },
+    { stat: "willpower", attackType: AttackType.Smite },
   ].forEach((entry) => {
     it(`increasing ${entry.stat} makes it easier to hit with ${entry.attackType}`, () => {
       const hero = generateHero();

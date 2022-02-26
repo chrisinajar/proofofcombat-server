@@ -68,7 +68,7 @@ app.get("/external-api/github-ui-release", (req, res) => {
 
     setTimeout(() => {
       console.log("🚀🚀🚀 SENDING THE LAUNCH SIGNAL CAPTAIN");
-      io.emit("system-message", {
+      io.sendGlobalMessage({
         color: "success",
         message:
           "A new version of the UI is available! Refresh your browser to use it! 🚀",

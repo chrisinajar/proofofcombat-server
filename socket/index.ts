@@ -1,15 +1,27 @@
 import { Server, Socket } from "socket.io";
 import { createServer, Server as HttpServer } from "http";
 
+import { ChatMessage } from "../db/models/system";
 import { confirm, ChatTokenData } from "../security";
 
 import { getChatCache, addChatMessage } from "./cache";
 
 type ExtendedSocket = Socket & {
   name?: string;
+  heroId?: string;
 };
 
-export function addSocketToServer(httpServer: HttpServer): Server {
+type SystemMessage = {
+  color: "success" | "primary" | "secondary" | "error";
+  message: string;
+};
+
+type SocketServerAPI = {
+  io: Server;
+  sendGlobalMessage: (message: SystemMessage) => void;
+};
+
+export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
   const io = new Server(httpServer, {
     cors: {
       origin: true,
@@ -26,6 +38,7 @@ export function addSocketToServer(httpServer: HttpServer): Server {
 
     if (data && data.chat) {
       socket.name = data.name;
+      socket.heroId = data.id;
       next();
     }
   });
@@ -69,5 +82,9 @@ export function addSocketToServer(httpServer: HttpServer): Server {
     });
   }
 
-  return io;
+  function sendGlobalMessage(message: SystemMessage) {
+    io.emit("system-message", message);
+  }
+
+  return { io, sendGlobalMessage };
 }

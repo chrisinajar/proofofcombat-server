@@ -17,6 +17,8 @@ export default gql`
 
     intelligence: Float!
     wisdom: Float!
-    charisma: Float!
+    willpower: Float!
+
+    luck: Float!
   }
 `;

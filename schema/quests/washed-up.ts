@@ -22,7 +22,7 @@ const WashedUpRewards = [
   "fishermans-constitution",
   "fishermans-intelligence",
   "fishermans-wisdom",
-  "fishermans-charisma",
+  "fishermans-willpower",
 ];
 
 type WashedUpDock = {

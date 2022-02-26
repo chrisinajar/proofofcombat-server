@@ -1,4 +1,6 @@
 import { Hero, BaseAccount, InventoryItemType } from "types/graphql";
+import { startingLevelCap } from "../../schema/quests/rebirth";
+
 import DatabaseInterface from "../interface";
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
@@ -18,6 +20,7 @@ type PartialHero = Optional<
   | "equipment"
   | "questLog"
   | "class"
+  | "levelCap"
 >;
 
 const inMemoryLeaderboardLength = 50;
@@ -108,14 +111,14 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   levelUp(hero: Hero): Hero {
-    if (hero.level < 5000) {
+    if (hero.level < hero.levelCap) {
       // we never over-level
       hero.stats.strength = hero.stats.strength + 1;
       hero.stats.dexterity = hero.stats.dexterity + 1;
       hero.stats.constitution = hero.stats.constitution + 1;
       hero.stats.intelligence = hero.stats.intelligence + 1;
       hero.stats.wisdom = hero.stats.wisdom + 1;
-      hero.stats.charisma = hero.stats.charisma + 1;
+      hero.stats.willpower = hero.stats.willpower + 1;
       hero.stats.luck = hero.stats.luck + 1;
       hero.level = hero.level + 1;
     } else {
@@ -124,7 +127,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       hero.stats.constitution = hero.stats.constitution - 1;
       hero.stats.intelligence = hero.stats.intelligence - 1;
       hero.stats.wisdom = hero.stats.wisdom - 1;
-      hero.stats.charisma = hero.stats.charisma - 1;
+      hero.stats.willpower = hero.stats.willpower - 1;
       hero.stats.luck = hero.stats.luck - 1;
     }
 
@@ -168,7 +171,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
         intelligence: 5,
         wisdom: 5,
-        charisma: 5,
+        willpower: 5,
 
         luck: 5,
       };
@@ -200,6 +203,9 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       data.version = 3;
     }
     if (data.version < 4) {
+      data.levelCap = startingLevelCap;
+    }
+    if (data.version < 5) {
       // future
     }
 

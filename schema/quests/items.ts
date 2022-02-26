@@ -88,9 +88,9 @@ export function getQuestRewards() {
       level: 1,
       canBuy: false,
     },
-    "fishermans-charisma": {
-      id: "fishermans-charisma",
-      passiveEnchantments: [EnchantmentType.FishermansCharisma],
+    "fishermans-willpower": {
+      id: "fishermans-willpower",
+      passiveEnchantments: [EnchantmentType.FishermansWillpower],
       name: "Worship Disc",
       type: InventoryItemType.Quest,
       level: 1,
@@ -102,6 +102,29 @@ export function getQuestRewards() {
       name: "Lucky Coin",
       type: InventoryItemType.Quest,
       level: 1,
+      canBuy: false,
+    },
+
+    // rebirth quest rewards
+    // first rebirth, gives the ability to rebirth at all, is taken away
+    "totem-of-rebirth": {
+      id: "totem-of-rebirth",
+      passiveEnchantments: [EnchantmentType.CanRebirth],
+      name: "Totem of Rebirth",
+      type: InventoryItemType.Quest,
+      level: 2,
+      canBuy: false,
+    },
+    // after first rebirth, you get...
+    "totem-of-the-hero": {
+      id: "totem-of-hero",
+      passiveEnchantments: [
+        EnchantmentType.DoubleStatGain,
+        EnchantmentType.AutoBattle,
+      ],
+      name: "Totem of Hero",
+      type: InventoryItemType.Quest,
+      level: 2,
       canBuy: false,
     },
   };

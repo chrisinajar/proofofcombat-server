@@ -32,6 +32,7 @@ type AttackAttributes = {
   toHit: Attribute;
   damage: Attribute;
   dodge: Attribute;
+  damageReduction: Attribute;
 };
 
 function createMonsterStats(monster: Monster): HeroStats {
@@ -42,7 +43,7 @@ function createMonsterStats(monster: Monster): HeroStats {
     constitution: monster.combat.maxHealth - 5,
     intelligence: monster.combat.maxHealth - 5,
     wisdom: monster.combat.maxHealth - 5,
-    charisma: monster.combat.maxHealth - 5,
+    willpower: monster.combat.maxHealth - 5,
     luck: monster.combat.maxHealth - 5,
   };
 }
@@ -85,27 +86,23 @@ function attributesForAttack(attackType: AttackType): AttackAttributes {
         toHit: "constitution",
         damage: "constitution",
         dodge: "constitution",
+        damageReduction: "willpower",
       };
       break;
-    case AttackType.Holy:
-      return {
-        toHit: "charisma",
-        damage: "charisma",
-        dodge: "intelligence",
-      };
-      break;
-    case AttackType.Wizard:
-      return {
-        toHit: "intelligence",
-        damage: "intelligence",
-        dodge: "wisdom",
-      };
-      break;
-    case AttackType.Elemental:
+    case AttackType.Smite:
       return {
         toHit: "wisdom",
-        damage: "wisdom",
-        dodge: "dexterity",
+        damage: "willpower",
+        dodge: "wisdom",
+        damageReduction: "willpower",
+      };
+      break;
+    case AttackType.Cast:
+      return {
+        toHit: "wisdom",
+        damage: "intelligence",
+        dodge: "wisdom",
+        damageReduction: "willpower",
       };
       break;
     case AttackType.Ranged:
@@ -113,14 +110,16 @@ function attributesForAttack(attackType: AttackType): AttackAttributes {
         toHit: "dexterity",
         damage: "dexterity",
         dodge: "dexterity",
+        damageReduction: "willpower",
       };
       break;
     case AttackType.Melee:
     default:
       return {
-        toHit: "strength",
+        toHit: "dexterity",
         damage: "strength",
-        dodge: "constitution",
+        dodge: "dexterity",
+        damageReduction: "willpower",
       };
       break;
   }
@@ -259,8 +258,8 @@ export function enchantAttacker(
       case EnchantmentType.BonusWisdom:
         attacker.attributes.wisdom *= 1.2;
         break;
-      case EnchantmentType.BonusCharisma:
-        attacker.attributes.charisma *= 1.2;
+      case EnchantmentType.BonusWillpower:
+        attacker.attributes.willpower *= 1.2;
         break;
       case EnchantmentType.BonusLuck:
         attacker.attributes.luck *= 1.2;
@@ -273,7 +272,7 @@ export function enchantAttacker(
       case EnchantmentType.BonusMental:
         attacker.attributes.intelligence *= 1.1;
         attacker.attributes.wisdom *= 1.1;
-        attacker.attributes.charisma *= 1.1;
+        attacker.attributes.willpower *= 1.1;
         break;
       case EnchantmentType.BonusAllStats:
         attacker.attributes.strength *= 1.1;
@@ -281,7 +280,7 @@ export function enchantAttacker(
         attacker.attributes.constitution *= 1.1;
         attacker.attributes.intelligence *= 1.1;
         attacker.attributes.wisdom *= 1.1;
-        attacker.attributes.charisma *= 1.1;
+        attacker.attributes.willpower *= 1.1;
         break;
 
       case EnchantmentType.MinusEnemyArmor:
@@ -305,8 +304,8 @@ export function enchantAttacker(
       case EnchantmentType.MinusEnemyWisdom:
         victim.attributes.wisdom *= 0.8;
         break;
-      case EnchantmentType.MinusEnemyCharisma:
-        victim.attributes.charisma *= 0.8;
+      case EnchantmentType.MinusEnemyWillpower:
+        victim.attributes.willpower *= 0.8;
         break;
       case EnchantmentType.MinusEnemyPhysical:
         victim.attributes.strength *= 0.9;
@@ -316,7 +315,7 @@ export function enchantAttacker(
       case EnchantmentType.MinusEnemyMental:
         victim.attributes.intelligence *= 0.9;
         victim.attributes.wisdom *= 0.9;
-        victim.attributes.charisma *= 0.9;
+        victim.attributes.willpower *= 0.9;
         break;
       case EnchantmentType.MinusEnemyAllStats:
         victim.attributes.strength *= 0.9;
@@ -324,7 +323,7 @@ export function enchantAttacker(
         victim.attributes.constitution *= 0.9;
         victim.attributes.intelligence *= 0.9;
         victim.attributes.wisdom *= 0.9;
-        victim.attributes.charisma *= 0.9;
+        victim.attributes.willpower *= 0.9;
         break;
 
       // quest rewards
@@ -343,8 +342,8 @@ export function enchantAttacker(
       case EnchantmentType.FishermansWisdom:
         attacker.attributes.wisdom *= 1.5;
         break;
-      case EnchantmentType.FishermansCharisma:
-        attacker.attributes.charisma *= 1.5;
+      case EnchantmentType.FishermansWillpower:
+        attacker.attributes.willpower *= 1.5;
         break;
       case EnchantmentType.FishermansLuck:
         attacker.attributes.luck *= 1.5;
@@ -359,31 +358,10 @@ export function enchantAttacker(
       attacker.attributes.constitution *= 1.1;
       attacker.attributes.intelligence *= 1.1;
       attacker.attributes.wisdom *= 1.1;
-      attacker.attributes.charisma *= 1.1;
+      attacker.attributes.willpower *= 1.1;
       break;
     case HeroClasses.Gambler:
       attacker.attributes.strength *= 1.5;
-      break;
-    case HeroClasses.Berserker:
-      attacker.attributes.strength *= 1.5;
-      break;
-    case HeroClasses.Fighter:
-      attacker.attributes.strength *= 1.5;
-      break;
-    case HeroClasses.Ranger:
-      attacker.attributes.dexterity *= 1.5;
-      break;
-    case HeroClasses.BloodMage:
-      attacker.attributes.constitution *= 1.5;
-      break;
-    case HeroClasses.Wizard:
-      attacker.attributes.intelligence *= 1.5;
-      break;
-    case HeroClasses.Elementalist:
-      attacker.attributes.wisdom *= 1.5;
-      break;
-    case HeroClasses.Cleric:
-      attacker.attributes.charisma *= 1.5;
       break;
     case HeroClasses.JackOfAllTrades:
       attacker.attributes.strength *= 1.5;
@@ -391,7 +369,38 @@ export function enchantAttacker(
       attacker.attributes.constitution *= 1.5;
       attacker.attributes.intelligence *= 1.5;
       attacker.attributes.wisdom *= 1.5;
-      attacker.attributes.charisma *= 1.5;
+      attacker.attributes.willpower *= 1.5;
+      break;
+
+    // melee
+    case HeroClasses.Berserker:
+      attacker.attributes.strength *= 1.5;
+      break;
+    case HeroClasses.Fighter:
+      attacker.attributes.strength *= 1.5;
+      break;
+
+    // casters
+    case HeroClasses.Wizard:
+      attacker.attributes.intelligence *= 1.5;
+      break;
+    case HeroClasses.Warlock:
+      attacker.attributes.wisdom *= 1.5;
+      break;
+
+    // mixed
+    case HeroClasses.BattleMage:
+      attacker.attributes.intelligence *= 1.5;
+      break;
+    case HeroClasses.Paladin:
+      attacker.attributes.willpower *= 1.5;
+      break;
+
+    case HeroClasses.Ranger:
+      attacker.attributes.dexterity *= 1.5;
+      break;
+    case HeroClasses.BloodMage:
+      attacker.attributes.constitution *= 1.5;
       break;
   }
 
@@ -401,7 +410,8 @@ export function enchantAttacker(
 function calculateDamage(
   attackerInput: Combatant,
   attackType: AttackType,
-  victimInput: Combatant
+  victimInput: Combatant,
+  isSecondAttack: boolean = false
 ): { damage: number; critical: boolean; doubleCritical: boolean } {
   let damage = 0;
   let critical = false;
@@ -420,52 +430,29 @@ function calculateDamage(
 
   victim.equipment.armor.forEach((armor) => {
     totalArmor += armor.level;
-    if (
-      attacker.class === HeroClasses.Cleric &&
-      armor.type === InventoryItemType.Shield
-    ) {
-      percentageDamageIncrease =
-        percentageDamageIncrease * Math.pow(1.3, armor.level);
+  });
+
+  // for paladins (or any other future reason that shields end up in weapon lists)
+  victim.equipment.weapons.forEach((armor) => {
+    if (armor.type === InventoryItemType.Shield) {
+      totalArmor += armor.level;
     }
   });
 
-  attacker.equipment.weapons.forEach((weapon) => {
-    percentageDamageIncrease =
-      percentageDamageIncrease * Math.pow(1.3, weapon.level);
-  });
+  // 1.3^weapon tier per weapon
+  const weapon = isSecondAttack
+    ? attacker.equipment.weapons[1]
+    : attacker.equipment.weapons[0];
 
-  // melee does double damage
-  // if (attackType === AttackType.Melee) {
-  //   percentageDamageIncrease *= 2;
-  // }
+  // ~13 - 5,428 - 44,277 - 126,462
+  const baseDamage = Math.pow(1.3, weapon.level) * 10;
 
-  // holy ignores half of armor
-  // if (attackType === AttackType.Holy) {
-  //   percentageDamageReduction += (1 - percentageDamageReduction) / 2;
-  // }
+  // [0,1]
+  const variation = baseDamage * attacker.luck.smallModifier;
+  // damage spread based on small luck factor
+  damage = baseDamage - variation * Math.random();
 
-  // console.log(
-  //   "base damage",
-  //   attacker.attributes[attributeTypes.damage],
-  //   percentageDamageIncrease,
-  //   "against DR",
-  //   victim.damageReduction,
-  //   "%DR",
-  //   percentageDamageReduction
-  // );
-
-  // console.log(
-  //   "Base result is",
-  //   attacker.attributes[attributeTypes.damage] *
-  //     percentageDamageIncrease *
-  //     percentageDamageReduction -
-  //     victim.damageReduction
-  // );
-
-  damage =
-    (1.2 - Math.random() * (1 - attacker.luck.smallModifier)) *
-    attacker.attributes[attributeTypes.damage];
-
+  // crits
   critical = Math.random() < attacker.luck.largeModifier;
   if (critical) {
     damage = damage * 3;
@@ -482,8 +469,14 @@ function calculateDamage(
     }
   }
 
+  // apply contested stats rolls
+  damage *=
+    attacker.attributes[attributeTypes.damage] /
+    victim.attributes[attributeTypes.damageReduction];
+
+  // amp damage from weapon
   damage *= percentageDamageIncrease;
-  damage -= victim.damageReduction;
+  // reduce / increase armor from enchantments
   totalArmor *= percentageDamageReduction;
   const drFromArmor = Math.pow(0.91, totalArmor);
   damage *= drFromArmor;
@@ -502,15 +495,35 @@ function addItemToCombatant(
   item: InventoryItem,
   attackType: AttackType
 ): Combatant {
-  const affectsAttackType = doesWeaponAffectAttack(item, attackType);
+  let itemLevel = item.level;
+  // affectsAttackType ? item.level : 1
+  if (!doesWeaponAffectAttack(item, attackType)) {
+    itemLevel = 0;
+  }
+  if (combatant.class === HeroClasses.BattleMage) {
+    if (
+      attackType === AttackType.Cast &&
+      item.type === InventoryItemType.MeleeWeapon
+    ) {
+      itemLevel = item.level / 2;
+    }
+    if (
+      attackType === AttackType.Melee &&
+      item.type === InventoryItemType.SpellFocus
+    ) {
+      itemLevel = item.level / 2;
+    }
+  }
 
   if (
     item.type === InventoryItemType.MeleeWeapon ||
     item.type === InventoryItemType.SpellFocus ||
-    item.type === InventoryItemType.RangedWeapon
+    item.type === InventoryItemType.RangedWeapon ||
+    (item.type === InventoryItemType.Shield &&
+      combatant.class === HeroClasses.Paladin)
   ) {
     combatant.equipment.weapons.push({
-      level: affectsAttackType ? item.level : 1,
+      level: itemLevel,
       enchantment: item.enchantment,
       type: item.type,
     });
@@ -538,23 +551,12 @@ function doesWeaponAffectAttack(
         return false;
       }
       break;
-    case AttackType.Holy:
-      if (
-        weapon.type === InventoryItemType.MeleeWeapon ||
-        weapon.type === InventoryItemType.RangedWeapon
-      ) {
+    case AttackType.Smite:
+      if (weapon.type === InventoryItemType.RangedWeapon) {
         return false;
       }
       break;
-    case AttackType.Wizard:
-      if (
-        weapon.type === InventoryItemType.MeleeWeapon ||
-        weapon.type === InventoryItemType.RangedWeapon
-      ) {
-        return false;
-      }
-      break;
-    case AttackType.Elemental:
+    case AttackType.Cast:
       if (
         weapon.type === InventoryItemType.MeleeWeapon ||
         weapon.type === InventoryItemType.RangedWeapon
@@ -600,7 +602,7 @@ export function createHeroCombatant(
   hero: Hero,
   attackType: AttackType
 ): Combatant {
-  const heroCombatant = {
+  const heroCombatant: Combatant = {
     class: hero.class,
     level: hero.level,
     name: hero.name,
@@ -635,6 +637,10 @@ export function createHeroCombatant(
   if (hero.equipment.footArmor) {
     addItemToCombatant(heroCombatant, hero.equipment.footArmor, attackType);
   }
+
+  heroCombatant.equipment.weapons = heroCombatant.equipment.weapons.sort(
+    (a, b) => b.level - a.level
+  );
 
   return heroCombatant;
 }
@@ -708,7 +714,8 @@ function calculateEnchantmentDamage(
 function attackCombatant(
   attacker: Combatant,
   victim: Combatant,
-  attackType: AttackType
+  attackType: AttackType,
+  isSecondAttack: boolean = false
 ): {
   hit: boolean;
   damage: number;
@@ -716,6 +723,15 @@ function attackCombatant(
   doubleCritical: boolean;
   combatLog: CombatEntry[];
 } {
+  if (isSecondAttack && attacker.class === HeroClasses.BattleMage) {
+    if (attacker.equipment.weapons[1].type === InventoryItemType.MeleeWeapon) {
+      attackType = AttackType.Melee;
+    }
+    if (attacker.equipment.weapons[1].type === InventoryItemType.SpellFocus) {
+      attackType = AttackType.Cast;
+    }
+  }
+
   const hit = calculateHit(attacker, attackType, victim);
   let damage = 0;
   let critical = false;
@@ -723,7 +739,12 @@ function attackCombatant(
   const combatLog: CombatEntry[] = [];
 
   if (hit) {
-    const damageResult = calculateDamage(attacker, attackType, victim);
+    const damageResult = calculateDamage(
+      attacker,
+      attackType,
+      victim,
+      isSecondAttack
+    );
     damage = damageResult.damage;
     critical = damageResult.critical;
     doubleCritical = damageResult.doubleCritical;
@@ -780,6 +801,24 @@ export async function fightMonster(
   const heroAttributes = hero.stats;
   const monsterAttributes = createMonsterStats(monster);
   const heroCombatant = createHeroCombatant(hero, heroAttackType);
+  let heroHasTwoAttacks = false;
+
+  if (heroCombatant.equipment.weapons.length > 1) {
+    // has two weapons, check their types...
+    if (
+      heroCombatant.equipment.weapons[0].type !==
+        InventoryItemType.RangedWeapon &&
+      heroCombatant.equipment.weapons[1].type !== InventoryItemType.RangedWeapon
+    ) {
+      // neither are ranged weapons
+      // only other things that can go into weapon array are
+      // spell focus, weapons, shield (paladin)
+      // all of those are allowed to be combined, their levels are already set accordingly
+      // level 0 means this weapon isn't appropriate for this attack
+      // so we don't want them (weps are sorted)
+      heroHasTwoAttacks = heroCombatant.equipment.weapons[1].level !== 0;
+    }
+  }
 
   const monsterCombatant = {
     class: HeroClasses.Monster,
@@ -827,16 +866,12 @@ export async function fightMonster(
     battleResults = battleResults.concat(monsterAttack.combatLog);
   }
 
-  if (
-    monsterDamage < hero.combat.health &&
-    attackType === AttackType.Melee &&
-    hero.class === HeroClasses.Berserker &&
-    Math.random() < 0.5
-  ) {
+  if (monsterDamage < hero.combat.health && heroHasTwoAttacks) {
     const secondHeroAttack = attackCombatant(
       heroCombatant,
       monsterCombatant,
-      attackType
+      attackType,
+      true
     );
     heroDamage += secondHeroAttack.damage;
     battleResults = battleResults.concat(secondHeroAttack.combatLog);

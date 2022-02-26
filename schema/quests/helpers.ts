@@ -1,4 +1,5 @@
 import { checkHero as checkHeroForWashedUp } from "./washed-up";
+import { checkHero as checkHeroForRebirth } from "./rebirth";
 import { Hero } from "types/graphql";
 
 import { createItemInstance } from "../items/helpers";
@@ -7,6 +8,15 @@ import { BaseItems } from "../items/base-items";
 export function checkHero(hero: Hero): Hero {
   // disabled washed up for now
   hero = checkHeroForWashedUp(hero);
+  hero = checkHeroForRebirth(hero);
+
+  return hero;
+}
+
+export function takeQuestItem(hero: Hero, baseItemName: string): Hero {
+  hero.inventory = hero.inventory.filter(
+    (item) => item.baseItem !== baseItemName
+  );
 
   return hero;
 }

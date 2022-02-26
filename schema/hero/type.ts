@@ -25,6 +25,7 @@ export default gql`
     class: HeroClasses!
 
     level: Int!
+    levelCap: Int!
     experience: Int!
     needed: Int!
     gold: Int!
@@ -52,17 +53,18 @@ export default gql`
   }
 
   enum HeroClasses {
-    Monster
-    Adventurer
-    Gambler
-    Berserker
-    Fighter
-    Ranger
-    BloodMage
-    Wizard
-    Elementalist
-    Cleric
-    JackOfAllTrades
+    Monster # non-player
+    Adventurer # low level
+    Gambler # high luck
+    JackOfAllTrades # special all stats
+    Fighter # melee shield
+    Berserker # melee melee
+    Wizard # spell spell
+    Warlock # spell shield
+    BattleMage # spell melee
+    Paladin # shield shield
+    Ranger # ranged
+    BloodMage # con / ench vamp
   }
 
   type LeadboardEntry {
@@ -84,7 +86,7 @@ export default gql`
     constitution
     intelligence
     wisdom
-    charisma
+    willpower
     luck
     all
   }
@@ -145,7 +147,7 @@ export default gql`
     BonusConstitution
     BonusIntelligence
     BonusWisdom
-    BonusCharisma
+    BonusWillpower
     BonusLuck
     # group stats
     BonusPhysical
@@ -164,7 +166,7 @@ export default gql`
     MinusEnemyConstitution
     MinusEnemyIntelligence
     MinusEnemyWisdom
-    MinusEnemyCharisma
+    MinusEnemyWillpower
     # group stats
     MinusEnemyPhysical
     MinusEnemyMental
@@ -178,8 +180,12 @@ export default gql`
     FishermansConstitution
     FishermansIntelligence
     FishermansWisdom
-    FishermansCharisma
+    FishermansWillpower
     FishermansLuck
+
+    CanRebirth
+    DoubleStatGain
+    AutoBattle
     # End quest reward enchantments
   }
 
@@ -209,7 +215,7 @@ export default gql`
 
     intelligence: Float!
     wisdom: Float!
-    charisma: Float!
+    willpower: Float!
 
     luck: Float!
   }

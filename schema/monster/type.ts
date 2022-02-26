@@ -59,9 +59,8 @@ export default gql`
   enum AttackType {
     MELEE
     RANGED
-    WIZARD
-    ELEMENTAL
-    HOLY
+    CAST
+    SMITE
     BLOOD
   }
 `;

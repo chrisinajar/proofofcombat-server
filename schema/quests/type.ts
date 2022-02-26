@@ -6,10 +6,12 @@ export default gql`
   }
   type Mutation {
     dismissQuest: LevelUpResponse! @auth
+    rebirth: LevelUpResponse @auth @delay(delay: 10000)
   }
 
   enum Quest {
     WashedUp # hero is on water but can't swim, gets message about washing ashore
+    Rebirth # initial level cap progression
   }
 
   type QuestEvent {
@@ -27,6 +29,7 @@ export default gql`
     id: ID!
 
     washedUp: QuestProgress
+    rebirth: QuestProgress
   }
 
   type QuestProgress {
