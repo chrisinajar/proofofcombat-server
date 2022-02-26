@@ -9,9 +9,10 @@ export default gql`
 
   type Mutation {
     heal: HealResponse! @auth @delay(delay: 2000)
-    increaseAttribute(attribute: AttributeType!): LevelUpResponse!
-      @auth
-      @delay(delay: 1000)
+    increaseAttribute(
+      attribute: AttributeType!
+      spendAll: Boolean
+    ): LevelUpResponse! @auth @delay(delay: 1000)
 
     buy(baseItem: ID!): LevelUpResponse! @auth @delay(delay: 200)
     sell(item: ID!): LevelUpResponse! @auth @delay(delay: 200)
@@ -29,6 +30,7 @@ export default gql`
     experience: Int!
     needed: Int!
     gold: Int!
+    enchantingDust: Int!
     location: Location!
     attributePoints: Int!
 
@@ -167,10 +169,21 @@ export default gql`
     MinusEnemyIntelligence
     MinusEnemyWisdom
     MinusEnemyWillpower
+    # steal enemy stats
+    StrengthSteal
+    DexteritySteal
+    ConstitutionSteal
+    IntelligenceSteal
+    WisdomSteal
+    WillpowerSteal
+    LuckSteal
     # group stats
     MinusEnemyPhysical
     MinusEnemyMental
     MinusEnemyAllStats
+    # tier 3 enchantments
+    AllStatsSteal
+    Vampirism
 
     # End droppable enchantments
 
@@ -184,8 +197,10 @@ export default gql`
     FishermansLuck
 
     CanRebirth
-    DoubleStatGain
-    AutoBattle
+    CanCraft
+    AutoBattle # probably shoulda been "CanAutoBattle" but whatever
+    DoubleExperience # 2x xp, stacks
+    DoubleLeveling # get 2 levels for every level, stacks
     # End quest reward enchantments
   }
 

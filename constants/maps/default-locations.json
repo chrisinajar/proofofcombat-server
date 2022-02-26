@@ -1,4 +1,5 @@
 [
+  { "x": 25, "y": 58, "name": "The Hellhound's Fur", "type": "tavern" },
   { "x": 30, "y": 33, "name": "Darkwood Bridge", "type": "bridge" },
   { "x": 31, "y": 33, "name": "Darkwood Bridge", "type": "bridge" },
   { "x": 28, "y": 34, "name": "Darkwood Bridge", "type": "bridge" },

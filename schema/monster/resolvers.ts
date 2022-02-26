@@ -8,6 +8,7 @@ import {
   AttackType,
   InventoryItem,
   HeroClasses,
+  EnchantmentType,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -102,9 +103,16 @@ const resolvers: Resolvers = {
       const fightResult = await fightMonster(hero, monster, attackType);
       let experienceRewards =
         (monster.monster.level + Math.pow(1.5, monster.monster.level)) * 10;
+
+      const xpDoublers = context.db.hero.countEnchantments(
+        hero,
+        EnchantmentType.DoubleExperience
+      );
       if (hero.class === HeroClasses.Adventurer) {
         experienceRewards *= 3;
       }
+
+      experienceRewards *= Math.pow(2, xpDoublers);
 
       experienceRewards = Math.round(
         Math.min(hero.needed / 3, experienceRewards)
@@ -132,7 +140,9 @@ const resolvers: Resolvers = {
 
       // victory
       if (fightResult.monsterDied) {
-        console.log(hero.name, "killed a", monster.monster.name, goldReward);
+        console.log(hero.name, "killed a", monster.monster.name, goldReward, {
+          xpDoublers,
+        });
         context.db.hero.addExperience(hero, experienceRewards);
         hero.gold = hero.gold + goldReward;
 
@@ -150,7 +160,14 @@ const resolvers: Resolvers = {
           const monsterLevel = monster.monster.level;
 
           const baseItem = randomBaseItem(monsterLevel);
-          const enchantment = randomEnchantment(monsterLevel);
+          // max mob tier enchantments is 3
+          // max normal overworld mobs is 32
+          // lets give just a 10% chance of tier 3 enchantments (they fat)
+          // so max value should be 3.33.. at 32, so that there's a 10% chance it remains above 3.0
+          // (32 / (3 / 0.9)) = 9.6!
+          const enchantment = randomEnchantment(
+            Math.floor(Math.random() * (monsterLevel / 9.6))
+          );
           const itemInstance = enchantItem(
             createItemInstance(baseItem, hero),
             enchantment

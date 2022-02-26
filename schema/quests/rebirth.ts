@@ -1,30 +1,50 @@
-import { Hero, Quest } from "types/graphql";
+import { Hero, Quest, EnchantmentType } from "types/graphql";
+
+import Databases from "../../db";
 
 import { questEvents } from "./text/rebirth-text";
 import { giveQuestItem, takeQuestItem } from "./helpers";
 
 export const startingLevelCap = 10;
 export const secondLevelCap = 100;
+export const thirdLevelCap = 5000;
 
 export function rebirth(hero: Hero): Hero {
-  hero.level = 1;
-  hero.levelCap = 0;
+  console.log("Rebirthing...");
+  hero = takeQuestItem(hero, "totem-of-rebirth");
+  hero = takeQuestItem(hero, "totem-of-champion-rebirth");
+  hero = takeQuestItem(hero, "totem-of-hero-rebirth");
+
+  if (hero.levelCap === startingLevelCap) {
+    hero.levelCap = secondLevelCap;
+    hero = rebirthMessage(hero, "rebirth", questEvents.firstRebirth);
+    hero = giveQuestItem(hero, "totem-of-champion");
+  } else if (hero.levelCap === secondLevelCap) {
+    hero.levelCap = thirdLevelCap;
+    hero = rebirthMessage(hero, "rebirth", questEvents.firstRebirth);
+    hero = giveQuestItem(hero, "totem-of-hero");
+  }
+
+  // 1, 2, 4, etc
+  const startingLevel = Math.pow(
+    2,
+    Databases.hero.countEnchantments(hero, EnchantmentType.DoubleLeveling)
+  );
+
+  hero.attributePoints = Math.max(0, startingLevel - 1);
   hero.experience = 0;
+  hero.level = startingLevel;
   hero.stats = {
-    strength: 10,
-    dexterity: 10,
-    constitution: 10,
-    intelligence: 10,
-    wisdom: 10,
-    willpower: 10,
-    luck: 10,
+    strength: 5 + startingLevel,
+    dexterity: 5 + startingLevel,
+    constitution: 5 + startingLevel,
+    intelligence: 5 + startingLevel,
+    wisdom: 5 + startingLevel,
+    willpower: 5 + startingLevel,
+    luck: 5 + startingLevel,
   };
 
-  hero = rebirthMessage(hero, "first", questEvents.firstBirth);
-  hero = takeQuestItem(hero, "totem-of-rebirth");
-  hero = giveQuestItem(hero, "totem-of-the-hero");
-
-  return hero;
+  return Databases.hero.recalculateStats(hero);
 }
 export function checkHero(hero: Hero): Hero {
   // wait for them to dismiss any previous quest messages
@@ -50,6 +70,11 @@ export function checkHero(hero: Hero): Hero {
     case 10:
       hero = rebirthMessage(hero, "first", questEvents.firstBirth);
       giveQuestItem(hero, "totem-of-rebirth");
+      break;
+    case 100:
+      hero = rebirthMessage(hero, "second", questEvents.secondCap);
+      takeQuestItem(hero, "totem-of-champion");
+      giveQuestItem(hero, "totem-of-champion-rebirth");
       break;
   }
 

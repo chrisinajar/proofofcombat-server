@@ -1,5 +1,11 @@
-import { Hero, BaseAccount, InventoryItemType } from "types/graphql";
+import {
+  Hero,
+  BaseAccount,
+  InventoryItemType,
+  EnchantmentType,
+} from "types/graphql";
 import { startingLevelCap } from "../../schema/quests/rebirth";
+import { BaseItems } from "../../schema/items/base-items";
 
 import DatabaseInterface from "../interface";
 
@@ -21,6 +27,7 @@ type PartialHero = Optional<
   | "questLog"
   | "class"
   | "levelCap"
+  | "enchantingDust"
 >;
 
 const inMemoryLeaderboardLength = 50;
@@ -31,6 +38,19 @@ import { getClass } from "./hero/classes";
 export default class HeroModel extends DatabaseInterface<Hero> {
   constructor() {
     super("hero");
+  }
+
+  countEnchantments(hero: Hero, enchantment: EnchantmentType): number {
+    return hero.inventory.reduce<number>((memo, item) => {
+      let count = item.enchantment === enchantment ? 1 : 0;
+      const baseItem = BaseItems[item.baseItem];
+      if (baseItem && baseItem.passiveEnchantments) {
+        count += baseItem.passiveEnchantments.filter(
+          (e) => e === enchantment
+        ).length;
+      }
+      return count + memo;
+    }, 0);
   }
 
   async getTopHeros(): Promise<Hero[]> {
@@ -101,8 +121,13 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     const experienceNeeded = this.experienceNeededForLevel(level);
     // LEVEL UP
     if (newExperience >= experienceNeeded) {
-      newExperience = experienceNeeded;
-      hero = this.levelUp(hero);
+      const levelingDoublers = this.countEnchantments(
+        hero,
+        EnchantmentType.DoubleLeveling
+      );
+      for (let i = 0, l = Math.pow(2, levelingDoublers); i < l; ++i) {
+        hero = this.levelUp(hero);
+      }
     } else {
       hero.experience = newExperience;
     }
@@ -111,6 +136,16 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   levelUp(hero: Hero): Hero {
+    let stats: (keyof typeof hero.stats)[] = [
+      "strength",
+      "dexterity",
+      "constitution",
+      "intelligence",
+      "wisdom",
+      "willpower",
+      "luck",
+    ];
+
     if (hero.level < hero.levelCap) {
       // we never over-level
       hero.stats.strength = hero.stats.strength + 1;
@@ -121,17 +156,46 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       hero.stats.willpower = hero.stats.willpower + 1;
       hero.stats.luck = hero.stats.luck + 1;
       hero.level = hero.level + 1;
-    } else {
-      hero.stats.strength = hero.stats.strength - 1;
-      hero.stats.dexterity = hero.stats.dexterity - 1;
-      hero.stats.constitution = hero.stats.constitution - 1;
-      hero.stats.intelligence = hero.stats.intelligence - 1;
-      hero.stats.wisdom = hero.stats.wisdom - 1;
-      hero.stats.willpower = hero.stats.willpower - 1;
-      hero.stats.luck = hero.stats.luck - 1;
-    }
 
-    hero.attributePoints = hero.attributePoints + 1;
+      hero.attributePoints = hero.attributePoints + 1;
+    } else {
+      if (
+        hero.stats.strength +
+          hero.stats.dexterity +
+          hero.stats.constitution +
+          hero.stats.intelligence +
+          hero.stats.wisdom +
+          hero.stats.willpower +
+          hero.stats.luck >
+        stats.length * 10
+      ) {
+        stats = stats.sort((a, b) => hero.stats[a] - hero.stats[b]);
+
+        for (let i = 0, l = stats.length; i < l; ++i) {
+          console.log("doing stat", i);
+          for (let j = 0, lj = stats.length; j < lj; ++j) {
+            const statName = stats[(i + j) % stats.length];
+            console.log("Removing from", statName);
+            if (hero.stats[statName] > 10) {
+              hero.stats[statName] = hero.stats[statName] - 1;
+              break;
+            }
+          }
+        }
+
+        console.log(stats);
+
+        // hero.stats.strength = hero.stats.strength - 1;
+        // hero.stats.dexterity = hero.stats.dexterity - 1;
+        // hero.stats.constitution = hero.stats.constitution - 1;
+        // hero.stats.intelligence = hero.stats.intelligence - 1;
+        // hero.stats.wisdom = hero.stats.wisdom - 1;
+        // hero.stats.willpower = hero.stats.willpower - 1;
+        // hero.stats.luck = hero.stats.luck - 1;
+
+        // hero.attributePoints = hero.attributePoints + 1;
+      }
+    }
 
     hero.experience = 0;
 
@@ -202,8 +266,14 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
       data.version = 3;
     }
+
     if (data.version < 4) {
+      if (data.questLog) {
+        data.questLog.rebirth = null;
+      }
       data.levelCap = startingLevelCap;
+      data.enchantingDust = 0;
+      data.version = 4;
     }
     if (data.version < 5) {
       // future

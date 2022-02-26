@@ -116,13 +116,62 @@ export function getQuestRewards() {
       canBuy: false,
     },
     // after first rebirth, you get...
-    "totem-of-the-hero": {
+    "totem-of-champion": {
+      id: "totem-of-champion",
+      passiveEnchantments: [
+        EnchantmentType.AutoBattle,
+        EnchantmentType.DoubleExperience,
+      ],
+      name: "Totem of the Champion",
+      type: InventoryItemType.Quest,
+      level: 2,
+      canBuy: false,
+    },
+    // 2nd level cap, champion totem turns into...
+    "totem-of-champion-rebirth": {
+      id: "totem-of-champion-rebirth",
+      passiveEnchantments: [
+        EnchantmentType.AutoBattle,
+        EnchantmentType.DoubleExperience,
+        EnchantmentType.CanRebirth,
+      ],
+      name: "Totem of Champion's Rebirth",
+      type: InventoryItemType.Quest,
+      level: 2,
+      canBuy: false,
+    },
+    // after second rebirth, you get...
+    "totem-of-hero": {
       id: "totem-of-hero",
       passiveEnchantments: [
-        EnchantmentType.DoubleStatGain,
         EnchantmentType.AutoBattle,
+        EnchantmentType.DoubleExperience,
+        EnchantmentType.DoubleLeveling,
       ],
-      name: "Totem of Hero",
+      name: "Totem of the Hero",
+      type: InventoryItemType.Quest,
+      level: 3,
+      canBuy: false,
+    },
+    // 2nd level cap, hero totem turns into...
+    "totem-of-hero-rebirth": {
+      id: "totem-of-hero-rebirth",
+      passiveEnchantments: [
+        EnchantmentType.AutoBattle,
+        EnchantmentType.DoubleExperience,
+        EnchantmentType.CanRebirth,
+      ],
+      name: "Totem of Heroic Rebirth",
+      type: InventoryItemType.Quest,
+      level: 3,
+      canBuy: false,
+    },
+
+    // crafting!
+    "crafting-hammer": {
+      id: "crafting-hammer",
+      passiveEnchantments: [EnchantmentType.CanCraft],
+      name: "Crafting Hammer",
       type: InventoryItemType.Quest,
       level: 2,
       canBuy: false,

@@ -36,7 +36,7 @@ type AttackAttributes = {
 };
 
 function createMonsterStats(monster: Monster): HeroStats {
-  console.log(monster.name, "has", monster.combat.maxHealth - 5, "stats");
+  // console.log(monster.name, "has", monster.combat.maxHealth - 5, "stats");
   return {
     strength: monster.combat.maxHealth - 5,
     dexterity: monster.combat.maxHealth - 5,
@@ -218,6 +218,22 @@ function enchantVictim(
   return enchantAttacker(victim, attacker);
 }
 
+export function stealStat(
+  attacker: EnchantedCombatant,
+  victim: EnchantedCombatant,
+  attribute: Attribute,
+  percent: number
+): { attacker: EnchantedCombatant; victim: EnchantedCombatant } {
+  const statGain = attacker.attributes[attribute] * percent;
+  victim.attributes[attribute] = Math.max(
+    1,
+    victim.attributes[attribute] - statGain
+  );
+  attacker.attributes[attribute] += statGain;
+
+  return { attacker, victim };
+}
+
 export function enchantAttacker(
   attackerInput: Combatant,
   victimInput: Combatant
@@ -325,6 +341,38 @@ export function enchantAttacker(
         victim.attributes.wisdom *= 0.9;
         victim.attributes.willpower *= 0.9;
         break;
+      case EnchantmentType.StrengthSteal:
+        stealStat(attacker, victim, "strength", 0.2);
+        break;
+      case EnchantmentType.DexteritySteal:
+        stealStat(attacker, victim, "dexterity", 0.2);
+        break;
+      case EnchantmentType.ConstitutionSteal:
+        stealStat(attacker, victim, "constitution", 0.2);
+        break;
+      case EnchantmentType.IntelligenceSteal:
+        stealStat(attacker, victim, "intelligence", 0.2);
+        break;
+      case EnchantmentType.WisdomSteal:
+        stealStat(attacker, victim, "wisdom", 0.2);
+        break;
+      case EnchantmentType.WillpowerSteal:
+        stealStat(attacker, victim, "willpower", 0.2);
+        break;
+      case EnchantmentType.LuckSteal:
+        stealStat(attacker, victim, "luck", 0.2);
+        break;
+      case EnchantmentType.Vampirism:
+        stealStat(attacker, victim, "constitution", 0.2);
+        break;
+      case EnchantmentType.AllStatsSteal:
+        stealStat(attacker, victim, "strength", 0.2);
+        stealStat(attacker, victim, "dexterity", 0.2);
+        stealStat(attacker, victim, "constitution", 0.2);
+        stealStat(attacker, victim, "intelligence", 0.2);
+        stealStat(attacker, victim, "wisdom", 0.2);
+        stealStat(attacker, victim, "willpower", 0.2);
+        stealStat(attacker, victim, "luck", 0.2);
 
       // quest rewards
       case EnchantmentType.FishermansStrength:
@@ -445,7 +493,7 @@ function calculateDamage(
     : attacker.equipment.weapons[0];
 
   // ~13 - 5,428 - 44,277 - 126,462
-  const baseDamage = Math.pow(1.3, weapon.level) * 10;
+  const baseDamage = Math.pow(1.3, weapon?.level ?? 0) * 10;
 
   // [0,1]
   const variation = baseDamage * attacker.luck.smallModifier;
@@ -478,7 +526,7 @@ function calculateDamage(
   damage *= percentageDamageIncrease;
   // reduce / increase armor from enchantments
   totalArmor *= percentageDamageReduction;
-  const drFromArmor = Math.pow(0.91, totalArmor);
+  const drFromArmor = Math.pow(0.95, totalArmor);
   damage *= drFromArmor;
 
   damage = Math.round(Math.max(1, Math.min(1000000000, damage)));
@@ -702,6 +750,11 @@ function calculateEnchantmentDamage(
         attackerDamage -= attacker.attributes.constitution * 0.1;
         victimDamage += attacker.attributes.constitution * 0.1;
         break;
+
+      case EnchantmentType.Vampirism:
+        attackerDamage -= attacker.attributes.constitution * 0.3;
+        victimDamage += attacker.attributes.constitution * 0.3;
+        break;
     }
   });
 
@@ -758,17 +811,17 @@ function attackCombatant(
       critical,
     });
 
-    console.log(
-      attacker.name,
-      `(${attacker.level})`,
-      critical ? "crit" : "dealt",
-      damage,
-      "to",
-      victim.name,
-      `(${victim.level})`,
-      "with",
-      attackType
-    );
+    // console.log(
+    //   attacker.name,
+    //   `(${attacker.level})`,
+    //   critical ? "crit" : "dealt",
+    //   damage,
+    //   "to",
+    //   victim.name,
+    //   `(${victim.level})`,
+    //   "with",
+    //   attackType
+    // );
   } else {
     combatLog.push({
       attackType: attackType,

@@ -13,6 +13,10 @@ const stats: HeroStatName[] = [
 ];
 
 export function getClass(hero: Hero): HeroClasses {
+  if (hero.level < 10) {
+    return HeroClasses.Adventurer;
+  }
+
   const highestStat: HeroStatName = stats.reduce<HeroStatName>(
     (high, current) => {
       if (!high) {
@@ -57,8 +61,6 @@ export function getClass(hero: Hero): HeroClasses {
   if (highestStat === "constitution") {
     return HeroClasses.BloodMage;
   }
-
-  console.log(leftWeaponType, rightWeaponType);
 
   if (
     leftWeaponType === InventoryItemType.RangedWeapon ||

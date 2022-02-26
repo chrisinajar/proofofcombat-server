@@ -17,30 +17,91 @@ export function enchantItem(
   return item;
 }
 
-export function randomEnchantment(level: number): EnchantmentType {
-  const options = [
-    EnchantmentType.BonusStrength,
-    EnchantmentType.BonusDexterity,
-    EnchantmentType.BonusConstitution,
-    EnchantmentType.BonusIntelligence,
-    EnchantmentType.BonusWisdom,
-    EnchantmentType.BonusWillpower,
-    EnchantmentType.BonusLuck,
-    EnchantmentType.BonusPhysical,
-    EnchantmentType.BonusMental,
-    EnchantmentType.BonusAllStats,
-    EnchantmentType.MinusEnemyArmor,
-    EnchantmentType.BonusArmor,
-    EnchantmentType.MinusEnemyStrength,
-    EnchantmentType.MinusEnemyDexterity,
-    EnchantmentType.MinusEnemyConstitution,
-    EnchantmentType.MinusEnemyIntelligence,
-    EnchantmentType.MinusEnemyWisdom,
-    EnchantmentType.MinusEnemyWillpower,
-    EnchantmentType.MinusEnemyPhysical,
-    EnchantmentType.MinusEnemyMental,
-    EnchantmentType.MinusEnemyAllStats,
-  ];
+export function getEnchantments(
+  level: number,
+  includeLowerTiers: boolean
+): EnchantmentType[] {
+  // current max tier, to prevent extra iterations from overly aggressive proceedural code
+  level = Math.min(3, level);
+  let options: EnchantmentType[] = [];
+  if (includeLowerTiers && level > 0) {
+    options = options.concat(getEnchantments(level - 1, includeLowerTiers));
+  }
+
+  switch (level) {
+    case 0:
+      options = options.concat([
+        // bonus individual stats
+        EnchantmentType.BonusStrength,
+        EnchantmentType.BonusDexterity,
+        EnchantmentType.BonusConstitution,
+        EnchantmentType.BonusIntelligence,
+        EnchantmentType.BonusWisdom,
+        EnchantmentType.BonusWillpower,
+        EnchantmentType.BonusLuck,
+
+        // minus individual enemy stats
+        EnchantmentType.MinusEnemyStrength,
+        EnchantmentType.MinusEnemyDexterity,
+        EnchantmentType.MinusEnemyConstitution,
+        EnchantmentType.MinusEnemyIntelligence,
+        EnchantmentType.MinusEnemyWisdom,
+        EnchantmentType.MinusEnemyWillpower,
+
+        // heal / damage
+        EnchantmentType.LifeHeal,
+        EnchantmentType.LifeDamage,
+      ]);
+      break;
+    case 1:
+      options = options.concat([
+        // combined bonus/minuses
+        EnchantmentType.BonusPhysical,
+        EnchantmentType.BonusMental,
+        EnchantmentType.MinusEnemyPhysical,
+        EnchantmentType.MinusEnemyMental,
+        // armor
+        EnchantmentType.MinusEnemyArmor,
+        EnchantmentType.BonusArmor,
+        // combined heal / damage
+        EnchantmentType.LifeSteal,
+
+        // individual stat leaching
+        EnchantmentType.StrengthSteal,
+        EnchantmentType.DexteritySteal,
+        EnchantmentType.ConstitutionSteal,
+        EnchantmentType.IntelligenceSteal,
+        EnchantmentType.WisdomSteal,
+        EnchantmentType.WillpowerSteal,
+        EnchantmentType.LuckSteal,
+      ]);
+      break;
+    case 2:
+      options = options.concat([
+        EnchantmentType.BonusAllStats,
+        EnchantmentType.MinusEnemyAllStats,
+      ]);
+      break;
+    // highest tier of overworld enchantments
+    case 3:
+      options = options.concat([
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.Vampirism,
+      ]);
+      break;
+    case 4:
+      options = options.concat([]);
+      break;
+  }
+
+  return options;
+}
+
+export function randomEnchantment(
+  level: number,
+  includeLowerTiers: boolean = true
+): EnchantmentType {
+  const options = getEnchantments(level, includeLowerTiers);
 
   return options[Math.floor(Math.random() * options.length)];
 }

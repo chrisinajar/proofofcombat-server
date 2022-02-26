@@ -1,5 +1,6 @@
 import { checkHero as checkHeroForWashedUp } from "./washed-up";
 import { checkHero as checkHeroForRebirth } from "./rebirth";
+import { checkHero as checkHeroForCrafting } from "./crafting";
 import { Hero } from "types/graphql";
 
 import { createItemInstance } from "../items/helpers";
@@ -9,6 +10,7 @@ export function checkHero(hero: Hero): Hero {
   // disabled washed up for now
   hero = checkHeroForWashedUp(hero);
   hero = checkHeroForRebirth(hero);
+  hero = checkHeroForCrafting(hero);
 
   return hero;
 }

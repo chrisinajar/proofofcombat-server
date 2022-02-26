@@ -14,6 +14,7 @@ import {
   AttackType,
   HeroClasses,
   HeroStats,
+  AttributeType,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -81,7 +82,7 @@ const resolvers: Resolvers = {
         throw new UserInputError("Could not find that item in your inventory!");
       }
 
-      console.log("Equipping", inventoryItem, "to slot", args.slot);
+      console.log(hero.name, "Equipping", inventoryItem, "to slot", args.slot);
 
       hero.equipment[args.slot] = inventoryItem;
 
@@ -113,7 +114,7 @@ const resolvers: Resolvers = {
       if (baseItem.cost > hero.gold) {
         throw new UserInputError("You do not have enough gold for that item!");
       }
-      console.log("Trying to buy a", baseItem);
+      console.log(hero.name, "Trying to buy a", baseItem);
 
       hero.gold = hero.gold - baseItem.cost;
 
@@ -141,7 +142,7 @@ const resolvers: Resolvers = {
         (item: InventoryItem) => item.id === itemId
       );
 
-      console.log(item);
+      console.log(hero.name, "selling", item);
 
       if (!item) {
         throw new UserInputError(`Unknown item: ${itemId}`);
@@ -200,26 +201,37 @@ const resolvers: Resolvers = {
           account,
         };
       }
-
-      if (args.attribute === "all") {
-        hero.stats[args.attribute] = hero.stats[args.attribute] + 7;
-        hero.stats.strength = hero.stats.strength + 1;
-        hero.stats.dexterity = hero.stats.dexterity + 1;
-        hero.stats.constitution = hero.stats.constitution + 1;
-        hero.stats.intelligence = hero.stats.intelligence + 1;
-        hero.stats.wisdom = hero.stats.wisdom + 1;
-        hero.stats.willpower = hero.stats.willpower + 1;
-        hero.stats.luck = hero.stats.luck + 1;
-      } else if (!hero.stats[args.attribute]) {
-        return {
-          hero,
-          account,
-        };
-      } else {
-        hero.stats[args.attribute] = hero.stats[args.attribute] + 7;
+      if (args.attribute !== "all" && !hero.stats[args.attribute]) {
+        throw new UserInputError(`Unknown stat name: ${args.attribute}`);
       }
 
-      hero.attributePoints = hero.attributePoints - 1;
+      if (args.spendAll) {
+        for (let i = 0, l = hero.attributePoints; i < l; ++i) {
+          increaseHeroAttribute(hero, args.attribute);
+        }
+      } else {
+        increaseHeroAttribute(hero, args.attribute);
+      }
+
+      function increaseHeroAttribute(hero: Hero, attribute: AttributeType) {
+        if (hero.attributePoints <= 0) {
+          return;
+        }
+        if (attribute === "all") {
+          hero.stats.strength = hero.stats.strength + 1;
+          hero.stats.dexterity = hero.stats.dexterity + 1;
+          hero.stats.constitution = hero.stats.constitution + 1;
+          hero.stats.intelligence = hero.stats.intelligence + 1;
+          hero.stats.wisdom = hero.stats.wisdom + 1;
+          hero.stats.willpower = hero.stats.willpower + 1;
+          hero.stats.luck = hero.stats.luck + 1;
+          hero.attributePoints = hero.attributePoints - 1;
+        } else {
+          hero.stats[attribute] = hero.stats[attribute] + 7;
+          hero.attributePoints = hero.attributePoints - 1;
+        }
+      }
+
       hero = context.db.hero.recalculateStats(hero);
 
       console.log(hero.name, "increasing their", args.attribute);
