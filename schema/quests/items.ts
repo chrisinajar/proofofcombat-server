@@ -150,7 +150,7 @@ export function getQuestRewards() {
       ],
       name: "Totem of the Hero",
       type: InventoryItemType.Quest,
-      level: 3,
+      level: 2,
       canBuy: false,
     },
     // 2nd level cap, hero totem turns into...
@@ -163,7 +163,7 @@ export function getQuestRewards() {
       ],
       name: "Totem of Heroic Rebirth",
       type: InventoryItemType.Quest,
-      level: 3,
+      level: 2,
       canBuy: false,
     },
 
