@@ -2,8 +2,9 @@ import { LocationData, MapNames, SpecialLocation } from "../../constants";
 
 import { Hero, Quest } from "types/graphql";
 import { findTerrainType, specialLocations } from "../../helpers";
+import { BaseContext } from "../context";
 
-import { giveQuestItem } from "./helpers";
+import { giveQuestItemNotification } from "./helpers";
 import { questEvents } from "./text/washed-up-text";
 
 /*
@@ -54,25 +55,25 @@ const docks: WashedUpDock[] = [
   },
 ];
 
-export function checkHero(hero: Hero): Hero {
+export function checkHero(context: BaseContext, hero: Hero): Hero {
   // already done
   if (hero.questLog.washedUp?.finished) {
     return hero;
   }
 
-  hero = checkInitialWashedUp(hero);
+  hero = checkInitialWashedUp(context, hero);
   // haven't started
   if (!hero.questLog.washedUp || !hero.questLog.washedUp.started) {
     return hero;
   }
 
-  hero = checkDock(hero);
-  hero = checkPub(hero);
+  hero = checkDock(context, hero);
+  hero = checkPub(context, hero);
 
   return hero;
 }
 
-function checkPub(hero: Hero): Hero {
+function checkPub(context: BaseContext, hero: Hero): Hero {
   if (hero.currentQuest) {
     return hero;
   }
@@ -97,7 +98,7 @@ function checkPub(hero: Hero): Hero {
 
   console.log(hero.name, "is at pub location!!");
 
-  hero = giveQuestItem(hero, "fishermans-luck");
+  hero = giveQuestItemNotification(context, hero, "fishermans-luck");
   hero.gold = Math.round(hero.gold / 2);
 
   hero.currentQuest = {
@@ -117,7 +118,7 @@ function checkPub(hero: Hero): Hero {
   return hero;
 }
 
-function checkDock(hero: Hero): Hero {
+function checkDock(context: BaseContext, hero: Hero): Hero {
   // *don't* override existing quest messages for docks
   // let them leave it up / chain messages one after another
   if (hero.currentQuest) {
@@ -158,7 +159,7 @@ function checkDock(hero: Hero): Hero {
     } else {
       // at any dock, send off on first fetch quest
       // give old boot
-      hero = giveQuestItem(hero, "old-boot");
+      hero = giveQuestItemNotification(context, hero, "old-boot");
 
       hero.currentQuest = {
         id: `WashedUp-${hero.id}-dock1`,
@@ -201,11 +202,15 @@ function checkDock(hero: Hero): Hero {
     }
     // add pocket watch
     if (questItems[questLogEntry.progress]) {
-      hero = giveQuestItem(hero, questItems[questLogEntry.progress]);
+      hero = giveQuestItemNotification(
+        context,
+        hero,
+        questItems[questLogEntry.progress]
+      );
     }
   }
 
-  hero = getNewAward(hero);
+  hero = getNewAward(context, hero);
 
   hero.currentQuest = {
     id: `WashedUp-${hero.id}-dock${questLogEntry.progress}`,
@@ -224,7 +229,7 @@ function checkDock(hero: Hero): Hero {
   return hero;
 }
 
-function checkInitialWashedUp(hero: Hero): Hero {
+function checkInitialWashedUp(context: BaseContext, hero: Hero): Hero {
   // return hero;
   const location =
     LocationData[hero.location.map as MapNames]?.locations[hero.location.x][
@@ -266,7 +271,7 @@ function checkInitialWashedUp(hero: Hero): Hero {
   return hero;
 }
 
-function getNewAward(hero: Hero): Hero {
+function getNewAward(context: BaseContext, hero: Hero): Hero {
   const options = WashedUpRewards.filter((questItem) => {
     const existingItem = hero.inventory.find(
       (inventoryItem) => inventoryItem.baseItem === questItem
@@ -276,7 +281,8 @@ function getNewAward(hero: Hero): Hero {
   });
 
   if (options.length) {
-    hero = giveQuestItem(
+    hero = giveQuestItemNotification(
+      context,
       hero,
       options[Math.floor(options.length * Math.random())]
     );

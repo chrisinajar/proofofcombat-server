@@ -14,6 +14,15 @@ import { BaseItems } from "../items/base-items";
 import { createItemInstance } from "../items/helpers";
 import type { BaseItem } from "../items";
 
+type SlotNameType =
+  | "leftHand"
+  | "rightHand"
+  | "bodyArmor"
+  | "handArmor"
+  | "legArmor"
+  | "headArmor"
+  | "footArmor";
+
 const resolvers: Resolvers = {
   Query: {
     async shopItems(parent, args, context: BaseContext): Promise<ShopItem[]> {
@@ -202,7 +211,7 @@ const resolvers: Resolvers = {
       const hero = await context.db.hero.get(context.auth.id);
       const account = await context.db.account.get(context.auth.id);
 
-      const slotNames = [
+      const slotNames: SlotNameType[] = [
         "leftHand",
         "rightHand",
         "bodyArmor",
@@ -212,7 +221,9 @@ const resolvers: Resolvers = {
         "footArmor",
       ];
 
-      if (slotNames.indexOf(args.slot) < 0) {
+      const slot = slotNames.find((s) => s === args.slot);
+
+      if (!slot) {
         throw new UserInputError("Invalid slot name!");
       }
 
@@ -226,7 +237,7 @@ const resolvers: Resolvers = {
 
       console.log(hero.name, "Equipping", inventoryItem, "to slot", args.slot);
 
-      hero.equipment[args.slot] = inventoryItem;
+      hero.equipment[slot] = inventoryItem;
 
       await context.db.hero.put(hero);
 

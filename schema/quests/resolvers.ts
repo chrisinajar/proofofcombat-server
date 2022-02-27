@@ -41,7 +41,7 @@ const resolvers: Resolvers = {
         throw new UserInputError("Cannot rebirth while below level cap.");
       }
 
-      hero = rebirth(hero);
+      hero = rebirth(context, hero);
 
       await context.db.hero.put(hero);
 
@@ -64,7 +64,7 @@ const resolvers: Resolvers = {
 
       hero.currentQuest = null;
 
-      hero = checkHero(hero);
+      hero = checkHero(context, hero);
 
       await context.db.hero.put(hero);
 

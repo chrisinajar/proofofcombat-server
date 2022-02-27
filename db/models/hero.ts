@@ -295,7 +295,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.experience = Math.round(data.experience);
 
     // recalculate stats and turn it into a real hero object
-    const hero = checkHero(this.recalculateStats(data as Hero));
+    const hero = this.recalculateStats(data as Hero);
     // technically this could still be missing class but we set it here anyway so owell
     hero.class = getClass(hero);
 

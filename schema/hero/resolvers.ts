@@ -21,6 +21,7 @@ import type { BaseContext } from "schema/context";
 import { BaseItems } from "../items/base-items";
 import { createItemInstance } from "../items/helpers";
 import type { BaseItem } from "../items";
+import { checkHero } from "../quests/helpers";
 import { createHeroCombatant, getEnchantedAttributes } from "../../combat";
 
 const resolvers: Resolvers = {
@@ -126,14 +127,24 @@ const resolvers: Resolvers = {
           "You do not have permission to access that hero"
         );
       }
+      let hero: Hero | null = null;
       try {
-        return await context.db.hero.get(parent.id);
+        hero = await context.db.hero.get(parent.id);
       } catch (e: any) {
         if (e.type === "NotFoundError") {
-          return context.db.hero.create(parent);
+          hero = await context.db.hero.create(parent);
+        } else {
+          throw e;
         }
-        throw e;
       }
+      if (!hero) {
+        throw new Error("Failed to get or create hero");
+      }
+      hero = checkHero(context, hero);
+      if (hero.currentQuest) {
+        hero = await context.db.hero.put(hero);
+      }
+      return hero;
     },
   },
   EquipmentSlots: {

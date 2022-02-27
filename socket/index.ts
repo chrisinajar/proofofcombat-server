@@ -1,6 +1,7 @@
 import { Server, Socket } from "socket.io";
 import { createServer, Server as HttpServer } from "http";
 
+import { InventoryItem } from "../types/graphql";
 import { ChatMessage } from "../db/models/system";
 import { confirm, ChatTokenData } from "../security";
 
@@ -16,9 +17,16 @@ type SystemMessage = {
   message: string;
 };
 
-type SocketServerAPI = {
+type Notification = {
+  type: "drop" | "quest";
+  message: string;
+  item?: InventoryItem;
+};
+
+export type SocketServerAPI = {
   io: Server;
   sendGlobalMessage: (message: SystemMessage) => void;
+  sendNotification: (heroId: string, notification: Notification) => void;
 };
 
 export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
@@ -86,5 +94,14 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
     io.emit("system-message", message);
   }
 
-  return { io, sendGlobalMessage };
+  function sendNotification(heroId: string, notification: Notification) {
+    io.sockets.sockets.forEach((socket: ExtendedSocket, id: string) => {
+      if (socket.heroId === heroId) {
+        console.log("Sending notification!");
+        socket.emit("notification", notification);
+      }
+    });
+  }
+
+  return { io, sendGlobalMessage, sendNotification };
 }

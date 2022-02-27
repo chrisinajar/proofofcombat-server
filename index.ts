@@ -95,7 +95,7 @@ async function startApolloServer() {
 
     context: async ({ res, req }): Promise<BaseContext> => {
       let token = req.headers.authorization;
-      const context: BaseContext = { db };
+      const context: BaseContext = { db, io };
 
       if (token) {
         if (token.toLowerCase().startsWith("bearer ")) {

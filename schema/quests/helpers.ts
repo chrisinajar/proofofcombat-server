@@ -1,16 +1,18 @@
 import { checkHero as checkHeroForWashedUp } from "./washed-up";
 import { checkHero as checkHeroForRebirth } from "./rebirth";
 import { checkHero as checkHeroForCrafting } from "./crafting";
-import { Hero } from "types/graphql";
+import { Hero, InventoryItem } from "types/graphql";
+
+import { BaseContext } from "../context";
 
 import { createItemInstance } from "../items/helpers";
 import { BaseItems } from "../items/base-items";
 
-export function checkHero(hero: Hero): Hero {
+export function checkHero(context: BaseContext, hero: Hero): Hero {
   // disabled washed up for now
-  hero = checkHeroForWashedUp(hero);
-  hero = checkHeroForRebirth(hero);
-  hero = checkHeroForCrafting(hero);
+  hero = checkHeroForWashedUp(context, hero);
+  hero = checkHeroForRebirth(context, hero);
+  hero = checkHeroForCrafting(context, hero);
 
   return hero;
 }
@@ -23,12 +25,42 @@ export function takeQuestItem(hero: Hero, baseItemName: string): Hero {
   return hero;
 }
 
-export function giveQuestItem(hero: Hero, baseItemName: string): Hero {
+export function giveQuestItemNotification(
+  context: BaseContext,
+  hero: Hero,
+  baseItemName: string
+): Hero {
   const existingItem = hero.inventory.find(
     (item) => item.baseItem === baseItemName
   );
   if (existingItem) {
     return hero;
+  }
+
+  const item = getOrCreateQuestItem(hero, baseItemName);
+
+  context.io.sendNotification(hero.id, {
+    message: "You have received {{item}}",
+    type: "quest",
+    item,
+  });
+
+  return hero;
+}
+export function giveQuestItem(hero: Hero, baseItemName: string): Hero {
+  getOrCreateQuestItem(hero, baseItemName);
+
+  return hero;
+}
+export function getOrCreateQuestItem(
+  hero: Hero,
+  baseItemName: string
+): InventoryItem {
+  const existingItem = hero.inventory.find(
+    (item) => item.baseItem === baseItemName
+  );
+  if (existingItem) {
+    return existingItem;
   }
   const baseItem = BaseItems[baseItemName];
   const item = createItemInstance(baseItem, hero);
@@ -36,5 +68,5 @@ export function giveQuestItem(hero: Hero, baseItemName: string): Hero {
 
   console.log(hero.name, "got quest item", item.name);
 
-  return hero;
+  return item;
 }

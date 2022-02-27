@@ -1,15 +1,16 @@
 import { Hero, Quest, EnchantmentType } from "types/graphql";
 
 import Databases from "../../db";
+import { BaseContext } from "../context";
 
 import { questEvents } from "./text/rebirth-text";
-import { giveQuestItem, takeQuestItem } from "./helpers";
+import { giveQuestItemNotification, takeQuestItem } from "./helpers";
 
 export const startingLevelCap = 10;
 export const secondLevelCap = 100;
 export const thirdLevelCap = 5000;
 
-export function rebirth(hero: Hero): Hero {
+export function rebirth(context: BaseContext, hero: Hero): Hero {
   console.log("Rebirthing", hero.name);
   hero = takeQuestItem(hero, "totem-of-rebirth");
   hero = takeQuestItem(hero, "totem-of-champion-rebirth");
@@ -18,11 +19,11 @@ export function rebirth(hero: Hero): Hero {
   if (hero.levelCap === startingLevelCap) {
     hero.levelCap = secondLevelCap;
     hero = rebirthMessage(hero, "rebirth", questEvents.firstRebirth);
-    hero = giveQuestItem(hero, "totem-of-champion");
+    hero = giveQuestItemNotification(context, hero, "totem-of-champion");
   } else if (hero.levelCap === secondLevelCap) {
     hero.levelCap = thirdLevelCap;
     hero = rebirthMessage(hero, "rebirth", questEvents.firstRebirth);
-    hero = giveQuestItem(hero, "totem-of-hero");
+    hero = giveQuestItemNotification(context, hero, "totem-of-hero");
   }
 
   // 1, 2, 4, etc
@@ -46,7 +47,7 @@ export function rebirth(hero: Hero): Hero {
 
   return Databases.hero.recalculateStats(hero);
 }
-export function checkHero(hero: Hero): Hero {
+export function checkHero(context: BaseContext, hero: Hero): Hero {
   // wait for them to dismiss any previous quest messages
   if (hero.currentQuest) {
     return hero;
@@ -69,12 +70,12 @@ export function checkHero(hero: Hero): Hero {
   switch (hero.levelCap) {
     case 10:
       hero = rebirthMessage(hero, "first", questEvents.firstBirth);
-      giveQuestItem(hero, "totem-of-rebirth");
+      giveQuestItemNotification(context, hero, "totem-of-rebirth");
       break;
     case 100:
       hero = rebirthMessage(hero, "second", questEvents.secondCap);
       takeQuestItem(hero, "totem-of-champion");
-      giveQuestItem(hero, "totem-of-champion-rebirth");
+      giveQuestItemNotification(context, hero, "totem-of-champion-rebirth");
       break;
   }
 

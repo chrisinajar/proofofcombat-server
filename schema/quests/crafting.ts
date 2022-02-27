@@ -1,11 +1,12 @@
 import { Hero, Quest, EnchantmentType, InventoryItemType } from "types/graphql";
 import { questEvents } from "./text/crafting-text";
 
-import { giveQuestItem } from "./helpers";
+import { giveQuestItemNotification } from "./helpers";
+import { BaseContext } from "../context";
 
 import Databases from "../../db";
 
-export function checkHero(hero: Hero): Hero {
+export function checkHero(context: BaseContext, hero: Hero): Hero {
   if (hero.currentQuest) {
     return hero;
   }
@@ -31,7 +32,7 @@ export function checkHero(hero: Hero): Hero {
 
   console.log(hero.name, "is unlocking crafting!");
 
-  hero = giveQuestItem(hero, "crafting-hammer");
+  hero = giveQuestItemNotification(context, hero, "crafting-hammer");
 
   hero.currentQuest = {
     id: `Creafting-${hero.id}`,

@@ -185,6 +185,14 @@ const resolvers: Resolvers = {
 
       await context.db.hero.put(hero);
 
+      if (droppedItem) {
+        context.io.sendNotification(hero.id, {
+          type: "drop",
+          message: `You found {{item}} while fighting ${monster.monster.name}`,
+          item: droppedItem,
+        });
+      }
+
       return {
         account,
         hero,
@@ -208,6 +216,10 @@ const resolvers: Resolvers = {
       }
       const hero = await context.db.hero.get(context.auth.id);
       const monster = await getMonster(args.monster);
+
+      if (!monster) {
+        throw new UserInputError("Unknown monster");
+      }
 
       const instance = context.db.monsterInstances.create({
         monster,

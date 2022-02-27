@@ -60,6 +60,7 @@ const resolvers: Resolvers = {
         id,
         password,
         name,
+        banned: false,
       });
       account.hero = await context.db.hero.create(account);
 
