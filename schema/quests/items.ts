@@ -88,9 +88,9 @@ export function getQuestRewards() {
       level: 1,
       canBuy: false,
     },
-    "fishermans-charisma": {
-      id: "fishermans-charisma",
-      passiveEnchantments: [EnchantmentType.FishermansCharisma],
+    "fishermans-willpower": {
+      id: "fishermans-willpower",
+      passiveEnchantments: [EnchantmentType.FishermansWillpower],
       name: "Worship Disc",
       type: InventoryItemType.Quest,
       level: 1,
@@ -102,6 +102,78 @@ export function getQuestRewards() {
       name: "Lucky Coin",
       type: InventoryItemType.Quest,
       level: 1,
+      canBuy: false,
+    },
+
+    // rebirth quest rewards
+    // first rebirth, gives the ability to rebirth at all, is taken away
+    "totem-of-rebirth": {
+      id: "totem-of-rebirth",
+      passiveEnchantments: [EnchantmentType.CanRebirth],
+      name: "Totem of Rebirth",
+      type: InventoryItemType.Quest,
+      level: 2,
+      canBuy: false,
+    },
+    // after first rebirth, you get...
+    "totem-of-champion": {
+      id: "totem-of-champion",
+      passiveEnchantments: [
+        EnchantmentType.AutoBattle,
+        EnchantmentType.DoubleExperience,
+      ],
+      name: "Totem of the Champion",
+      type: InventoryItemType.Quest,
+      level: 2,
+      canBuy: false,
+    },
+    // 2nd level cap, champion totem turns into...
+    "totem-of-champion-rebirth": {
+      id: "totem-of-champion-rebirth",
+      passiveEnchantments: [
+        EnchantmentType.AutoBattle,
+        EnchantmentType.DoubleExperience,
+        EnchantmentType.CanRebirth,
+      ],
+      name: "Totem of Champion's Rebirth",
+      type: InventoryItemType.Quest,
+      level: 2,
+      canBuy: false,
+    },
+    // after second rebirth, you get...
+    "totem-of-hero": {
+      id: "totem-of-hero",
+      passiveEnchantments: [
+        EnchantmentType.AutoBattle,
+        EnchantmentType.DoubleExperience,
+        EnchantmentType.DoubleLeveling,
+      ],
+      name: "Totem of the Hero",
+      type: InventoryItemType.Quest,
+      level: 2,
+      canBuy: false,
+    },
+    // 2nd level cap, hero totem turns into...
+    "totem-of-hero-rebirth": {
+      id: "totem-of-hero-rebirth",
+      passiveEnchantments: [
+        EnchantmentType.AutoBattle,
+        EnchantmentType.DoubleExperience,
+        EnchantmentType.CanRebirth,
+      ],
+      name: "Totem of Heroic Rebirth",
+      type: InventoryItemType.Quest,
+      level: 2,
+      canBuy: false,
+    },
+
+    // crafting! high level because they want to be on top
+    "crafting-hammer": {
+      id: "crafting-hammer",
+      passiveEnchantments: [EnchantmentType.CanCraft],
+      name: "Crafting Hammer",
+      type: InventoryItemType.Quest,
+      level: 4,
       canBuy: false,
     },
   };

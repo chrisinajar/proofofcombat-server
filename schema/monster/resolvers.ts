@@ -8,6 +8,7 @@ import {
   AttackType,
   InventoryItem,
   HeroClasses,
+  EnchantmentType,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -21,7 +22,7 @@ import { fightMonster } from "../../combat";
 
 const MONSTERS: Monster[] = [
   { name: "Giant crab", attackType: AttackType.Melee },
-  { name: "Forest imp", attackType: AttackType.Elemental },
+  { name: "Forest imp", attackType: AttackType.Cast },
   { name: "Traveling bandit", attackType: AttackType.Ranged },
   { name: "Hobgoblin", attackType: AttackType.Ranged },
   { name: "Brass dragon wyrmling", attackType: AttackType.Melee },
@@ -31,32 +32,32 @@ const MONSTERS: Monster[] = [
   { name: "Duergar", attackType: AttackType.Ranged },
   { name: "Umber hulk", attackType: AttackType.Melee },
   { name: "Half-red dragon veteran", attackType: AttackType.Melee },
-  { name: "Air Elemental", attackType: AttackType.Elemental },
+  { name: "Air Elemental", attackType: AttackType.Cast },
   { name: "Troll", attackType: AttackType.Melee },
-  { name: "Ogre zombie", attackType: AttackType.Holy },
+  { name: "Ogre zombie", attackType: AttackType.Smite },
   { name: "Griffon", attackType: AttackType.Melee },
   { name: "Grick alpha", attackType: AttackType.Melee },
   { name: "Young black dragon", attackType: AttackType.Melee },
-  { name: "Drow mage", attackType: AttackType.Wizard },
+  { name: "Drow mage", attackType: AttackType.Cast },
   { name: "Flesh Golem", attackType: AttackType.Blood },
   { name: "Werebear", attackType: AttackType.Melee },
   { name: "Mezzoloth", attackType: AttackType.Blood },
-  { name: "Green slaad", attackType: AttackType.Wizard },
-  { name: "Spirit naga", attackType: AttackType.Elemental },
+  { name: "Green slaad", attackType: AttackType.Cast },
+  { name: "Spirit naga", attackType: AttackType.Cast },
   { name: "Chain devil", attackType: AttackType.Blood },
-  { name: "Hydra", attackType: AttackType.Elemental },
+  { name: "Hydra", attackType: AttackType.Cast },
   { name: "Marilith", attackType: AttackType.Ranged },
   { name: "Githyanki knight", attackType: AttackType.Melee },
   { name: "Iron golem", attackType: AttackType.Melee },
-  { name: "Adult blue dragon", attackType: AttackType.Holy },
+  { name: "Adult blue dragon", attackType: AttackType.Smite },
   { name: "Goristro", attackType: AttackType.Melee },
   { name: "Fire Giant", attackType: AttackType.Melee },
   { name: "Nycaloth", attackType: AttackType.Melee },
   { name: "Yochlol", attackType: AttackType.Melee },
-  { name: "Goliath Flesheater", attackType: AttackType.Wizard },
-  { name: "Archmage", attackType: AttackType.Wizard },
+  { name: "Goliath Flesheater", attackType: AttackType.Cast },
+  { name: "Archmage", attackType: AttackType.Cast },
   { name: "Fey Demon", attackType: AttackType.Blood },
-  { name: "Ancient Treant", attackType: AttackType.Holy },
+  { name: "Ancient Treant", attackType: AttackType.Smite },
   { name: "Undead Frost Giant", attackType: AttackType.Ranged },
   { name: "Demilich", attackType: AttackType.Blood },
 ].map(({ name, attackType }, i) => ({
@@ -102,9 +103,16 @@ const resolvers: Resolvers = {
       const fightResult = await fightMonster(hero, monster, attackType);
       let experienceRewards =
         (monster.monster.level + Math.pow(1.5, monster.monster.level)) * 10;
+
+      const xpDoublers = context.db.hero.countEnchantments(
+        hero,
+        EnchantmentType.DoubleExperience
+      );
       if (hero.class === HeroClasses.Adventurer) {
         experienceRewards *= 3;
       }
+
+      experienceRewards *= Math.pow(2, xpDoublers);
 
       experienceRewards = Math.round(
         Math.min(hero.needed / 3, experienceRewards)
@@ -132,7 +140,9 @@ const resolvers: Resolvers = {
 
       // victory
       if (fightResult.monsterDied) {
-        console.log(hero.name, "killed a", monster.monster.name, goldReward);
+        console.log(hero.name, "killed a", monster.monster.name, goldReward, {
+          xpDoublers,
+        });
         context.db.hero.addExperience(hero, experienceRewards);
         hero.gold = hero.gold + goldReward;
 
@@ -150,7 +160,14 @@ const resolvers: Resolvers = {
           const monsterLevel = monster.monster.level;
 
           const baseItem = randomBaseItem(monsterLevel);
-          const enchantment = randomEnchantment(monsterLevel);
+          // max mob tier enchantments is 3
+          // max normal overworld mobs is 32
+          // lets give just a 10% chance of tier 3 enchantments (they fat)
+          // so max value should be 3.33.. at 32, so that there's a 10% chance it remains above 3.0
+          // (32 / (3 / 0.9)) = 9.6!
+          const enchantment = randomEnchantment(
+            Math.floor(Math.random() * (monsterLevel / 9.6))
+          );
           const itemInstance = enchantItem(
             createItemInstance(baseItem, hero),
             enchantment
@@ -167,6 +184,14 @@ const resolvers: Resolvers = {
       }
 
       await context.db.hero.put(hero);
+
+      if (droppedItem) {
+        context.io.sendNotification(hero.id, {
+          type: "drop",
+          message: `You found {{item}} while fighting ${monster.monster.name}`,
+          item: droppedItem,
+        });
+      }
 
       return {
         account,
@@ -192,9 +217,16 @@ const resolvers: Resolvers = {
       const hero = await context.db.hero.get(context.auth.id);
       const monster = await getMonster(args.monster);
 
+      if (!monster) {
+        throw new UserInputError("Unknown monster");
+      }
+
+      const equipment = undefined;
+
       const instance = context.db.monsterInstances.create({
         monster,
         location: hero.location,
+        equipment,
       });
       return instance;
     },

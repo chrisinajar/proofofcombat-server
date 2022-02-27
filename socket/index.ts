@@ -1,15 +1,35 @@
 import { Server, Socket } from "socket.io";
 import { createServer, Server as HttpServer } from "http";
 
+import { InventoryItem } from "../types/graphql";
+import { ChatMessage } from "../db/models/system";
 import { confirm, ChatTokenData } from "../security";
 
 import { getChatCache, addChatMessage } from "./cache";
 
 type ExtendedSocket = Socket & {
   name?: string;
+  heroId?: string;
 };
 
-export function addSocketToServer(httpServer: HttpServer): Server {
+type SystemMessage = {
+  color: "success" | "primary" | "secondary" | "error";
+  message: string;
+};
+
+type Notification = {
+  type: "drop" | "quest";
+  message: string;
+  item?: InventoryItem;
+};
+
+export type SocketServerAPI = {
+  io: Server;
+  sendGlobalMessage: (message: SystemMessage) => void;
+  sendNotification: (heroId: string, notification: Notification) => void;
+};
+
+export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
   const io = new Server(httpServer, {
     cors: {
       origin: true,
@@ -26,6 +46,7 @@ export function addSocketToServer(httpServer: HttpServer): Server {
 
     if (data && data.chat) {
       socket.name = data.name;
+      socket.heroId = data.id;
       next();
     }
   });
@@ -69,5 +90,18 @@ export function addSocketToServer(httpServer: HttpServer): Server {
     });
   }
 
-  return io;
+  function sendGlobalMessage(message: SystemMessage) {
+    io.emit("system-message", message);
+  }
+
+  function sendNotification(heroId: string, notification: Notification) {
+    io.sockets.sockets.forEach((socket: ExtendedSocket, id: string) => {
+      if (socket.heroId === heroId) {
+        console.log("Sending notification!");
+        socket.emit("notification", notification);
+      }
+    });
+  }
+
+  return { io, sendGlobalMessage, sendNotification };
 }

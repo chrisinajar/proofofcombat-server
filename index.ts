@@ -68,7 +68,7 @@ app.get("/external-api/github-ui-release", (req, res) => {
 
     setTimeout(() => {
       console.log("🚀🚀🚀 SENDING THE LAUNCH SIGNAL CAPTAIN");
-      io.emit("system-message", {
+      io.sendGlobalMessage({
         color: "success",
         message:
           "A new version of the UI is available! Refresh your browser to use it! 🚀",
@@ -95,7 +95,7 @@ async function startApolloServer() {
 
     context: async ({ res, req }): Promise<BaseContext> => {
       let token = req.headers.authorization;
-      const context: BaseContext = { db };
+      const context: BaseContext = { db, io };
 
       if (token) {
         if (token.toLowerCase().startsWith("bearer ")) {

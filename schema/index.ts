@@ -11,6 +11,7 @@ import heroResolvers from "./hero/resolvers";
 import monsterResolvers from "./monster/resolvers";
 import questsResolvers from "./quests/resolvers";
 import locationsResolvers from "./locations/resolvers";
+import itemsResolvers from "./items/resolvers";
 
 let schema = makeExecutableSchema({
   typeDefs,
@@ -20,6 +21,7 @@ let schema = makeExecutableSchema({
     monsterResolvers,
     questsResolvers,
     locationsResolvers,
+    itemsResolvers,
   ]),
 });
 

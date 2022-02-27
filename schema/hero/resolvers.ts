@@ -14,12 +14,14 @@ import {
   AttackType,
   HeroClasses,
   HeroStats,
+  AttributeType,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
 import { BaseItems } from "../items/base-items";
 import { createItemInstance } from "../items/helpers";
 import type { BaseItem } from "../items";
+import { checkHero } from "../quests/helpers";
 import { createHeroCombatant, getEnchantedAttributes } from "../../combat";
 
 const resolvers: Resolvers = {
@@ -39,149 +41,8 @@ const resolvers: Resolvers = {
         })
       );
     },
-    async shopItems(parent, args, context: BaseContext): Promise<ShopItem[]> {
-      return Object.values<BaseItem>(BaseItems)
-        .sort((a, b) => a.level - b.level)
-        .map((baseItem) => ({
-          id: baseItem.id,
-          name: baseItem.name,
-          type: baseItem.type,
-          cost: baseItem.cost,
-        }));
-    },
   },
   Mutation: {
-    async equip(parent, args, context: BaseContext): Promise<LevelUpResponse> {
-      if (!context?.auth?.id) {
-        throw new ForbiddenError("Missing auth");
-      }
-
-      const hero = await context.db.hero.get(context.auth.id);
-      const account = await context.db.account.get(context.auth.id);
-
-      const slotNames = [
-        "leftHand",
-        "rightHand",
-        "bodyArmor",
-        "handArmor",
-        "legArmor",
-        "headArmor",
-        "footArmor",
-      ];
-
-      if (slotNames.indexOf(args.slot) < 0) {
-        throw new UserInputError("Invalid slot name!");
-      }
-
-      const inventoryItem = hero.inventory.find(
-        (item: InventoryItem) => item.id === args.item
-      );
-
-      if (!inventoryItem) {
-        throw new UserInputError("Could not find that item in your inventory!");
-      }
-
-      console.log("Equipping", inventoryItem, "to slot", args.slot);
-
-      hero.equipment[args.slot] = inventoryItem;
-
-      await context.db.hero.put(hero);
-
-      return {
-        hero,
-        account,
-      };
-    },
-    async buy(parent, args, context: BaseContext): Promise<LevelUpResponse> {
-      if (!context?.auth?.id) {
-        throw new ForbiddenError("Missing auth");
-      }
-
-      const hero = await context.db.hero.get(context.auth.id);
-      const account = await context.db.account.get(context.auth.id);
-
-      const baseItemName: string = args.baseItem;
-
-      if (!BaseItems[baseItemName]) {
-        throw new UserInputError(`Unknown item: ${baseItemName}`);
-      }
-      const baseItem = BaseItems[baseItemName];
-
-      if (!baseItem.cost || !baseItem.canBuy) {
-        throw new UserInputError("Item cannot be bought!");
-      }
-      if (baseItem.cost > hero.gold) {
-        throw new UserInputError("You do not have enough gold for that item!");
-      }
-      console.log("Trying to buy a", baseItem);
-
-      hero.gold = hero.gold - baseItem.cost;
-
-      const itemInstance = createItemInstance(baseItem, hero);
-
-      hero.inventory.push(itemInstance);
-
-      await context.db.hero.put(hero);
-
-      return {
-        hero,
-        account,
-      };
-    },
-    async sell(parent, args, context: BaseContext): Promise<LevelUpResponse> {
-      if (!context?.auth?.id) {
-        throw new ForbiddenError("Missing auth");
-      }
-
-      const hero = await context.db.hero.get(context.auth.id);
-      const account = await context.db.account.get(context.auth.id);
-
-      const itemId: string = args.item;
-      const item: InventoryItem | undefined = hero.inventory.find(
-        (item: InventoryItem) => item.id === itemId
-      );
-
-      console.log(item);
-
-      if (!item) {
-        throw new UserInputError(`Unknown item: ${itemId}`);
-      }
-      const baseItem = BaseItems[item.baseItem];
-
-      if (!baseItem.cost || !baseItem.canBuy) {
-        throw new UserInputError("Item cannot be sold!");
-      }
-      if (item.enchantment) {
-        throw new UserInputError("You cannot sell enchanted items!");
-      }
-      console.log("Trying to sell a", item.baseItem);
-
-      if (
-        itemId === hero.equipment.leftHand?.id ||
-        itemId === hero.equipment.rightHand?.id ||
-        itemId === hero.equipment.bodyArmor?.id ||
-        itemId === hero.equipment.handArmor?.id ||
-        itemId === hero.equipment.legArmor?.id ||
-        itemId === hero.equipment.headArmor?.id ||
-        itemId === hero.equipment.footArmor?.id
-      ) {
-        throw new UserInputError("You cannot sell equipped items!");
-      }
-
-      hero.gold = hero.gold + Math.round(baseItem.cost / 3);
-
-      hero.inventory = hero.inventory.filter(
-        (item: InventoryItem) => item.id !== itemId
-      );
-
-      await context.db.hero.put(hero);
-
-      return {
-        hero,
-        account,
-      };
-    },
-
     async increaseAttribute(
       parent,
       args,
@@ -200,26 +61,37 @@ const resolvers: Resolvers = {
           account,
         };
       }
-
-      if (args.attribute === "all") {
-        hero.stats[args.attribute] = hero.stats[args.attribute] + 7;
-        hero.stats.strength = hero.stats.strength + 1;
-        hero.stats.dexterity = hero.stats.dexterity + 1;
-        hero.stats.constitution = hero.stats.constitution + 1;
-        hero.stats.intelligence = hero.stats.intelligence + 1;
-        hero.stats.wisdom = hero.stats.wisdom + 1;
-        hero.stats.charisma = hero.stats.charisma + 1;
-        hero.stats.luck = hero.stats.luck + 1;
-      } else if (!hero.stats[args.attribute]) {
-        return {
-          hero,
-          account,
-        };
-      } else {
-        hero.stats[args.attribute] = hero.stats[args.attribute] + 7;
+      if (args.attribute !== "all" && !hero.stats[args.attribute]) {
+        throw new UserInputError(`Unknown stat name: ${args.attribute}`);
       }
 
-      hero.attributePoints = hero.attributePoints - 1;
+      if (args.spendAll) {
+        for (let i = 0, l = hero.attributePoints; i < l; ++i) {
+          increaseHeroAttribute(hero, args.attribute);
+        }
+      } else {
+        increaseHeroAttribute(hero, args.attribute);
+      }
+
+      function increaseHeroAttribute(hero: Hero, attribute: AttributeType) {
+        if (hero.attributePoints <= 0) {
+          return;
+        }
+        if (attribute === "all") {
+          hero.stats.strength = hero.stats.strength + 1;
+          hero.stats.dexterity = hero.stats.dexterity + 1;
+          hero.stats.constitution = hero.stats.constitution + 1;
+          hero.stats.intelligence = hero.stats.intelligence + 1;
+          hero.stats.wisdom = hero.stats.wisdom + 1;
+          hero.stats.willpower = hero.stats.willpower + 1;
+          hero.stats.luck = hero.stats.luck + 1;
+          hero.attributePoints = hero.attributePoints - 1;
+        } else {
+          hero.stats[attribute] = hero.stats[attribute] + 7;
+          hero.attributePoints = hero.attributePoints - 1;
+        }
+      }
+
       hero = context.db.hero.recalculateStats(hero);
 
       console.log(hero.name, "increasing their", args.attribute);
@@ -255,14 +127,24 @@ const resolvers: Resolvers = {
           "You do not have permission to access that hero"
         );
       }
+      let hero: Hero | null = null;
       try {
-        return await context.db.hero.get(parent.id);
+        hero = await context.db.hero.get(parent.id);
       } catch (e: any) {
         if (e.type === "NotFoundError") {
-          return context.db.hero.create(parent);
+          hero = await context.db.hero.create(parent);
+        } else {
+          throw e;
         }
-        throw e;
       }
+      if (!hero) {
+        throw new Error("Failed to get or create hero");
+      }
+      hero = checkHero(context, hero);
+      if (hero.currentQuest) {
+        hero = await context.db.hero.put(hero);
+      }
+      return hero;
     },
   },
   EquipmentSlots: {
@@ -283,6 +165,9 @@ const resolvers: Resolvers = {
         case HeroClasses.Fighter:
           attackType = AttackType.Melee;
           break;
+        case HeroClasses.Berserker:
+          attackType = AttackType.Melee;
+          break;
         case HeroClasses.Ranger:
           attackType = AttackType.Ranged;
           break;
@@ -290,13 +175,13 @@ const resolvers: Resolvers = {
           attackType = AttackType.Blood;
           break;
         case HeroClasses.Wizard:
-          attackType = AttackType.Wizard;
+          attackType = AttackType.Cast;
           break;
-        case HeroClasses.Elementalist:
-          attackType = AttackType.Elemental;
+        case HeroClasses.Warlock:
+          attackType = AttackType.Cast;
           break;
-        case HeroClasses.Cleric:
-          attackType = AttackType.Holy;
+        case HeroClasses.Paladin:
+          attackType = AttackType.Smite;
           break;
       }
       const attacker = createHeroCombatant(parent, attackType);
@@ -312,7 +197,7 @@ const resolvers: Resolvers = {
           constitution: 1000000,
           intelligence: 1000000,
           wisdom: 1000000,
-          charisma: 1000000,
+          willpower: 1000000,
           luck: 1000000,
         },
         luck: {
@@ -329,7 +214,7 @@ const resolvers: Resolvers = {
         stats.constitution = Math.round(stats.constitution);
         stats.intelligence = Math.round(stats.intelligence);
         stats.wisdom = Math.round(stats.wisdom);
-        stats.charisma = Math.round(stats.charisma);
+        stats.willpower = Math.round(stats.willpower);
         stats.luck = Math.round(stats.luck);
       }
 

@@ -31,6 +31,7 @@ export default gql`
 
     location: Location!
     monster: Monster!
+    equipment: MonsterEquipment
   }
 
   type Monster {
@@ -40,6 +41,22 @@ export default gql`
 
     combat: MonsterCombatStats!
     attackType: AttackType!
+  }
+
+  type MonsterEquipment {
+    id: ID!
+    leftHand: MonsterItem!
+    rightHand: MonsterItem!
+    bodyArmor: MonsterItem!
+    handArmor: MonsterItem!
+    legArmor: MonsterItem!
+    headArmor: MonsterItem!
+    footArmor: MonsterItem!
+  }
+
+  type MonsterItem {
+    level: Int!
+    enchantment: EnchantmentType
   }
 
   type MonsterCombatStats implements ComatStats {
@@ -59,9 +76,8 @@ export default gql`
   enum AttackType {
     MELEE
     RANGED
-    WIZARD
-    ELEMENTAL
-    HOLY
+    CAST
+    SMITE
     BLOOD
   }
 `;
