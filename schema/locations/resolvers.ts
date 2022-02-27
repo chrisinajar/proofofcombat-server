@@ -85,6 +85,60 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
+    async teleport(parent, args, context: BaseContext): Promise<MoveResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      if (hero.combat.health <= 0) {
+        throw new UserInputError("You cannot move while dead!");
+      }
+
+      // const location =
+      //   LocationData[hero.location.map as MapNames]?.locations[hero.location.x][
+      //     hero.location.y
+      //   ];
+
+      // const currentLocations = specialLocations(
+      //   hero.location.x,
+      //   hero.location.y,
+      //   hero.location.map as MapNames
+      // );
+
+      // const targetLocations = specialLocations(
+      //   args.x,
+      //   args.y,
+      //   hero.location.map as MapNames
+      // );
+
+      const currentLocation = hero.location;
+      const targetLocation = {
+        x: Math.min(127, Math.max(0, args.x)),
+        y: Math.min(95, Math.max(0, args.y)),
+        map: "default",
+      };
+
+      const cost = Math.round(
+        Math.pow(distance2d(currentLocation, targetLocation) * 5, 1.3)
+      );
+
+      if (cost > hero.stats.intelligence) {
+        throw new UserInputError(`You do not have enough intelligence!`);
+      }
+
+      hero.location.x = targetLocation.x;
+      hero.location.y = targetLocation.y;
+
+      await context.db.hero.put(hero);
+
+      return {
+        hero,
+        account,
+        monsters: [],
+      };
+    },
     async move(parent, args, context: BaseContext): Promise<MoveResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");

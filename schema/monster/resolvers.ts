@@ -221,9 +221,12 @@ const resolvers: Resolvers = {
         throw new UserInputError("Unknown monster");
       }
 
+      const equipment = undefined;
+
       const instance = context.db.monsterInstances.create({
         monster,
         location: hero.location,
+        equipment,
       });
       return instance;
     },

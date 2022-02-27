@@ -373,6 +373,16 @@ export function enchantAttacker(
         stealStat(attacker, victim, "wisdom", 0.2);
         stealStat(attacker, victim, "willpower", 0.2);
         stealStat(attacker, victim, "luck", 0.2);
+        break;
+
+      case EnchantmentType.BigMelee:
+        attacker.attributes.strength *= 2;
+        stealStat(attacker, victim, "dexterity", 0.2);
+        break;
+      case EnchantmentType.BigCaster:
+        attacker.attributes.intelligence *= 2;
+        stealStat(attacker, victim, "wisdom", 0.2);
+        break;
 
       // quest rewards
       case EnchantmentType.FishermansStrength:
@@ -409,7 +419,13 @@ export function enchantAttacker(
       attacker.attributes.willpower *= 1.1;
       break;
     case HeroClasses.Gambler:
-      attacker.attributes.strength *= 1.5;
+      attacker.attributes.strength *= 1.1;
+      attacker.attributes.dexterity *= 1.1;
+      attacker.attributes.constitution *= 1.1;
+      attacker.attributes.intelligence *= 1.1;
+      attacker.attributes.wisdom *= 1.1;
+      attacker.attributes.willpower *= 1.1;
+      attacker.attributes.luck *= 1.2;
       break;
     case HeroClasses.JackOfAllTrades:
       attacker.attributes.strength *= 1.5;
@@ -423,22 +439,31 @@ export function enchantAttacker(
     // melee
     case HeroClasses.Berserker:
       attacker.attributes.strength *= 1.5;
+      attacker.attributes.dexterity *= 1.5;
       break;
     case HeroClasses.Fighter:
       attacker.attributes.strength *= 1.5;
+      attacker.attributes.dexterity *= 1.5;
+      attacker.attributes.willpower *= 1.2;
       break;
 
     // casters
     case HeroClasses.Wizard:
       attacker.attributes.intelligence *= 1.5;
+      attacker.attributes.wisdom *= 1.5;
       break;
     case HeroClasses.Warlock:
+      attacker.attributes.intelligence *= 1.5;
       attacker.attributes.wisdom *= 1.5;
+      attacker.attributes.willpower *= 1.2;
       break;
 
     // mixed
     case HeroClasses.BattleMage:
-      attacker.attributes.intelligence *= 1.5;
+      attacker.attributes.strength *= 1.2;
+      attacker.attributes.dexterity *= 1.2;
+      attacker.attributes.intelligence *= 1.2;
+      attacker.attributes.wisdom *= 1.2;
       break;
     case HeroClasses.Paladin:
       attacker.attributes.willpower *= 1.5;
@@ -500,19 +525,21 @@ function calculateDamage(
   // damage spread based on small luck factor
   damage = baseDamage - variation * Math.random();
 
-  // crits
-  critical = Math.random() < attacker.luck.largeModifier;
-  if (critical) {
-    damage = damage * 3;
-    doubleCritical = Math.random() < attacker.luck.ultraModifier;
-    if (doubleCritical) {
+  if (attackType !== AttackType.Blood) {
+    // crits
+    critical = Math.random() < attacker.luck.largeModifier;
+    if (critical) {
       damage = damage * 3;
-    }
-
-    if (attacker.class === HeroClasses.Gambler) {
-      const trippleCritical = Math.random() < attacker.luck.ultraModifier / 2;
-      if (trippleCritical) {
+      doubleCritical = Math.random() < attacker.luck.ultraModifier;
+      if (doubleCritical) {
         damage = damage * 3;
+      }
+
+      if (attacker.class === HeroClasses.Gambler) {
+        const trippleCritical = Math.random() < attacker.luck.ultraModifier / 2;
+        if (trippleCritical) {
+          damage = damage * 3;
+        }
       }
     }
   }
@@ -570,6 +597,12 @@ function addItemToCombatant(
     (item.type === InventoryItemType.Shield &&
       combatant.class === HeroClasses.Paladin)
   ) {
+    if (
+      item.type === InventoryItemType.RangedWeapon &&
+      combatant.equipment.weapons.length
+    ) {
+      return combatant;
+    }
     combatant.equipment.weapons.push({
       level: itemLevel,
       enchantment: item.enchantment,

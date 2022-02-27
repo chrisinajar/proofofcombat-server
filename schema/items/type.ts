@@ -80,6 +80,8 @@ export default gql`
     # tier 3 enchantments
     AllStatsSteal
     Vampirism
+    BigMelee
+    BigCaster
 
     # End droppable enchantments
 

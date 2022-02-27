@@ -6,6 +6,7 @@ import {
   LevelUpResponse,
   ShopItem,
   EnchantmentType,
+  InventoryItemType,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -237,7 +238,26 @@ const resolvers: Resolvers = {
 
       console.log(hero.name, "Equipping", inventoryItem, "to slot", args.slot);
 
-      hero.equipment[slot] = inventoryItem;
+      if (inventoryItem.type === InventoryItemType.RangedWeapon) {
+        hero.equipment.leftHand = inventoryItem;
+        hero.equipment.rightHand = inventoryItem;
+      } else {
+        hero.equipment[slot] = inventoryItem;
+
+        if (slot === "leftHand" || slot === "rightHand") {
+          // it's not a bow, so make sure the other isn't
+          if (
+            hero.equipment.leftHand?.type === InventoryItemType.RangedWeapon
+          ) {
+            hero.equipment.leftHand = null;
+          }
+          if (
+            hero.equipment.rightHand?.type === InventoryItemType.RangedWeapon
+          ) {
+            hero.equipment.rightHand = null;
+          }
+        }
+      }
 
       await context.db.hero.put(hero);
 

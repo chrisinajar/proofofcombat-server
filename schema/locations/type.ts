@@ -6,6 +6,7 @@ export default gql`
     docks(map: String): [SpecialLocation!]! @auth
   }
   type Mutation {
+    teleport(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 4000)
     sail(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 5000)
     move(direction: MoveDirection!): MoveResponse! @auth @delay(delay: 250)
   }

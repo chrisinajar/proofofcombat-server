@@ -87,6 +87,8 @@ export function getEnchantments(
       options = options.concat([
         EnchantmentType.AllStatsSteal,
         EnchantmentType.Vampirism,
+        EnchantmentType.BigMelee,
+        EnchantmentType.BigCaster,
       ]);
       break;
     case 4:
