@@ -5,6 +5,7 @@ import {
   InventoryItem,
   LevelUpResponse,
   ShopItem,
+  EnchantmentType,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -27,7 +28,121 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
-    async destroy(
+    async enchantItem(
+      parent,
+      args,
+      context: BaseContext
+    ): Promise<LevelUpResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      const itemId: string = args.item;
+      const item: InventoryItem | undefined = hero.inventory.find(
+        (item: InventoryItem) => item.id === itemId
+      );
+
+      if (!item) {
+        throw new UserInputError(`Unknown item: ${itemId}`);
+      }
+      const baseItem = BaseItems[item.baseItem];
+      console.log(hero.name, "enchanting", baseItem.name, args.enchantment);
+
+      if (item.enchantment) {
+        throw new UserInputError("This item is already enchanted!");
+      }
+
+      if (hero.enchantingDust < item.level) {
+        throw new UserInputError(
+          "You need more enchanting dust to enchant that item!"
+        );
+      }
+
+      const hasEnchantment = hero.enchantments.find(
+        (ench: EnchantmentType) => ench === args.enchantment
+      );
+      if (!hasEnchantment) {
+        throw new UserInputError("You do not have that enchantment!");
+      }
+
+      let didRemove = false;
+      hero.enchantments = hero.enchantments.filter((ench: EnchantmentType) => {
+        if (didRemove) {
+          return true;
+        }
+        if (ench === hasEnchantment) {
+          didRemove = true;
+          return false;
+        }
+        return true;
+      });
+
+      item.enchantment = hasEnchantment;
+      hero.enchantingDust -= item.level;
+
+      await context.db.hero.put(hero);
+
+      return { hero, account };
+    },
+    async disenchantItem(
+      parent,
+      args,
+      context: BaseContext
+    ): Promise<LevelUpResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      const itemId: string = args.item;
+      const item: InventoryItem | undefined = hero.inventory.find(
+        (item: InventoryItem) => item.id === itemId
+      );
+
+      if (!item) {
+        throw new UserInputError(`Unknown item: ${itemId}`);
+      }
+      const baseItem = BaseItems[item.baseItem];
+      console.log(hero.name, "disenchanting", baseItem.name);
+
+      if (!item.enchantment) {
+        throw new UserInputError("You cannot disenchant non-enchanted items!");
+      }
+
+      if (
+        itemId === hero.equipment.leftHand?.id ||
+        itemId === hero.equipment.rightHand?.id ||
+        itemId === hero.equipment.bodyArmor?.id ||
+        itemId === hero.equipment.handArmor?.id ||
+        itemId === hero.equipment.legArmor?.id ||
+        itemId === hero.equipment.headArmor?.id ||
+        itemId === hero.equipment.footArmor?.id
+      ) {
+        throw new UserInputError("You cannot disenchant equipped items!");
+      }
+
+      if (hero.enchantingDust < item.level) {
+        throw new UserInputError(
+          "You need more enchanting dust to disenchant that item!"
+        );
+      }
+
+      const enchantment = item.enchantment;
+
+      item.enchantment = null;
+      hero.enchantments.push(enchantment);
+      hero.enchantingDust -= item.level;
+
+      await context.db.hero.put(hero);
+
+      return { hero, account };
+    },
+    async destroyItem(
       parent,
       args,
       context: BaseContext
@@ -56,7 +171,6 @@ const resolvers: Resolvers = {
       if (!item.enchantment) {
         throw new UserInputError("You cannot destroy non-enchanted items!");
       }
-      console.log("Trying to destroy a", item.baseItem);
 
       if (
         itemId === hero.equipment.leftHand?.id ||
@@ -75,6 +189,8 @@ const resolvers: Resolvers = {
       );
 
       hero.enchantingDust = hero.enchantingDust + 1;
+
+      await context.db.hero.put(hero);
 
       return { hero, account };
     },
@@ -180,7 +296,6 @@ const resolvers: Resolvers = {
       if (item.enchantment) {
         throw new UserInputError("You cannot sell enchanted items!");
       }
-      console.log("Trying to sell a", item.baseItem);
 
       if (
         itemId === hero.equipment.leftHand?.id ||

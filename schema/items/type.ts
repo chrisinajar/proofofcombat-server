@@ -12,7 +12,11 @@ export default gql`
     equip(item: ID!, slot: String!): LevelUpResponse! @auth @delay(delay: 200)
 
     # crafting
-    destroy(item: ID!): LevelUpResponse! @auth @delay(delay: 200)
+    destroyItem(item: ID!): LevelUpResponse! @auth @delay(delay: 200)
+    disenchantItem(item: ID!): LevelUpResponse! @auth @delay(delay: 200)
+    enchantItem(item: ID!, enchantment: EnchantmentType!): LevelUpResponse!
+      @auth
+      @delay(delay: 200)
   }
 
   type ShopItem {

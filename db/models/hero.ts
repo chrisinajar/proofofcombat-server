@@ -28,6 +28,7 @@ type PartialHero = Optional<
   | "class"
   | "levelCap"
   | "enchantingDust"
+  | "enchantments"
 >;
 
 const inMemoryLeaderboardLength = 50;
@@ -271,6 +272,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       if (data.questLog) {
         data.questLog.rebirth = null;
       }
+      data.enchantments = [];
       data.levelCap = startingLevelCap;
       data.enchantingDust = 0;
       data.version = 4;

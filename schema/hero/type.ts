@@ -31,6 +31,7 @@ export default gql`
     combat: HeroCombatStats!
     stats: HeroStats!
 
+    enchantments: [EnchantmentType!]!
     inventory: [InventoryItem!]!
     equipment: EquipmentSlots!
     currentQuest: QuestEvent
