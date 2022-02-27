@@ -15,6 +15,7 @@ import {
 import Databases from "../db";
 
 import { BaseItems } from "../schema/items/base-items";
+import EnchantmentOrder from "./enchantment-order";
 
 type MonsterHeroCombatResult = {
   monsterDamage: number;
@@ -742,7 +743,9 @@ function getAllGearEnchantments(attacker: Combatant): EnchantmentType[] {
     }
   });
 
-  return enchantments;
+  return enchantments.sort(
+    (a, b) => EnchantmentOrder.indexOf(a) - EnchantmentOrder.indexOf(b)
+  );
 }
 function calculateEnchantmentDamage(
   attackerInput: Combatant,

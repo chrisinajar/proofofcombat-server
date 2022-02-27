@@ -26,7 +26,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     return !!item.enchantment;
   }).length;
 
-  if (enchantedItems < 10) {
+  if (enchantedItems < 20) {
     return hero;
   }
 
