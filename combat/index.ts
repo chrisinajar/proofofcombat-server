@@ -411,12 +411,6 @@ export function enchantAttacker(
 
   switch (attacker.class) {
     case HeroClasses.Adventurer:
-      attacker.attributes.strength *= 1.1;
-      attacker.attributes.dexterity *= 1.1;
-      attacker.attributes.constitution *= 1.1;
-      attacker.attributes.intelligence *= 1.1;
-      attacker.attributes.wisdom *= 1.1;
-      attacker.attributes.willpower *= 1.1;
       break;
     case HeroClasses.Gambler:
       attacker.attributes.strength *= 1.1;
@@ -438,23 +432,23 @@ export function enchantAttacker(
 
     // melee
     case HeroClasses.Berserker:
-      attacker.attributes.strength *= 1.5;
-      attacker.attributes.dexterity *= 1.5;
+      attacker.attributes.strength *= 1.3;
+      attacker.attributes.dexterity *= 1.3;
       break;
     case HeroClasses.Fighter:
-      attacker.attributes.strength *= 1.5;
-      attacker.attributes.dexterity *= 1.5;
+      attacker.attributes.strength *= 1.3;
+      attacker.attributes.dexterity *= 1.3;
       attacker.attributes.willpower *= 1.2;
       break;
 
     // casters
     case HeroClasses.Wizard:
-      attacker.attributes.intelligence *= 1.5;
-      attacker.attributes.wisdom *= 1.5;
+      attacker.attributes.intelligence *= 1.3;
+      attacker.attributes.wisdom *= 1.3;
       break;
     case HeroClasses.Warlock:
-      attacker.attributes.intelligence *= 1.5;
-      attacker.attributes.wisdom *= 1.5;
+      attacker.attributes.intelligence *= 1.3;
+      attacker.attributes.wisdom *= 1.3;
       attacker.attributes.willpower *= 1.2;
       break;
 
@@ -466,14 +460,14 @@ export function enchantAttacker(
       attacker.attributes.wisdom *= 1.2;
       break;
     case HeroClasses.Paladin:
-      attacker.attributes.willpower *= 1.5;
+      attacker.attributes.willpower *= 1.3;
       break;
 
     case HeroClasses.Ranger:
-      attacker.attributes.dexterity *= 1.5;
+      attacker.attributes.dexterity *= 1.3;
       break;
     case HeroClasses.BloodMage:
-      attacker.attributes.constitution *= 1.5;
+      attacker.attributes.constitution *= 1.3;
       break;
   }
 
