@@ -6,9 +6,10 @@ import { giveQuestItem } from "./helpers";
 import Databases from "../../db";
 
 export function checkHero(hero: Hero): Hero {
-  // if (hero.currentQuest) {
-  //   return hero;
-  // }
+  if (hero.currentQuest) {
+    return hero;
+  }
+
   const canCraft =
     Databases.hero.countEnchantments(hero, EnchantmentType.CanCraft) > 0;
 

@@ -167,13 +167,13 @@ export function getQuestRewards() {
       canBuy: false,
     },
 
-    // crafting!
+    // crafting! high level because they want to be on top
     "crafting-hammer": {
       id: "crafting-hammer",
       passiveEnchantments: [EnchantmentType.CanCraft],
       name: "Crafting Hammer",
       type: InventoryItemType.Quest,
-      level: 2,
+      level: 4,
       canBuy: false,
     },
   };

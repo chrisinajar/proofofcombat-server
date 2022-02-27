@@ -10,7 +10,7 @@ export const secondLevelCap = 100;
 export const thirdLevelCap = 5000;
 
 export function rebirth(hero: Hero): Hero {
-  console.log("Rebirthing...");
+  console.log("Rebirthing", hero.name);
   hero = takeQuestItem(hero, "totem-of-rebirth");
   hero = takeQuestItem(hero, "totem-of-champion-rebirth");
   hero = takeQuestItem(hero, "totem-of-hero-rebirth");
