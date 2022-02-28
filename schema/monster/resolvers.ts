@@ -153,9 +153,7 @@ const resolvers: Resolvers = {
         let bonusDropRate = 1;
 
         if (currentTavern && currentTavern.name === "The Hidden Stump Inn") {
-          goldReward *= 1.2;
-          experienceRewards *= 1.2;
-          bonusDropRate = 1.05;
+          goldReward *= 1.5;
         } else if (
           currentTavern &&
           currentTavern.name === "The Hellhound's Fur"
@@ -255,7 +253,7 @@ const resolvers: Resolvers = {
       let equipment: MonsterEquipment | undefined = undefined;
 
       if (currentTavern && currentTavern.name === "The Hidden Stump Inn") {
-        monster = { ...monster, level: monster.level * 2 };
+        monster = { ...monster, level: monster.level * 1.2 };
       } else if (
         currentTavern &&
         currentTavern.name === "The Hellhound's Fur"
