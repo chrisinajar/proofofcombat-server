@@ -563,8 +563,8 @@ function calculateDamage(
   // ~13 - 5,428 - 44,277 - 126,462
   const baseDamage = Math.pow(1.3, weapon?.level ?? 0) * 10;
 
-  // [0,1]
-  const variation = baseDamage * attacker.luck.smallModifier;
+  // 20% of damage, [0,1]
+  const variation = baseDamage * 0.5 * attacker.luck.smallModifier;
   // damage spread based on small luck factor
   damage = baseDamage - variation * Math.random();
 
@@ -590,7 +590,7 @@ function calculateDamage(
   // apply contested stats rolls
   damage *=
     attacker.attributes[attributeTypes.damage] /
-    victim.attributes[attributeTypes.damageReduction];
+    (victim.attributes[attributeTypes.damageReduction] / 2);
 
   // amp damage from weapon
   damage *= percentageDamageIncrease;
