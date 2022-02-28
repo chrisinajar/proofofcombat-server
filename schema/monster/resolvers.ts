@@ -163,15 +163,16 @@ const resolvers: Resolvers = {
 
         let equipment: MonsterEquipment | undefined = undefined;
         let bonusDropRate = 1;
+        const monsterAntiLuck = goldReward;
 
-        if (currentTavern && currentTavern.name === "The Hidden Stump Inn") {
-          goldReward *= 1.5;
-        } else if (
-          currentTavern &&
-          currentTavern.name === "The Hellhound's Fur"
-        ) {
-          bonusDropRate = 1.2;
-          // other things?
+        if (currentTavern) {
+          if (currentTavern.name === "The Hidden Stump Inn") {
+            goldReward *= 1.5;
+          } else if (currentTavern.name === "The Hellhound's Fur") {
+            // this is a multiplier
+            // so 0.5% - 2.5% becomes 0.75% - 3.75%
+            bonusDropRate = 1.5;
+          }
         }
 
         console.log(hero.name, "killed a", monster.monster.name, goldReward, {
@@ -183,7 +184,6 @@ const resolvers: Resolvers = {
 
         // drop chances!!
         const luck = hero.stats.luck;
-        const monsterAntiLuck = goldReward;
         const dropOdds =
           ((0.25 + luck / (luck + monsterAntiLuck + 5)) * bonusDropRate) / 50;
         if (Math.random() < dropOdds) {
