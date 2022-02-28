@@ -29,6 +29,10 @@ function generateArmorItems(itemNames: string[]): BaseItemMap {
   };
 }
 
+function nameToId(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, "-");
+}
+
 function generateItems(
   type: InventoryItemType,
   itemNames: string[]
@@ -37,8 +41,8 @@ function generateItems(
   itemNames.forEach((name, i) => {
     const level = i + 1;
     const cost = Math.round(Math.pow(1.77827941004, i + 1)) * 10;
-    const id = name.toLowerCase().replace(/\s+/g, "-");
     // console.log("Level", level, "item", name, "costs", cost, id);
+    const id = nameToId(name);
 
     results[id] = {
       id,
@@ -52,6 +56,85 @@ function generateItems(
   });
 
   return results;
+}
+
+function getNonDropGear(): BaseItemMap {
+  const itemMap: BaseItemMap = {};
+  const optionMap: { [x in InventoryItemType]?: string[] } = {
+    [InventoryItemType.MeleeWeapon]: ["Ascended Blade"],
+    [InventoryItemType.RangedWeapon]: ["Ascended Battle Bow"],
+    [InventoryItemType.Shield]: ["Ascended Shield"],
+    [InventoryItemType.SpellFocus]: ["Ascended Wand"],
+  };
+  const armorNames = ["Ascended"];
+  const startLevel = 33;
+
+  const types = [
+    InventoryItemType.MeleeWeapon,
+    InventoryItemType.RangedWeapon,
+    InventoryItemType.Shield,
+    InventoryItemType.SpellFocus,
+  ];
+
+  types.forEach((type) => {
+    optionMap[type]?.forEach((name, i) => {
+      const id = nameToId(name);
+
+      itemMap[id] = {
+        id,
+        name,
+        level: startLevel + i,
+        cost: 0,
+        type,
+        canBuy: false,
+      };
+    });
+  });
+
+  armorNames.forEach((name, i) => {
+    itemMap[nameToId(`${name} Body Armor`)] = {
+      id: nameToId(`${name} Body Armor`),
+      type: InventoryItemType.BodyArmor,
+      name: `${name} Body Armor`,
+      level: startLevel + i,
+      cost: 0,
+      canBuy: false,
+    };
+    itemMap[nameToId(`${name} Gauntlets`)] = {
+      id: nameToId(`${name} Gauntlets`),
+      type: InventoryItemType.HandArmor,
+      name: `${name} Gauntlets`,
+      level: startLevel + i,
+      cost: 0,
+      canBuy: false,
+    };
+    itemMap[nameToId(`${name} Leggings`)] = {
+      id: nameToId(`${name} Leggings`),
+      type: InventoryItemType.LegArmor,
+      name: `${name} Leggings`,
+      level: startLevel + i,
+      cost: 0,
+      canBuy: false,
+    };
+    itemMap[nameToId(`${name} Helmet`)] = {
+      id: nameToId(`${name} Helmet`),
+      type: InventoryItemType.HeadArmor,
+      name: `${name} Helmet`,
+      level: startLevel + i,
+      cost: 0,
+      canBuy: false,
+    };
+    itemMap[nameToId(`${name} Greaves`)] = {
+      id: nameToId(`${name} Greaves`),
+      type: InventoryItemType.FootArmor,
+      name: `${name} Greaves`,
+      level: startLevel + i,
+      cost: 0,
+      canBuy: false,
+    };
+  });
+
+  return itemMap;
 }
 
 export const BaseItems: BaseItemMap = {
@@ -225,5 +308,6 @@ export const BaseItems: BaseItemMap = {
     "Eternal",
     "Soulbound",
   ]),
+  ...getNonDropGear(),
   ...getQuestRewards(),
 };

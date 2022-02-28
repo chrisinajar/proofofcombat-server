@@ -28,6 +28,7 @@ const resolvers: Resolvers = {
   Query: {
     async shopItems(parent, args, context: BaseContext): Promise<ShopItem[]> {
       return Object.values<BaseItem>(BaseItems)
+        .filter((item) => item.canBuy)
         .sort((a, b) => a.level - b.level)
         .map((baseItem) => ({
           id: baseItem.id,

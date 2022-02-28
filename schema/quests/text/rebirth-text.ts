@@ -22,4 +22,14 @@ export const questEvents = {
     "The Totem in your hands begins to transform.",
     '"You will wake with a greater understanding of this world."',
   ],
+
+  thirdCap: [
+    "The glowing figure once against appears.",
+    '"Your power is incredible. I am of no further help, you have reached the limits of your being."',
+    "The figure glows, but it's not blinding like before -- You find yourself able to observe their movement",
+    '"There is one last thing I can offer, however..."',
+    '"Offer up your great power and life your life again, and you shall received ascended treasures."',
+  ],
+
+  ascendedRebirth: ["You are reborn once again."],
 };

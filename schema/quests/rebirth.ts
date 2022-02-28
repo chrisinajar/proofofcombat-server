@@ -4,6 +4,7 @@ import Databases from "../../db";
 import { BaseContext } from "../context";
 
 import { questEvents } from "./text/rebirth-text";
+import { giveHeroRandomDrop } from "../items/helpers";
 import { giveQuestItemNotification, takeQuestItem } from "./helpers";
 
 export const startingLevelCap = 10;
@@ -24,6 +25,16 @@ export function rebirth(context: BaseContext, hero: Hero): Hero {
     hero.levelCap = thirdLevelCap;
     hero = rebirthMessage(hero, "rebirth", questEvents.firstRebirth);
     hero = giveQuestItemNotification(context, hero, "totem-of-hero");
+  } else if (hero.levelCap === thirdLevelCap) {
+    hero.levelCap = thirdLevelCap;
+    hero = rebirthMessage(hero, "rebirth", questEvents.ascendedRebirth);
+    hero = giveQuestItemNotification(context, hero, "totem-of-hero");
+    giveHeroRandomDrop(context, hero, 33, 4, true);
+
+    // revert progress so they can rebirth again
+    if (hero.questLog?.rebirth) {
+      hero.questLog.rebirth.progress = 100;
+    }
   }
 
   // 1, 2, 4, etc
@@ -76,6 +87,11 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
       hero = rebirthMessage(hero, "second", questEvents.secondCap);
       takeQuestItem(hero, "totem-of-champion");
       giveQuestItemNotification(context, hero, "totem-of-champion-rebirth");
+      break;
+    case 5000:
+      hero = rebirthMessage(hero, "third", questEvents.thirdCap);
+      takeQuestItem(hero, "totem-of-hero");
+      giveQuestItemNotification(context, hero, "totem-of-hero-rebirth");
       break;
   }
 

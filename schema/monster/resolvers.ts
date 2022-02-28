@@ -117,7 +117,7 @@ const resolvers: Resolvers = {
 
       experienceRewards *= Math.pow(2, xpDoublers);
 
-      experienceRewards = Math.round(
+      experienceRewards = Math.ceil(
         Math.min(hero.needed / 3, experienceRewards)
       );
 
@@ -173,7 +173,7 @@ const resolvers: Resolvers = {
         const luck = hero.stats.luck;
         const monsterAntiLuck = goldReward;
         const dropOdds =
-          ((0.005 + luck / (luck + monsterAntiLuck + 5)) * bonusDropRate) / 50;
+          ((0.25 + luck / (luck + monsterAntiLuck + 5)) * bonusDropRate) / 50;
         if (Math.random() < dropOdds) {
           console.log(" DROP!! Odds:", {
             luck,

@@ -87,7 +87,10 @@ export default class HeroModel extends DatabaseInterface<Hero> {
         healthPercentBefore * hero.combat.maxHealth
       )
     );
-    hero.needed = this.experienceNeededForLevel(hero.level);
+    hero.needed =
+      hero.level === hero.levelCap
+        ? 1
+        : this.experienceNeededForLevel(hero.level);
 
     return hero;
   }
@@ -121,7 +124,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     let newExperience = hero.experience + experience;
     const experienceNeeded = this.experienceNeededForLevel(level);
     // LEVEL UP
-    if (newExperience >= experienceNeeded) {
+    if (newExperience >= experienceNeeded || hero.level === hero.levelCap) {
       const levelingDoublers = this.countEnchantments(
         hero,
         EnchantmentType.DoubleLeveling
@@ -277,6 +280,12 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       data.levelCap = startingLevelCap;
       data.enchantingDust = 0;
       data.version = 4;
+    }
+    if (data.version < 5) {
+      if (data.questLog?.rebirth?.progress === 5000) {
+        data.questLog.rebirth.progress = 100;
+      }
+      data.version = 5;
     }
     if (data.version < 5) {
       // future

@@ -6,6 +6,8 @@ import {
 } from "types/graphql";
 import { v4 as uuidv4 } from "uuid";
 
+import { BaseContext } from "../context";
+
 import { BaseItem } from "./";
 import { BaseItems } from "./base-items";
 
@@ -108,6 +110,24 @@ export function randomEnchantment(
   return options[Math.floor(Math.random() * options.length)];
 }
 
+export function randomUpgradedBaseItem(level: number): BaseItem {
+  let maxLevel = 0;
+
+  let options = Object.values(BaseItems).filter((item) => {
+    if (item.level < level) {
+      maxLevel = Math.max(item.level, maxLevel);
+    }
+    return item.type !== InventoryItemType.Quest && item.level === level;
+  });
+
+  if (!options.length) {
+    options = Object.values(BaseItems).filter(
+      (item) => item.type !== InventoryItemType.Quest && item.level === maxLevel
+    );
+  }
+
+  return options[Math.floor(Math.random() * options.length)];
+}
 export function randomBaseItem(level: number): BaseItem {
   let maxLevel = 0;
 
@@ -148,4 +168,41 @@ export function createItemInstance(item: BaseItem, owner: Hero): InventoryItem {
     level: item.level,
     enchantment: null,
   };
+}
+
+export function giveHeroRandomDrop(
+  context: BaseContext,
+  hero: Hero,
+  itemLevel: number,
+  enchantmentLevel: number,
+  allowUpgraded: boolean
+) {
+  const baseItem = allowUpgraded
+    ? randomUpgradedBaseItem(itemLevel)
+    : randomBaseItem(itemLevel);
+
+  const enchantment = randomEnchantment(enchantmentLevel, true);
+
+  giveHeroItem(context, hero, baseItem, enchantment);
+}
+
+export function giveHeroItem(
+  context: BaseContext,
+  hero: Hero,
+  baseItem: BaseItem,
+  enchantment?: EnchantmentType
+) {
+  let itemInstance = createItemInstance(baseItem, hero);
+
+  if (enchantment) {
+    itemInstance = enchantItem(itemInstance, enchantment);
+  }
+
+  hero.inventory.push(itemInstance);
+
+  context.io.sendNotification(hero.id, {
+    type: "drop",
+    message: `You found {{item}}`,
+    item: itemInstance,
+  });
 }
