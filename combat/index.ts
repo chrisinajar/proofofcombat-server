@@ -818,11 +818,11 @@ function calculateEnchantmentDamage(
   enchantments.forEach((enchantment) => {
     switch (enchantment) {
       case EnchantmentType.LifeHeal:
-        attackerDamage -= Math.round(attacker.attributes.constitution * 0.2);
+        attackerDamage -= Math.round(attacker.attributes.constitution * 0.1);
         break;
 
       case EnchantmentType.LifeDamage:
-        victimDamage += Math.round(attacker.attributes.constitution * 0.2);
+        victimDamage += Math.round(attacker.attributes.constitution * 0.1);
         break;
 
       case EnchantmentType.LifeSteal:
@@ -831,8 +831,8 @@ function calculateEnchantmentDamage(
         break;
 
       case EnchantmentType.Vampirism:
-        attackerDamage -= Math.round(attacker.attributes.constitution * 0.3);
-        victimDamage += Math.round(attacker.attributes.constitution * 0.3);
+        attackerDamage -= Math.round(attacker.attributes.constitution * 0.2);
+        victimDamage += Math.round(attacker.attributes.constitution * 0.2);
         break;
     }
   });
