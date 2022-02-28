@@ -515,7 +515,8 @@ export function enchantAttacker(
       attacker.attributes.dexterity *= 1.3;
       break;
     case HeroClasses.BloodMage:
-      attacker.attributes.constitution *= 1.3;
+      // you've had enough...
+      // attacker.attributes.constitution *= 1.3;
       break;
   }
 
