@@ -22,6 +22,7 @@ export default [
   EnchantmentType.MinusEnemyPhysical,
   EnchantmentType.MinusEnemyMental,
   EnchantmentType.MinusEnemyAllStats,
+  EnchantmentType.WisDexWill,
   EnchantmentType.BigMelee,
   EnchantmentType.BigCaster,
   EnchantmentType.FishermansStrength,

@@ -77,6 +77,7 @@ export default gql`
     MinusEnemyPhysical
     MinusEnemyMental
     MinusEnemyAllStats
+    WisDexWill
     # tier 3 enchantments
     AllStatsSteal
     Vampirism

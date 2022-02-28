@@ -91,6 +91,7 @@ export function getEnchantments(
         EnchantmentType.Vampirism,
         EnchantmentType.BigMelee,
         EnchantmentType.BigCaster,
+        EnchantmentType.WisDexWill,
       ]);
       break;
     case 4:

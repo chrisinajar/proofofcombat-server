@@ -436,6 +436,11 @@ export function enchantAttacker(
         attacker.attributes.intelligence *= 2;
         stealStat(attacker, victim, "wisdom", 0.2);
         break;
+      case EnchantmentType.WisDexWill:
+        attacker.attributes.wisdom *= 1.4;
+        attacker.attributes.dexterity *= 1.4;
+        attacker.attributes.willpower *= 1.4;
+        break;
 
       // quest rewards
       case EnchantmentType.FishermansStrength:

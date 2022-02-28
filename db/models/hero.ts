@@ -176,10 +176,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
         stats = stats.sort((a, b) => hero.stats[a] - hero.stats[b]);
 
         for (let i = 0, l = stats.length; i < l; ++i) {
-          console.log("doing stat", i);
           for (let j = 0, lj = stats.length; j < lj; ++j) {
             const statName = stats[(i + j) % stats.length];
-            console.log("Removing from", statName);
             if (hero.stats[statName] > 10) {
               hero.stats[statName] = hero.stats[statName] - 1;
               break;
@@ -187,8 +185,6 @@ export default class HeroModel extends DatabaseInterface<Hero> {
           }
         }
         hero.attributePoints = hero.attributePoints + 1;
-
-        console.log(stats);
 
         // hero.stats.strength = hero.stats.strength - 1;
         // hero.stats.dexterity = hero.stats.dexterity - 1;
