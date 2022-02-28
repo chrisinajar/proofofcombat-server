@@ -121,23 +121,35 @@ const resolvers: Resolvers = {
         Math.min(hero.needed / 3, experienceRewards)
       );
 
-      if (fightResult.monsterDamage) {
-        hero.combat.health = Math.max(
+      hero.combat.health = Math.round(
+        Math.max(
           0,
-          hero.combat.health - fightResult.monsterDamage
-        );
+          Math.min(
+            hero.combat.maxHealth,
+            hero.combat.health -
+              fightResult.monsterDamage -
+              fightResult.monsterEnchantmentDamage +
+              fightResult.heroHeal
+          )
+        )
+      );
 
-        if (fightResult.heroDied) {
-          console.log(monster.monster.name, "killed", hero.name);
-        }
+      if (hero.combat.health === 0) {
+        console.log(monster.monster.name, "killed", hero.name);
       }
 
-      if (fightResult.heroDamage) {
-        monster.monster.combat.health = Math.max(
+      monster.monster.combat.health = Math.round(
+        Math.max(
           0,
-          monster.monster.combat.health - fightResult.heroDamage
-        );
-      }
+          Math.min(
+            monster.monster.combat.maxHealth,
+            monster.monster.combat.health -
+              fightResult.heroDamage -
+              fightResult.heroEnchantmentDamage +
+              fightResult.monsterHeal
+          )
+        )
+      );
 
       let droppedItem: null | InventoryItem = null;
 

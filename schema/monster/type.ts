@@ -66,6 +66,7 @@ export default gql`
   type CombatEntry {
     damage: Int!
     attackType: AttackType!
+    isEnchantment: Boolean!
     success: Boolean!
     from: String!
     to: String!

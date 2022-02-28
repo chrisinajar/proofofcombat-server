@@ -21,6 +21,11 @@ import EnchantmentOrder from "./enchantment-order";
 type MonsterHeroCombatResult = {
   monsterDamage: number;
   heroDamage: number;
+  monsterEnchantmentDamage: number;
+  heroEnchantmentDamage: number;
+  monsterHeal: number;
+  heroHeal: number;
+
   monsterDied: boolean;
   heroDied: boolean;
   log: CombatEntry[];
@@ -805,22 +810,26 @@ function calculateEnchantmentDamage(
 ): {
   attackerDamage: number;
   victimDamage: number;
+  attackerHeal: number;
+  victimHeal: number;
 } {
   const attackAttributes = attributesForAttack(attackType);
   let attackerDamage = 0;
   let victimDamage = 0;
+  let attackerHeal = 0;
+  let victimHeal = 0;
 
   const { attacker, victim } = getEnchantedAttributes(
     attackerInput,
     victimInput
   );
 
-  const enchantments = getAllGearEnchantments(attacker);
+  const attackerEnchantments = getAllGearEnchantments(attacker);
 
-  enchantments.forEach((enchantment) => {
+  attackerEnchantments.forEach((enchantment) => {
     switch (enchantment) {
       case EnchantmentType.LifeHeal:
-        attackerDamage -= Math.round(attacker.attributes.constitution * 0.1);
+        attackerHeal += Math.round(attacker.attributes.constitution * 0.1);
         break;
 
       case EnchantmentType.LifeDamage:
@@ -828,13 +837,37 @@ function calculateEnchantmentDamage(
         break;
 
       case EnchantmentType.LifeSteal:
-        attackerDamage -= Math.round(attacker.attributes.constitution * 0.1);
+        attackerHeal += Math.round(attacker.attributes.constitution * 0.1);
         victimDamage += Math.round(attacker.attributes.constitution * 0.1);
         break;
 
       case EnchantmentType.Vampirism:
-        attackerDamage -= Math.round(attacker.attributes.constitution * 0.2);
+        attackerHeal += Math.round(attacker.attributes.constitution * 0.2);
         victimDamage += Math.round(attacker.attributes.constitution * 0.2);
+        break;
+    }
+  });
+
+  const victimEnchantments = getAllGearEnchantments(victim);
+
+  victimEnchantments.forEach((enchantment) => {
+    switch (enchantment) {
+      case EnchantmentType.LifeHeal:
+        victimHeal += Math.round(victim.attributes.constitution * 0.1);
+        break;
+
+      case EnchantmentType.LifeDamage:
+        attackerDamage += Math.round(victim.attributes.constitution * 0.1);
+        break;
+
+      case EnchantmentType.LifeSteal:
+        victimHeal += Math.round(victim.attributes.constitution * 0.1);
+        attackerDamage += Math.round(victim.attributes.constitution * 0.1);
+        break;
+
+      case EnchantmentType.Vampirism:
+        victimHeal += Math.round(victim.attributes.constitution * 0.2);
+        attackerDamage += Math.round(victim.attributes.constitution * 0.2);
         break;
     }
   });
@@ -842,6 +875,8 @@ function calculateEnchantmentDamage(
   return {
     attackerDamage,
     victimDamage,
+    attackerHeal,
+    victimHeal,
   };
 }
 
@@ -886,6 +921,7 @@ function attackCombatant(
     combatLog.push({
       attackType: attackType,
       success: true,
+      isEnchantment: false,
       from: attacker.name,
       to: victim.name,
       damage,
@@ -908,6 +944,7 @@ function attackCombatant(
       attackType: attackType,
       damage: 0,
       success: false,
+      isEnchantment: false,
       from: attacker.name,
       to: victim.name,
       critical: false,
@@ -969,14 +1006,68 @@ export async function fightMonster(
     monsterCombatant,
     attackType
   );
+  let heroDamage = 0;
 
-  const heroAttack = attackCombatant(
-    heroCombatant,
-    monsterCombatant,
-    attackType
-  );
-  let heroDamage = heroAttack.damage + enchantmentBattle.victimDamage;
-  battleResults = battleResults.concat(heroAttack.combatLog);
+  if (enchantmentBattle.victimDamage > 0) {
+    battleResults.push({
+      attackType: heroAttackType,
+      success: true,
+      isEnchantment: true,
+      from: hero.name,
+      to: monster.name,
+      damage: enchantmentBattle.victimDamage,
+      critical: false,
+    });
+  }
+
+  if (enchantmentBattle.attackerHeal > 0) {
+    battleResults.push({
+      attackType: heroAttackType,
+      success: true,
+      isEnchantment: true,
+      from: hero.name,
+      to: hero.name,
+      damage: 0 - enchantmentBattle.attackerHeal,
+      critical: false,
+    });
+  }
+
+  if (enchantmentBattle.attackerDamage > 0) {
+    battleResults.push({
+      attackType: monster.attackType,
+      success: true,
+      isEnchantment: true,
+      from: monster.name,
+      to: hero.name,
+      damage: enchantmentBattle.attackerDamage,
+      critical: false,
+    });
+  }
+
+  if (enchantmentBattle.victimHeal > 0) {
+    battleResults.push({
+      attackType: monster.attackType,
+      success: true,
+      isEnchantment: true,
+      from: monster.name,
+      to: monster.name,
+      damage: 0 - enchantmentBattle.victimHeal,
+      critical: false,
+    });
+  }
+
+  if (
+    enchantmentBattle.attackerDamage - enchantmentBattle.attackerHeal <
+    hero.combat.health
+  ) {
+    const heroAttack = attackCombatant(
+      heroCombatant,
+      monsterCombatant,
+      attackType
+    );
+    heroDamage += heroAttack.damage;
+    battleResults = battleResults.concat(heroAttack.combatLog);
+  }
 
   const bloodMageDamage =
     heroCombatant.class === HeroClasses.BloodMage
@@ -984,12 +1075,12 @@ export async function fightMonster(
       : hero.combat.health * 0.05;
 
   let monsterDamage = heroAttackType === AttackType.Blood ? bloodMageDamage : 0;
-  // enchantments run "before combat"
-  // so even if mob got killed by the above attack, their enchantments still went off
-  monsterDamage += enchantmentBattle.attackerDamage;
 
   // however, enchantments can still stop a mob from attacking!
-  if (heroDamage < monster.combat.health) {
+  if (
+    enchantmentBattle.victimDamage - enchantmentBattle.victimHeal + heroDamage <
+    monster.combat.health
+  ) {
     const monsterAttack = attackCombatant(
       monsterCombatant,
       heroCombatant,
@@ -1000,7 +1091,13 @@ export async function fightMonster(
     battleResults = battleResults.concat(monsterAttack.combatLog);
   }
 
-  if (monsterDamage < hero.combat.health && heroHasTwoAttacks) {
+  if (
+    enchantmentBattle.attackerDamage -
+      enchantmentBattle.attackerHeal +
+      monsterDamage <
+      hero.combat.health &&
+    heroHasTwoAttacks
+  ) {
     const secondHeroAttack = attackCombatant(
       heroCombatant,
       monsterCombatant,
@@ -1021,11 +1118,26 @@ export async function fightMonster(
     monster.combat.health - monster.combat.maxHealth
   );
 
+  const totalDamageAgainstHero =
+    monsterDamage +
+    enchantmentBattle.attackerDamage -
+    enchantmentBattle.attackerHeal;
+  const totalDamageAgainstMonster =
+    heroDamage + enchantmentBattle.victimDamage - enchantmentBattle.victimHeal;
+
+  // "monster" / "hero" is "damage from them"
+  // "attacker" / "victim" is "damage/heal to them"
+  // generally in result, monster == attacker even though the input to the functions as player as the attacker
+  // ugh
   return {
+    monsterEnchantmentDamage: enchantmentBattle.attackerDamage,
+    heroEnchantmentDamage: enchantmentBattle.victimDamage,
+    monsterHeal: enchantmentBattle.attackerHeal,
+    heroHeal: enchantmentBattle.victimHeal,
     monsterDamage: monsterDamage,
     heroDamage: heroDamage,
-    monsterDied: heroDamage >= monster.combat.health,
-    heroDied: monsterDamage >= hero.combat.health,
+    monsterDied: totalDamageAgainstHero >= monster.combat.health,
+    heroDied: totalDamageAgainstMonster >= hero.combat.health,
     log: battleResults,
   };
 }
