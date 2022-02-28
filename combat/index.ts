@@ -1132,8 +1132,8 @@ export async function fightMonster(
   return {
     monsterEnchantmentDamage: enchantmentBattle.attackerDamage,
     heroEnchantmentDamage: enchantmentBattle.victimDamage,
-    monsterHeal: enchantmentBattle.attackerHeal,
-    heroHeal: enchantmentBattle.victimHeal,
+    monsterHeal: enchantmentBattle.victimHeal,
+    heroHeal: enchantmentBattle.attackerHeal,
     monsterDamage: monsterDamage,
     heroDamage: heroDamage,
     monsterDied: totalDamageAgainstMonster >= monster.combat.health,
