@@ -37,7 +37,7 @@ export default gql`
   type Monster {
     id: ID!
     name: String!
-    level: Int!
+    level: Float!
 
     combat: MonsterCombatStats!
     attackType: AttackType!
@@ -54,7 +54,7 @@ export default gql`
   }
 
   type MonsterItem {
-    level: Int!
+    level: Float!
     enchantment: EnchantmentType
   }
 

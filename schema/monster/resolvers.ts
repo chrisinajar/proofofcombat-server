@@ -166,7 +166,7 @@ const resolvers: Resolvers = {
           xpDoublers,
         });
         context.db.hero.addExperience(hero, experienceRewards);
-        hero.gold = hero.gold + goldReward;
+        hero.gold = Math.round(hero.gold + goldReward);
 
         // drop chances!!
         const luck = hero.stats.luck;
