@@ -1006,6 +1006,15 @@ export async function fightMonster(
   );
   let heroDamage = 0;
 
+  enchantmentBattle.attackerHeal = Math.min(
+    hero.combat.maxHealth - hero.combat.health,
+    enchantmentBattle.attackerHeal
+  );
+  enchantmentBattle.victimHeal = Math.min(
+    monster.combat.maxHealth - monster.combat.health,
+    enchantmentBattle.victimHeal
+  );
+
   if (enchantmentBattle.victimDamage > 0) {
     battleResults.push({
       attackType: heroAttackType,
