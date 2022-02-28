@@ -8,6 +8,7 @@ import {
   AttackType,
   InventoryItem,
   HeroClasses,
+  MonsterEquipment,
   EnchantmentType,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
@@ -18,7 +19,9 @@ import {
   createItemInstance,
   enchantItem,
 } from "../items/helpers";
-import { fightMonster } from "../../combat";
+import { fightMonster, createMonsterEquipment } from "../../combat";
+import { MapNames } from "../../constants";
+import { specialLocations, distance2d } from "../../helpers";
 
 const MONSTERS: Monster[] = [
   { name: "Giant crab", attackType: AttackType.Melee },
@@ -98,7 +101,7 @@ const resolvers: Resolvers = {
 
       const startLevel = hero.level;
       const attackType: AttackType = args.attackType || AttackType.Melee;
-      const goldReward = monster.monster.combat.maxHealth;
+      let goldReward = monster.monster.combat.maxHealth;
 
       const fightResult = await fightMonster(hero, monster, attackType);
       let experienceRewards =
@@ -140,6 +143,27 @@ const resolvers: Resolvers = {
 
       // victory
       if (fightResult.monsterDied) {
+        const currentTavern = specialLocations(
+          hero.location.x,
+          hero.location.y,
+          hero.location.map as MapNames
+        ).find((location) => location.type === "tavern");
+
+        let equipment: MonsterEquipment | undefined = undefined;
+        let bonusDropRate = 1;
+
+        if (currentTavern && currentTavern.name === "The Hidden Stump Inn") {
+          goldReward *= 1.2;
+          experienceRewards *= 1.2;
+          bonusDropRate = 1.05;
+        } else if (
+          currentTavern &&
+          currentTavern.name === "The Hellhound's Fur"
+        ) {
+          bonusDropRate = 1.2;
+          // other things?
+        }
+
         console.log(hero.name, "killed a", monster.monster.name, goldReward, {
           xpDoublers,
         });
@@ -149,7 +173,8 @@ const resolvers: Resolvers = {
         // drop chances!!
         const luck = hero.stats.luck;
         const monsterAntiLuck = goldReward;
-        const dropOdds = 0.005 + luck / (luck + monsterAntiLuck + 5) / 50;
+        const dropOdds =
+          ((0.005 + luck / (luck + monsterAntiLuck + 5)) * bonusDropRate) / 50;
         if (Math.random() < dropOdds) {
           console.log(" DROP!! Odds:", {
             luck,
@@ -215,13 +240,52 @@ const resolvers: Resolvers = {
         throw new ForbiddenError("Missing auth");
       }
       const hero = await context.db.hero.get(context.auth.id);
-      const monster = await getMonster(args.monster);
+      let monster = await getMonster(args.monster);
 
       if (!monster) {
         throw new UserInputError("Unknown monster");
       }
 
-      const equipment = undefined;
+      const currentTavern = specialLocations(
+        hero.location.x,
+        hero.location.y,
+        hero.location.map as MapNames
+      ).find((location) => location.type === "tavern");
+
+      let equipment: MonsterEquipment | undefined = undefined;
+
+      if (currentTavern && currentTavern.name === "The Hidden Stump Inn") {
+        monster = { ...monster, level: monster.level * 2 };
+      } else if (
+        currentTavern &&
+        currentTavern.name === "The Hellhound's Fur"
+      ) {
+        equipment = {
+          leftHand: { level: monster.level, enchantment: randomEnchantment(0) },
+          rightHand: {
+            level: monster.level,
+            enchantment: randomEnchantment(0),
+          },
+
+          bodyArmor: {
+            level: monster.level,
+            enchantment: randomEnchantment(0),
+          },
+          handArmor: {
+            level: monster.level,
+            enchantment: randomEnchantment(0),
+          },
+          legArmor: { level: monster.level, enchantment: randomEnchantment(0) },
+          headArmor: {
+            level: monster.level,
+            enchantment: randomEnchantment(0),
+          },
+          footArmor: {
+            level: monster.level,
+            enchantment: randomEnchantment(0),
+          },
+        };
+      }
 
       const instance = context.db.monsterInstances.create({
         monster,

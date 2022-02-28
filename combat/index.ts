@@ -10,6 +10,7 @@ import {
   InventoryItemType,
   EnchantmentType,
   HeroClasses,
+  MonsterEquipment,
 } from "types/graphql";
 
 import Databases from "../db";
@@ -23,6 +24,34 @@ type MonsterHeroCombatResult = {
   monsterDied: boolean;
   heroDied: boolean;
   log: CombatEntry[];
+};
+
+type CombatGear = {
+  type?: InventoryItemType;
+  level: number;
+  enchantment?: EnchantmentType | null;
+};
+type QuestItem = {
+  name: string;
+  baseItem: string;
+};
+export type CombatantGear = {
+  armor: CombatGear[];
+  weapons: CombatGear[];
+  quests: QuestItem[];
+};
+export type Combatant = {
+  level: number;
+  name: string;
+  class: HeroClasses;
+  equipment: CombatantGear;
+  attributes: HeroStats;
+  damageReduction: number;
+  luck: {
+    smallModifier: number;
+    largeModifier: number;
+    ultraModifier: number;
+  };
 };
 
 function randomNumber(min: number, max: number) {
@@ -63,7 +92,52 @@ function createMonsterLuck(monster: Monster) {
   return { smallModifier, largeModifier, ultraModifier };
 }
 
-function createMonsterEquipment(monster: Monster) {
+export function createMonsterEquipment(
+  monster: Monster,
+  equipmentOverride?: MonsterEquipment | null
+): CombatantGear {
+  if (equipmentOverride) {
+    return {
+      armor: [
+        {
+          level: equipmentOverride.bodyArmor.level,
+          enchantment: equipmentOverride.bodyArmor.enchantment,
+          type: InventoryItemType.BodyArmor,
+        }, // bodyArmor
+        {
+          level: equipmentOverride.handArmor.level,
+          enchantment: equipmentOverride.handArmor.enchantment,
+          type: InventoryItemType.HandArmor,
+        }, // handArmor
+        {
+          level: equipmentOverride.legArmor.level,
+          enchantment: equipmentOverride.legArmor.enchantment,
+          type: InventoryItemType.LegArmor,
+        }, // legArmor
+        {
+          level: equipmentOverride.headArmor.level,
+          enchantment: equipmentOverride.headArmor.enchantment,
+          type: InventoryItemType.HeadArmor,
+        }, // headArmor
+        {
+          level: equipmentOverride.footArmor.level,
+          enchantment: equipmentOverride.footArmor.enchantment,
+          type: InventoryItemType.FootArmor,
+        }, // footArmor
+      ],
+      weapons: [
+        {
+          level: equipmentOverride.leftHand.level,
+          enchantment: equipmentOverride.leftHand.enchantment,
+        }, // leftHand
+        {
+          level: equipmentOverride.rightHand.level,
+          enchantment: equipmentOverride.rightHand.enchantment,
+        }, // rightHand
+      ],
+      quests: [],
+    };
+  }
   return {
     armor: [
       { level: monster.level * 1, type: InventoryItemType.BodyArmor }, // bodyArmor
@@ -125,33 +199,6 @@ function attributesForAttack(attackType: AttackType): AttackAttributes {
       break;
   }
 }
-
-type CombatGear = {
-  type?: InventoryItemType;
-  level: number;
-  enchantment?: EnchantmentType | null;
-};
-type QuestItem = {
-  name: string;
-  baseItem: string;
-};
-export type Combatant = {
-  level: number;
-  name: string;
-  class: HeroClasses;
-  equipment: {
-    armor: CombatGear[];
-    weapons: CombatGear[];
-    quests: QuestItem[];
-  };
-  attributes: HeroStats;
-  damageReduction: number;
-  luck: {
-    smallModifier: number;
-    largeModifier: number;
-    ultraModifier: number;
-  };
-};
 
 export function calculateHit(
   attackerInput: Combatant,
@@ -747,6 +794,7 @@ function getAllGearEnchantments(attacker: Combatant): EnchantmentType[] {
     (a, b) => EnchantmentOrder.indexOf(a) - EnchantmentOrder.indexOf(b)
   );
 }
+
 function calculateEnchantmentDamage(
   attackerInput: Combatant,
   victimInput: Combatant,
@@ -877,7 +925,7 @@ export async function fightMonster(
   monsterInstance: MonsterInstance,
   attackType: AttackType
 ): Promise<MonsterHeroCombatResult> {
-  const { monster } = monsterInstance;
+  const { monster, equipment } = monsterInstance;
   let battleResults: CombatEntry[] = [];
   const heroAttackType = attackType;
   const heroAttributeTypes = attributesForAttack(heroAttackType);
@@ -907,7 +955,7 @@ export async function fightMonster(
     class: HeroClasses.Monster,
     level: monster.level,
     name: monster.name,
-    equipment: createMonsterEquipment(monster),
+    equipment: createMonsterEquipment(monster, equipment),
     damageReduction: monsterAttributes.constitution / 2,
     attributes: monsterAttributes,
     luck: createMonsterLuck(monster),

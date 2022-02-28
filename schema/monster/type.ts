@@ -44,7 +44,6 @@ export default gql`
   }
 
   type MonsterEquipment {
-    id: ID!
     leftHand: MonsterItem!
     rightHand: MonsterItem!
     bodyArmor: MonsterItem!
