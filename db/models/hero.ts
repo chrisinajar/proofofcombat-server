@@ -183,6 +183,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
             }
           }
         }
+        hero.attributePoints = hero.attributePoints + 1;
 
         console.log(stats);
 
