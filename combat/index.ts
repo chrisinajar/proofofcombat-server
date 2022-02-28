@@ -589,8 +589,10 @@ function calculateDamage(
 
   // apply contested stats rolls
   damage *=
-    attacker.attributes[attributeTypes.damage] /
-    (victim.attributes[attributeTypes.damageReduction] / 2);
+    (1 +
+      attacker.attributes[attributeTypes.damage] /
+        victim.attributes[attributeTypes.damageReduction]) /
+    2;
 
   // amp damage from weapon
   damage *= percentageDamageIncrease;
