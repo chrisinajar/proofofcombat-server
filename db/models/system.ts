@@ -52,7 +52,9 @@ export default class SystemModel extends DatabaseInterface<System> {
 
   upgrade(data: PartialSystem): System {
     data.chat = data.chat.map((entry) => {
-      entry.type = "chat";
+      if (!entry.type) {
+        entry.type = "chat";
+      }
       return entry;
     });
 
