@@ -467,10 +467,10 @@ export function enchantAttacker(
       break;
     case HeroClasses.Gambler:
       attacker.attributes.strength *= 1.1;
-      attacker.attributes.dexterity *= 1.1;
+      attacker.attributes.dexterity *= 1.2;
       attacker.attributes.constitution *= 1.1;
       attacker.attributes.intelligence *= 1.1;
-      attacker.attributes.wisdom *= 1.1;
+      attacker.attributes.wisdom *= 1.2;
       attacker.attributes.willpower *= 1.1;
       attacker.attributes.luck *= 1.2;
       break;
@@ -485,39 +485,40 @@ export function enchantAttacker(
 
     // melee
     case HeroClasses.Berserker:
-      attacker.attributes.strength *= 1.3;
+      attacker.attributes.strength *= 2;
       attacker.attributes.dexterity *= 1.3;
       break;
     case HeroClasses.Fighter:
-      attacker.attributes.strength *= 1.3;
+      attacker.attributes.strength *= 1.5;
       attacker.attributes.dexterity *= 1.3;
       attacker.attributes.willpower *= 1.2;
       break;
 
     // casters
     case HeroClasses.Wizard:
-      attacker.attributes.intelligence *= 1.3;
+      attacker.attributes.intelligence *= 2;
       attacker.attributes.wisdom *= 1.3;
       break;
     case HeroClasses.Warlock:
-      attacker.attributes.intelligence *= 1.3;
+      attacker.attributes.intelligence *= 1.5;
       attacker.attributes.wisdom *= 1.3;
       attacker.attributes.willpower *= 1.2;
       break;
 
     // mixed
     case HeroClasses.BattleMage:
-      attacker.attributes.strength *= 1.2;
-      attacker.attributes.dexterity *= 1.2;
-      attacker.attributes.intelligence *= 1.2;
-      attacker.attributes.wisdom *= 1.2;
+      attacker.attributes.strength *= 2;
+      attacker.attributes.dexterity *= 1.3;
+      attacker.attributes.intelligence *= 2;
+      attacker.attributes.wisdom *= 1.3;
+      attacker.attributes.willpower *= 1.2;
       break;
     case HeroClasses.Paladin:
       attacker.attributes.willpower *= 1.3;
       break;
 
     case HeroClasses.Ranger:
-      attacker.attributes.dexterity *= 1.3;
+      attacker.attributes.dexterity *= 2;
       break;
     case HeroClasses.BloodMage:
       // you've had enough...
