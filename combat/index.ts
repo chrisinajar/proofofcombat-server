@@ -1136,8 +1136,8 @@ export async function fightMonster(
     heroHeal: enchantmentBattle.victimHeal,
     monsterDamage: monsterDamage,
     heroDamage: heroDamage,
-    monsterDied: totalDamageAgainstHero >= monster.combat.health,
-    heroDied: totalDamageAgainstMonster >= hero.combat.health,
+    monsterDied: totalDamageAgainstMonster >= monster.combat.health,
+    heroDied: totalDamageAgainstHero >= hero.combat.health,
     log: battleResults,
   };
 }
