@@ -241,8 +241,8 @@ export function getEnchantedAttributes(
   attackerInput: Combatant,
   victimInput: Combatant
 ): { attacker: EnchantedCombatant; victim: EnchantedCombatant } {
-  let attacker = attackerInput as EnchantedCombatant;
-  let victim = victimInput as EnchantedCombatant;
+  let attacker: EnchantedCombatant = { ...attackerInput } as EnchantedCombatant;
+  let victim: EnchantedCombatant = { ...victimInput } as EnchantedCombatant;
   if (!attacker.enchanted) {
     enchantAttacker(attacker, victim);
   }
