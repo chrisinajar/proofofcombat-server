@@ -6,6 +6,13 @@ export type ChatMessage = {
   from: string;
   id: number;
   time: number;
+  heroId?: string;
+  type: "chat" | "private" | "emote";
+};
+
+export type SystemMessage = {
+  color: "success" | "primary" | "secondary" | "error";
+  message: string;
 };
 
 type System = BaseModel & {
@@ -14,7 +21,13 @@ type System = BaseModel & {
 };
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
-// type PartialSystem = Optional<System, "chatIdNumber">;
+type PartialChatMessage = Optional<ChatMessage, "type">;
+// type PartialSystem = Optional<System>;
+type PartialSystem =
+  | System
+  | {
+      chat: PartialChatMessage[];
+    };
 
 const systemSettingsKey = "system";
 
@@ -37,9 +50,12 @@ export default class SystemModel extends DatabaseInterface<System> {
     }
   }
 
-  // upgrade(data: PartialSystem): System {
-  //   data.chatIdNumber = data.chatIdNumber ?? 0;
+  upgrade(data: PartialSystem): System {
+    data.chat = data.chat.map((entry) => {
+      entry.type = "chat";
+      return entry;
+    });
 
-  //   return data as System;
-  // }
+    return data as System;
+  }
 }

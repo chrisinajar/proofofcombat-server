@@ -2,7 +2,7 @@ import { Server, Socket } from "socket.io";
 import { createServer, Server as HttpServer } from "http";
 
 import { InventoryItem } from "../types/graphql";
-import { ChatMessage } from "../db/models/system";
+import { ChatMessage, SystemMessage } from "../db/models/system";
 import { confirm, ChatTokenData } from "../security";
 
 import { getChatCache, addChatMessage } from "./cache";
@@ -10,11 +10,6 @@ import { getChatCache, addChatMessage } from "./cache";
 type ExtendedSocket = Socket & {
   name?: string;
   heroId?: string;
-};
-
-type SystemMessage = {
-  color: "success" | "primary" | "secondary" | "error";
-  message: string;
 };
 
 type Notification = {
@@ -71,8 +66,47 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
       const message = await addChatMessage({
         message: data.message.trim(),
         from: socket.name,
+        heroId: socket.heroId,
+        type: "chat",
       });
       socket.broadcast.emit("chat", message);
+
+      callback(message);
+    });
+
+    socket.on("private-chat", async (data, callback) => {
+      if (!socket.name) {
+        return;
+      }
+      let toName = "";
+      const message = {
+        message: data.message.trim(),
+        from: socket.name,
+        to: data.to,
+        heroId: socket.heroId,
+        type: "private",
+        time: Math.round(Date.now() / 1000),
+      };
+      io.sockets.sockets.forEach((otherSocket: ExtendedSocket, id: string) => {
+        if (
+          otherSocket.heroId === data.to ||
+          (otherSocket !== socket && otherSocket.heroId === socket.heroId)
+        ) {
+          if (otherSocket.name) {
+            toName = otherSocket.name;
+          }
+          otherSocket.emit("chat", message);
+        }
+      });
+      console.log(socket.name, toName, data.message);
+
+      // const message = await addChatMessage({
+      //   message: data.message.trim(),
+      //   from: socket.name,
+      //   heroId: socket.heroId,
+      //   type: "chat",
+      // });
+      // socket.broadcast.emit("chat", message);
 
       callback(message);
     });

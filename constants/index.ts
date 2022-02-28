@@ -19,6 +19,7 @@ export type SpecialLocation = {
   y: number;
   name: string;
   type: SpecialLocationType;
+  description?: string[];
 };
 
 export type LocationDataType = {

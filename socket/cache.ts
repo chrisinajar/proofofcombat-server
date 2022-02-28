@@ -17,10 +17,12 @@ async function loadCacheCache() {
   addChatMessage({
     from: `Server booted up!`,
     message: ` 🚀`,
+    type: "chat",
   });
   addChatMessage({
     from: randomStartupMessage.from,
     message: randomStartupMessage.message,
+    type: "chat",
   });
 }
 

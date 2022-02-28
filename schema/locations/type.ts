@@ -20,6 +20,7 @@ export default gql`
     location: Location!
     name: String!
     type: String!
+    description: [String!]
   }
   type TerrainData {
     terrain: String!

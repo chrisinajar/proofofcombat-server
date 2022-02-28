@@ -1,5 +1,4 @@
 [
-  { "x": 25, "y": 58, "name": "The Hellhound's Fur", "type": "tavern" },
   { "x": 30, "y": 33, "name": "Darkwood Bridge", "type": "bridge" },
   { "x": 31, "y": 33, "name": "Darkwood Bridge", "type": "bridge" },
   { "x": 28, "y": 34, "name": "Darkwood Bridge", "type": "bridge" },
@@ -29,5 +28,25 @@
   { "x": 90, "y": 87, "name": "Sherlam Landing", "type": "dock" },
   { "x": 90, "y": 49, "name": "Rotherham Docks", "type": "dock" },
   { "x": 58, "y": 29, "name": "Canogeo Harbor", "type": "dock" },
-  { "x": 42, "y": 32, "name": "The Hidden Stump Inn", "type": "tavern" }
+
+  {
+    "x": 25,
+    "y": 58,
+    "name": "The Hellhound's Fur",
+    "type": "tavern",
+    "description": [
+      "What appears to be a small hut alone in a meadow with a steady plume of smoke coming from it's chimney stack is actually a tavern owned by the alchemist Trimarim.",
+      "The alchemical experimentations conducted over the years have left the critters here imbued with great power."
+    ]
+  },
+  {
+    "x": 42,
+    "y": 32,
+    "name": "The Hidden Stump Inn",
+    "type": "tavern",
+    "description": [
+      "From the outside you'd never know this was here, but the inside roars with the sound of visiting adventurers and forest inhabitants.",
+      "The inside is carved from an ancient downed forest tree and extends through the roots into a small natural cave system. The caves themselves sprawl in all directions and contain powerful but wealthy critters."
+    ]
+  }
 ]
