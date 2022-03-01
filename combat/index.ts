@@ -159,7 +159,7 @@ export function createMonsterEquipment(
   };
 }
 
-function attributesForAttack(attackType: AttackType): AttackAttributes {
+export function attributesForAttack(attackType: AttackType): AttackAttributes {
   switch (attackType) {
     case AttackType.Blood:
       return {
@@ -534,7 +534,7 @@ export function enchantAttacker(
   return { attacker, victim };
 }
 
-function calculateDamage(
+export function calculateDamage(
   attackerInput: Combatant,
   attackType: AttackType,
   victimInput: Combatant,
@@ -551,7 +551,7 @@ function calculateDamage(
 
   const attributeTypes = attributesForAttack(attackType);
 
-  let percentageDamageReduction = attacker.percentageDamageIncrease;
+  let percentageDamageReduction = victim.percentageDamageReduction;
   let percentageDamageIncrease = attacker.percentageDamageIncrease;
   let totalArmor = 0;
 
