@@ -572,20 +572,20 @@ export function calculateDamage(
   let percentageDamageReduction = victim.percentageDamageReduction;
   let percentageDamageIncrease = attacker.percentageDamageIncrease;
   let totalArmor = 0;
-  // let totalArmorDamageReduction = 1;
+  let totalArmorDamageReduction = 1;
 
   victim.equipment.armor.forEach((armor) => {
-    // totalArmorDamageReduction *= Math.pow(0.99, armor.level);
-    // totalArmor += Math.pow(1.3, armor.level);
-    totalArmor += armor.level;
+    totalArmorDamageReduction *= Math.pow(0.99, armor.level);
+    totalArmor += Math.pow(1.3, armor.level);
+    // totalArmor += armor.level;
   });
 
   // for paladins (or any other future reason that shields end up in weapon lists)
   victim.equipment.weapons.forEach((armor) => {
     if (armor.type === InventoryItemType.Shield) {
-      // totalArmorDamageReduction *= Math.pow(0.99, armor.level);
-      // totalArmor += Math.pow(1.3, armor.level);
-      totalArmor += armor.level;
+      totalArmorDamageReduction *= Math.pow(0.99, armor.level);
+      totalArmor += Math.pow(1.3, armor.level);
+      // totalArmor += armor.level;
     }
   });
   totalArmor *= percentageDamageReduction;
@@ -595,11 +595,11 @@ export function calculateDamage(
     : attacker.equipment.weapons[0];
 
   const weaponLevel = weapon?.level ?? 0;
-  // const baseDamage = Math.max(
-  //   1,
-  //   Math.pow(1.4, weaponLevel) + weaponLevel * 15 - totalArmor
-  // );
-  const baseDamage = Math.pow(1.4, weaponLevel) + weaponLevel * 15;
+  const baseDamage = Math.max(
+    1,
+    Math.pow(1.4, weaponLevel) + weaponLevel * 15 - totalArmor
+  );
+  // const baseDamage = Math.pow(1.4, weaponLevel) + weaponLevel * 15;
 
   if (debug) {
     console.log({
@@ -608,7 +608,7 @@ export function calculateDamage(
       baseDamage,
       totalArmor,
       weaponLevel,
-      // totalArmorDamageReduction,
+      totalArmorDamageReduction,
       percentageDamageIncrease,
     });
   }
@@ -645,7 +645,7 @@ export function calculateDamage(
         attacker.attributes[attributeTypes.damage] /
         (victim.attributes[attributeTypes.damageReduction] / 2),
       percentageDamageIncrease,
-      // totalArmorDamageReduction,
+      totalArmorDamageReduction,
     });
   }
 
@@ -657,9 +657,9 @@ export function calculateDamage(
   // amp damage from weapon
   damage *= percentageDamageIncrease;
   // reduce / increase armor from enchantments
-  const drFromArmor = Math.pow(0.95, totalArmor);
-  damage *= drFromArmor;
-  // damage *= totalArmorDamageReduction;
+  // const drFromArmor = Math.pow(0.95, totalArmor);
+  // damage *= drFromArmor;
+  damage *= totalArmorDamageReduction;
 
   if (debug) {
     console.log("final damage", damage);
