@@ -70,7 +70,20 @@ type AttackAttributes = {
   damageReduction: Attribute;
 };
 
+function createMonsterStatsByLevel(level: number): HeroStats {
+  return {
+    strength: Math.ceil(Math.pow(1.4, level - 1) * 8) - 5,
+    dexterity: Math.ceil(Math.pow(1.4, level - 1) * 8) - 5,
+    constitution: Math.ceil(Math.pow(1.4, level - 1) * 8) - 5,
+    intelligence: Math.ceil(Math.pow(1.4, level - 1) * 8) - 5,
+    wisdom: Math.ceil(Math.pow(1.4, level - 1) * 8) - 5,
+    willpower: Math.ceil(Math.pow(1.4, level - 1) * 8) - 5,
+    luck: Math.ceil(Math.pow(1.4, level - 1) * 8) - 5,
+  };
+}
+
 function createMonsterStats(monster: Monster): HeroStats {
+  // Math.ceil(Math.pow(1.4, i) * 8)
   // console.log(monster.name, "has", monster.combat.maxHealth - 5, "stats");
   return {
     strength: monster.combat.maxHealth - 5,
@@ -98,7 +111,7 @@ function createMonsterLuck(monster: Monster) {
 }
 
 export function createMonsterEquipment(
-  monster: Monster,
+  monster: Partial<Monster> & Pick<Monster, "level">,
   equipmentOverride?: MonsterEquipment | null
 ): CombatantGear {
   if (equipmentOverride) {
@@ -219,6 +232,10 @@ export function calculateHit(
 
   let attackerAccStat = attacker.attributes[attackAttributes.toHit];
   let victimDodgeStat = victim.attributes[attackAttributes.dodge];
+
+  if (attackerInput.class === HeroClasses.Ranger) {
+    attackerAccStat *= 2;
+  }
 
   if (attacker.class === HeroClasses.Gambler) {
     attackerAccStat += Math.random() * attacker.attributes.luck;
@@ -538,7 +555,8 @@ export function calculateDamage(
   attackerInput: Combatant,
   attackType: AttackType,
   victimInput: Combatant,
-  isSecondAttack: boolean = false
+  isSecondAttack: boolean = false,
+  debug: boolean = false
 ): { damage: number; critical: boolean; doubleCritical: boolean } {
   let damage = 0;
   let critical = false;
@@ -554,25 +572,46 @@ export function calculateDamage(
   let percentageDamageReduction = victim.percentageDamageReduction;
   let percentageDamageIncrease = attacker.percentageDamageIncrease;
   let totalArmor = 0;
+  // let totalArmorDamageReduction = 1;
 
   victim.equipment.armor.forEach((armor) => {
+    // totalArmorDamageReduction *= Math.pow(0.99, armor.level);
+    // totalArmor += Math.pow(1.3, armor.level);
     totalArmor += armor.level;
   });
 
   // for paladins (or any other future reason that shields end up in weapon lists)
   victim.equipment.weapons.forEach((armor) => {
     if (armor.type === InventoryItemType.Shield) {
+      // totalArmorDamageReduction *= Math.pow(0.99, armor.level);
+      // totalArmor += Math.pow(1.3, armor.level);
       totalArmor += armor.level;
     }
   });
+  totalArmor *= percentageDamageReduction;
 
-  // 1.3^weapon tier per weapon
   const weapon = isSecondAttack
     ? attacker.equipment.weapons[1]
     : attacker.equipment.weapons[0];
 
   const weaponLevel = weapon?.level ?? 0;
+  // const baseDamage = Math.max(
+  //   1,
+  //   Math.pow(1.4, weaponLevel) + weaponLevel * 15 - totalArmor
+  // );
   const baseDamage = Math.pow(1.4, weaponLevel) + weaponLevel * 15;
+
+  if (debug) {
+    console.log({
+      weaponDamage: Math.pow(1.4, weaponLevel) + weaponLevel * 15,
+      name: attacker.name,
+      baseDamage,
+      totalArmor,
+      weaponLevel,
+      // totalArmorDamageReduction,
+      percentageDamageIncrease,
+    });
+  }
 
   const variation = baseDamage * 0.4 * attacker.luck.smallModifier;
   // damage spread based on small luck factor
@@ -597,6 +636,19 @@ export function calculateDamage(
     }
   }
 
+  if (debug) {
+    console.log({
+      damage,
+      attackerStat: attacker.attributes[attributeTypes.damage],
+      victimStat: victim.attributes[attributeTypes.damageReduction],
+      dr:
+        attacker.attributes[attributeTypes.damage] /
+        (victim.attributes[attributeTypes.damageReduction] / 2),
+      percentageDamageIncrease,
+      // totalArmorDamageReduction,
+    });
+  }
+
   // apply contested stats rolls
   damage *=
     attacker.attributes[attributeTypes.damage] /
@@ -605,9 +657,13 @@ export function calculateDamage(
   // amp damage from weapon
   damage *= percentageDamageIncrease;
   // reduce / increase armor from enchantments
-  totalArmor *= percentageDamageReduction;
   const drFromArmor = Math.pow(0.95, totalArmor);
   damage *= drFromArmor;
+  // damage *= totalArmorDamageReduction;
+
+  if (debug) {
+    console.log("final damage", damage);
+  }
 
   damage = Math.round(Math.max(1, Math.min(1000000000, damage)));
 
@@ -963,6 +1019,26 @@ function attackCombatant(
   };
 }
 
+export function createMonsterCombatant(
+  level: number,
+  name: string,
+  equipment?: MonsterEquipment | null
+) {
+  const monsterAttributes = createMonsterStatsByLevel(level);
+
+  return {
+    class: HeroClasses.Monster,
+    level: level,
+    name: name,
+    equipment: equipment
+      ? createMonsterEquipment({ level }, equipment)
+      : createMonsterEquipment({ level }),
+    damageReduction: monsterAttributes.constitution / 2,
+    attributes: monsterAttributes,
+    luck: createLuck(monsterAttributes.luck),
+  };
+}
+
 export async function fightMonster(
   hero: Hero,
   monsterInstance: MonsterInstance,
@@ -994,15 +1070,11 @@ export async function fightMonster(
     }
   }
 
-  const monsterCombatant = {
-    class: HeroClasses.Monster,
-    level: monster.level,
-    name: monster.name,
-    equipment: createMonsterEquipment(monster, equipment),
-    damageReduction: monsterAttributes.constitution / 2,
-    attributes: monsterAttributes,
-    luck: createMonsterLuck(monster),
-  };
+  const monsterCombatant = createMonsterCombatant(
+    monster.level,
+    monster.name,
+    equipment
+  );
 
   const enchantmentBattle = calculateEnchantmentDamage(
     heroCombatant,
