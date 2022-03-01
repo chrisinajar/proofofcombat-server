@@ -7,6 +7,8 @@ import {
   ShopItem,
   EnchantmentType,
   InventoryItemType,
+  TradeOfferReply,
+  TradeOffer,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -39,6 +41,128 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
+    async dismissTrade(parent, args, context): Promise<LevelUpResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      const offer = await context.db.trades.get(args.offer);
+      if (!offer) {
+        throw new UserInputError("Invalid trade");
+      }
+
+      if (offer.fromId !== hero.id && offer.toId !== hero.id) {
+        throw new UserInputError("Invalid trade");
+      }
+
+      await context.db.trades.del(offer);
+
+      return {
+        hero,
+        account,
+      };
+    },
+    async acceptTrade(parent, args, context): Promise<LevelUpResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      const offer = await context.db.trades.get(args.offer);
+      if (!offer) {
+        throw new UserInputError("Invalid trade");
+      }
+
+      if (offer.toId !== hero.id) {
+        throw new UserInputError("Invalid trade");
+      }
+      if (offer.gold > hero.gold) {
+        throw new UserInputError("Invalid trade");
+      }
+
+      const offerHero = await context.db.hero.get(offer.fromId);
+
+      const offerItem = offerHero.inventory.find(
+        (item) => item.id === offer.item.id
+      );
+
+      if (!offerItem) {
+        throw new UserInputError("Invalid trade");
+      }
+
+      // delete all the offers involving this item
+      await Promise.all(
+        (
+          await context.db.trades.offersForItem(offerItem.id)
+        ).map((otherOffers) => context.db.trades.del(offer))
+      );
+
+      offerHero.inventory = offerHero.inventory.filter(
+        (item) => item.id !== offerItem.id
+      );
+      await context.db.hero.put(offerHero);
+
+      hero.gold -= Math.round(offer.gold);
+      offerItem.owner = hero.id;
+      hero.inventory.push(offerItem);
+
+      await context.db.hero.put(hero);
+
+      return {
+        hero,
+        account,
+      };
+    },
+    async offerTrade(parent, args, context): Promise<TradeOfferReply> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      if (hero.id === args.offer.to) {
+        throw new UserInputError("You cannot trade with yourself");
+      }
+      const item = hero.inventory.find((item) => item.id === args.offer.item);
+      if (!item) {
+        throw new UserInputError("Fail to find that item");
+      }
+
+      const toHero = await context.db.hero.get(args.offer.to);
+      if (!toHero) {
+        throw new UserInputError("Target hero does not exist");
+      }
+
+      const gold = args.offer.gold;
+
+      if (
+        gold < 1 ||
+        gold > 2000000000 ||
+        isNaN(gold) ||
+        !Number.isFinite(gold)
+      ) {
+        throw new UserInputError("Target hero does not exist");
+      }
+
+      const trade: TradeOffer = await context.db.trades.create(
+        hero,
+        toHero,
+        item,
+        gold
+      );
+
+      return {
+        hero,
+        account,
+        trade,
+      };
+    },
     async enchantItem(
       parent,
       args,

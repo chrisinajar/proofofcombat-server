@@ -15,6 +15,7 @@ import {
   HeroClasses,
   HeroStats,
   AttributeType,
+  TradeOffer,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -153,6 +154,12 @@ const resolvers: Resolvers = {
     },
   },
   Hero: {
+    async incomingTrades(parent, args, context): Promise<TradeOffer[]> {
+      return context.db.trades.offersForHero(parent.id);
+    },
+    async outgoingTrades(parent, args, context): Promise<TradeOffer[]> {
+      return context.db.trades.offersFromHero(parent.id);
+    },
     combatStats(parent) {
       let attackType = AttackType.Melee;
       switch (parent.class) {

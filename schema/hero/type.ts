@@ -38,6 +38,8 @@ export default gql`
     questLog: QuestLog!
 
     combatStats: ExtendedCombatStats
+    incomingTrades: [TradeOffer!]!
+    outgoingTrades: [TradeOffer!]!
   }
 
   type ExtendedCombatStats {

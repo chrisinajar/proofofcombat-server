@@ -29,6 +29,8 @@ type PartialHero = Optional<
   | "levelCap"
   | "enchantingDust"
   | "enchantments"
+  | "incomingTrades"
+  | "outgoingTrades"
 >;
 
 const inMemoryLeaderboardLength = 50;
@@ -185,16 +187,6 @@ export default class HeroModel extends DatabaseInterface<Hero> {
           }
         }
         hero.attributePoints = hero.attributePoints + 1;
-
-        // hero.stats.strength = hero.stats.strength - 1;
-        // hero.stats.dexterity = hero.stats.dexterity - 1;
-        // hero.stats.constitution = hero.stats.constitution - 1;
-        // hero.stats.intelligence = hero.stats.intelligence - 1;
-        // hero.stats.wisdom = hero.stats.wisdom - 1;
-        // hero.stats.willpower = hero.stats.willpower - 1;
-        // hero.stats.luck = hero.stats.luck - 1;
-
-        // hero.attributePoints = hero.attributePoints + 1;
       }
     }
 
@@ -299,6 +291,9 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
     data.gold = Math.round(data.gold);
     data.experience = Math.round(data.experience);
+
+    data.incomingTrades = [];
+    data.outgoingTrades = [];
 
     // recalculate stats and turn it into a real hero object
     const hero = this.recalculateStats(data as Hero);

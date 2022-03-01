@@ -62,6 +62,9 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
       if (!socket.name) {
         return;
       }
+      if (!data.message.trim().length) {
+        return;
+      }
       console.log(socket.name, data.message);
       const message = await addChatMessage({
         message: data.message.trim(),
@@ -79,6 +82,9 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
         return;
       }
       let toName = "";
+      if (!data.message.trim().length) {
+        return;
+      }
       const message = {
         message: data.message.trim(),
         from: socket.name,

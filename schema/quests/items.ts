@@ -176,6 +176,12 @@ export function getQuestRewards() {
       level: 4,
       canBuy: false,
     },
+
+    // melee
+    // caster
+    // archer
+    // vampire
+    // gambler
   };
 }
 

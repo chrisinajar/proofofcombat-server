@@ -15,13 +15,8 @@ async function loadCacheCache() {
   currentOffset = systemData.currentOffset;
 
   addChatMessage({
-    from: `Server booted up!`,
+    from: `Server successfully restarted!`,
     message: ` 🚀`,
-    type: "chat",
-  });
-  addChatMessage({
-    from: randomStartupMessage.from,
-    message: randomStartupMessage.message,
     type: "chat",
   });
 }

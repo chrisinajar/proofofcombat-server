@@ -11,6 +11,12 @@ export default gql`
     sell(item: ID!): LevelUpResponse! @auth @delay(delay: 200)
     equip(item: ID!, slot: String!): LevelUpResponse! @auth @delay(delay: 200)
 
+    offerTrade(offer: TradeOfferInput!): TradeOfferReply!
+      @auth
+      @delay(delay: 1000)
+    dismissTrade(offer: ID!): LevelUpResponse @auth @delay(delay: 100)
+    acceptTrade(offer: ID!): LevelUpResponse @auth @delay(delay: 500)
+
     # crafting
     destroyItem(item: ID!): LevelUpResponse! @auth @delay(delay: 200)
     disenchantItem(item: ID!): LevelUpResponse! @auth @delay(delay: 200)
@@ -115,5 +121,27 @@ export default gql`
     HeadArmor
     FootArmor
     Accessory
+  }
+
+  input TradeOfferInput {
+    to: ID!
+    item: String!
+    gold: Int!
+  }
+
+  type TradeOffer {
+    id: ID!
+    fromId: ID!
+    fromName: String!
+    toId: ID!
+    toName: String!
+    item: InventoryItem!
+    gold: Int!
+  }
+
+  type TradeOfferReply {
+    hero: Hero!
+    account: BaseAccount!
+    trade: TradeOffer!
   }
 `;
