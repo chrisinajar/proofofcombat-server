@@ -105,7 +105,7 @@ const resolvers: Resolvers = {
 
       const fightResult = await fightMonster(hero, monster, attackType);
       let experienceRewards =
-        (monster.monster.level + Math.pow(1.5, monster.monster.level)) * 10;
+        (monster.monster.level + Math.pow(1.4, monster.monster.level)) * 10;
 
       const xpDoublers = context.db.hero.countEnchantments(
         hero,
@@ -115,11 +115,11 @@ const resolvers: Resolvers = {
         experienceRewards *= 3;
       }
 
-      experienceRewards *= Math.pow(2, xpDoublers);
-
       experienceRewards = Math.ceil(
-        Math.min(hero.needed / 3, experienceRewards)
+        Math.min(hero.needed / 5, experienceRewards)
       );
+
+      experienceRewards *= Math.pow(2, xpDoublers);
 
       hero.combat.health = Math.round(
         Math.max(
@@ -175,9 +175,19 @@ const resolvers: Resolvers = {
           }
         }
 
-        console.log(hero.name, "killed a", monster.monster.name, goldReward, {
-          xpDoublers,
-        });
+        console.log(
+          hero.name,
+          hero.level,
+          "killed a",
+          monster.monster.name,
+          monster.monster.level,
+          {
+            xpDoublers,
+            goldReward,
+            experienceRewards,
+          }
+        );
+
         context.db.hero.addExperience(hero, experienceRewards);
         goldReward = Math.min(1000000000, Math.round(goldReward));
         hero.gold = hero.gold + goldReward;
@@ -187,9 +197,10 @@ const resolvers: Resolvers = {
         const dropOdds =
           ((0.25 + luck / (luck + monsterAntiLuck + 5)) * bonusDropRate) / 50;
         if (Math.random() < dropOdds) {
-          console.log(" DROP!! Odds:", {
+          console.log(hero.name, "DROP!! Odds:", {
             luck,
             monsterAntiLuck,
+            bonusDropRate,
             dropOdds: Math.round(dropOdds * 1000) / 1000,
           });
 

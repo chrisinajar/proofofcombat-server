@@ -1,4 +1,11 @@
-import { Hero, HeroClasses, HeroStats, InventoryItemType } from "types/graphql";
+import {
+  Hero,
+  HeroClasses,
+  HeroStats,
+  InventoryItemType,
+  EnchantmentType,
+} from "types/graphql";
+import { countEnchantments } from "../../../schema/items/helpers";
 
 type HeroStatName = keyof HeroStats;
 
@@ -12,7 +19,97 @@ const stats: HeroStatName[] = [
   "luck",
 ];
 
+// EnchantmentType.MeleeUpgrade
+// EnchantmentType.CasterUpgrade
+// EnchantmentType.ArcherUpgrade
+// EnchantmentType.VampireUpgrade
+// EnchantmentType.GamblerUpgrade
+// EnchantmentType.BattleMageUpgrade
+// EnchantmentType.SmiterUpgrade
+
 export function getClass(hero: Hero): HeroClasses {
+  const baseClass = getBaseClass(hero);
+  // check for upgraded class
+
+  const upgradedMelee = countEnchantments(hero, EnchantmentType.MeleeUpgrade);
+  const upgradedCaster = countEnchantments(hero, EnchantmentType.CasterUpgrade);
+  const upgradedArcher = countEnchantments(hero, EnchantmentType.ArcherUpgrade);
+  const upgradedVampire = countEnchantments(
+    hero,
+    EnchantmentType.VampireUpgrade
+  );
+  const upgradedGambler = countEnchantments(
+    hero,
+    EnchantmentType.GamblerUpgrade
+  );
+  const upgradedBattleMage = countEnchantments(
+    hero,
+    EnchantmentType.BattleMageUpgrade
+  );
+  const upgradedPaladin = countEnchantments(
+    hero,
+    EnchantmentType.SmiterUpgrade
+  );
+
+  // console.log({
+  //   upgradedMelee,
+  //   upgradedCaster,
+  //   upgradedArcher,
+  //   upgradedVampire,
+  //   upgradedGambler,
+  //   upgradedBattleMage,
+  //   upgradedPaladin,
+  // });
+
+  if (baseClass === HeroClasses.Gambler) {
+    if (upgradedGambler > 0) {
+      return HeroClasses.Daredevil;
+    }
+  }
+  if (baseClass === HeroClasses.Fighter) {
+    if (upgradedMelee > 0) {
+      return HeroClasses.Gladiator;
+    }
+  }
+  if (baseClass === HeroClasses.Berserker) {
+    if (upgradedMelee > 0) {
+      return HeroClasses.EnragedBerserker;
+    }
+  }
+  if (baseClass === HeroClasses.Wizard) {
+    if (upgradedCaster > 0) {
+      return HeroClasses.MasterWizard;
+    }
+  }
+  if (baseClass === HeroClasses.Warlock) {
+    if (upgradedCaster > 0) {
+      return HeroClasses.MasterWarlock;
+    }
+  }
+  if (baseClass === HeroClasses.BattleMage) {
+    if (upgradedBattleMage > 0) {
+      return HeroClasses.DemonHunter;
+    }
+  }
+  if (baseClass === HeroClasses.Paladin) {
+    if (upgradedPaladin > 0) {
+      return HeroClasses.Zealot;
+    }
+  }
+  if (baseClass === HeroClasses.Ranger) {
+    if (upgradedArcher > 0) {
+      return HeroClasses.Archer;
+    }
+  }
+  if (baseClass === HeroClasses.BloodMage) {
+    if (upgradedVampire > 0) {
+      return HeroClasses.Vampire;
+    }
+  }
+
+  return baseClass;
+}
+export function getBaseClass(hero: Hero): HeroClasses {
   if (hero.level < 10) {
     return HeroClasses.Adventurer;
   }

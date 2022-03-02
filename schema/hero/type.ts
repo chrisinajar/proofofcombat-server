@@ -54,8 +54,9 @@ export default gql`
   enum HeroClasses {
     Monster # non-player
     Adventurer # low level
-    Gambler # high luck
     JackOfAllTrades # special all stats
+    # base classes
+    Gambler # high luck
     Fighter # melee shield
     Berserker # melee melee
     Wizard # spell spell
@@ -64,6 +65,16 @@ export default gql`
     Paladin # shield shield
     Ranger # ranged
     BloodMage # con / ench vamp
+    # upgraded calsses
+    Daredevil # <- Gambler <- high luck
+    Gladiator # <- Fighter <- melee shield
+    EnragedBerserker # <- Berserker <- melee melee
+    MasterWizard # <- Wizard <- spell spell
+    MasterWarlock # <- Warlock <- spell shield
+    DemonHunter # <- BattleMage <- spell melee
+    Zealot # <- Paladin <- shield shield
+    Archer # <- Ranger <- ranged
+    Vampire # <- BloodMage <- con / ench vamp
   }
 
   type LeadboardEntry {

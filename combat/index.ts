@@ -233,15 +233,33 @@ export function calculateHit(
   let attackerAccStat = attacker.attributes[attackAttributes.toHit];
   let victimDodgeStat = victim.attributes[attackAttributes.dodge];
 
-  if (attackerInput.class === HeroClasses.Ranger) {
+  // all tier 2 classes get extra accuracy
+  if (
+    attackerInput.class === HeroClasses.Daredevil ||
+    attackerInput.class === HeroClasses.Gladiator ||
+    attackerInput.class === HeroClasses.EnragedBerserker ||
+    attackerInput.class === HeroClasses.MasterWizard ||
+    attackerInput.class === HeroClasses.MasterWarlock ||
+    attackerInput.class === HeroClasses.DemonHunter ||
+    attackerInput.class === HeroClasses.Zealot ||
+    attackerInput.class === HeroClasses.Archer ||
+    attackerInput.class === HeroClasses.Vampire
+  ) {
     attackerAccStat *= 2;
   }
 
-  if (attacker.class === HeroClasses.Gambler) {
-    attackerAccStat += Math.random() * attacker.attributes.luck;
+  if (
+    attackerInput.class === HeroClasses.Ranger ||
+    attackerInput.class === HeroClasses.Archer
+  ) {
+    attackerAccStat *= 2;
   }
 
-  if (victim.class === HeroClasses.Gambler) {
+  if (
+    attacker.class === HeroClasses.Gambler ||
+    attacker.class === HeroClasses.Daredevil
+  ) {
+    attackerAccStat += Math.random() * attacker.attributes.luck;
     victimDodgeStat += Math.random() * victim.attributes.luck;
   }
 
@@ -487,6 +505,22 @@ export function enchantAttacker(
   switch (attacker.class) {
     case HeroClasses.Adventurer:
       break;
+    case HeroClasses.JackOfAllTrades:
+      attacker.attributes.strength *= 1.5;
+      attacker.attributes.dexterity *= 1.5;
+      attacker.attributes.constitution *= 1.5;
+      attacker.attributes.intelligence *= 1.5;
+      attacker.attributes.wisdom *= 1.5;
+      attacker.attributes.willpower *= 1.5;
+      break;
+    case HeroClasses.Daredevil:
+      attacker.attributes.strength *= 1 + Math.random();
+      attacker.attributes.dexterity *= 1 + Math.random();
+      attacker.attributes.constitution *= 1 + Math.random();
+      attacker.attributes.intelligence *= 1 + Math.random();
+      attacker.attributes.wisdom *= 1 + Math.random();
+      attacker.attributes.willpower *= 1 + Math.random();
+      attacker.attributes.luck *= 1 + Math.random();
     case HeroClasses.Gambler:
       attacker.attributes.strength *= 1.1;
       attacker.attributes.dexterity *= 1.2;
@@ -496,20 +530,18 @@ export function enchantAttacker(
       attacker.attributes.willpower *= 1.1;
       attacker.attributes.luck *= 1.2;
       break;
-    case HeroClasses.JackOfAllTrades:
-      attacker.attributes.strength *= 1.5;
-      attacker.attributes.dexterity *= 1.5;
-      attacker.attributes.constitution *= 1.5;
-      attacker.attributes.intelligence *= 1.5;
-      attacker.attributes.wisdom *= 1.5;
-      attacker.attributes.willpower *= 1.5;
-      break;
 
     // melee
+    case HeroClasses.EnragedBerserker:
+      attacker.attributes.strength *= 2;
+      attacker.attributes.dexterity *= 2;
     case HeroClasses.Berserker:
       attacker.attributes.strength *= 2;
       attacker.attributes.dexterity *= 1.3;
       break;
+    case HeroClasses.Gladiator:
+      attacker.attributes.strength *= 2;
+      attacker.attributes.dexterity *= 2;
     case HeroClasses.Fighter:
       attacker.attributes.strength *= 1.5;
       attacker.attributes.dexterity *= 1.3;
@@ -517,10 +549,16 @@ export function enchantAttacker(
       break;
 
     // casters
+    case HeroClasses.MasterWizard:
+      attacker.attributes.intelligence *= 2;
+      attacker.attributes.wisdom *= 2;
     case HeroClasses.Wizard:
       attacker.attributes.intelligence *= 2;
       attacker.attributes.wisdom *= 1.3;
       break;
+    case HeroClasses.MasterWarlock:
+      attacker.attributes.intelligence *= 2;
+      attacker.attributes.wisdom *= 2;
     case HeroClasses.Warlock:
       attacker.attributes.intelligence *= 1.5;
       attacker.attributes.wisdom *= 1.3;
@@ -528,6 +566,12 @@ export function enchantAttacker(
       break;
 
     // mixed
+    case HeroClasses.DemonHunter:
+      attacker.attributes.strength *= 2;
+      attacker.attributes.dexterity *= 1.3;
+      attacker.attributes.intelligence *= 2;
+      attacker.attributes.wisdom *= 1.3;
+      attacker.attributes.willpower *= 1.2;
     case HeroClasses.BattleMage:
       attacker.attributes.strength *= 2;
       attacker.attributes.dexterity *= 1.3;
@@ -535,16 +579,22 @@ export function enchantAttacker(
       attacker.attributes.wisdom *= 1.3;
       attacker.attributes.willpower *= 1.2;
       break;
+    case HeroClasses.Zealot:
+      attacker.attributes.willpower *= 1.3;
+      attacker.attributes.wisdom *= 2;
     case HeroClasses.Paladin:
       attacker.attributes.willpower *= 1.3;
       break;
 
+    case HeroClasses.Archer:
+      attacker.attributes.dexterity *= 4;
     case HeroClasses.Ranger:
       attacker.attributes.dexterity *= 2;
       break;
+    case HeroClasses.Vampire:
+      attacker.attributes.constitution *= 1.3;
     case HeroClasses.BloodMage:
       // you've had enough...
-      // attacker.attributes.constitution *= 1.3;
       break;
   }
 
@@ -627,7 +677,10 @@ export function calculateDamage(
         damage = damage * 3;
       }
 
-      if (attacker.class === HeroClasses.Gambler) {
+      if (
+        attacker.class === HeroClasses.Gambler ||
+        attacker.class === HeroClasses.Daredevil
+      ) {
         const trippleCritical = Math.random() < attacker.luck.ultraModifier / 2;
         if (trippleCritical) {
           damage = damage * 3;
@@ -684,7 +737,10 @@ function addItemToCombatant(
   if (!doesWeaponAffectAttack(item, attackType)) {
     itemLevel = 0;
   }
-  if (combatant.class === HeroClasses.BattleMage) {
+  if (
+    combatant.class === HeroClasses.BattleMage ||
+    combatant.class === HeroClasses.DemonHunter
+  ) {
     if (
       attackType === AttackType.Cast &&
       item.type === InventoryItemType.MeleeWeapon
@@ -704,7 +760,8 @@ function addItemToCombatant(
     item.type === InventoryItemType.SpellFocus ||
     item.type === InventoryItemType.RangedWeapon ||
     (item.type === InventoryItemType.Shield &&
-      combatant.class === HeroClasses.Paladin)
+      (combatant.class === HeroClasses.Paladin ||
+        combatant.class === HeroClasses.Zealot))
   ) {
     if (
       item.type === InventoryItemType.RangedWeapon &&
@@ -951,7 +1008,11 @@ function attackCombatant(
   doubleCritical: boolean;
   combatLog: CombatEntry[];
 } {
-  if (isSecondAttack && attacker.class === HeroClasses.BattleMage) {
+  if (
+    isSecondAttack &&
+    (attacker.class === HeroClasses.BattleMage ||
+      attacker.class === HeroClasses.DemonHunter)
+  ) {
     if (attacker.equipment.weapons[1].type === InventoryItemType.MeleeWeapon) {
       attackType = AttackType.Melee;
     }
@@ -1154,7 +1215,8 @@ export async function fightMonster(
   }
 
   const bloodMageDamage =
-    heroCombatant.class === HeroClasses.BloodMage
+    heroCombatant.class === HeroClasses.BloodMage ||
+    heroCombatant.class === HeroClasses.Vampire
       ? hero.combat.health * 0.01
       : hero.combat.health * 0.05;
 

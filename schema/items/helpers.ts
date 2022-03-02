@@ -11,6 +11,22 @@ import { BaseContext } from "../context";
 import { BaseItem } from "./";
 import { BaseItems } from "./base-items";
 
+export function countEnchantments(
+  hero: Hero,
+  enchantment: EnchantmentType
+): number {
+  return hero.inventory.reduce<number>((memo, item) => {
+    let count = item.enchantment === enchantment ? 1 : 0;
+    const baseItem = BaseItems[item.baseItem];
+    if (baseItem && baseItem.passiveEnchantments) {
+      count += baseItem.passiveEnchantments.filter(
+        (e) => e === enchantment
+      ).length;
+    }
+    return count + memo;
+  }, 0);
+}
+
 export function enchantItem(
   item: InventoryItem,
   enchantment: EnchantmentType
@@ -82,6 +98,7 @@ export function getEnchantments(
       options = options.concat([
         EnchantmentType.BonusAllStats,
         EnchantmentType.MinusEnemyAllStats,
+        EnchantmentType.WisDexWill,
       ]);
       break;
     // highest tier of overworld enchantments
@@ -91,7 +108,6 @@ export function getEnchantments(
         EnchantmentType.Vampirism,
         EnchantmentType.BigMelee,
         EnchantmentType.BigCaster,
-        EnchantmentType.WisDexWill,
       ]);
       break;
     case 4:

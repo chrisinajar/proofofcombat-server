@@ -36,6 +36,7 @@ type PartialHero = Optional<
 const inMemoryLeaderboardLength = 50;
 
 import { checkHero } from "../../schema/quests/helpers";
+import { countEnchantments } from "../../schema/items/helpers";
 import { getClass } from "./hero/classes";
 
 export default class HeroModel extends DatabaseInterface<Hero> {
@@ -44,16 +45,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   countEnchantments(hero: Hero, enchantment: EnchantmentType): number {
-    return hero.inventory.reduce<number>((memo, item) => {
-      let count = item.enchantment === enchantment ? 1 : 0;
-      const baseItem = BaseItems[item.baseItem];
-      if (baseItem && baseItem.passiveEnchantments) {
-        count += baseItem.passiveEnchantments.filter(
-          (e) => e === enchantment
-        ).length;
-      }
-      return count + memo;
-    }, 0);
+    return countEnchantments(hero, enchantment);
   }
 
   async getTopHeros(): Promise<Hero[]> {

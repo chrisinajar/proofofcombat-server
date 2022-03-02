@@ -93,6 +93,7 @@ export default gql`
     # End droppable enchantments
 
     # Quest reward enchantments
+    # brewconia quest
     FishermansStrength
     FishermansDexterity
     FishermansConstitution
@@ -100,12 +101,20 @@ export default gql`
     FishermansWisdom
     FishermansWillpower
     FishermansLuck
-
+    # rebirth / gating / leveling bonuses
     CanRebirth
     CanCraft
     AutoBattle # probably shoulda been "CanAutoBattle" but whatever
     DoubleExperience # 2x xp, stacks
     DoubleLeveling # get 2 levels for every level, stacks
+    # class quests
+    MeleeUpgrade
+    CasterUpgrade
+    ArcherUpgrade
+    VampireUpgrade
+    GamblerUpgrade
+    BattleMageUpgrade
+    SmiterUpgrade
     # End quest reward enchantments
   }
 
