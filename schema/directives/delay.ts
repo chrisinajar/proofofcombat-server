@@ -41,7 +41,7 @@ export function delayDirectiveTransformer(
           }
           const nextAllowedAction = Number(account.nextAllowedAction);
           if (nextAllowedAction && now < nextAllowedAction) {
-            account.nextAllowedAction = `${nextAllowedAction + 500}`;
+            account.nextAllowedAction = `${nextAllowedAction + 1000}`;
             context.auth.delay = account.nextAllowedAction;
             await context.db.account.put(account);
             throw new UserInputError("You must wait longer before acting", {
