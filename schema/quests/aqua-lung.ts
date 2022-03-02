@@ -13,7 +13,7 @@ export function checkHeroDrop(
   hero: Hero,
   monster: MonsterInstance
 ): Hero {
-  if (Math.random() > 1 / 5000) {
+  if (Math.random() > 1 / 15000) {
     return hero;
   }
 

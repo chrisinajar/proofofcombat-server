@@ -64,9 +64,9 @@
     "name": "Domari's Hut",
     "type": "hermit",
     "description": [
-      "Domari does reply to your questions.",
+      "Domari does not reply to your questions.",
       "Domari looks through you.",
-      "\"... bring me dust...\""
+      "\"... bring dust...\""
     ]
   }
 ]

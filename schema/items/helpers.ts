@@ -192,13 +192,14 @@ export function giveHeroRandomDrop(
   hero: Hero,
   itemLevel: number,
   enchantmentLevel: number,
-  allowUpgraded: boolean
+  allowUpgraded: boolean,
+  includeLowerTiers: boolean = true
 ) {
   const baseItem = allowUpgraded
     ? randomUpgradedBaseItem(itemLevel)
     : randomBaseItem(itemLevel);
 
-  const enchantment = randomEnchantment(enchantmentLevel, true);
+  const enchantment = randomEnchantment(enchantmentLevel, includeLowerTiers);
 
   giveHeroItem(context, hero, baseItem, enchantment);
 }

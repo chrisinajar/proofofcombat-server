@@ -3,7 +3,7 @@ import { MonsterInstance, Location } from "types/graphql";
 import DatabaseInterface from "../interface";
 import { hash } from "../../hash";
 
-type MonsterInstanceInput = Omit<MonsterInstance, "id">;
+export type MonsterInstanceInput = Omit<MonsterInstance, "id">;
 
 export default class MonsterInstanceModel extends DatabaseInterface<MonsterInstance> {
   constructor() {

@@ -108,12 +108,6 @@ export default gql`
     WEST
   }
 
-  type MoveResponse {
-    hero: Hero!
-    account: BaseAccount!
-    monsters: [MonsterInstance!]!
-  }
-
   type HealResponse {
     account: BaseAccount!
     hero: Hero!

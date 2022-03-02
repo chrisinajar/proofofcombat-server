@@ -8,12 +8,15 @@ import {
   MoveDirection,
   MonsterInstance,
   NpcShop,
+  NpcShopTradeResponse,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
 import { LocationData, MapNames } from "../../constants";
 import { specialLocations, distance2d } from "../../helpers";
 import { hasQuestItem } from "../quests/helpers";
+
+import { getShopData, executeNpcTrade } from "./npc-shops";
 
 const resolvers: Resolvers = {
   Query: {
@@ -87,6 +90,21 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
+    async npcTrade(parent, args, context): Promise<NpcShopTradeResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      const result = await executeNpcTrade(context, hero, args.trade);
+
+      return {
+        ...result,
+        hero,
+        account,
+      };
+    },
     async teleport(parent, args, context: BaseContext): Promise<MoveResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -265,23 +283,7 @@ const resolvers: Resolvers = {
         return null;
       }
       const [location] = parent.specialLocations;
-      if (location.name === "Domari's Hut") {
-        return {
-          name: location.name,
-          trades: [
-            {
-              price: {
-                gold: 1000000000,
-                dust: 1000,
-                description: "some gold and dust",
-              },
-              // todo: find a name that isn't directly ripped off from dwarf fortress
-              offer: { description: "a forgotten beast" },
-            },
-          ],
-        };
-      }
-      return null;
+      return getShopData(location);
       // return {
       //   id: parent.name,
       // name: String!

@@ -34,6 +34,7 @@ type MonsterHeroCombatResult = {
 type CombatGear = {
   type?: InventoryItemType;
   level: number;
+  baseItem?: string;
   enchantment?: EnchantmentType | null;
 };
 type QuestItem = {
@@ -72,27 +73,13 @@ type AttackAttributes = {
 
 function createMonsterStatsByLevel(level: number): HeroStats {
   return {
-    strength: Math.ceil(Math.pow(1.4, level - 1) * 8) - 5,
-    dexterity: Math.ceil(Math.pow(1.4, level - 1) * 8) - 5,
-    constitution: Math.ceil(Math.pow(1.4, level - 1) * 8) - 5,
-    intelligence: Math.ceil(Math.pow(1.4, level - 1) * 8) - 5,
-    wisdom: Math.ceil(Math.pow(1.4, level - 1) * 8) - 5,
-    willpower: Math.ceil(Math.pow(1.4, level - 1) * 8) - 5,
-    luck: Math.ceil(Math.pow(1.4, level - 1) * 8) - 5,
-  };
-}
-
-function createMonsterStats(monster: Monster): HeroStats {
-  // Math.ceil(Math.pow(1.4, i) * 8)
-  // console.log(monster.name, "has", monster.combat.maxHealth - 5, "stats");
-  return {
-    strength: monster.combat.maxHealth - 5,
-    dexterity: monster.combat.maxHealth - 5,
-    constitution: monster.combat.maxHealth - 5,
-    intelligence: monster.combat.maxHealth - 5,
-    wisdom: monster.combat.maxHealth - 5,
-    willpower: monster.combat.maxHealth - 5,
-    luck: monster.combat.maxHealth - 5,
+    strength: Math.ceil(Math.pow(1.35, level - 1) * 8) - 5,
+    dexterity: Math.ceil(Math.pow(1.35, level - 1) * 8) - 5,
+    constitution: Math.ceil(Math.pow(1.35, level - 1) * 8) - 5,
+    intelligence: Math.ceil(Math.pow(1.35, level - 1) * 8) - 5,
+    wisdom: Math.ceil(Math.pow(1.35, level - 1) * 8) - 5,
+    willpower: Math.ceil(Math.pow(1.35, level - 1) * 8) - 5,
+    luck: Math.ceil(Math.pow(1.35, level - 1) * 8) - 5,
   };
 }
 
@@ -221,7 +208,8 @@ export function attributesForAttack(attackType: AttackType): AttackAttributes {
 export function calculateHit(
   attackerInput: Combatant,
   attackType: AttackType,
-  victimInput: Combatant
+  victimInput: Combatant,
+  isSecondAttack: boolean
 ): boolean {
   const attackAttributes = attributesForAttack(attackType);
 
@@ -232,6 +220,14 @@ export function calculateHit(
 
   let attackerAccStat = attacker.attributes[attackAttributes.toHit];
   let victimDodgeStat = victim.attributes[attackAttributes.dodge];
+
+  if (
+    attacker.class === HeroClasses.Gambler ||
+    attacker.class === HeroClasses.Daredevil
+  ) {
+    attackerAccStat += Math.random() * attacker.attributes.luck;
+    victimDodgeStat += Math.random() * victim.attributes.luck;
+  }
 
   // all tier 2 classes get extra accuracy
   if (
@@ -255,18 +251,35 @@ export function calculateHit(
     attackerAccStat *= 2;
   }
 
-  if (
-    attacker.class === HeroClasses.Gambler ||
-    attacker.class === HeroClasses.Daredevil
-  ) {
-    attackerAccStat += Math.random() * attacker.attributes.luck;
-    victimDodgeStat += Math.random() * victim.attributes.luck;
+  victim.equipment.armor.forEach((armor) => {
+    // if (armor.type === InventoryItemType.Shield) {
+    // } else {
+    // }
+    if (armor.level > 32) {
+      victimDodgeStat *= 1.5;
+    }
+  });
+
+  // for paladins (or any other future reason that shields end up in weapon lists)
+  victim.equipment.weapons.forEach((armor) => {
+    if (armor.type === InventoryItemType.Shield && armor.level > 32) {
+      victimDodgeStat *= 1.5;
+    }
+  });
+
+  const weapon = isSecondAttack
+    ? attacker.equipment.weapons[1]
+    : attacker.equipment.weapons[0];
+  const weaponLevel = weapon?.level ?? 0;
+  if (weaponLevel > 32) {
+    attackerAccStat *= 2;
   }
 
   // rarely massive, 1 when even, 0.5 when dodge is double, etc
   // "how many times bigger is attack than dodge"
   const baseChange = attackerAccStat / victimDodgeStat;
   const oddBase = baseChange / (baseChange + 1);
+  // console.log({ baseChange, oddBase, attackerAccStat, victimDodgeStat });
 
   return Math.random() < oddBase;
 }
@@ -623,6 +636,7 @@ export function calculateDamage(
   let percentageDamageIncrease = attacker.percentageDamageIncrease;
   let totalArmor = 0;
   let totalArmorDamageReduction = 1;
+  let baseDamageDecrease = 1;
 
   victim.equipment.armor.forEach((armor) => {
     if (armor.type === InventoryItemType.Shield) {
@@ -631,6 +645,11 @@ export function calculateDamage(
       totalArmorDamageReduction *= Math.pow(0.99, armor.level);
     }
     totalArmor += Math.pow(1.3, armor.level);
+
+    if (armor.level > 32) {
+      baseDamageDecrease *= 0.8;
+      victim.attributes[attributeTypes.damageReduction] *= 1.5;
+    }
     // totalArmor += armor.level;
   });
 
@@ -639,7 +658,11 @@ export function calculateDamage(
     if (armor.type === InventoryItemType.Shield) {
       totalArmorDamageReduction *= Math.pow(0.98, armor.level);
       totalArmor += Math.pow(1.3, armor.level);
-      // totalArmor += armor.level;
+
+      if (armor.level > 32) {
+        baseDamageDecrease *= 0.75;
+        victim.attributes[attributeTypes.damageReduction] *= 2;
+      }
     }
   });
   totalArmor *= percentageDamageReduction;
@@ -647,11 +670,14 @@ export function calculateDamage(
   const weapon = isSecondAttack
     ? attacker.equipment.weapons[1]
     : attacker.equipment.weapons[0];
-
   const weaponLevel = weapon?.level ?? 0;
+  if (weaponLevel > 32) {
+    baseDamageDecrease *= 1.5;
+  }
   const baseDamage = Math.max(
     1,
-    Math.pow(1.4, weaponLevel) + weaponLevel * 15 - totalArmor
+    (Math.pow(1.4, weaponLevel) + weaponLevel * 15 - totalArmor) *
+      baseDamageDecrease
   );
   // const baseDamage = Math.pow(1.4, weaponLevel) + weaponLevel * 15;
 
@@ -1025,7 +1051,7 @@ function attackCombatant(
     }
   }
 
-  const hit = calculateHit(attacker, attackType, victim);
+  const hit = calculateHit(attacker, attackType, victim, isSecondAttack);
   let damage = 0;
   let critical = false;
   let doubleCritical = false;
@@ -1114,7 +1140,6 @@ export async function fightMonster(
   const heroAttackType = attackType;
   const heroAttributeTypes = attributesForAttack(heroAttackType);
   const heroAttributes = hero.stats;
-  const monsterAttributes = createMonsterStats(monster);
   const heroCombatant = createHeroCombatant(hero, heroAttackType);
   let heroHasTwoAttacks = false;
 

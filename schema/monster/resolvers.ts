@@ -24,6 +24,8 @@ import { fightMonster, createMonsterEquipment } from "../../combat";
 import { MapNames } from "../../constants";
 import { specialLocations, distance2d } from "../../helpers";
 
+import { checkAberrationDrop } from "./aberration-drops";
+
 const MONSTERS: Monster[] = [
   { name: "Giant crab", attackType: AttackType.Melee },
   { name: "Forest imp", attackType: AttackType.Cast },
@@ -188,6 +190,8 @@ const resolvers: Resolvers = {
             experienceRewards,
           }
         );
+
+        await checkAberrationDrop(context, hero, monster.monster.id);
 
         context.db.hero.addExperience(hero, experienceRewards);
         goldReward = Math.min(1000000000, Math.round(goldReward));

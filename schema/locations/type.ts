@@ -9,6 +9,7 @@ export default gql`
     teleport(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 4000)
     sail(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 5000)
     move(direction: MoveDirection!): MoveResponse! @auth @delay(delay: 250)
+    npcTrade(trade: ID!): NpcShopTradeResponse! @auth @delay(delay: 1000)
   }
 
   type LocationDetails {
@@ -28,6 +29,7 @@ export default gql`
     trades: [NpcShopTrade!]!
   }
   type NpcShopTrade {
+    id: ID!
     price: NpcShopItems!
     offer: NpcShopItems!
   }
@@ -39,6 +41,13 @@ export default gql`
     questItems: [String!]
     description: String
   }
+  type NpcShopTradeResponse {
+    success: Boolean!
+    message: String!
+    hero: Hero!
+    account: BaseAccount!
+  }
+
   type TerrainData {
     terrain: String!
   }
@@ -52,5 +61,11 @@ export default gql`
     x: Int!
     y: Int!
     map: ID!
+  }
+
+  type MoveResponse {
+    hero: Hero!
+    account: BaseAccount!
+    monsters: [MonsterInstance!]!
   }
 `;
