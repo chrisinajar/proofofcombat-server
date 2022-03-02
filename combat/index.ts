@@ -671,9 +671,7 @@ export function calculateDamage(
     ? attacker.equipment.weapons[1]
     : attacker.equipment.weapons[0];
   const weaponLevel = weapon?.level ?? 0;
-  if (weaponLevel > 32) {
-    baseDamageDecrease *= 1.5;
-  }
+
   const baseDamage = Math.max(
     1,
     (Math.pow(1.4, weaponLevel) + weaponLevel * 15 - totalArmor) *
