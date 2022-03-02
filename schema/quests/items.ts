@@ -306,6 +306,15 @@ export function getQuestRewards() {
         EnchantmentType.SmiterUpgrade,
       ],
     },
+
+    "aqua-lungs": {
+      id: "aqua-lungs",
+      name: "Aqua Lungs",
+      type: InventoryItemType.Quest,
+      level: 2,
+      canBuy: false,
+      passiveEnchantments: [EnchantmentType.CanTravelOnWater],
+    },
   };
 }
 

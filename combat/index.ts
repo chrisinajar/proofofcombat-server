@@ -587,7 +587,7 @@ export function enchantAttacker(
       break;
 
     case HeroClasses.Archer:
-      attacker.attributes.dexterity *= 4;
+      attacker.attributes.dexterity *= 2;
     case HeroClasses.Ranger:
       attacker.attributes.dexterity *= 2;
       break;
@@ -625,7 +625,11 @@ export function calculateDamage(
   let totalArmorDamageReduction = 1;
 
   victim.equipment.armor.forEach((armor) => {
-    totalArmorDamageReduction *= Math.pow(0.99, armor.level);
+    if (armor.type === InventoryItemType.Shield) {
+      totalArmorDamageReduction *= Math.pow(0.98, armor.level);
+    } else {
+      totalArmorDamageReduction *= Math.pow(0.99, armor.level);
+    }
     totalArmor += Math.pow(1.3, armor.level);
     // totalArmor += armor.level;
   });
@@ -633,7 +637,7 @@ export function calculateDamage(
   // for paladins (or any other future reason that shields end up in weapon lists)
   victim.equipment.weapons.forEach((armor) => {
     if (armor.type === InventoryItemType.Shield) {
-      totalArmorDamageReduction *= Math.pow(0.99, armor.level);
+      totalArmorDamageReduction *= Math.pow(0.98, armor.level);
       totalArmor += Math.pow(1.3, armor.level);
       // totalArmor += armor.level;
     }

@@ -7,11 +7,13 @@ import {
   MoveResponse,
   MoveDirection,
   MonsterInstance,
+  NpcShop,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
 import { LocationData, MapNames } from "../../constants";
 import { specialLocations, distance2d } from "../../helpers";
+import { hasQuestItem } from "../quests/helpers";
 
 const resolvers: Resolvers = {
   Query: {
@@ -181,7 +183,6 @@ const resolvers: Resolvers = {
         LocationData[hero.location.map as MapNames]?.locations[hero.location.x][
           hero.location.y
         ];
-      console.log({ location, destination });
 
       await context.db.hero.put(hero);
 
@@ -256,6 +257,35 @@ const resolvers: Resolvers = {
         throw new ForbiddenError("Missing auth");
       }
       return context.db.monsterInstances.getInLocation(parent.hero.location);
+    },
+  },
+  LocationDetails: {
+    async shop(parent, args, context): Promise<NpcShop | null> {
+      if (!parent.specialLocations || !parent.specialLocations.length) {
+        return null;
+      }
+      const [location] = parent.specialLocations;
+      if (location.name === "Domari's Hut") {
+        return {
+          name: location.name,
+          trades: [
+            {
+              price: {
+                gold: 1000000000,
+                dust: 1000,
+                description: "some gold and dust",
+              },
+              // todo: find a name that isn't directly ripped off from dwarf fortress
+              offer: { description: "a forgotten beast" },
+            },
+          ],
+        };
+      }
+      return null;
+      // return {
+      //   id: parent.name,
+      // name: String!
+      // trades: [NpcShopTrade!]
     },
   },
 };

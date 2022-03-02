@@ -15,12 +15,29 @@ export default gql`
     location: Location!
     specialLocations: [SpecialLocation!]!
     terrain: TerrainData!
+    shop: NpcShop
   }
   type SpecialLocation {
     location: Location!
     name: String!
     type: String!
     description: [String!]
+  }
+  type NpcShop {
+    name: String!
+    trades: [NpcShopTrade!]!
+  }
+  type NpcShopTrade {
+    price: NpcShopItems!
+    offer: NpcShopItems!
+  }
+  type NpcShopItems {
+    gold: Int
+    dust: Int
+    baseItems: [String!]
+    enchantments: [EnchantmentType!]
+    questItems: [String!]
+    description: String
   }
   type TerrainData {
     terrain: String!

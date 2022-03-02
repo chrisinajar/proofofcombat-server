@@ -16,11 +16,11 @@ export function checkHeroDrop(
   monster: MonsterInstance
 ): Hero {
   hero = checkHeroDropForClasses(context, hero, monster);
+
   return hero;
 }
 
 export function checkHero(context: BaseContext, hero: Hero): Hero {
-  // disabled washed up for now
   hero = checkHeroForWashedUp(context, hero);
   hero = checkHeroForRebirth(context, hero);
   hero = checkHeroForCrafting(context, hero);

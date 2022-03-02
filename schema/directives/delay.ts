@@ -39,18 +39,20 @@ export function delayDirectiveTransformer(
               throw new ForbiddenError("You are banned");
             }
           }
-          const nextAllowedAction = Number(account.nextAllowedAction);
-          if (nextAllowedAction && now < nextAllowedAction) {
-            account.nextAllowedAction = `${nextAllowedAction + 1000}`;
-            context.auth.delay = account.nextAllowedAction;
-            await context.db.account.put(account);
-            throw new UserInputError("You must wait longer before acting", {
-              delay: true,
-              remaining: Number(account.nextAllowedAction) - now,
-            });
-          } else {
-            account.nextAllowedAction = `${now + delayDirective["delay"]}`;
-            await context.db.account.put(account);
+          if (!process.env.MAX_LEVEL_TESTING) {
+            const nextAllowedAction = Number(account.nextAllowedAction);
+            if (nextAllowedAction && now < nextAllowedAction) {
+              account.nextAllowedAction = `${nextAllowedAction + 1000}`;
+              context.auth.delay = account.nextAllowedAction;
+              await context.db.account.put(account);
+              throw new UserInputError("You must wait longer before acting", {
+                delay: true,
+                remaining: Number(account.nextAllowedAction) - now,
+              });
+            } else {
+              account.nextAllowedAction = `${now + delayDirective["delay"]}`;
+              await context.db.account.put(account);
+            }
           }
           // console.log("proov it!");
           // do nothing for now, placeholder basically..

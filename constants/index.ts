@@ -8,7 +8,8 @@ export type SpecialLocationType =
   | "quest"
   | "city"
   | "bridge"
-  | "tavern";
+  | "tavern"
+  | "hermit";
 
 export type LocationData = {
   terrain: TerrainType;

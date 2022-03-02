@@ -288,8 +288,14 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.outgoingTrades = [];
 
     // recalculate stats and turn it into a real hero object
-    const hero = this.recalculateStats(data as Hero);
-    // technically this could still be missing class but we set it here anyway so owell
+    let hero = this.recalculateStats(data as Hero);
+
+    if (process.env.MAX_LEVEL_TESTING) {
+      while (hero.level < hero.levelCap) {
+        hero = this.levelUp(hero);
+      }
+    }
+
     hero.class = getClass(hero);
 
     // return this.recalculateStats(data as Hero);

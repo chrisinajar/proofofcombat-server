@@ -48,5 +48,25 @@
       "From the outside you'd never know this was here, but the inside roars with the sound of visiting adventurers and forest inhabitants.",
       "The inside is carved from an ancient downed forest tree and extends through the roots into a small natural cave system. The caves themselves sprawl in all directions and contain powerful but wealthy critters."
     ]
+  },
+  {
+    "x": 112,
+    "y": 20,
+    "name": "Amixea's Hut",
+    "type": "hermit",
+    "description": [
+      "Amixea is a old small quiet witch who radiates with a magical aura."
+    ]
+  },
+  {
+    "x": 68,
+    "y": 92,
+    "name": "Domari's Hut",
+    "type": "hermit",
+    "description": [
+      "Domari does reply to your questions.",
+      "Domari looks through you.",
+      "\"... bring me dust...\""
+    ]
   }
 ]

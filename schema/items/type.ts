@@ -115,6 +115,8 @@ export default gql`
     GamblerUpgrade
     BattleMageUpgrade
     SmiterUpgrade
+    # travel
+    CanTravelOnWater
     # End quest reward enchantments
   }
 

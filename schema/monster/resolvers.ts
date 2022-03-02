@@ -197,7 +197,7 @@ const resolvers: Resolvers = {
         const luck = hero.stats.luck;
         const dropOdds =
           ((0.25 + luck / (luck + monsterAntiLuck + 5)) * bonusDropRate) / 50;
-        if (Math.random() < dropOdds) {
+        if (process.env.MAX_LEVEL_TESTING || Math.random() < dropOdds) {
           console.log(hero.name, "DROP!! Odds:", {
             luck,
             monsterAntiLuck,
