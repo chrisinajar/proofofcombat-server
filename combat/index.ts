@@ -255,14 +255,17 @@ export function calculateHit(
     // if (armor.type === InventoryItemType.Shield) {
     // } else {
     // }
-    if (armor.level > 32) {
+    if (getItemPassiveUpgradeTier(armor) > 0) {
       victimDodgeStat *= 1.5;
     }
   });
 
   // for paladins (or any other future reason that shields end up in weapon lists)
   victim.equipment.weapons.forEach((armor) => {
-    if (armor.type === InventoryItemType.Shield && armor.level > 32) {
+    if (
+      armor.type === InventoryItemType.Shield &&
+      getItemPassiveUpgradeTier(armor) > 0
+    ) {
       victimDodgeStat *= 1.5;
     }
   });
@@ -271,7 +274,7 @@ export function calculateHit(
     ? attacker.equipment.weapons[1]
     : attacker.equipment.weapons[0];
   const weaponLevel = weapon?.level ?? 0;
-  if (weaponLevel > 32) {
+  if (weapon && getItemPassiveUpgradeTier(weapon) > 0) {
     attackerAccStat *= 2;
   }
 
@@ -478,11 +481,11 @@ export function enchantAttacker(
 
       case EnchantmentType.BigMelee:
         attacker.attributes.strength *= 2;
-        stealStat(attacker, victim, "dexterity", 0.2);
+        stealStat(attacker, victim, "dexterity", 0.4);
         break;
       case EnchantmentType.BigCaster:
         attacker.attributes.intelligence *= 2;
-        stealStat(attacker, victim, "wisdom", 0.2);
+        stealStat(attacker, victim, "wisdom", 0.4);
         break;
       case EnchantmentType.WisDexWill:
         attacker.attributes.wisdom *= 1.4;
@@ -646,7 +649,7 @@ export function calculateDamage(
     }
     totalArmor += Math.pow(1.3, armor.level);
 
-    if (armor.level > 32) {
+    if (getItemPassiveUpgradeTier(armor) > 0) {
       baseDamageDecrease *= 0.8;
       victim.attributes[attributeTypes.damageReduction] *= 1.5;
     }
@@ -659,7 +662,7 @@ export function calculateDamage(
       totalArmorDamageReduction *= Math.pow(0.98, armor.level);
       totalArmor += Math.pow(1.3, armor.level);
 
-      if (armor.level > 32) {
+      if (getItemPassiveUpgradeTier(armor) > 0) {
         baseDamageDecrease *= 0.75;
         victim.attributes[attributeTypes.damageReduction] *= 2;
       }
@@ -799,12 +802,14 @@ function addItemToCombatant(
     }
     combatant.equipment.weapons.push({
       level: itemLevel,
+      baseItem: item.baseItem,
       enchantment: item.enchantment,
       type: item.type,
     });
   } else {
     combatant.equipment.armor.push({
       level: item.level,
+      baseItem: item.baseItem,
       enchantment: item.enchantment,
       type: item.type,
     });
@@ -1313,4 +1318,19 @@ export async function fightMonster(
     heroDied: totalDamageAgainstHero >= hero.combat.health,
     log: battleResults,
   };
+}
+
+function getItemPassiveUpgradeTier({
+  baseItem,
+  level,
+}: {
+  baseItem?: string;
+  level: number;
+}): number {
+  if (baseItem?.length) {
+    if (level > 32) {
+      return 1;
+    }
+  }
+  return 0;
 }
