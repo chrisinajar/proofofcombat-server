@@ -1,12 +1,23 @@
-import { checkHero as checkHeroForWashedUp } from "./washed-up";
-import { checkHero as checkHeroForRebirth } from "./rebirth";
-import { checkHero as checkHeroForCrafting } from "./crafting";
-import { Hero, InventoryItem } from "types/graphql";
+import { Hero, InventoryItem, MonsterInstance } from "types/graphql";
 
 import { BaseContext } from "../context";
 
 import { createItemInstance } from "../items/helpers";
 import { BaseItems } from "../items/base-items";
+
+import { checkHero as checkHeroForWashedUp } from "./washed-up";
+import { checkHero as checkHeroForRebirth } from "./rebirth";
+import { checkHero as checkHeroForCrafting } from "./crafting";
+import { checkHeroDrop as checkHeroDropForClasses } from "./classes";
+
+export function checkHeroDrop(
+  context: BaseContext,
+  hero: Hero,
+  monster: MonsterInstance
+): Hero {
+  hero = checkHeroDropForClasses(context, hero, monster);
+  return hero;
+}
 
 export function checkHero(context: BaseContext, hero: Hero): Hero {
   // disabled washed up for now
@@ -25,15 +36,15 @@ export function takeQuestItem(hero: Hero, baseItemName: string): Hero {
   return hero;
 }
 
+export function hasQuestItem(hero: Hero, baseItemName: string): boolean {
+  return !!hero.inventory.find((item) => item.baseItem === baseItemName);
+}
 export function giveQuestItemNotification(
   context: BaseContext,
   hero: Hero,
   baseItemName: string
 ): Hero {
-  const existingItem = hero.inventory.find(
-    (item) => item.baseItem === baseItemName
-  );
-  if (existingItem) {
+  if (hasQuestItem(hero, baseItemName)) {
     return hero;
   }
 

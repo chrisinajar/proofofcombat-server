@@ -18,10 +18,16 @@ type Notification = {
   item?: InventoryItem;
 };
 
+type PrivateMessage = ChatMessage & {
+  to?: string;
+};
+
 export type SocketServerAPI = {
   io: Server;
+  sendPrivateMessage: (heroId: string, message: PrivateMessage) => void;
   sendGlobalMessage: (message: SystemMessage) => void;
   sendNotification: (heroId: string, notification: Notification) => void;
+  sendGlobalNotification: (notification: Notification) => void;
 };
 
 export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
@@ -142,6 +148,27 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
       }
     });
   }
+  function sendGlobalNotification(notification: Notification) {
+    console.log("Sending global notification!");
+    io.sockets.sockets.forEach((socket: ExtendedSocket, id: string) => {
+      socket.emit("notification", notification);
+    });
+  }
 
-  return { io, sendGlobalMessage, sendNotification };
+  function sendPrivateMessage(heroId: string, message: PrivateMessage) {
+    io.sockets.sockets.forEach((socket: ExtendedSocket, id: string) => {
+      if (socket.heroId === heroId) {
+        console.log("Sending private message!");
+        socket.emit("chat", message);
+      }
+    });
+  }
+
+  return {
+    io,
+    sendGlobalMessage,
+    sendNotification,
+    sendGlobalNotification,
+    sendPrivateMessage,
+  };
 }

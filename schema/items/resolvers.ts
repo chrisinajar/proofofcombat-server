@@ -157,6 +157,16 @@ const resolvers: Resolvers = {
         gold
       );
 
+      context.io.sendPrivateMessage(toHero.id, {
+        id: Math.random(),
+        message: "has offered to trade an item with you",
+        from: hero.name,
+        to: toHero.id,
+        heroId: hero.id,
+        type: "private",
+        time: Math.round(Date.now() / 1000),
+      });
+
       return {
         hero,
         account,

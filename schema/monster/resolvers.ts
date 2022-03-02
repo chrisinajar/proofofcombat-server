@@ -19,6 +19,7 @@ import {
   createItemInstance,
   enchantItem,
 } from "../items/helpers";
+import { checkHeroDrop } from "../quests/helpers";
 import { fightMonster, createMonsterEquipment } from "../../combat";
 import { MapNames } from "../../constants";
 import { specialLocations, distance2d } from "../../helpers";
@@ -86,7 +87,7 @@ const resolvers: Resolvers = {
         throw new ForbiddenError("Missing auth");
       }
       const account = await context.db.account.get(context.auth.id);
-      const hero = await context.db.hero.get(context.auth.id);
+      let hero = await context.db.hero.get(context.auth.id);
       const monster = await context.db.monsterInstances.get(args.monster);
 
       if (hero.combat.health <= 0) {
@@ -224,6 +225,8 @@ const resolvers: Resolvers = {
           droppedItem = itemInstance;
           hero.inventory.push(itemInstance);
         }
+
+        hero = checkHeroDrop(context, hero, monster);
 
         await context.db.monsterInstances.del(monster);
       } else {
