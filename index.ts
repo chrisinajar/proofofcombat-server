@@ -15,9 +15,9 @@ import { confirm } from "./security";
 
 import { addSocketToServer } from "./socket";
 
-const port = process.env.HTTP_PORT ?? 4000;
-const httpsPort = process.env.HTTPS_PORT ?? 4333;
-const socketIoPort = process.env.SOCKET_PORT ?? 5000;
+const port = process.env.HTTP_PORT ?? 8880;
+const httpsPort = process.env.HTTPS_PORT ?? 8443;
+const socketIoPort = process.env.SOCKET_PORT ?? 2096;
 
 const corsOptions = {
   origin: true,
