@@ -467,7 +467,7 @@ export function enchantAttacker(
         stealStat(attacker, victim, "luck", 0.2);
         break;
       case EnchantmentType.Vampirism:
-        stealStat(attacker, victim, "constitution", 0.2);
+        stealStat(attacker, victim, "constitution", 0.3);
         break;
       case EnchantmentType.AllStatsSteal:
         stealStat(attacker, victim, "strength", 0.2);
@@ -608,7 +608,8 @@ export function enchantAttacker(
       attacker.attributes.dexterity *= 2;
       break;
     case HeroClasses.Vampire:
-      attacker.attributes.constitution *= 1.3;
+      attacker.attributes.constitution *= 1.5;
+      attacker.attributes.willpower *= 1.5;
     case HeroClasses.BloodMage:
       // you've had enough...
       break;
@@ -669,6 +670,11 @@ export function calculateDamage(
     }
   });
   totalArmor *= percentageDamageReduction;
+
+  // vampires reduce enemy base damage by 1/2
+  if (victim.class === HeroClasses.Vampire) {
+    baseDamageDecrease *= 0.5;
+  }
 
   const weapon = isSecondAttack
     ? attacker.equipment.weapons[1]
@@ -972,6 +978,11 @@ function calculateEnchantmentDamage(
     attackerInput,
     victimInput
   );
+
+  // blood attacks deal additional enchantment damage!
+  if (attackType === AttackType.Blood) {
+    attacker.attributes.constitution *= 1.2;
+  }
 
   const attackerEnchantments = getAllGearEnchantments(attacker);
 
