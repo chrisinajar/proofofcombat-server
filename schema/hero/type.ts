@@ -10,6 +10,7 @@ export default gql`
     increaseAttribute(
       attribute: AttributeType!
       spendAll: Boolean
+      amount: Int
     ): LevelUpResponse! @auth @delay(delay: 1000)
   }
 

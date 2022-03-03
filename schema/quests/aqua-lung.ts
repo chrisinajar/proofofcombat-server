@@ -53,6 +53,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
 
   return hero;
 }
+
 export function checkHeroDrop(
   context: BaseContext,
   hero: Hero,

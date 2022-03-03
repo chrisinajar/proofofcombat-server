@@ -66,11 +66,17 @@ const resolvers: Resolvers = {
         throw new UserInputError(`Unknown stat name: ${args.attribute}`);
       }
 
+      let amountToSpend = args.amount ?? 1;
+
       if (args.spendAll) {
-        for (let i = 0, l = hero.attributePoints; i < l; ++i) {
-          increaseHeroAttribute(hero, args.attribute);
-        }
-      } else {
+        amountToSpend = hero.attributePoints;
+      }
+      amountToSpend = Math.max(
+        1,
+        Math.min(hero.attributePoints, amountToSpend)
+      );
+
+      for (let i = 0, l = amountToSpend; i < l; ++i) {
         increaseHeroAttribute(hero, args.attribute);
       }
 
@@ -95,7 +101,13 @@ const resolvers: Resolvers = {
 
       hero = context.db.hero.recalculateStats(hero);
 
-      console.log(hero.name, "increasing their", args.attribute);
+      console.log(
+        hero.name,
+        "increasing their",
+        args.attribute,
+        amountToSpend,
+        "times"
+      );
 
       await context.db.hero.put(hero);
 

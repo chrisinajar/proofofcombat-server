@@ -12,6 +12,7 @@ export default gql`
   enum Quest {
     WashedUp # hero is on water but can't swim, gets message about washing ashore
     Rebirth # initial level cap progression
+    DroopsQuest # kill hobgoblins to find a hidden location
   }
 
   type QuestEvent {
@@ -30,6 +31,7 @@ export default gql`
 
     washedUp: QuestProgress
     rebirth: QuestProgress
+    droop: QuestProgress
   }
 
   type QuestProgress {

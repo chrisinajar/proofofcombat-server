@@ -13,6 +13,7 @@ import {
   checkHeroDrop as checkHeroDropForAquaLung,
   checkHero as checkHeroForAquaLung,
 } from "./aqua-lung";
+import { checkHeroDrop as checkHeroDropForDroop } from "./droop";
 
 export function checkHeroDrop(
   context: BaseContext,
@@ -21,6 +22,7 @@ export function checkHeroDrop(
 ): Hero {
   hero = checkHeroDropForClasses(context, hero, monster);
   hero = checkHeroDropForAquaLung(context, hero, monster);
+  // hero = checkHeroDropForDroop(context, hero, monster);
 
   return hero;
 }
