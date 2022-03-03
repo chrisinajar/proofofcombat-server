@@ -21,66 +21,11 @@ import {
 } from "../items/helpers";
 import { checkHeroDrop } from "../quests/helpers";
 import { fightMonster, createMonsterEquipment } from "../../combat";
-import { MapNames } from "../../constants";
+import { LocationData, MapNames } from "../../constants";
 import { specialLocations, distance2d } from "../../helpers";
 
 import { checkAberrationDrop } from "./aberration-drops";
-
-const MONSTERS: Monster[] = [
-  { name: "Giant crab", attackType: AttackType.Melee },
-  { name: "Forest imp", attackType: AttackType.Cast },
-  { name: "Traveling bandit", attackType: AttackType.Ranged },
-  { name: "Hobgoblin", attackType: AttackType.Ranged },
-  { name: "Brass dragon wyrmling", attackType: AttackType.Melee },
-  { name: "Orc war chief", attackType: AttackType.Melee },
-  { name: "Minotaur skeleton", attackType: AttackType.Blood },
-  { name: "Gelatinous cube", attackType: AttackType.Melee },
-  { name: "Duergar", attackType: AttackType.Ranged },
-  { name: "Umber hulk", attackType: AttackType.Melee },
-  { name: "Half-red dragon veteran", attackType: AttackType.Melee },
-  { name: "Air Elemental", attackType: AttackType.Cast },
-  { name: "Troll", attackType: AttackType.Melee },
-  { name: "Ogre zombie", attackType: AttackType.Smite },
-  { name: "Griffon", attackType: AttackType.Melee },
-  { name: "Grick alpha", attackType: AttackType.Melee },
-  { name: "Young black dragon", attackType: AttackType.Melee },
-  { name: "Drow mage", attackType: AttackType.Cast },
-  { name: "Flesh Golem", attackType: AttackType.Blood },
-  { name: "Werebear", attackType: AttackType.Melee },
-  { name: "Mezzoloth", attackType: AttackType.Blood },
-  { name: "Green slaad", attackType: AttackType.Cast },
-  { name: "Spirit naga", attackType: AttackType.Cast },
-  { name: "Chain devil", attackType: AttackType.Blood },
-  { name: "Hydra", attackType: AttackType.Cast },
-  { name: "Marilith", attackType: AttackType.Ranged },
-  { name: "Githyanki knight", attackType: AttackType.Melee },
-  { name: "Iron golem", attackType: AttackType.Melee },
-  { name: "Adult blue dragon", attackType: AttackType.Smite },
-  { name: "Goristro", attackType: AttackType.Melee },
-  { name: "Fire Giant", attackType: AttackType.Melee },
-  { name: "Nycaloth", attackType: AttackType.Melee },
-  { name: "Yochlol", attackType: AttackType.Melee },
-  { name: "Goliath Flesheater", attackType: AttackType.Cast },
-  { name: "Archmage", attackType: AttackType.Cast },
-  { name: "Fey Demon", attackType: AttackType.Blood },
-  { name: "Ancient Treant", attackType: AttackType.Smite },
-  { name: "Undead Frost Giant", attackType: AttackType.Ranged },
-  { name: "Demilich", attackType: AttackType.Blood },
-].map(({ name, attackType }, i) => ({
-  id: name,
-
-  level: i + 1,
-  name,
-  attackType,
-  combat: {
-    health: Math.ceil(Math.pow(1.4, i) * 8),
-    maxHealth: Math.ceil(Math.pow(1.4, i) * 8),
-  },
-}));
-
-async function getMonster(id: string): Promise<Monster | undefined> {
-  return MONSTERS.find((entry) => entry.id === id);
-}
+import { getMonster, LAND_MONSTERS, WATER_MONSTERS } from "./monster-lists";
 
 const resolvers: Resolvers = {
   Mutation: {
@@ -351,7 +296,15 @@ const resolvers: Resolvers = {
       // take location into account?
       // oh well!
 
-      return MONSTERS;
+      const location =
+        LocationData[hero.location.map as MapNames]?.locations[hero.location.x][
+          hero.location.y
+        ];
+
+      if (location.terrain === "water") {
+        return WATER_MONSTERS;
+      }
+      return LAND_MONSTERS;
     },
   },
 };

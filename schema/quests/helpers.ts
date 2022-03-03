@@ -9,6 +9,10 @@ import { checkHero as checkHeroForWashedUp } from "./washed-up";
 import { checkHero as checkHeroForRebirth } from "./rebirth";
 import { checkHero as checkHeroForCrafting } from "./crafting";
 import { checkHeroDrop as checkHeroDropForClasses } from "./classes";
+import {
+  checkHeroDrop as checkHeroDropForAquaLung,
+  checkHero as checkHeroForAquaLung,
+} from "./aqua-lung";
 
 export function checkHeroDrop(
   context: BaseContext,
@@ -16,6 +20,7 @@ export function checkHeroDrop(
   monster: MonsterInstance
 ): Hero {
   hero = checkHeroDropForClasses(context, hero, monster);
+  hero = checkHeroDropForAquaLung(context, hero, monster);
 
   return hero;
 }
@@ -24,6 +29,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   hero = checkHeroForWashedUp(context, hero);
   hero = checkHeroForRebirth(context, hero);
   hero = checkHeroForCrafting(context, hero);
+  hero = checkHeroForAquaLung(context, hero);
 
   return hero;
 }

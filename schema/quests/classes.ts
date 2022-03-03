@@ -19,7 +19,7 @@ export function checkHeroDrop(
     return hero;
   }
   // "drop rate"
-  if (Math.random() > 0.0001) {
+  if (Math.random() > 1 / 20000) {
     return hero;
   }
 

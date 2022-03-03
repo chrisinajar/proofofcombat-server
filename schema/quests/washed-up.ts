@@ -1,10 +1,11 @@
 import { LocationData, MapNames, SpecialLocation } from "../../constants";
 
-import { Hero, Quest } from "types/graphql";
+import { Hero, Quest, EnchantmentType } from "types/graphql";
 import { findTerrainType, specialLocations } from "../../helpers";
 import { BaseContext } from "../context";
+import { countEnchantments } from "../items/helpers";
 
-import { giveQuestItemNotification } from "./helpers";
+import { giveQuestItemNotification, hasQuestItem } from "./helpers";
 import { questEvents } from "./text/washed-up-text";
 
 /*
@@ -237,6 +238,10 @@ function checkInitialWashedUp(context: BaseContext, hero: Hero): Hero {
     ];
 
   if (location.terrain === "water") {
+    if (countEnchantments(hero, EnchantmentType.CanTravelOnWater) > 0) {
+      return hero;
+    }
+
     console.log("Washed up!");
     const [newX, newY] = findTerrainType(
       hero.location.x,
@@ -266,6 +271,11 @@ function checkInitialWashedUp(context: BaseContext, hero: Hero): Hero {
     };
 
     hero.combat.health = 0;
+
+    // fix potential past bugs...
+    if (hasQuestItem(hero, "fishermans-luck")) {
+      hero.questLog.washedUp.progress = 8;
+    }
   }
 
   return hero;

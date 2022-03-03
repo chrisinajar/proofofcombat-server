@@ -101,4 +101,12 @@ export const questEvents = {
     "You drink, sing, and laugh for hours.",
     "Brewconia, however, is long gone before you realize the goblin robbed your coin purse.",
   ],
+
+  // already has ocean bubble, upgraded class, gets aqua lungs
+  aquaLungs: [
+    "The magic bubble that's been following you around reacts your power.",
+    "It begins to orbit you rapidly as it transforms into a self contained apparatus",
+    "The transformed bubble attaches itself to you.",
+    "You may now travel in water.",
+  ],
 };
