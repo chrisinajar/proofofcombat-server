@@ -28,11 +28,7 @@ type SlotNameType =
 
 const resolvers: Resolvers = {
   Query: {
-    async shopItems(
-      parent,
-      args,
-      context: BaseContext
-    ): Promise<LevelUpResponse> {
+    async shopItems(parent, args, context: BaseContext): Promise<ShopItem[]> {
       return Object.values<BaseItem>(BaseItems)
         .filter((item) => item.canBuy)
         .sort((a, b) => a.level - b.level)
