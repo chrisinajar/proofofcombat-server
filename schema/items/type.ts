@@ -119,6 +119,7 @@ export default gql`
     DoubleAccuracy
     DoubleDodge
     # travel
+    ReduceTeleportCost
     CanTravelOnWater
     CanTravelOnForbidden
     # End quest reward enchantments

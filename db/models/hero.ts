@@ -279,6 +279,16 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
       data.version = 6;
     }
+    if (data.version < 7) {
+      if (
+        hasQuestItem(data as Hero, "magic-bubble") &&
+        hasQuestItem(data as Hero, "aqua-lungs")
+      ) {
+        data = takeQuestItem(data as Hero, "magic-bubble");
+      }
+
+      data.version = 7;
+    }
 
     // data.questLog = {
     //   id: data.id,

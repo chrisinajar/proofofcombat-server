@@ -13,6 +13,10 @@ import {
   checkHeroDrop as checkHeroDropForAquaLung,
   checkHero as checkHeroForAquaLung,
 } from "./aqua-lung";
+import {
+  checkHeroDrop as checkHeroDropForNagaScale,
+  checkHero as checkHeroForNagaScale,
+} from "./naga-scale";
 import { checkHeroDrop as checkHeroDropForDroop } from "./droop";
 
 export function checkHeroDrop(
@@ -23,6 +27,7 @@ export function checkHeroDrop(
   hero = checkHeroDropForClasses(context, hero, monster);
   hero = checkHeroDropForAquaLung(context, hero, monster);
   hero = checkHeroDropForDroop(context, hero, monster);
+  // hero = checkHeroDropForNagaScale(context, hero, monster);
 
   return hero;
 }
@@ -32,6 +37,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   hero = checkHeroForRebirth(context, hero);
   hero = checkHeroForCrafting(context, hero);
   hero = checkHeroForAquaLung(context, hero);
+  // hero = checkHeroForNagaScale(context, hero);
 
   return hero;
 }

@@ -334,6 +334,15 @@ export function getQuestRewards() {
         EnchantmentType.DoubleDodge,
       ],
     },
+
+    "scepter-of-travel": {
+      id: "scepter-of-travel",
+      name: "Scepter of Travel",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [EnchantmentType.ReduceTeleportCost],
+    },
   };
 }
 

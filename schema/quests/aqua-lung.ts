@@ -59,11 +59,14 @@ export function checkHeroDrop(
   hero: Hero,
   monster: MonsterInstance
 ): Hero {
+  if (hero.questLog.washedUp?.finished) {
+    return hero;
+  }
   if (Math.random() > 1 / 10000) {
     return hero;
   }
 
-  if (hasQuestItem(hero, "magic-bubble")) {
+  if (hasQuestItem(hero, "magic-bubble") || hasQuestItem(hero, "aqua-lungs")) {
     return hero;
   }
 
