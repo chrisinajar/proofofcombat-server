@@ -27,11 +27,7 @@ import { createHeroCombatant, getEnchantedAttributes } from "../../combat";
 
 const resolvers: Resolvers = {
   Query: {
-    async leaderboard(
-      parent,
-      args,
-      context: BaseContext
-    ): Promise<LeadboardEntry[]> {
+    async leaderboard(parent, args, context): Promise<LeadboardEntry[]> {
       return (await context.db.hero.getTopHeros()).map<LeadboardEntry>(
         (hero: Hero) => ({
           name: hero.name,

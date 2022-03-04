@@ -25,6 +25,7 @@ export function checkHeroDrop(
     if (Math.random() > 1 / 10000) {
       return hero;
     }
+    ///@TODO use quest log to prevent reentrancy
     giveQuestItemNotification(context, hero, "mound-of-flesh");
     return hero;
   }
