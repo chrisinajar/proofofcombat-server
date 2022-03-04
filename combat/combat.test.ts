@@ -5,7 +5,6 @@ import {
   HeroStats,
   EnchantmentType,
   HeroClasses,
-  CombatantGear,
 } from "types/graphql";
 import {
   calculateHit,
@@ -14,6 +13,7 @@ import {
   Combatant,
   attributesForAttack,
   calculateDamage,
+  CombatantGear,
 } from "./";
 import Databases from "../db";
 
