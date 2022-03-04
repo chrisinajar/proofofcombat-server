@@ -22,6 +22,11 @@ export default class AccountModel extends DatabaseInterface<BaseAccount> {
     data.banned = data.banned ?? false;
     data.nextAllowedAction = data.nextAllowedAction ?? "0";
 
+    const maxDelay = 1000 * 60 * 60;
+    if (Number(data.nextAllowedAction) - Date.now() > maxDelay) {
+      data.nextAllowedAction = `${Date.now() + maxDelay}`;
+    }
+
     return data as BaseAccount;
   }
 }
