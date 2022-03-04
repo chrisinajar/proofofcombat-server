@@ -300,7 +300,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       );
     }
 
-    data.gold = Math.round(data.gold ?? 0);
+    data.gold = Math.min(2000000000, Math.round(data.gold ?? 0));
     data.experience = Math.round(data.experience ?? 0);
 
     data.incomingTrades = [];
