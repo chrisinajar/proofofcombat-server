@@ -41,7 +41,10 @@ export function checkHeroDrop(
 
 export function checkHero(context: BaseContext, hero: Hero): Hero {
   if (hasQuestItem(hero, "lamp-oil")) {
-    // consolel
+    if (heroLocationName(hero) === "Steamgear Tap House") {
+      hero = takeQuestItem(hero, "lamp-oil");
+      giveQuestItemNotification(context, hero, "bird-figurine");
+    }
   }
   return hero;
 }

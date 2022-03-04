@@ -273,32 +273,32 @@ const resolvers: Resolvers = {
           equipment = {
             leftHand: {
               level: monster.level + 2,
-              enchantment: randomEnchantment(1),
+              enchantment: randomEnchantment(1, false),
             },
             rightHand: {
               level: monster.level + 2,
-              enchantment: randomEnchantment(1),
+              enchantment: randomEnchantment(1, false),
             },
 
             bodyArmor: {
               level: monster.level + 2,
-              enchantment: randomEnchantment(1),
+              enchantment: randomEnchantment(1, false),
             },
             handArmor: {
               level: monster.level + 2,
-              enchantment: randomEnchantment(1),
+              enchantment: randomEnchantment(1, false),
             },
             legArmor: {
               level: monster.level + 2,
-              enchantment: randomEnchantment(1),
+              enchantment: randomEnchantment(1, false),
             },
             headArmor: {
               level: monster.level + 2,
-              enchantment: randomEnchantment(1),
+              enchantment: randomEnchantment(1, false),
             },
             footArmor: {
               level: monster.level + 2,
-              enchantment: randomEnchantment(1),
+              enchantment: randomEnchantment(1, false),
             },
           };
         }
