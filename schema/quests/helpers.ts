@@ -22,7 +22,7 @@ export function checkHeroDrop(
 ): Hero {
   hero = checkHeroDropForClasses(context, hero, monster);
   hero = checkHeroDropForAquaLung(context, hero, monster);
-  // hero = checkHeroDropForDroop(context, hero, monster);
+  hero = checkHeroDropForDroop(context, hero, monster);
 
   return hero;
 }

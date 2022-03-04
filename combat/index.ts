@@ -226,30 +226,16 @@ export function calculateHit(
     attacker.class === HeroClasses.Daredevil
   ) {
     attackerAccStat += Math.random() * attacker.attributes.luck;
+  }
+  if (
+    victim.class === HeroClasses.Gambler ||
+    victim.class === HeroClasses.Daredevil
+  ) {
     victimDodgeStat += Math.random() * victim.attributes.luck;
   }
 
-  // all tier 2 classes get extra accuracy
-  if (
-    attackerInput.class === HeroClasses.Daredevil ||
-    attackerInput.class === HeroClasses.Gladiator ||
-    attackerInput.class === HeroClasses.EnragedBerserker ||
-    attackerInput.class === HeroClasses.MasterWizard ||
-    attackerInput.class === HeroClasses.MasterWarlock ||
-    attackerInput.class === HeroClasses.DemonHunter ||
-    attackerInput.class === HeroClasses.Zealot ||
-    attackerInput.class === HeroClasses.Archer ||
-    attackerInput.class === HeroClasses.Vampire
-  ) {
-    attackerAccStat *= 2;
-  }
-
-  if (
-    attackerInput.class === HeroClasses.Ranger ||
-    attackerInput.class === HeroClasses.Archer
-  ) {
-    attackerAccStat *= 2;
-  }
+  victimDodgeStat *= victim.bonusDodge;
+  attackerAccStat *= attacker.bonusAccuracy;
 
   victim.equipment.armor.forEach((armor) => {
     // if (armor.type === InventoryItemType.Shield) {
@@ -291,6 +277,8 @@ type EnchantedCombatant = Combatant & {
   percentageDamageIncrease: number;
   percentageDamageReduction: number;
   enchanted: true;
+  bonusAccuracy: number;
+  bonusDodge: number;
 };
 
 export function getEnchantedAttributes(
@@ -353,11 +341,15 @@ export function enchantAttacker(
   attacker.percentageDamageIncrease = attacker.percentageDamageIncrease ?? 1;
   attacker.percentageDamageReduction = attacker.percentageDamageReduction ?? 1;
   attacker.enchanted = true;
+  attacker.bonusDodge = attacker.bonusDodge ?? 1;
+  attacker.bonusAccuracy = attacker.bonusAccuracy ?? 1;
 
   victim.attributes = { ...victim.attributes };
   victim.percentageDamageIncrease = victim.percentageDamageIncrease ?? 1;
   victim.percentageDamageReduction = victim.percentageDamageReduction ?? 1;
   victim.enchanted = true;
+  victim.bonusDodge = victim.bonusDodge ?? 1;
+  victim.bonusAccuracy = victim.bonusAccuracy ?? 1;
 
   const enchantments = getAllGearEnchantments(attacker);
 
@@ -515,6 +507,13 @@ export function enchantAttacker(
       case EnchantmentType.FishermansLuck:
         attacker.attributes.luck *= 1.5;
         break;
+
+      case EnchantmentType.DoubleAccuracy:
+        attacker.bonusAccuracy *= 2;
+        break;
+      case EnchantmentType.DoubleDodge:
+        attacker.bonusDodge *= 2;
+        break;
     }
   });
 
@@ -537,6 +536,7 @@ export function enchantAttacker(
       attacker.attributes.wisdom *= 1 + Math.random();
       attacker.attributes.willpower *= 1 + Math.random();
       attacker.attributes.luck *= 1 + Math.random();
+      attacker.bonusAccuracy *= 2;
     case HeroClasses.Gambler:
       attacker.attributes.strength *= 1.1;
       attacker.attributes.dexterity *= 1.2;
@@ -551,6 +551,7 @@ export function enchantAttacker(
     case HeroClasses.EnragedBerserker:
       attacker.attributes.strength *= 2;
       attacker.attributes.dexterity *= 2;
+      attacker.bonusAccuracy *= 2;
     case HeroClasses.Berserker:
       attacker.attributes.strength *= 2;
       attacker.attributes.dexterity *= 1.3;
@@ -558,6 +559,7 @@ export function enchantAttacker(
     case HeroClasses.Gladiator:
       attacker.attributes.strength *= 2;
       attacker.attributes.dexterity *= 2;
+      attacker.bonusAccuracy *= 2;
     case HeroClasses.Fighter:
       attacker.attributes.strength *= 1.5;
       attacker.attributes.dexterity *= 1.3;
@@ -568,6 +570,7 @@ export function enchantAttacker(
     case HeroClasses.MasterWizard:
       attacker.attributes.intelligence *= 2;
       attacker.attributes.wisdom *= 2;
+      attacker.bonusAccuracy *= 2;
     case HeroClasses.Wizard:
       attacker.attributes.intelligence *= 2;
       attacker.attributes.wisdom *= 1.3;
@@ -575,6 +578,7 @@ export function enchantAttacker(
     case HeroClasses.MasterWarlock:
       attacker.attributes.intelligence *= 2;
       attacker.attributes.wisdom *= 2;
+      attacker.bonusAccuracy *= 2;
     case HeroClasses.Warlock:
       attacker.attributes.intelligence *= 1.5;
       attacker.attributes.wisdom *= 1.3;
@@ -588,6 +592,7 @@ export function enchantAttacker(
       attacker.attributes.intelligence *= 2;
       attacker.attributes.wisdom *= 1.3;
       attacker.attributes.willpower *= 1.2;
+      attacker.bonusAccuracy *= 2;
     case HeroClasses.BattleMage:
       attacker.attributes.strength *= 2;
       attacker.attributes.dexterity *= 1.3;
@@ -598,18 +603,22 @@ export function enchantAttacker(
     case HeroClasses.Zealot:
       attacker.attributes.willpower *= 1.3;
       attacker.attributes.wisdom *= 2;
+      attacker.bonusAccuracy *= 2;
     case HeroClasses.Paladin:
       attacker.attributes.willpower *= 1.3;
       break;
 
     case HeroClasses.Archer:
       attacker.attributes.dexterity *= 2;
+      attacker.bonusAccuracy *= 2;
     case HeroClasses.Ranger:
       attacker.attributes.dexterity *= 2;
+      attacker.bonusAccuracy *= 2;
       break;
     case HeroClasses.Vampire:
       attacker.attributes.constitution *= 1.5;
       attacker.attributes.willpower *= 1.5;
+      attacker.bonusAccuracy *= 2;
     case HeroClasses.BloodMage:
       // you've had enough...
       break;

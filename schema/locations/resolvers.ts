@@ -9,14 +9,31 @@ import {
   MonsterInstance,
   NpcShop,
   NpcShopTradeResponse,
+  EnchantmentType,
+  Hero,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
 import { LocationData, MapNames } from "../../constants";
 import { specialLocations, distance2d } from "../../helpers";
 import { hasQuestItem } from "../quests/helpers";
+import { countEnchantments } from "../items/helpers";
 
 import { getShopData, executeNpcTrade } from "./npc-shops";
+
+function isAllowedThere(hero: Hero, terrain: string): boolean {
+  if (terrain === "land" || terrain === "water") {
+    return true;
+  }
+  if (
+    terrain === "forbidden" &&
+    countEnchantments(hero, EnchantmentType.CanTravelOnForbidden) > 0
+  ) {
+    return true;
+  }
+  return false;
+  ``;
+}
 
 const resolvers: Resolvers = {
   Query: {
@@ -116,11 +133,6 @@ const resolvers: Resolvers = {
         throw new UserInputError("You cannot move while dead!");
       }
 
-      // const location =
-      //   LocationData[hero.location.map as MapNames]?.locations[hero.location.x][
-      //     hero.location.y
-      //   ];
-
       // const currentLocations = specialLocations(
       //   hero.location.x,
       //   hero.location.y,
@@ -146,6 +158,17 @@ const resolvers: Resolvers = {
 
       if (cost > hero.stats.intelligence) {
         throw new UserInputError(`You do not have enough intelligence!`);
+      }
+
+      const destination =
+        LocationData[hero.location.map as MapNames]?.locations[
+          targetLocation.x
+        ][targetLocation.y];
+
+      if (!isAllowedThere(hero, destination.terrain)) {
+        throw new UserInputError(
+          "You do not have the quest items needed to move there!"
+        );
       }
 
       hero.location.x = targetLocation.x;
@@ -201,6 +224,12 @@ const resolvers: Resolvers = {
         LocationData[hero.location.map as MapNames]?.locations[hero.location.x][
           hero.location.y
         ];
+
+      if (!isAllowedThere(hero, destination.terrain)) {
+        throw new UserInputError(
+          "You do not have the quest items needed to move there!"
+        );
+      }
 
       await context.db.hero.put(hero);
 

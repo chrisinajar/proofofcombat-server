@@ -115,8 +115,12 @@ export default gql`
     GamblerUpgrade
     BattleMageUpgrade
     SmiterUpgrade
+    # random
+    DoubleAccuracy
+    DoubleDodge
     # travel
     CanTravelOnWater
+    CanTravelOnForbidden
     # End quest reward enchantments
   }
 

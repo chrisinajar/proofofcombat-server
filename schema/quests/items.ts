@@ -322,6 +322,18 @@ export function getQuestRewards() {
       canBuy: false,
       passiveEnchantments: [EnchantmentType.CanTravelOnWater],
     },
+    // brewconia bribes you to release droop
+    "dont-get-hit": {
+      id: "dont-get-hit",
+      name: "Alvarado's Cloak",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.DoubleAccuracy,
+        EnchantmentType.DoubleDodge,
+      ],
+    },
   };
 }
 

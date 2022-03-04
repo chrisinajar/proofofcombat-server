@@ -16,13 +16,17 @@ import {
   hasQuestItem,
   takeQuestItem,
 } from "./helpers";
-import { questEvents } from "./text/washed-up-text";
+import { questEvents } from "./text/droop-text";
 
 export function checkHeroDrop(
   context: BaseContext,
   hero: Hero,
   monster: MonsterInstance
 ): Hero {
+  // already finished
+  if (hero.questLog.droop?.finished) {
+    return hero;
+  }
   // hasn't met droop
   if (
     !hero.questLog.washedUp?.progress ||
@@ -35,15 +39,77 @@ export function checkHeroDrop(
     return hero;
   }
 
-  if (Math.random() > 0.1) {
-    return hero;
+  // much lower chance of getting it started than to find the next step
+  if (hero.questLog.droop?.started) {
+    if (Math.random() > 1 / 16) {
+      return hero;
+    }
+  } else {
+    if (Math.random() > 1 / 300) {
+      return hero;
+    }
   }
 
+  const secretLocation = getDroopsSecretHidingSpot(hero);
+  if (
+    hero.location.map === "default" &&
+    hero.location.x === secretLocation[0] &&
+    hero.location.y === secretLocation[1]
+  ) {
+    hero = weFoundDroop(context, hero);
+    return hero;
+    // secretLocation
+  }
+  // lol, droop sucks
+  secretLocation[0] += Math.floor(Math.random() * 3) - 1;
+  secretLocation[1] += Math.floor(Math.random() * 3) - 1;
+  const eastWest = secretLocation[0] > hero.location.x ? "east" : "west";
+  const northSouth = secretLocation[1] > hero.location.y ? "south" : "north";
+
+  const direction = `${northSouth} and ${eastWest}`;
+
+  // questEvents
+  const message = questEvents.poorlyDrawnMap.map((m) =>
+    m.replace("{{direction}}", direction)
+  );
+
+  hero.currentQuest = {
+    id: `DroopsQuest-${hero.id}-hobgoblin-map-${Math.random()}`,
+    message: message,
+    quest: Quest.DroopsQuest,
+  };
+
+  hero.questLog.droop = {
+    id: `DroopsQuest-${hero.id}`,
+    started: true,
+    finished: false,
+    progress: (hero.questLog.droop?.progress ?? 0) + 1,
+    lastEvent: hero.currentQuest,
+  };
   // const secret
   // const eastWest =
 
-  // console.log("Land location:", );
-  // console.log("Land location:", getDroopsSecretHidingSpot(hero));
+  return hero;
+}
+
+function weFoundDroop(context: BaseContext, hero: Hero): Hero {
+  hero.currentQuest = {
+    id: `DroopsQuest-${hero.id}-found`,
+    message: questEvents.foundDroop,
+    quest: Quest.DroopsQuest,
+  };
+
+  hero.questLog.droop = {
+    id: `DroopsQuest-${hero.id}`,
+    started: true,
+    finished: true,
+    progress: (hero.questLog.droop?.progress ?? 0) + 1,
+    lastEvent: hero.currentQuest,
+  };
+
+  hero = giveQuestItemNotification(context, hero, "dont-get-hit");
+  hero.gold += 5000000;
+  console.log(hero.name, "finished droops quest");
 
   return hero;
 }
