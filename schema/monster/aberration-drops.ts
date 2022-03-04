@@ -42,6 +42,8 @@ async function burntHarlequinReward(
         hasQuestItem(hero, "fishermans-luck")
       ) {
         hero = giveQuestItemNotification(context, hero, "gambling-kit");
+        hero = takeQuestItem(hero, "loaded-dice");
+        hero = takeQuestItem(hero, "fishermans-luck");
 
         context.io.sendGlobalNotification({
           message: `${hero.name} has mastered their skills and transcended`,
@@ -74,6 +76,8 @@ async function burntHarlequinReward(
         hasQuestItem(hero, "fishermans-intelligence")
       ) {
         hero = giveQuestItemNotification(context, hero, "tome-of-knowledge");
+        hero = takeQuestItem(hero, "secret-codex");
+        hero = takeQuestItem(hero, "fishermans-intelligence");
 
         context.io.sendGlobalNotification({
           message: `${hero.name} has mastered their skills and transcended`,
@@ -88,6 +92,8 @@ async function burntHarlequinReward(
         hasQuestItem(hero, "fishermans-wisdom")
       ) {
         hero = giveQuestItemNotification(context, hero, "patrons-wisdom");
+        hero = takeQuestItem(hero, "patrons-mark");
+        hero = takeQuestItem(hero, "fishermans-wisdom");
 
         context.io.sendGlobalNotification({
           message: `${hero.name} has mastered their skills and transcended`,
@@ -102,6 +108,8 @@ async function burntHarlequinReward(
         hasQuestItem(hero, "fishermans-willpower")
       ) {
         hero = giveQuestItemNotification(context, hero, "liturgical-censer");
+        hero = takeQuestItem(hero, "righteous-incense");
+        hero = takeQuestItem(hero, "fishermans-willpower");
 
         context.io.sendGlobalNotification({
           message: `${hero.name} has mastered their skills and transcended`,
@@ -116,6 +124,8 @@ async function burntHarlequinReward(
         hasQuestItem(hero, "fishermans-dexterity")
       ) {
         hero = giveQuestItemNotification(context, hero, "quiver-of-speed");
+        hero = takeQuestItem(hero, "fletching-leather");
+        hero = takeQuestItem(hero, "fishermans-dexterity");
 
         context.io.sendGlobalNotification({
           message: `${hero.name} has mastered their skills and transcended`,
@@ -130,6 +140,8 @@ async function burntHarlequinReward(
         hasQuestItem(hero, "fishermans-constitution")
       ) {
         hero = giveQuestItemNotification(context, hero, "vampire-ring");
+        hero = takeQuestItem(hero, "blood-stone");
+        hero = takeQuestItem(hero, "fishermans-constitution");
 
         context.io.sendGlobalNotification({
           message: `${hero.name} has mastered their skills and transcended`,
