@@ -5,6 +5,7 @@ import {
   EnchantmentType,
 } from "types/graphql";
 import { startingLevelCap } from "../../schema/quests/rebirth";
+import { hasQuestItem, takeQuestItem } from "../../schema/quests/helpers";
 import { BaseItems } from "../../schema/items/base-items";
 
 import DatabaseInterface from "../interface";
@@ -35,7 +36,6 @@ type PartialHero = Optional<
 
 const inMemoryLeaderboardLength = 50;
 
-import { checkHero } from "../../schema/quests/helpers";
 import { countEnchantments } from "../../schema/items/helpers";
 import { getClass } from "./hero/classes";
 
@@ -267,8 +267,17 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       }
       data.version = 5;
     }
-    if (data.version < 5) {
-      // future
+    if (data.version < 6) {
+      if (
+        hasQuestItem(data as Hero, "blood-stone") &&
+        hasQuestItem(data as Hero, "fishermans-constitution") &&
+        hasQuestItem(data as Hero, "vampire-ring")
+      ) {
+        data = takeQuestItem(data as Hero, "blood-stone");
+        data = takeQuestItem(data as Hero, "fishermans-constitution");
+      }
+
+      data.version = 6;
     }
 
     // data.questLog = {
