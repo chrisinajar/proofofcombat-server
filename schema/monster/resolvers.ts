@@ -120,6 +120,10 @@ const resolvers: Resolvers = {
             // this is a multiplier
             // so 0.5% - 2.5% becomes 0.75% - 3.75%
             bonusDropRate = 1.5;
+          } else if (currentTavern.name === "Steamgear Tap House") {
+            experienceRewards *= 1.2;
+          } else if (currentTavern.name === "The Drowning Fish") {
+            bonusDropRate = 2;
           }
         }
 
@@ -228,37 +232,76 @@ const resolvers: Resolvers = {
 
       let equipment: MonsterEquipment | undefined = undefined;
 
-      if (currentTavern && currentTavern.name === "The Hidden Stump Inn") {
-        monster = { ...monster, level: monster.level * 1.2 };
-      } else if (
-        currentTavern &&
-        currentTavern.name === "The Hellhound's Fur"
-      ) {
-        equipment = {
-          leftHand: { level: monster.level, enchantment: randomEnchantment(0) },
-          rightHand: {
-            level: monster.level,
-            enchantment: randomEnchantment(0),
-          },
+      if (currentTavern) {
+        if (currentTavern.name === "The Hidden Stump Inn") {
+          monster = { ...monster, level: monster.level + 1 };
+        } else if (currentTavern.name === "Steamgear Tap House") {
+          monster = { ...monster, level: monster.level + 1 };
+        } else if (currentTavern.name === "The Hellhound's Fur") {
+          equipment = {
+            leftHand: {
+              level: monster.level,
+              enchantment: randomEnchantment(0),
+            },
+            rightHand: {
+              level: monster.level,
+              enchantment: randomEnchantment(0),
+            },
 
-          bodyArmor: {
-            level: monster.level,
-            enchantment: randomEnchantment(0),
-          },
-          handArmor: {
-            level: monster.level,
-            enchantment: randomEnchantment(0),
-          },
-          legArmor: { level: monster.level, enchantment: randomEnchantment(0) },
-          headArmor: {
-            level: monster.level,
-            enchantment: randomEnchantment(0),
-          },
-          footArmor: {
-            level: monster.level,
-            enchantment: randomEnchantment(0),
-          },
-        };
+            bodyArmor: {
+              level: monster.level,
+              enchantment: randomEnchantment(0),
+            },
+            handArmor: {
+              level: monster.level,
+              enchantment: randomEnchantment(0),
+            },
+            legArmor: {
+              level: monster.level,
+              enchantment: randomEnchantment(0),
+            },
+            headArmor: {
+              level: monster.level,
+              enchantment: randomEnchantment(0),
+            },
+            footArmor: {
+              level: monster.level,
+              enchantment: randomEnchantment(0),
+            },
+          };
+        } else if (currentTavern.name === "The Drowning Fish") {
+          equipment = {
+            leftHand: {
+              level: monster.level + 2,
+              enchantment: randomEnchantment(1),
+            },
+            rightHand: {
+              level: monster.level + 2,
+              enchantment: randomEnchantment(1),
+            },
+
+            bodyArmor: {
+              level: monster.level + 2,
+              enchantment: randomEnchantment(1),
+            },
+            handArmor: {
+              level: monster.level + 2,
+              enchantment: randomEnchantment(1),
+            },
+            legArmor: {
+              level: monster.level + 2,
+              enchantment: randomEnchantment(1),
+            },
+            headArmor: {
+              level: monster.level + 2,
+              enchantment: randomEnchantment(1),
+            },
+            footArmor: {
+              level: monster.level + 2,
+              enchantment: randomEnchantment(1),
+            },
+          };
+        }
       }
 
       const instance = context.db.monsterInstances.create({

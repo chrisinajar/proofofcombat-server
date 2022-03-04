@@ -50,6 +50,25 @@
     ]
   },
   {
+    "x": 95,
+    "y": 44,
+    "name": "Steamgear Tap House",
+    "type": "tavern",
+    "description": [
+      "This tavern sits in the hear of the industrious city of Rotherham.",
+      "The mostly obscured clockwork gears rotate at odd intervals as the steam hisses from various valves."
+    ]
+  },
+  {
+    "x": 87,
+    "y": 59,
+    "name": "The Drowning Fish",
+    "type": "tavern",
+    "description": ["The smell is overwhelming."]
+  },
+
+  // hermits
+  {
     "x": 112,
     "y": 20,
     "name": "Amixea's Hut",
