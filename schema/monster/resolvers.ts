@@ -142,6 +142,7 @@ const resolvers: Resolvers = {
 
         await checkAberrationDrop(context, hero, monster.monster.id);
 
+        experienceRewards = Math.round(experienceRewards);
         context.db.hero.addExperience(hero, experienceRewards);
         goldReward = Math.min(1000000000, Math.round(goldReward));
         hero.gold = hero.gold + goldReward;
@@ -174,7 +175,6 @@ const resolvers: Resolvers = {
             enchantment
           );
 
-          console.log(itemInstance);
           droppedItem = itemInstance;
           hero.inventory.push(itemInstance);
         }
