@@ -13,6 +13,15 @@ export default gql`
     WashedUp # hero is on water but can't swim, gets message about washing ashore
     Rebirth # initial level cap progression
     DroopsQuest # kill hobgoblins to find a hidden location
+    NagaScale # collect and combine a bunch of stuff
+  }
+  type QuestLog {
+    id: ID!
+
+    washedUp: QuestProgress
+    rebirth: QuestProgress
+    droop: QuestProgress
+    nagaScale: QuestProgress
   }
 
   type QuestEvent {
@@ -24,14 +33,6 @@ export default gql`
   type QuestDescription {
     id: Quest!
     description: String
-  }
-
-  type QuestLog {
-    id: ID!
-
-    washedUp: QuestProgress
-    rebirth: QuestProgress
-    droop: QuestProgress
   }
 
   type QuestProgress {

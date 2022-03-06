@@ -66,6 +66,13 @@
     "type": "tavern",
     "description": ["The smell is overwhelming."]
   },
+  {
+    "x": 75,
+    "y": 75,
+    "name": "Ancient Vault",
+    "type": "tavern",
+    "description": [""]
+  },
 
   {
     "x": 112,

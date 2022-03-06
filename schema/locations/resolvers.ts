@@ -11,6 +11,7 @@ import {
   NpcShopTradeResponse,
   EnchantmentType,
   Hero,
+  Location,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -21,12 +22,34 @@ import { countEnchantments } from "../items/helpers";
 
 import { getShopData, executeNpcTrade } from "./npc-shops";
 
-function isAllowedThere(hero: Hero, terrain: string): boolean {
-  if (terrain === "land" || terrain === "water") {
+function isAllowedThere(hero: Hero, location: Location): boolean {
+  const destination =
+    LocationData[location.map as MapNames]?.locations[location.x][location.y];
+
+  const locations = specialLocations(
+    location.x,
+    location.y,
+    location.map as MapNames
+  );
+  let isAllowed = true;
+
+  locations.forEach((location) => {
+    if (location.name === "Ancient Vault") {
+      if (countEnchantments(hero, EnchantmentType.AncientKey) === 0) {
+        isAllowed = false;
+      }
+    }
+  });
+
+  if (!isAllowed) {
+    return false;
+  }
+
+  if (destination.terrain === "land" || destination.terrain === "water") {
     return true;
   }
   if (
-    terrain === "forbidden" &&
+    destination.terrain === "forbidden" &&
     countEnchantments(hero, EnchantmentType.CanTravelOnForbidden) > 0
   ) {
     return true;
@@ -160,12 +183,7 @@ const resolvers: Resolvers = {
         throw new UserInputError(`You do not have enough intelligence!`);
       }
 
-      const destination =
-        LocationData[hero.location.map as MapNames]?.locations[
-          targetLocation.x
-        ][targetLocation.y];
-
-      if (!isAllowedThere(hero, destination.terrain)) {
+      if (!isAllowedThere(hero, targetLocation)) {
         throw new UserInputError(
           "You do not have the quest items needed to move there!"
         );
@@ -225,7 +243,7 @@ const resolvers: Resolvers = {
           hero.location.y
         ];
 
-      if (!isAllowedThere(hero, destination.terrain)) {
+      if (!isAllowedThere(hero, hero.location)) {
         throw new UserInputError(
           "You do not have the quest items needed to move there!"
         );

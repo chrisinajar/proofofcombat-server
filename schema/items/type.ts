@@ -120,6 +120,7 @@ export default gql`
     DoubleDodge
     # travel
     ReduceTeleportCost
+    AncientKey
     CanTravelOnWater
     CanTravelOnForbidden
     # End quest reward enchantments

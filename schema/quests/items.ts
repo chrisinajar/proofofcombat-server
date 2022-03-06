@@ -335,6 +335,57 @@ export function getQuestRewards() {
       ],
     },
 
+    "mound-of-flesh": {
+      id: "mound-of-flesh",
+      name: "Mound of Flesh",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+    "chimera-hook": {
+      id: "chimera-hook",
+      name: "Chimera Hook",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+    "lamp-oil": {
+      id: "lamp-oil",
+      name: "Lamp Oil",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+    "bird-figurine": {
+      id: "bird-figurine",
+      name: "Bird Figurine",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+    "precious-flaying-knife": {
+      id: "precious-flaying-knife",
+      name: "Precious Flaying Knife",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+
+    "naga-scale": {
+      id: "naga-scale",
+      name: "Naga Scale",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+
+    "broken-scepter": {
+      id: "broken-scepter",
+      name: "Broken Scepter",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
     "scepter-of-travel": {
       id: "scepter-of-travel",
       name: "Scepter of Travel",
