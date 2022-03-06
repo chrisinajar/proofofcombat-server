@@ -149,15 +149,13 @@ export function randomBaseItem(level: number): BaseItem {
   let maxLevel = 0;
 
   let options = Object.values(BaseItems).filter((item) => {
+    if (!item.canBuy || !item.cost || item.type === InventoryItemType.Quest) {
+      return false;
+    }
     if (item.level < level) {
       maxLevel = Math.max(item.level, maxLevel);
     }
-    return (
-      item.canBuy &&
-      item.cost &&
-      item.type !== InventoryItemType.Quest &&
-      item.level === level
-    );
+    return item.level === level;
   });
 
   if (!options.length) {
