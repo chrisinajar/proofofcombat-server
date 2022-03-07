@@ -4,8 +4,10 @@ import {
   Hero,
   MonsterInstance,
   AttackType,
+  InventoryItem,
 } from "types/graphql";
 import { LocationData, MapNames } from "../../constants";
+import { giveQuestItemNotification, takeQuestItem } from "../quests/helpers";
 import { BaseContext } from "../context";
 
 type NpcTradeResult = { success: boolean; message: string };
@@ -18,14 +20,123 @@ export async function executeNpcTrade(
   if (tradeId.startsWith("domari")) {
     return executeDomariTrade(context, hero, tradeId);
   }
+  if (tradeId.startsWith("naxxremis")) {
+    return executeNaxxremisTrade(context, hero, tradeId);
+  }
   return { success: false, message: "not implemented" };
 }
-export function getShopData(location: SpecialLocation): NpcShop | null {
+export function getShopData(
+  context: BaseContext,
+  hero: Hero,
+  location: SpecialLocation
+): NpcShop | null {
   if (location.name === "Domari's Hut") {
-    return getDomariTrades();
+    return getDomariTrades(context, hero);
+  } else if (location.name === "Naxxremis's Grotto") {
+    return getNaxxremisTrades(context, hero);
   }
 
   return null;
+}
+
+function getUnupgradedItems(hero: Hero): InventoryItem[] {
+  return hero.inventory.filter(
+    (item) =>
+      item.baseItem === "fishermans-luck" ||
+      item.baseItem === "fishermans-strength" ||
+      item.baseItem === "fishermans-intelligence" ||
+      item.baseItem === "fishermans-wisdom" ||
+      item.baseItem === "fishermans-willpower" ||
+      item.baseItem === "fishermans-dexterity" ||
+      item.baseItem === "fishermans-constitution"
+  );
+}
+
+const NaxxremisClassUpgradeCost = 5000;
+function getNaxxremisTrades(context: BaseContext, hero: Hero): NpcShop {
+  const unupgradedItems = getUnupgradedItems(hero);
+
+  const shop: NpcShop = {
+    name: "Naxxremis the Crafter",
+
+    trades: [],
+  };
+
+  if (unupgradedItems.length) {
+    shop.trades.push({
+      id: "naxxremis-class-upgrade",
+      price: {
+        dust: NaxxremisClassUpgradeCost,
+        description: "a little dust",
+      },
+      offer: {
+        questItems: ["A random class upgrade you have not yet unlocked"],
+        description: "something you'd otherwise miss",
+      },
+    });
+  }
+
+  return shop;
+}
+async function executeNaxxremisTrade(
+  context: BaseContext,
+  hero: Hero,
+  tradeId: string
+): Promise<NpcTradeResult> {
+  if (tradeId === "naxxremis-class-upgrade") {
+    if (hero.enchantingDust < NaxxremisClassUpgradeCost) {
+      return {
+        success: false,
+        message: "You do not have enough enchanting dust for this.",
+      };
+    }
+    const unupgradedItems = getUnupgradedItems(hero);
+    if (!unupgradedItems.length) {
+      return {
+        success: false,
+        message: "You do not have any items to upgrade.",
+      };
+    }
+    const itemToUpgrade =
+      unupgradedItems[Math.floor(unupgradedItems.length * Math.random())];
+
+    if (itemToUpgrade.baseItem === "fishermans-luck") {
+      hero = giveQuestItemNotification(context, hero, "gambling-kit");
+      hero = takeQuestItem(hero, "loaded-dice");
+      hero = takeQuestItem(hero, "fishermans-luck");
+    } else if (itemToUpgrade.baseItem === "fishermans-strength") {
+      hero = giveQuestItemNotification(context, hero, "warriors-armlette");
+      hero = takeQuestItem(hero, "warrior-plate");
+      hero = takeQuestItem(hero, "fishermans-strength");
+    } else if (itemToUpgrade.baseItem === "fishermans-intelligence") {
+      hero = giveQuestItemNotification(context, hero, "tome-of-knowledge");
+      hero = takeQuestItem(hero, "secret-codex");
+      hero = takeQuestItem(hero, "fishermans-intelligence");
+    } else if (itemToUpgrade.baseItem === "fishermans-wisdom") {
+      hero = giveQuestItemNotification(context, hero, "patrons-wisdom");
+      hero = takeQuestItem(hero, "patrons-mark");
+      hero = takeQuestItem(hero, "fishermans-wisdom");
+    } else if (itemToUpgrade.baseItem === "fishermans-willpower") {
+      hero = giveQuestItemNotification(context, hero, "liturgical-censer");
+      hero = takeQuestItem(hero, "righteous-incense");
+      hero = takeQuestItem(hero, "fishermans-willpower");
+    } else if (itemToUpgrade.baseItem === "fishermans-dexterity") {
+      hero = giveQuestItemNotification(context, hero, "quiver-of-speed");
+      hero = takeQuestItem(hero, "fletching-leather");
+      hero = takeQuestItem(hero, "fishermans-dexterity");
+    } else if (itemToUpgrade.baseItem === "fishermans-constitution") {
+      hero = giveQuestItemNotification(context, hero, "vampire-ring");
+      hero = takeQuestItem(hero, "blood-stone");
+      hero = takeQuestItem(hero, "fishermans-constitution");
+    }
+    hero.enchantingDust -= NaxxremisClassUpgradeCost;
+    await context.db.hero.put(hero);
+    return {
+      success: true,
+      message: "His power amazes you.",
+    };
+  }
+  return { success: false, message: "not implemented" };
 }
 
 type SummoningCost = {
@@ -66,7 +177,7 @@ const domariAberrations: Omit<MonsterInstance, "id" | "location">[] = [
 ];
 
 // domari the aberration hunter
-function getDomariTrades(): NpcShop {
+function getDomariTrades(context: BaseContext, hero: Hero): NpcShop {
   return {
     name: "Domari the Aberration Hunter",
     trades: [
@@ -76,7 +187,6 @@ function getDomariTrades(): NpcShop {
           ...domariAberrationCosts[0],
           description: "some gold and dust",
         },
-        // todo: find a name that isn't directly ripped off from dwarf fortress
         offer: { description: "the location of a forgotten aberration" },
       },
     ],

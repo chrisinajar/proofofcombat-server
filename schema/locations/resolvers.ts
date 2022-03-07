@@ -329,8 +329,12 @@ const resolvers: Resolvers = {
       if (!parent.specialLocations || !parent.specialLocations.length) {
         return null;
       }
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      const hero = await context.db.hero.get(context.auth.id);
       const [location] = parent.specialLocations;
-      return getShopData(location);
+      return getShopData(context, hero, location);
       // return {
       //   id: parent.name,
       // name: String!
