@@ -35,16 +35,18 @@ const resolvers: Resolvers = {
       }
       const account = await context.db.account.get(context.auth.id);
       let hero = await context.db.hero.get(context.auth.id);
-      const monster = await context.db.monsterInstances.get(args.monster);
+      let monster = null;
+
+      try {
+        monster = await context.db.monsterInstances.get(args.monster);
+      } catch (e) {
+        throw new UserInputError(
+          "This monster has been killed by another player!"
+        );
+      }
 
       if (hero.combat.health <= 0) {
-        return {
-          account,
-          victory: false,
-          log: [],
-          hero,
-          monster,
-        };
+        throw new UserInputError("You must heal before attacking!");
       }
 
       const startLevel = hero.level;

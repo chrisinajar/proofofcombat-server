@@ -19,10 +19,10 @@ export default gql`
 
     # crafting
     destroyItem(item: ID!): LevelUpResponse! @auth @delay(delay: 200)
-    disenchantItem(item: ID!): LevelUpResponse! @auth @delay(delay: 200)
+    disenchantItem(item: ID!): LevelUpResponse! @auth @delay(delay: 300)
     enchantItem(item: ID!, enchantment: EnchantmentType!): LevelUpResponse!
       @auth
-      @delay(delay: 200)
+      @delay(delay: 1000)
   }
 
   type ShopItem {
@@ -118,6 +118,7 @@ export default gql`
     # random
     DoubleAccuracy
     DoubleDodge
+    ImprovedAutomation
     # travel
     ReduceTeleportCost
     AncientKey

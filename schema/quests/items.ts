@@ -394,6 +394,30 @@ export function getQuestRewards() {
       canBuy: false,
       passiveEnchantments: [EnchantmentType.ReduceTeleportCost],
     },
+
+    "inconclusive-clockwork": {
+      id: "inconclusive-clockwork",
+      name: "Inconclusive Clockwork",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+    "unimaginable-gearbox": {
+      id: "unimaginable-gearbox",
+      name: "Unimaginable Gearbox",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [EnchantmentType.ImprovedAutomation],
+    },
+    "otherworldly-gearbox": {
+      id: "otherworldly-gearbox",
+      name: "Otherworldly Gearbox",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [EnchantmentType.ImprovedAutomation],
+    },
   };
 }
 

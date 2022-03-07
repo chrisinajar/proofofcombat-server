@@ -5,6 +5,7 @@ import {
   QuestDescription,
   Quest,
   LevelUpResponse,
+  TalkResponse,
 } from "types/graphql";
 
 import type { BaseContext } from "schema/context";
@@ -25,6 +26,28 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
+    /*
+      ///@TODO Add text here to help players!
+      maybe convert "appear here" quest events with having to talk to the bartender?
+      maybe not...
+      either way, it's a good idea to help people with text
+      and flavor is cool
+      but seriously fuck writing
+    */
+    async talk(parent, args, context): Promise<TalkResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      let hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      return {
+        hero,
+        account,
+        message: "Go away.",
+      };
+    },
     async rebirth(
       parent,
       args,

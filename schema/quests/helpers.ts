@@ -1,7 +1,9 @@
-import { Hero, InventoryItem, MonsterInstance } from "types/graphql";
+import { Hero, InventoryItem, MonsterInstance, Quest } from "types/graphql";
+
+import { LocationData, MapNames, SpecialLocation } from "../../constants";
+import { findTerrainType, specialLocations } from "../../helpers";
 
 import { BaseContext } from "../context";
-
 import { createItemInstance } from "../items/helpers";
 import { BaseItems } from "../items/base-items";
 
@@ -9,6 +11,10 @@ import { checkHero as checkHeroForWashedUp } from "./washed-up";
 import { checkHero as checkHeroForRebirth } from "./rebirth";
 import { checkHero as checkHeroForCrafting } from "./crafting";
 import { checkHeroDrop as checkHeroDropForClasses } from "./classes";
+import {
+  checkHeroDrop as checkHeroDropForClockwork,
+  checkHero as checkHeroForClockwork,
+} from "./clockwork";
 import {
   checkHeroDrop as checkHeroDropForAquaLung,
   checkHero as checkHeroForAquaLung,
@@ -28,6 +34,7 @@ export function checkHeroDrop(
   hero = checkHeroDropForAquaLung(context, hero, monster);
   hero = checkHeroDropForDroop(context, hero, monster);
   hero = checkHeroDropForNagaScale(context, hero, monster);
+  hero = checkHeroDropForClockwork(context, hero, monster);
 
   return hero;
 }
@@ -38,6 +45,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   hero = checkHeroForCrafting(context, hero);
   hero = checkHeroForAquaLung(context, hero);
   hero = checkHeroForNagaScale(context, hero);
+  hero = checkHeroForClockwork(context, hero);
 
   return hero;
 }
@@ -94,4 +102,54 @@ export function getOrCreateQuestItem(
   console.log(hero.name, "got quest item", item.name);
 
   return item;
+}
+
+export function setQuestEvent(
+  hero: Hero,
+  quest: Quest,
+  step: string,
+  message: string[]
+): Hero {
+  hero.currentQuest = {
+    id: `${quest}-${hero.id}-${step}`,
+    message,
+    quest,
+  };
+  return hero;
+}
+
+export function setQuestLogProgress(
+  hero: Hero,
+  quest: Quest,
+  entryName: keyof Hero["questLog"],
+  progress: number
+): Hero {
+  if (entryName === "id") {
+    return hero;
+  }
+  const lastEvent =
+    hero.currentQuest?.quest === quest ? hero.currentQuest : undefined;
+  hero.questLog[entryName] = {
+    id: `NagaScale-${hero.id}`,
+    started: true,
+    finished: false,
+    progress: progress | (hero.questLog[entryName]?.progress ?? 0),
+    lastEvent,
+  };
+
+  return hero;
+}
+
+export function heroLocationName(hero: Hero): string | null {
+  const locations: SpecialLocation[] = specialLocations(
+    hero.location.x,
+    hero.location.y,
+    hero.location.map as MapNames
+  );
+
+  if (!locations.length) {
+    return null;
+  }
+
+  return locations[0].name;
 }

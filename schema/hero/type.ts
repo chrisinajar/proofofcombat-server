@@ -6,12 +6,16 @@ export default gql`
   }
 
   type Mutation {
-    heal: HealResponse! @auth @delay(delay: 2000)
+    heal: HealResponse! @auth @delay(delay: 3000)
     increaseAttribute(
       attribute: AttributeType!
       spendAll: Boolean
       amount: Int
     ): LevelUpResponse! @auth @delay(delay: 1000)
+
+    # settings
+    changeMinimumStat(name: String!, value: Int!): LevelUpResponse! @auth
+    changeAutoDust(value: Int!): LevelUpResponse! @auth
   }
 
   type Hero implements BaseModel {
@@ -41,6 +45,12 @@ export default gql`
     combatStats: ExtendedCombatStats
     incomingTrades: [TradeOffer!]!
     outgoingTrades: [TradeOffer!]!
+    settings: HeroSettings!
+  }
+
+  type HeroSettings {
+    minimumStats: HeroStats!
+    autoDust: Int!
   }
 
   type ExtendedCombatStats {

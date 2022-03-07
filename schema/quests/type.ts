@@ -2,11 +2,12 @@ import { gql } from "apollo-server";
 
 export default gql`
   type Query {
-    quest(quest: Quest!): QuestDescription!
+    quest(quest: Quest!): QuestDescription! @auth
   }
   type Mutation {
     dismissQuest: LevelUpResponse! @auth
-    rebirth: LevelUpResponse @auth @delay(delay: 10000)
+    rebirth: LevelUpResponse! @auth @delay(delay: 10000)
+    talk: TalkResponse! @auth @delay(delay: 2000)
   }
 
   enum Quest {
@@ -14,7 +15,9 @@ export default gql`
     Rebirth # initial level cap progression
     DroopsQuest # kill hobgoblins to find a hidden location
     NagaScale # collect and combine a bunch of stuff
+    MysteriousAutomation # automation!.... FORCED DOWN YOUR THROAT
   }
+
   type QuestLog {
     id: ID!
 
@@ -22,6 +25,7 @@ export default gql`
     rebirth: QuestProgress
     droop: QuestProgress
     nagaScale: QuestProgress
+    clockwork: QuestProgress
   }
 
   type QuestEvent {
@@ -41,5 +45,11 @@ export default gql`
     finished: Boolean!
     progress: Int!
     lastEvent: QuestEvent
+  }
+
+  type TalkResponse {
+    hero: Hero!
+    account: BaseAccount!
+    message: String!
   }
 `;

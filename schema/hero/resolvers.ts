@@ -16,8 +16,11 @@ import {
   HeroStats,
   AttributeType,
   TradeOffer,
+  EnchantmentType,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
+
+import { countEnchantments } from "../../schema/items/helpers";
 
 import { BaseItems } from "../items/base-items";
 import { createItemInstance } from "../items/helpers";
@@ -44,6 +47,65 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
+    async changeMinimumStat(parent, args, context): Promise<LevelUpResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      let hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      const automationUpgrades = countEnchantments(
+        hero,
+        EnchantmentType.ImprovedAutomation
+      );
+
+      if (automationUpgrades < 1) {
+        throw new UserInputError(
+          "You do not have the quest items needed to do that."
+        );
+      }
+
+      if (args.value < 1) {
+        throw new UserInputError("You cannot set your minimim stats below 0.");
+      }
+
+      const attrName = args.name as keyof HeroStats;
+      if (!hero.stats[attrName]) {
+        throw new UserInputError("Unknown attribute name");
+      }
+
+      hero.settings.minimumStats[attrName] = Math.round(args.value);
+
+      await context.db.hero.put(hero);
+
+      return { hero, account };
+    },
+    async changeAutoDust(parent, args, context): Promise<LevelUpResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      let hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      const automationUpgrades = countEnchantments(
+        hero,
+        EnchantmentType.ImprovedAutomation
+      );
+
+      if (automationUpgrades < 1) {
+        throw new UserInputError(
+          "You do not have the quest items needed to do that."
+        );
+      }
+
+      hero.settings.autoDust = Math.round(args.value);
+
+      await context.db.hero.put(hero);
+
+      return { hero, account };
+    },
     async increaseAttribute(
       parent,
       args,

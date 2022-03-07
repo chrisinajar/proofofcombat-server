@@ -32,6 +32,7 @@ type PartialHero = Optional<
   | "enchantments"
   | "incomingTrades"
   | "outgoingTrades"
+  | "settings"
 >;
 
 const inMemoryLeaderboardLength = 50;
@@ -157,22 +158,35 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
       hero.attributePoints = hero.attributePoints + 1;
     } else {
-      if (
+      const minStats =
+        hero.settings.minimumStats.strength +
+        hero.settings.minimumStats.dexterity +
+        hero.settings.minimumStats.constitution +
+        hero.settings.minimumStats.intelligence +
+        hero.settings.minimumStats.wisdom +
+        hero.settings.minimumStats.willpower +
+        hero.settings.minimumStats.luck;
+      const totalStats =
         hero.stats.strength +
-          hero.stats.dexterity +
-          hero.stats.constitution +
-          hero.stats.intelligence +
-          hero.stats.wisdom +
-          hero.stats.willpower +
-          hero.stats.luck >
-        stats.length * 10
-      ) {
-        stats = stats.sort((a, b) => hero.stats[a] - hero.stats[b]);
+        hero.stats.dexterity +
+        hero.stats.constitution +
+        hero.stats.intelligence +
+        hero.stats.wisdom +
+        hero.stats.willpower +
+        hero.stats.luck;
+      // make sure we have 7 stats to spend
+      if (totalStats > minStats + 7) {
+        const removableStats = stats
+          .filter(
+            (statName) =>
+              hero.stats[statName] > hero.settings.minimumStats[statName]
+          )
+          .sort((a, b) => hero.stats[a] - hero.stats[b]);
 
         for (let i = 0, l = stats.length; i < l; ++i) {
           for (let j = 0, lj = stats.length; j < lj; ++j) {
             const statName = stats[(i + j) % stats.length];
-            if (hero.stats[statName] > 10) {
+            if (hero.stats[statName] > hero.settings.minimumStats[statName]) {
               hero.stats[statName] = hero.stats[statName] - 1;
               break;
             }
@@ -206,6 +220,18 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.gold = data.gold ?? 0;
     data.level = data.level ?? 1;
     data.experience = data.experience ?? 0;
+    data.settings = data.settings || {
+      autoDust: -1,
+      minimumStats: {
+        strength: 10,
+        dexterity: 10,
+        constitution: 10,
+        intelligence: 10,
+        wisdom: 10,
+        willpower: 10,
+        luck: 10,
+      },
+    };
     if (!data.combat) {
       data.combat = {
         health: 13,

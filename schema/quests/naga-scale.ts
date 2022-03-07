@@ -96,12 +96,12 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   ) {
     hero = takeQuestItem(hero, "lamp-oil");
     giveQuestItemNotification(context, hero, "bird-figurine");
-    setProgress(hero, BirdFigurine);
     hero.currentQuest = {
       id: `NagaScale-${hero.id}-bird`,
       message: questEvents.birdFigurine,
       quest: Quest.NagaScale,
     };
+    setProgress(hero, BirdFigurine);
     return hero;
   }
   if (
@@ -112,12 +112,12 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   ) {
     hero = takeQuestItem(hero, "mound-of-flesh");
     giveQuestItemNotification(context, hero, "chimera-hook");
-    setProgress(hero, ChimeraHook);
     hero.currentQuest = {
       id: `NagaScale-${hero.id}-chimera`,
       message: questEvents.chimeraHook,
       quest: Quest.NagaScale,
     };
+    setProgress(hero, ChimeraHook);
     return hero;
   }
   if (
@@ -131,12 +131,12 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     hero = takeQuestItem(hero, "bird-figurine");
     hero = takeQuestItem(hero, "chimera-hook");
     giveQuestItemNotification(context, hero, "precious-flaying-knife");
-    setProgress(hero, FlayingKnife);
     hero.currentQuest = {
       id: `NagaScale-${hero.id}-knife`,
       message: questEvents.flayingKnife,
       quest: Quest.NagaScale,
     };
+    setProgress(hero, FlayingKnife);
     return hero;
   }
 

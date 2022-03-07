@@ -11,7 +11,7 @@ export default gql`
     challenge(monster: ID!): MonsterInstance! @auth
     fight(monster: ID!, attackType: AttackType): FightResult!
       @auth
-      @delay(delay: 500)
+      @delay(delay: 800)
   }
 
   type FightResult {

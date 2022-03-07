@@ -6,10 +6,10 @@ export default gql`
     docks(map: String): [SpecialLocation!]! @auth
   }
   type Mutation {
-    teleport(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 4000)
-    sail(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 5000)
-    move(direction: MoveDirection!): MoveResponse! @auth @delay(delay: 250)
-    npcTrade(trade: ID!): NpcShopTradeResponse! @auth @delay(delay: 1000)
+    teleport(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 5000)
+    sail(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 10000)
+    move(direction: MoveDirection!): MoveResponse! @auth @delay(delay: 500)
+    npcTrade(trade: ID!): NpcShopTradeResponse! @auth @delay(delay: 2000)
   }
 
   type LocationDetails {
