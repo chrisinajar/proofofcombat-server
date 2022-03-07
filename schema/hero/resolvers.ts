@@ -100,7 +100,7 @@ const resolvers: Resolvers = {
         );
       }
 
-      hero.settings.autoDust = Math.round(args.value);
+      hero.settings.autoDust = Math.min(1000000, Math.round(args.value));
 
       await context.db.hero.put(hero);
 

@@ -129,6 +129,8 @@ const resolvers: Resolvers = {
           }
         }
 
+        experienceRewards = Math.round(experienceRewards);
+
         console.log(
           hero.name,
           hero.level,
@@ -144,7 +146,6 @@ const resolvers: Resolvers = {
 
         await checkAberrationDrop(context, hero, monster.monster.id);
 
-        experienceRewards = Math.round(experienceRewards);
         context.db.hero.addExperience(hero, experienceRewards);
         goldReward = Math.min(1000000000, Math.round(goldReward));
         hero.gold = hero.gold + goldReward;
@@ -161,24 +162,32 @@ const resolvers: Resolvers = {
             dropOdds: Math.round(dropOdds * 1000) / 1000,
           });
 
-          const monsterLevel = monster.monster.level;
+          if (monster.monster.level > hero.settings.autoDust) {
+            const monsterLevel = monster.monster.level;
 
-          const baseItem = randomBaseItem(monsterLevel);
-          // max mob tier enchantments is 3
-          // max normal overworld mobs is 32
-          // lets give just a 10% chance of tier 3 enchantments (they fat)
-          // so max value should be 3.33.. at 32, so that there's a 10% chance it remains above 3.0
-          // (32 / (3 / 0.9)) = 9.6!
-          const enchantment = randomEnchantment(
-            Math.floor(Math.random() * (monsterLevel / 9.6))
-          );
-          const itemInstance = enchantItem(
-            createItemInstance(baseItem, hero),
-            enchantment
-          );
+            const baseItem = randomBaseItem(monsterLevel);
+            // max mob tier enchantments is 3
+            // max normal overworld mobs is 32
+            // lets give just a 10% chance of tier 3 enchantments (they fat)
+            // so max value should be 3.33.. at 32, so that there's a 10% chance it remains above 3.0
+            // (32 / (3 / 0.9)) = 9.6!
+            const enchantment = randomEnchantment(
+              Math.floor(Math.random() * (monsterLevel / 9.6))
+            );
+            const itemInstance = enchantItem(
+              createItemInstance(baseItem, hero),
+              enchantment
+            );
 
-          droppedItem = itemInstance;
-          hero.inventory.push(itemInstance);
+            droppedItem = itemInstance;
+            hero.inventory.push(itemInstance);
+          } else {
+            hero.enchantingDust = hero.enchantingDust + 1;
+            context.io.sendNotification(hero.id, {
+              type: "drop",
+              message: `The enchanted item falling from ${monster.monster.name} turns to dust`,
+            });
+          }
         }
 
         hero = checkHeroDrop(context, hero, monster);
