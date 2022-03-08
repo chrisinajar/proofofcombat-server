@@ -18,16 +18,15 @@ export type SystemMessage = {
 type System = BaseModel & {
   chat: ChatMessage[];
   currentOffset: number;
+  lastAberrationSpawn: number;
 };
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 type PartialChatMessage = Optional<ChatMessage, "type">;
 // type PartialSystem = Optional<System>;
-type PartialSystem =
-  | System
-  | {
-      chat: PartialChatMessage[];
-    };
+type PartialSystem = Omit<System, "chat"> & {
+  chat: PartialChatMessage[];
+};
 
 const systemSettingsKey = "system";
 
@@ -44,6 +43,7 @@ export default class SystemModel extends DatabaseInterface<System> {
         id: systemSettingsKey,
         chat: [],
         currentOffset: 0,
+        lastAberrationSpawn: 0,
       };
       await this.put(newSettings);
       return newSettings;
@@ -57,6 +57,8 @@ export default class SystemModel extends DatabaseInterface<System> {
       }
       return entry;
     });
+
+    data.lastAberrationSpawn = data.lastAberrationSpawn ?? 0;
 
     return data as System;
   }

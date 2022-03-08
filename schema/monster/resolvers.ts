@@ -49,6 +49,16 @@ const resolvers: Resolvers = {
         throw new UserInputError("You must heal before attacking!");
       }
 
+      if (
+        monster.location.x !== hero.location.x ||
+        monster.location.y !== hero.location.y ||
+        monster.location.map !== hero.location.map
+      ) {
+        throw new UserInputError(
+          "You are not in the right location to fight that monster!"
+        );
+      }
+
       const startLevel = hero.level;
       const attackType: AttackType = args.attackType || AttackType.Melee;
       let goldReward = monster.monster.combat.maxHealth;
@@ -84,8 +94,13 @@ const resolvers: Resolvers = {
         )
       );
 
+      let heroDeathHeal = 0;
       if (hero.combat.health === 0) {
         console.log(monster.monster.name, "killed", hero.name);
+        heroDeathHeal = Math.max(
+          monster.monster.combat.maxHealth * 0.1,
+          hero.combat.maxHealth
+        );
       }
 
       monster.monster.combat.health = Math.round(
@@ -96,10 +111,14 @@ const resolvers: Resolvers = {
             monster.monster.combat.health -
               fightResult.heroDamage -
               fightResult.heroEnchantmentDamage +
-              fightResult.monsterHeal
+              fightResult.monsterHeal +
+              heroDeathHeal
           )
         )
       );
+
+      // i am undeath
+      fightResult.monsterDied = monster.monster.combat.health < 1;
 
       let droppedItem: null | InventoryItem = null;
 
@@ -233,6 +252,17 @@ const resolvers: Resolvers = {
 
       if (!monster) {
         throw new UserInputError("Unknown monster");
+      }
+
+      const location =
+        LocationData[hero.location.map as MapNames]?.locations[hero.location.x][
+          hero.location.y
+        ];
+
+      if (location.terrain !== monster.terrain) {
+        throw new UserInputError(
+          "You are in the wrong location for that monster."
+        );
       }
 
       const currentTavern = specialLocations(

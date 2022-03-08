@@ -5,6 +5,7 @@ import {
   MonsterInstance,
   AttackType,
   InventoryItem,
+  EnchantmentType,
 } from "types/graphql";
 import { LocationData, MapNames } from "../../constants";
 import { giveQuestItemNotification, takeQuestItem } from "../quests/helpers";
@@ -23,6 +24,9 @@ export async function executeNpcTrade(
   if (tradeId.startsWith("naxxremis")) {
     return executeNaxxremisTrade(context, hero, tradeId);
   }
+  if (tradeId.startsWith("trimarim")) {
+    return executeTrimarimTrade(context, hero, tradeId);
+  }
   return { success: false, message: "not implemented" };
 }
 export function getShopData(
@@ -34,9 +38,54 @@ export function getShopData(
     return getDomariTrades(context, hero);
   } else if (location.name === "Naxxremis's Grotto") {
     return getNaxxremisTrades(context, hero);
+    // } else if (location.name === "The Hellhound's Fur") {
+    //   return getTrimarimTrades(context, hero);
   }
 
   return null;
+}
+
+async function executeTrimarimTrade(
+  context: BaseContext,
+  hero: Hero,
+  tradeId: string
+): Promise<NpcTradeResult> {
+  if (tradeId === "trimarim-enchantment-combiner") {
+  }
+
+  return { success: false, message: "not implemented" };
+}
+
+function getTrimarimTrades(context: BaseContext, hero: Hero): NpcShop {
+  const shop: NpcShop = {
+    name: "Trimarim's Enchantment Shop",
+
+    trades: [],
+  };
+
+  shop.trades.push({
+    id: "trimarim-enchantment-combiner",
+    price: {
+      gold: 1000000,
+      dust: 50,
+      enchantments: [
+        EnchantmentType.BonusStrength,
+        EnchantmentType.BonusDexterity,
+        EnchantmentType.BonusConstitution,
+        EnchantmentType.BonusIntelligence,
+        EnchantmentType.BonusWisdom,
+        EnchantmentType.BonusWillpower,
+        EnchantmentType.BonusLuck,
+      ],
+      description: "one of each normal enchantment and a small fee",
+    },
+    offer: {
+      enchantments: [EnchantmentType.BonusAllStats],
+      description: "a combination of all of them",
+    },
+  });
+
+  return shop;
 }
 
 function getUnupgradedItems(hero: Hero): InventoryItem[] {

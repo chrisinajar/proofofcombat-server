@@ -2,7 +2,7 @@ import { Monster, AttackType, HeroClasses } from "types/graphql";
 
 const MONSTERS: { [x in string]: Monster } = {};
 
-function makeMonster(factor: number, amp: number) {
+function makeMonster(factor: number, amp: number, terrain: string) {
   return function (
     { name, attackType }: { name: string; attackType: AttackType },
     index: number
@@ -17,6 +17,7 @@ function makeMonster(factor: number, amp: number) {
         health: Math.ceil(Math.pow(factor, index) * amp),
         maxHealth: Math.ceil(Math.pow(factor, index) * amp),
       },
+      terrain,
     };
     return MONSTERS[name];
   };
@@ -62,7 +63,7 @@ export const LAND_MONSTERS: Monster[] = [
   { name: "Ancient Treant", attackType: AttackType.Smite },
   { name: "Undead Frost Giant", attackType: AttackType.Ranged },
   { name: "Demilich", attackType: AttackType.Blood },
-].map(makeMonster(1.4, 8));
+].map(makeMonster(1.4, 8, "land"));
 
 export const WATER_MONSTERS: Monster[] = [
   { name: "Binding Seaweed", attackType: AttackType.Melee },
@@ -104,7 +105,7 @@ export const WATER_MONSTERS: Monster[] = [
   { name: "Brachyura", attackType: AttackType.Smite },
   { name: "Skeletal Leviathan", attackType: AttackType.Ranged },
   { name: "Kurumthuli Kraken", attackType: AttackType.Blood },
-].map(makeMonster(1.4, 8));
+].map(makeMonster(1.4, 8, "water"));
 
 export async function getMonster(id: string): Promise<Monster | undefined> {
   return MONSTERS[id];

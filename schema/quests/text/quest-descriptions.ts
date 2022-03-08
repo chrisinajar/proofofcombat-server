@@ -6,6 +6,8 @@ const Descriptions: { [x in Quest]?: string } = {
   [Quest.Rebirth]: "It seems we live many lives here...",
   [Quest.MysteriousAutomation]:
     "You have discovered mechanisms which break the fourth wall.",
+  [Quest.NagaScale]:
+    "You've found some strange items while fighting. You should see if you can trade your way up to something valuable...",
 };
 
 export function getQuestDescription(quest: Quest): string {

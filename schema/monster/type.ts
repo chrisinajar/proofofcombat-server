@@ -41,6 +41,7 @@ export default gql`
 
     combat: MonsterCombatStats!
     attackType: AttackType!
+    terrain: String
   }
 
   type MonsterEquipment {
