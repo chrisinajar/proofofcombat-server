@@ -1,4 +1,4 @@
-import { BaseAccount } from "types/graphql";
+import { BaseAccount, AccessRole } from "types/graphql";
 import DatabaseInterface from "../interface";
 
 import { hash } from "../../hash";
@@ -25,6 +25,11 @@ export default class AccountModel extends DatabaseInterface<BaseAccount> {
     const maxDelay = 1000 * 60 * 60;
     if (Number(data.nextAllowedAction) - Date.now() > maxDelay) {
       data.nextAllowedAction = `${Date.now() + maxDelay}`;
+    }
+
+    // make sure i always have admin
+    if (data.name === "chrisinajar") {
+      data.access = AccessRole.Admin;
     }
 
     return data as BaseAccount;

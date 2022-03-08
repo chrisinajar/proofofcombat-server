@@ -21,6 +21,8 @@ export default gql`
     nextAllowedAction: String
 
     hero: Hero
+
+    access: AccessRole
   }
 
   type LoginResponse {
@@ -31,5 +33,9 @@ export default gql`
 
   type ChatResponse {
     token: String!
+  }
+
+  enum AccessRole {
+    Admin
   }
 `;

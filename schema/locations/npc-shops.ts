@@ -6,6 +6,7 @@ import {
   AttackType,
   InventoryItem,
   EnchantmentType,
+  NpcShopItems,
 } from "types/graphql";
 import { LocationData, MapNames } from "../../constants";
 import { giveQuestItemNotification, takeQuestItem } from "../quests/helpers";
@@ -38,12 +39,97 @@ export function getShopData(
     return getDomariTrades(context, hero);
   } else if (location.name === "Naxxremis's Grotto") {
     return getNaxxremisTrades(context, hero);
-    // } else if (location.name === "The Hellhound's Fur") {
-    //   return getTrimarimTrades(context, hero);
+  } else if (location.name === "The Hellhound's Fur") {
+    return getTrimarimTrades(context, hero);
   }
 
   return null;
 }
+
+function payForTrimarim(hero: Hero, price: NpcShopItems): NpcTradeResult {
+  const enchantmentsFound: { [x in EnchantmentType]?: 0 | 1 } = {};
+
+  if (price.enchantments) {
+    price.enchantments.forEach((ench) => {
+      enchantmentsFound[ench] = 0;
+    });
+  }
+
+  const filteredEnchantments = hero.enchantments.filter((enchantment) => {
+    if (enchantmentsFound[enchantment] === 0) {
+      enchantmentsFound[enchantment] = 1;
+      return false;
+    }
+    return true;
+  });
+
+  let metCosts = Object.values(enchantmentsFound).indexOf(0) === -1;
+
+  if (!metCosts) {
+    return {
+      success: false,
+      message: "You lack the pure enchantments for this.",
+    };
+  }
+  price.gold = price.gold ?? 0;
+  price.dust = price.dust ?? 0;
+  if (hero.gold < price.gold) {
+    return { success: false, message: "You lack the gold for this." };
+  }
+  if (hero.enchantingDust < price.dust) {
+    return { success: false, message: "You lack the gold for this." };
+  }
+  // pay fee's
+  hero.gold -= price.gold;
+  hero.enchantingDust -= price.dust;
+  hero.enchantments = filteredEnchantments;
+
+  return { success: true, message: "" };
+}
+
+const TrimarimPrices = {
+  "trimarim-enchantment-combiner": {
+    gold: 1000000,
+    dust: 50,
+    enchantments: [
+      EnchantmentType.BonusStrength,
+      EnchantmentType.BonusDexterity,
+      EnchantmentType.BonusConstitution,
+      EnchantmentType.BonusIntelligence,
+      EnchantmentType.BonusWisdom,
+      EnchantmentType.BonusWillpower,
+      EnchantmentType.BonusLuck,
+    ],
+    description: "one of each normal enchantment and a small fee",
+  },
+  "trimarim-enchantment-combiner-minus-enemy": {
+    gold: 1000000,
+    dust: 50,
+    enchantments: [
+      EnchantmentType.MinusEnemyStrength,
+      EnchantmentType.MinusEnemyDexterity,
+      EnchantmentType.MinusEnemyConstitution,
+      EnchantmentType.MinusEnemyIntelligence,
+      EnchantmentType.MinusEnemyWisdom,
+      EnchantmentType.MinusEnemyWillpower,
+    ],
+    description: "one of each destructive enchantment and a small fee",
+  },
+  "trimarim-enchantment-make-sa": {
+    gold: 2000000000,
+    dust: 500,
+    enchantments: [
+      EnchantmentType.StrengthSteal,
+      EnchantmentType.DexteritySteal,
+      EnchantmentType.ConstitutionSteal,
+      EnchantmentType.IntelligenceSteal,
+      EnchantmentType.WisdomSteal,
+      EnchantmentType.WillpowerSteal,
+      EnchantmentType.LuckSteal,
+    ],
+    description: "the seven greedy enchantments",
+  },
+};
 
 async function executeTrimarimTrade(
   context: BaseContext,
@@ -51,6 +137,41 @@ async function executeTrimarimTrade(
   tradeId: string
 ): Promise<NpcTradeResult> {
   if (tradeId === "trimarim-enchantment-combiner") {
+    const priceResult = payForTrimarim(
+      hero,
+      TrimarimPrices["trimarim-enchantment-combiner"]
+    );
+    if (!priceResult.success) {
+      return priceResult;
+    }
+
+    hero.enchantments.push(EnchantmentType.BonusAllStats);
+    await context.db.hero.put(hero);
+    return { success: true, message: "You shall know power like none before" };
+  } else if (tradeId === "trimarim-enchantment-combiner-minus-enemy") {
+    const priceResult = payForTrimarim(
+      hero,
+      TrimarimPrices["trimarim-enchantment-combiner-minus-enemy"]
+    );
+    if (!priceResult.success) {
+      return priceResult;
+    }
+
+    hero.enchantments.push(EnchantmentType.MinusEnemyAllStats);
+    await context.db.hero.put(hero);
+    return { success: true, message: "Your enemies will melt before you" };
+  } else if (tradeId === "trimarim-enchantment-make-sa") {
+    const priceResult = payForTrimarim(
+      hero,
+      TrimarimPrices["trimarim-enchantment-make-sa"]
+    );
+    if (!priceResult.success) {
+      return priceResult;
+    }
+
+    hero.enchantments.push(EnchantmentType.AllStatsSteal);
+    await context.db.hero.put(hero);
+    return { success: true, message: "The power is overwhelming" };
   }
 
   return { success: false, message: "not implemented" };
@@ -65,23 +186,28 @@ function getTrimarimTrades(context: BaseContext, hero: Hero): NpcShop {
 
   shop.trades.push({
     id: "trimarim-enchantment-combiner",
-    price: {
-      gold: 1000000,
-      dust: 50,
-      enchantments: [
-        EnchantmentType.BonusStrength,
-        EnchantmentType.BonusDexterity,
-        EnchantmentType.BonusConstitution,
-        EnchantmentType.BonusIntelligence,
-        EnchantmentType.BonusWisdom,
-        EnchantmentType.BonusWillpower,
-        EnchantmentType.BonusLuck,
-      ],
-      description: "one of each normal enchantment and a small fee",
-    },
+    price: TrimarimPrices["trimarim-enchantment-combiner"],
     offer: {
       enchantments: [EnchantmentType.BonusAllStats],
       description: "a combination of all of them",
+    },
+  });
+
+  shop.trades.push({
+    id: "trimarim-enchantment-combiner-minus-enemy",
+    price: TrimarimPrices["trimarim-enchantment-combiner-minus-enemy"],
+    offer: {
+      enchantments: [EnchantmentType.MinusEnemyAllStats],
+      description: "a combination of all of them",
+    },
+  });
+
+  shop.trades.push({
+    id: "trimarim-enchantment-make-sa",
+    price: TrimarimPrices["trimarim-enchantment-make-sa"],
+    offer: {
+      enchantments: [EnchantmentType.AllStatsSteal],
+      description: "something far far greater",
     },
   });
 
