@@ -81,16 +81,18 @@ function setProgress(
   progress: number,
   questEvents: string[]
 ): Hero {
-  const lastEvent =
-    hero.currentQuest?.quest === Quest.TavernChampion
-      ? hero.currentQuest
-      : undefined;
+  hero.currentQuest = {
+    id: `TavernChampion-${hero.id}-${progress}`,
+    message: questEvents,
+    quest: Quest.TavernChampion,
+  };
+
   hero.questLog.tavernChampion = {
     id: `TavernChampion-${hero.id}`,
     started: true,
     finished: false,
     progress: progress | (hero.questLog.tavernChampion?.progress ?? 0),
-    lastEvent,
+    lastEvent: hero.currentQuest,
   };
 
   return hero;
