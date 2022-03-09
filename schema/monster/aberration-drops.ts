@@ -5,7 +5,7 @@ import {
   giveQuestItemNotification,
   takeQuestItem,
 } from "../quests/helpers";
-import { giveHeroRandomDrop } from "../items/helpers";
+import { giveHeroRandomDrop, randomEnchantment } from "../items/helpers";
 
 export async function checkAberrationDrop(
   context: BaseContext,
@@ -15,10 +15,55 @@ export async function checkAberrationDrop(
   switch (aberration) {
     case "domari-aberration-1":
       // Burnt Harlequin
-      await burntHarlequinReward(context, hero);
+      return burntHarlequinReward(context, hero);
+      break;
+    case "random-aberration-unholy-paladin":
+    case "random-aberration-thornbrute":
+      return genericAberrationReward(context, hero);
       break;
     default:
       break;
+  }
+}
+
+async function genericAberrationReward(
+  context: BaseContext,
+  hero: Hero
+): Promise<void> {
+  context.io.sendGlobalNotification({
+    message: `${hero.name} has slain the forgotten aberration`,
+    type: "quest",
+  });
+  const enchantmentTier = Math.random() > 0.5 ? 3 : 2;
+
+  // random garbo base with a high tier enchant
+  giveHeroRandomDrop(context, hero, 1, enchantmentTier, false, false);
+
+  if (Math.random() < 1 / 10) {
+    let dustAmount = 100 + Math.ceil(Math.random() * 400);
+    hero.enchantingDust += dustAmount;
+
+    if (Math.random() < 1 / 20) {
+      // crit
+      dustAmount *= 10;
+      context.io.sendNotification(hero.id, {
+        message: `Unbelievable!! You find a stash of ${dustAmount} enchanting dust!`,
+        type: "quest",
+      });
+      context.io.sendGlobalNotification({
+        message: `${hero.name} was blessed with godly enchanting powers`,
+        type: "quest",
+      });
+    } else {
+      context.io.sendNotification(hero.id, {
+        message: `You find ${dustAmount} enchanting dust while looting`,
+        type: "quest",
+      });
+      context.io.sendGlobalNotification({
+        message: `${hero.name} found additional enchanting powers`,
+        type: "quest",
+      });
+    }
   }
 }
 
@@ -32,7 +77,7 @@ async function burntHarlequinReward(
   });
 
   // ascended gear piece with a forced tier 3 enchantment on it
-  giveHeroRandomDrop(context, hero, 33, 4, true, false);
+  giveHeroRandomDrop(context, hero, 33, 3, true, false);
 
   let gotReward = false;
 

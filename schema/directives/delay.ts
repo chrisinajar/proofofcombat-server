@@ -4,6 +4,8 @@ import { mapSchema, getDirective, MapperKind } from "@graphql-tools/utils";
 import { defaultFieldResolver, GraphQLSchema } from "graphql";
 import type { BaseContext } from "schema/context";
 
+import { runAberrationCheck } from "../aberration";
+
 export function delayDirectiveTransformer(
   schema: GraphQLSchema,
   directiveName: string
@@ -54,8 +56,7 @@ export function delayDirectiveTransformer(
               await context.db.account.put(account);
             }
           }
-          // console.log("proov it!");
-          // do nothing for now, placeholder basically..
+          runAberrationCheck(context);
           return resolve(source, args, context, info);
         };
         return fieldConfig;

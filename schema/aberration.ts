@@ -1,14 +1,18 @@
 import { AttackType, EnchantmentType } from "types/graphql";
 
+import { BaseContext } from "./context";
+
 import Databases from "../db";
 import { getRandomizer } from "../random";
 import { io } from "../index";
 
 // at least 1 minute between spawns
 const minSpawnTime = 60000;
-// spawn at least 1 beast every 12 hours
-const maxSpawnTime = 12 * 60 * 60 * 1000;
+// const minSpawnTime = 10000;
+const maxSpawnTime = 26 * 60 * 60 * 1000;
+// const maxSpawnTime = 120 * 1000;
 const idealSpawnTime = 3 * 60 * 60 * 1000;
+// const idealSpawnTime = 30 * 1000;
 const changeWindow = 1000;
 
 let lastAberrationSpawn = Date.now();
@@ -17,6 +21,52 @@ let nextMinSpawnTime = lastAberrationSpawn;
 export function resetTimer() {
   lastAberrationSpawn = Date.now();
   setNextMinTime();
+}
+
+export async function spawnRandomAberration(context: BaseContext) {
+  const aberration =
+    Aberrations[Math.floor(Aberrations.length * Math.random())];
+  console.log("ABERRATION SPAWN EVENT!?", aberration);
+  let spawnMessage = "A forgotten aberration is rampaging near {{loc}}";
+
+  switch (aberration.id) {
+    case "random-aberration-unholy-paladin":
+      spawnMessage = "It's dark near {{loc}}. Something unholy lurks there.";
+      break;
+    case "random-aberration-thornbrute":
+      spawnMessage = "A horrible crack is heard near {{loc}}";
+      break;
+  }
+
+  const location = [
+    Math.floor(Math.random() * 128),
+    Math.floor(Math.random() * 96),
+  ];
+
+  const monster = {
+    monster: aberration.monster,
+    equipment: aberration.equipment,
+    location: {
+      map: "default",
+      x: location[0],
+      y: location[1],
+    },
+  };
+
+  await context.db.monsterInstances.create(monster);
+
+  // Aberrations
+  io.sendGlobalMessage({
+    color: "primary",
+    message: spawnMessage.replace(/{{loc}}/g, `${location[0]}, ${location[1]}`),
+  });
+}
+
+export async function runAberrationCheck(context: BaseContext) {
+  if (!runOdds()) {
+    return;
+  }
+  spawnRandomAberration(context);
 }
 
 export function runOdds(): boolean {
@@ -29,12 +79,6 @@ export function runOdds(): boolean {
     lastAberrationSpawn = now;
     setNextMinTime();
     save();
-    console.log("ABERRATION SPAWN EVENT!?");
-    // io.sendGlobalMessage({
-    //   color: "primary",
-    //   // type: "drop",
-    //   message: "RAWR beast spawn boo",
-    // });
   }
   return success;
 }
@@ -53,11 +97,7 @@ export function getCurrentOdds() {
 }
 
 export function setNextMinTime() {
-  // minimum possible time pre-randomized between 1 minute and 4 hour from now
-  nextMinSpawnTime =
-    lastAberrationSpawn +
-    minSpawnTime +
-    Math.random() * Math.random() * 1000 * 60 * 60 * 4;
+  nextMinSpawnTime = lastAberrationSpawn + minSpawnTime;
 }
 
 export async function init() {
@@ -74,19 +114,19 @@ export async function save() {
 }
 
 setNextMinTime();
-setTimeout(init, 10000);
+setTimeout(init);
 
 const Aberrations = [
   {
-    id: "random-aberration-big-tank",
+    id: "random-aberration-unholy-paladin",
     monster: {
       name: "The Unholy Paladin",
-      id: "random-aberration-big-tank",
+      id: "random-aberration-unholy-paladin",
       attackType: AttackType.Smite,
       level: 8,
       combat: {
-        maxHealth: 2500,
-        health: 2500,
+        maxHealth: 250,
+        health: 250,
       },
     },
     equipment: {
@@ -105,7 +145,7 @@ const Aberrations = [
         enchantment: EnchantmentType.MinusEnemyDexterity,
       },
 
-      leftHand: { level: 32, enchantment: EnchantmentType.Vampirism },
+      leftHand: { level: 32 },
       rightHand: { level: 32 },
     },
   },
@@ -130,7 +170,7 @@ const Aberrations = [
         level: 33,
         enchantment: EnchantmentType.MinusEnemyAllStats,
       },
-      legArmor: { level: 33, enchantment: EnchantmentType.LifeSteal },
+      legArmor: { level: 33, enchantment: EnchantmentType.Vampirism },
       headArmor: { level: 33 },
       footArmor: { level: 33 },
 
