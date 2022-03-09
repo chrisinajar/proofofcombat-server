@@ -99,6 +99,7 @@ export function getEnchantments(
         EnchantmentType.BonusAllStats,
         EnchantmentType.MinusEnemyAllStats,
         EnchantmentType.WisDexWill,
+        EnchantmentType.CounterSpell,
       ]);
       break;
     // highest tier of overworld enchantments

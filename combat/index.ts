@@ -16,7 +16,10 @@ import {
 import Databases from "../db";
 
 import { BaseItems } from "../schema/items/base-items";
-import EnchantmentOrder from "./enchantment-order";
+import {
+  EnchantmentActivationOrder,
+  EnchantmentCounterSpellOrder,
+} from "./enchantment-order";
 
 type MonsterHeroCombatResult = {
   monsterDamage: number;
@@ -364,7 +367,7 @@ export function enchantAttacker(
   victim.bonusDodge = victim.bonusDodge ?? 1;
   victim.bonusAccuracy = victim.bonusAccuracy ?? 1;
 
-  const enchantments = getAllGearEnchantments(attacker);
+  const enchantments = getCounteredGearEnchantments(attacker, victim);
 
   enchantments.forEach((enchantment) => {
     switch (enchantment) {
@@ -980,7 +983,29 @@ export function createHeroCombatant(
   return heroCombatant;
 }
 
-function getAllGearEnchantments(attacker: Combatant): EnchantmentType[] {
+function countCounterSpells(attacker: Combatant): number {
+  // eventually other sources of counter spell maybe?
+  return getAllGearEnchantments(attacker).filter(
+    (ench) => ench === EnchantmentType.CounterSpell
+  ).length;
+}
+function getCounteredGearEnchantments(
+  attacker: Combatant,
+  victim: Combatant
+): EnchantmentType[] {
+  const attackerCounterSpells = countCounterSpells(attacker);
+  const victimCounterSpells = countCounterSpells(victim);
+  const victimCounteredCounterSpells = Math.max(
+    0,
+    victimCounterSpells - attackerCounterSpells
+  );
+
+  return getAllGearEnchantments(attacker, victimCounteredCounterSpells);
+}
+function getAllGearEnchantments(
+  attacker: Combatant,
+  counterSpells: number = 0
+): EnchantmentType[] {
   let enchantments: EnchantmentType[] = [];
 
   attacker.equipment.quests.forEach((questItem) => {
@@ -1002,8 +1027,20 @@ function getAllGearEnchantments(attacker: Combatant): EnchantmentType[] {
     }
   });
 
+  if (counterSpells > 0) {
+    enchantments = enchantments
+      .sort(
+        (a, b) =>
+          EnchantmentCounterSpellOrder.indexOf(a) -
+          EnchantmentCounterSpellOrder.indexOf(b)
+      )
+      .slice(counterSpells);
+  }
+
   return enchantments.sort(
-    (a, b) => EnchantmentOrder.indexOf(a) - EnchantmentOrder.indexOf(b)
+    (a, b) =>
+      EnchantmentActivationOrder.indexOf(a) -
+      EnchantmentActivationOrder.indexOf(b)
   );
 }
 
@@ -1033,7 +1070,7 @@ function calculateEnchantmentDamage(
     attacker.attributes.constitution *= 1.2;
   }
 
-  const attackerEnchantments = getAllGearEnchantments(attacker);
+  const attackerEnchantments = getCounteredGearEnchantments(attacker, victim);
 
   attackerEnchantments.forEach((enchantment) => {
     switch (enchantment) {
@@ -1057,7 +1094,7 @@ function calculateEnchantmentDamage(
     }
   });
 
-  const victimEnchantments = getAllGearEnchantments(victim);
+  const victimEnchantments = getCounteredGearEnchantments(victim, attacker);
 
   victimEnchantments.forEach((enchantment) => {
     switch (enchantment) {

@@ -64,6 +64,7 @@ export default gql`
     # non-stats
     MinusEnemyArmor
     BonusArmor
+    CounterSpell
     # minus enemy stats
     MinusEnemyStrength
     MinusEnemyDexterity

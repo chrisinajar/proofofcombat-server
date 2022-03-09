@@ -377,6 +377,7 @@ export function getQuestRewards() {
       type: InventoryItemType.Quest,
       level: 1,
       canBuy: false,
+      passiveEnchantments: [EnchantmentType.CounterSpell],
     },
 
     "broken-scepter": {
