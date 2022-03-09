@@ -120,6 +120,9 @@ export default gql`
     DoubleAccuracy
     DoubleDodge
     ImprovedAutomation
+    DoubleAllStats
+    BonusWeaponTier
+    BonusArmorTier
     # travel
     ReduceTeleportCost
     AncientKey

@@ -295,6 +295,8 @@ type EnchantedCombatant = Combatant & {
   enchanted: true;
   bonusAccuracy: number;
   bonusDodge: number;
+  bonusWeaponTiers: number;
+  bonusArmorTiers: number;
 };
 
 export function getEnchantedAttributes(
@@ -359,6 +361,8 @@ export function enchantAttacker(
   attacker.enchanted = true;
   attacker.bonusDodge = attacker.bonusDodge ?? 1;
   attacker.bonusAccuracy = attacker.bonusAccuracy ?? 1;
+  attacker.bonusWeaponTiers = attacker.bonusWeaponTiers ?? 0;
+  attacker.bonusArmorTiers = attacker.bonusArmorTiers ?? 0;
 
   victim.attributes = { ...victim.attributes };
   victim.percentageDamageIncrease = victim.percentageDamageIncrease ?? 1;
@@ -366,6 +370,8 @@ export function enchantAttacker(
   victim.enchanted = true;
   victim.bonusDodge = victim.bonusDodge ?? 1;
   victim.bonusAccuracy = victim.bonusAccuracy ?? 1;
+  victim.bonusWeaponTiers = victim.bonusWeaponTiers ?? 0;
+  victim.bonusArmorTiers = victim.bonusArmorTiers ?? 0;
 
   const enchantments = getCounteredGearEnchantments(attacker, victim);
 
@@ -530,6 +536,21 @@ export function enchantAttacker(
       case EnchantmentType.DoubleDodge:
         attacker.bonusDodge *= 2;
         break;
+      case EnchantmentType.DoubleAllStats:
+        attacker.attributes.strength *= 2;
+        attacker.attributes.dexterity *= 2;
+        attacker.attributes.constitution *= 2;
+        attacker.attributes.intelligence *= 2;
+        attacker.attributes.wisdom *= 2;
+        attacker.attributes.willpower *= 2;
+        attacker.attributes.luck *= 2;
+        break;
+      case EnchantmentType.BonusWeaponTier:
+        attacker.bonusWeaponTiers += 1;
+        break;
+      case EnchantmentType.BonusArmorTier:
+        attacker.bonusArmorTiers += 1;
+        break;
     }
   });
 
@@ -553,6 +574,8 @@ export function enchantAttacker(
       attacker.attributes.willpower *= 1 + Math.random();
       attacker.attributes.luck *= 1 + Math.random();
       attacker.bonusAccuracy *= 2;
+      attacker.bonusWeaponTiers += Math.round(Math.random() * 3);
+
     case HeroClasses.Gambler:
       attacker.attributes.strength *= 1.1;
       attacker.attributes.dexterity *= 1.2;
@@ -568,6 +591,8 @@ export function enchantAttacker(
       attacker.attributes.strength *= 2;
       attacker.attributes.dexterity *= 2;
       attacker.bonusAccuracy *= 2;
+      attacker.bonusWeaponTiers += 1;
+
     case HeroClasses.Berserker:
       attacker.attributes.strength *= 2;
       attacker.attributes.dexterity *= 1.3;
@@ -576,6 +601,8 @@ export function enchantAttacker(
       attacker.attributes.strength *= 2;
       attacker.attributes.dexterity *= 2;
       attacker.bonusAccuracy *= 2;
+      attacker.bonusWeaponTiers += 1;
+
     case HeroClasses.Fighter:
       attacker.attributes.strength *= 1.5;
       attacker.attributes.dexterity *= 1.3;
@@ -587,6 +614,8 @@ export function enchantAttacker(
       attacker.attributes.intelligence *= 2;
       attacker.attributes.wisdom *= 2;
       attacker.bonusAccuracy *= 2;
+      attacker.bonusWeaponTiers += 1;
+
     case HeroClasses.Wizard:
       attacker.attributes.intelligence *= 2;
       attacker.attributes.wisdom *= 1.3;
@@ -595,6 +624,8 @@ export function enchantAttacker(
       attacker.attributes.intelligence *= 2;
       attacker.attributes.wisdom *= 2;
       attacker.bonusAccuracy *= 2;
+      attacker.bonusWeaponTiers += 1;
+
     case HeroClasses.Warlock:
       attacker.attributes.intelligence *= 1.5;
       attacker.attributes.wisdom *= 1.3;
@@ -603,12 +634,14 @@ export function enchantAttacker(
 
     // mixed
     case HeroClasses.DemonHunter:
-      attacker.attributes.strength *= 2;
+      attacker.attributes.strength *= 3;
       attacker.attributes.dexterity *= 1.3;
-      attacker.attributes.intelligence *= 2;
+      attacker.attributes.intelligence *= 3;
       attacker.attributes.wisdom *= 1.3;
       attacker.attributes.willpower *= 1.2;
       attacker.bonusAccuracy *= 2;
+      attacker.bonusWeaponTiers += 1;
+
     case HeroClasses.BattleMage:
       attacker.attributes.strength *= 2;
       attacker.attributes.dexterity *= 1.3;
@@ -620,6 +653,8 @@ export function enchantAttacker(
       attacker.attributes.willpower *= 1.3;
       attacker.attributes.wisdom *= 2;
       attacker.bonusAccuracy *= 2;
+      attacker.bonusWeaponTiers += 1;
+
     case HeroClasses.Paladin:
       attacker.attributes.willpower *= 1.3;
       break;
@@ -627,6 +662,8 @@ export function enchantAttacker(
     case HeroClasses.Archer:
       attacker.attributes.dexterity *= 2;
       attacker.bonusAccuracy *= 2;
+      attacker.bonusWeaponTiers += 1;
+
     case HeroClasses.Ranger:
       attacker.attributes.dexterity *= 2;
       attacker.bonusAccuracy *= 2;
@@ -671,24 +708,33 @@ export function calculateDamage(
 
   victim.equipment.armor.forEach((armor) => {
     if (armor.type === InventoryItemType.Shield) {
-      totalArmorDamageReduction *= Math.pow(0.98, armor.level);
+      totalArmorDamageReduction *= Math.pow(
+        0.98,
+        armor.level + victim.bonusArmorTiers
+      );
     } else {
-      totalArmorDamageReduction *= Math.pow(0.99, armor.level);
+      totalArmorDamageReduction *= Math.pow(
+        0.99,
+        armor.level + victim.bonusArmorTiers
+      );
     }
-    totalArmor += Math.pow(1.3, armor.level);
+    totalArmor += Math.pow(1.3, armor.level + victim.bonusArmorTiers);
 
     if (getItemPassiveUpgradeTier(armor) > 0) {
       baseDamageDecrease *= 0.8;
       victimReductionStat *= 1.5;
     }
-    // totalArmor += armor.level;
+    // totalArmor += (armor.level + victim.bonusArmorTiers);
   });
 
   // for paladins (or any other future reason that shields end up in weapon lists)
   victim.equipment.weapons.forEach((armor) => {
     if (armor.type === InventoryItemType.Shield) {
-      totalArmorDamageReduction *= Math.pow(0.98, armor.level);
-      totalArmor += Math.pow(1.3, armor.level);
+      totalArmorDamageReduction *= Math.pow(
+        0.98,
+        armor.level + victim.bonusArmorTiers
+      );
+      totalArmor += Math.pow(1.3, armor.level + victim.bonusArmorTiers);
 
       if (getItemPassiveUpgradeTier(armor) > 0) {
         baseDamageDecrease *= 0.75;
@@ -713,21 +759,7 @@ export function calculateDamage(
     if (getItemPassiveUpgradeTier(weapon) > 1) {
       weaponLevel += 1;
     }
-  }
-
-  // any upgraded class
-  if (
-    attacker.class === HeroClasses.Daredevil ||
-    attacker.class === HeroClasses.Gladiator ||
-    attacker.class === HeroClasses.EnragedBerserker ||
-    attacker.class === HeroClasses.MasterWizard ||
-    attacker.class === HeroClasses.MasterWarlock ||
-    attacker.class === HeroClasses.DemonHunter ||
-    attacker.class === HeroClasses.Zealot ||
-    attacker.class === HeroClasses.Archer ||
-    attacker.class === HeroClasses.Vampire
-  ) {
-    weaponLevel += 1;
+    weaponLevel += attacker.bonusWeaponTiers;
   }
 
   const baseDamage = Math.max(
@@ -1126,10 +1158,10 @@ function calculateEnchantmentDamage(
   );
 
   if (victimCanOnlyTakeOneDamage) {
-    attackerDamage = Math.min(1, attackerDamage);
+    victimDamage = Math.min(1, victimDamage);
   }
   if (attackerCanOnlyTakeOneDamage) {
-    victimDamage = Math.min(1, victimDamage);
+    attackerDamage = Math.min(1, attackerDamage);
   }
 
   return {

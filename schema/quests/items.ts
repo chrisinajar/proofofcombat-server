@@ -427,6 +427,10 @@ export function getQuestRewards() {
       type: InventoryItemType.Quest,
       level: 1,
       canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.BonusWeaponTier,
+      ],
     },
     "trophy-hiddenstump": {
       id: "trophy-hiddenstump",
@@ -434,6 +438,10 @@ export function getQuestRewards() {
       type: InventoryItemType.Quest,
       level: 1,
       canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.DoubleDodge,
+      ],
     },
     "trophy-steamgear": {
       id: "trophy-steamgear",
@@ -441,6 +449,10 @@ export function getQuestRewards() {
       type: InventoryItemType.Quest,
       level: 1,
       canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.ImprovedAutomation,
+      ],
     },
     "trophy-drowning": {
       id: "trophy-drowning",
@@ -448,11 +460,29 @@ export function getQuestRewards() {
       type: InventoryItemType.Quest,
       level: 1,
       canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.BonusArmorTier,
+      ],
     },
 
     "essence-of-ash": {
       id: "essence-of-ash",
       name: "Essence of Ash",
+      type: InventoryItemType.Quest,
+      level: 2,
+      canBuy: false,
+    },
+    "essence-of-thorns": {
+      id: "essence-of-thorns",
+      name: "Essence of Thorns",
+      type: InventoryItemType.Quest,
+      level: 2,
+      canBuy: false,
+    },
+    "essence-of-darkness": {
+      id: "essence-of-darkness",
+      name: "Essence of Darkness",
       type: InventoryItemType.Quest,
       level: 2,
       canBuy: false,

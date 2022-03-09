@@ -19,15 +19,19 @@ export async function executeNpcTrade(
   hero: Hero,
   tradeId: string
 ): Promise<NpcTradeResult> {
+  // aberration spawns
   if (tradeId.startsWith("domari")) {
     return executeDomariTrade(context, hero, tradeId);
   }
+  // crafting quest items
   if (tradeId.startsWith("naxxremis")) {
     return executeNaxxremisTrade(context, hero, tradeId);
   }
+  // enchantment shop
   if (tradeId.startsWith("trimarim")) {
     return executeTrimarimTrade(context, hero, tradeId);
   }
+
   return { success: false, message: "not implemented" };
 }
 export function getShopData(

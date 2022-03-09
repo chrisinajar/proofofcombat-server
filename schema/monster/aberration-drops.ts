@@ -17,12 +17,52 @@ export async function checkAberrationDrop(
       // Burnt Harlequin
       return burntHarlequinReward(context, hero);
       break;
-    case "random-aberration-unholy-paladin":
     case "random-aberration-thornbrute":
-      return genericAberrationReward(context, hero);
+      return thornbruteReward(context, hero);
+      break;
+    case "random-aberration-unholy-paladin":
+      return unholyPaladinReward(context, hero);
       break;
     default:
       break;
+  }
+}
+
+async function thornbruteReward(
+  context: BaseContext,
+  hero: Hero
+): Promise<void> {
+  context.io.sendGlobalNotification({
+    message: `The terrible aberration in ${hero.location.x}, ${hero.location.y} has been slain by ${hero.name}`,
+    type: "quest",
+  });
+  genericAberrationReward(context, hero);
+
+  if (Math.random() < 1 / 3) {
+    context.io.sendGlobalNotification({
+      message: `${hero.name} has harvested an essence from the aberration`,
+      type: "quest",
+    });
+    hero = giveQuestItemNotification(context, hero, "essence-of-thorns");
+  }
+}
+
+async function unholyPaladinReward(
+  context: BaseContext,
+  hero: Hero
+): Promise<void> {
+  context.io.sendGlobalNotification({
+    message: `${hero.name} has ended the unholy aberration in ${hero.location.x}, ${hero.location.y}`,
+    type: "quest",
+  });
+  genericAberrationReward(context, hero);
+
+  if (Math.random() < 1 / 3) {
+    context.io.sendGlobalNotification({
+      message: `${hero.name} has harvested an essence from the aberration`,
+      type: "quest",
+    });
+    hero = giveQuestItemNotification(context, hero, "essence-of-darkness");
   }
 }
 
@@ -30,10 +70,6 @@ async function genericAberrationReward(
   context: BaseContext,
   hero: Hero
 ): Promise<void> {
-  context.io.sendGlobalNotification({
-    message: `${hero.name} has slain the forgotten aberration`,
-    type: "quest",
-  });
   const enchantmentTier = Math.random() > 0.5 ? 3 : 2;
 
   // random garbo base with a high tier enchant
