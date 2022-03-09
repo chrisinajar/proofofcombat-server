@@ -16,6 +16,7 @@ import {
   giveQuestItemNotification,
   takeQuestItem,
   hasQuestItem,
+  heroLocationName,
 } from "./helpers";
 
 const Hellhound = 0x01 << 0;
@@ -74,6 +75,8 @@ export function checkHeroDrop(
     setProgress(hero, Drowning, questEvents.drowning);
     return hero;
   }
+
+  return hero;
 }
 
 function setProgress(

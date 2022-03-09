@@ -712,6 +712,21 @@ export function calculateDamage(
     }
   }
 
+  // any upgraded class
+  if (
+    attacker.class === HeroClasses.Daredevil ||
+    attacker.class === HeroClasses.Gladiator ||
+    attacker.class === HeroClasses.EnragedBerserker ||
+    attacker.class === HeroClasses.MasterWizard ||
+    attacker.class === HeroClasses.MasterWarlock ||
+    attacker.class === HeroClasses.DemonHunter ||
+    attacker.class === HeroClasses.Zealot ||
+    attacker.class === HeroClasses.Archer ||
+    attacker.class === HeroClasses.Vampire
+  ) {
+    weaponLevel += 1;
+  }
+
   const baseDamage = Math.max(
     1,
     (Math.pow(1.4, weaponLevel) + weaponLevel * 15 - totalArmor) *

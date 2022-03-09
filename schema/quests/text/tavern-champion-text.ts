@@ -6,7 +6,7 @@ export const questEvents = {
     "They hand you a trophy",
     "\"It's not worth much, but it's a great collector piece!\"",
   ],
-  hiddenStump: [
+  hiddenstump: [
     '"Well done!"',
     "The tavern keep walks forwards clapping",
     '"Not many are able to hold their own like you, take this!"',
