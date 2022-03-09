@@ -137,7 +137,7 @@ export function getQuestRewards() {
       ],
       name: "Totem of Champion's Rebirth",
       type: InventoryItemType.Quest,
-      level: 2,
+      level: 3,
       canBuy: false,
     },
     // after second rebirth, you get...
@@ -163,7 +163,7 @@ export function getQuestRewards() {
       ],
       name: "Totem of Heroic Rebirth",
       type: InventoryItemType.Quest,
-      level: 2,
+      level: 3,
       canBuy: false,
     },
 
@@ -417,6 +417,44 @@ export function getQuestRewards() {
       level: 1,
       canBuy: false,
       passiveEnchantments: [EnchantmentType.ImprovedAutomation],
+    },
+
+    // tavern trophies
+    "trophy-hellhound": {
+      id: "trophy-hellhound",
+      name: "Engraved Lich Rib",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+    "trophy-hiddenstump": {
+      id: "trophy-hiddenstump",
+      name: "Hidden Stump Trophy",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+    "trophy-steamgear": {
+      id: "trophy-steamgear",
+      name: "Interesting Mechanical Trophy",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+    "trophy-drowning": {
+      id: "trophy-drowning",
+      name: "Kraken Shell Medallion",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+
+    "essence-of-ash": {
+      id: "essence-of-ash",
+      name: "Essence of Ash",
+      type: InventoryItemType.Quest,
+      level: 2,
+      canBuy: false,
     },
   };
 }

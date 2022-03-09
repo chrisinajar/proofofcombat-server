@@ -125,6 +125,9 @@ export default gql`
     CanTravelOnWater
     CanTravelOnForbidden
     # End quest reward enchantments
+
+    # MOB ONLY enchantments
+    CanOnlyTakeOneDamage
   }
 
   enum InventoryItemType {

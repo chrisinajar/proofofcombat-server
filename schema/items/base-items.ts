@@ -61,12 +61,15 @@ function generateItems(
 function getNonDropGear(): BaseItemMap {
   const itemMap: BaseItemMap = {};
   const optionMap: { [x in InventoryItemType]?: string[] } = {
-    [InventoryItemType.MeleeWeapon]: ["Ascended Blade"],
-    [InventoryItemType.RangedWeapon]: ["Ascended Battle Bow"],
-    [InventoryItemType.Shield]: ["Ascended Shield"],
-    [InventoryItemType.SpellFocus]: ["Ascended Wand"],
+    [InventoryItemType.MeleeWeapon]: ["Ascended Blade", "Transcended Saber"],
+    [InventoryItemType.RangedWeapon]: [
+      "Ascended Battle Bow",
+      "Transcended Crossbow",
+    ],
+    [InventoryItemType.Shield]: ["Ascended Shield", "Transcended Shield"],
+    [InventoryItemType.SpellFocus]: ["Ascended Wand", "Transcended Wand"],
   };
-  const armorNames = ["Ascended"];
+  const armorNames = ["Ascended", "Transcended"];
   const startLevel = 33;
 
   const types = [

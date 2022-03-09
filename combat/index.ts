@@ -241,7 +241,9 @@ export function calculateHit(
     // if (armor.type === InventoryItemType.Shield) {
     // } else {
     // }
-    if (getItemPassiveUpgradeTier(armor) > 0) {
+    if (getItemPassiveUpgradeTier(armor) > 1) {
+      victimDodgeStat *= 2;
+    } else if (getItemPassiveUpgradeTier(armor) > 0) {
       victimDodgeStat *= 1.5;
     }
   });
@@ -249,6 +251,11 @@ export function calculateHit(
   // for paladins (or any other future reason that shields end up in weapon lists)
   victim.equipment.weapons.forEach((armor) => {
     if (
+      armor.type === InventoryItemType.Shield &&
+      getItemPassiveUpgradeTier(armor) > 1
+    ) {
+      victimDodgeStat *= 2;
+    } else if (
       armor.type === InventoryItemType.Shield &&
       getItemPassiveUpgradeTier(armor) > 0
     ) {
@@ -259,9 +266,15 @@ export function calculateHit(
   const weapon = isSecondAttack
     ? attacker.equipment.weapons[1]
     : attacker.equipment.weapons[0];
+
   const weaponLevel = weapon?.level ?? 0;
-  if (weapon && getItemPassiveUpgradeTier(weapon) > 0) {
-    attackerAccStat *= 2;
+
+  if (weapon) {
+    if (getItemPassiveUpgradeTier(weapon) > 1) {
+      attackerAccStat *= 4;
+    } else if (getItemPassiveUpgradeTier(weapon) > 0) {
+      attackerAccStat *= 2;
+    }
   }
 
   // rarely massive, 1 when even, 0.5 when dodge is double, etc
@@ -650,6 +663,8 @@ export function calculateDamage(
   let totalArmor = 0;
   let totalArmorDamageReduction = 1;
   let baseDamageDecrease = 1;
+  let attackerDamageStat = attacker.attributes[attributeTypes.damage];
+  let victimReductionStat = victim.attributes[attributeTypes.damageReduction];
 
   victim.equipment.armor.forEach((armor) => {
     if (armor.type === InventoryItemType.Shield) {
@@ -661,7 +676,7 @@ export function calculateDamage(
 
     if (getItemPassiveUpgradeTier(armor) > 0) {
       baseDamageDecrease *= 0.8;
-      victim.attributes[attributeTypes.damageReduction] *= 1.5;
+      victimReductionStat *= 1.5;
     }
     // totalArmor += armor.level;
   });
@@ -674,7 +689,7 @@ export function calculateDamage(
 
       if (getItemPassiveUpgradeTier(armor) > 0) {
         baseDamageDecrease *= 0.75;
-        victim.attributes[attributeTypes.damageReduction] *= 2;
+        victimReductionStat *= 2;
       }
     }
   });
@@ -688,7 +703,14 @@ export function calculateDamage(
   const weapon = isSecondAttack
     ? attacker.equipment.weapons[1]
     : attacker.equipment.weapons[0];
-  const weaponLevel = weapon?.level ?? 0;
+  let weaponLevel = weapon?.level ?? 0;
+
+  if (weapon) {
+    // they count as 1 level higher
+    if (getItemPassiveUpgradeTier(weapon) > 1) {
+      weaponLevel += 1;
+    }
+  }
 
   const baseDamage = Math.max(
     1,
@@ -738,20 +760,16 @@ export function calculateDamage(
   if (debug) {
     console.log({
       damage,
-      attackerStat: attacker.attributes[attributeTypes.damage],
-      victimStat: victim.attributes[attributeTypes.damageReduction],
-      dr:
-        attacker.attributes[attributeTypes.damage] /
-        (victim.attributes[attributeTypes.damageReduction] / 2),
+      attackerStat: attackerDamageStat,
+      victimStat: victimReductionStat,
+      dr: attackerDamageStat / (victimReductionStat / 2),
       percentageDamageIncrease,
       totalArmorDamageReduction,
     });
   }
 
   // apply contested stats rolls
-  damage *=
-    attacker.attributes[attributeTypes.damage] /
-    (victim.attributes[attributeTypes.damageReduction] / 2);
+  damage *= attackerDamageStat / (victimReductionStat / 2);
 
   // amp damage from weapon
   damage *= percentageDamageIncrease;
@@ -765,6 +783,13 @@ export function calculateDamage(
   }
 
   damage = Math.round(Math.max(1, Math.min(1000000000, damage)));
+
+  const canOnlyTakeOneDamage = getAllGearEnchantments(victim).find(
+    (ench) => ench === EnchantmentType.CanOnlyTakeOneDamage
+  );
+  if (canOnlyTakeOneDamage) {
+    damage = 1;
+  }
 
   return {
     damage,
@@ -1040,6 +1065,20 @@ function calculateEnchantmentDamage(
         break;
     }
   });
+
+  const victimCanOnlyTakeOneDamage = getAllGearEnchantments(victim).find(
+    (ench) => ench === EnchantmentType.CanOnlyTakeOneDamage
+  );
+  const attackerCanOnlyTakeOneDamage = getAllGearEnchantments(attacker).find(
+    (ench) => ench === EnchantmentType.CanOnlyTakeOneDamage
+  );
+
+  if (victimCanOnlyTakeOneDamage) {
+    attackerDamage = Math.min(1, attackerDamage);
+  }
+  if (attackerCanOnlyTakeOneDamage) {
+    victimDamage = Math.min(1, victimDamage);
+  }
 
   return {
     attackerDamage,
@@ -1348,6 +1387,9 @@ function getItemPassiveUpgradeTier({
   level: number;
 }): number {
   if (baseItem?.length) {
+    if (level > 33) {
+      return 2;
+    }
     if (level > 32) {
       return 1;
     }

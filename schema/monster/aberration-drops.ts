@@ -34,6 +34,8 @@ async function burntHarlequinReward(
   // ascended gear piece with a forced tier 3 enchantment on it
   giveHeroRandomDrop(context, hero, 33, 4, true, false);
 
+  let gotReward = false;
+
   // plus fuse class uppgrade if available
   switch (hero.class) {
     case HeroClasses.Gambler:
@@ -49,6 +51,7 @@ async function burntHarlequinReward(
           message: `${hero.name} has mastered their skills and transcended`,
           type: "quest",
         });
+        gotReward = true;
       }
 
       break;
@@ -66,6 +69,7 @@ async function burntHarlequinReward(
           message: `${hero.name} has mastered their skills and transcended`,
           type: "quest",
         });
+        gotReward = true;
       }
 
       break;
@@ -83,6 +87,7 @@ async function burntHarlequinReward(
           message: `${hero.name} has mastered their skills and transcended`,
           type: "quest",
         });
+        gotReward = true;
       }
 
       break;
@@ -99,6 +104,7 @@ async function burntHarlequinReward(
           message: `${hero.name} has mastered their skills and transcended`,
           type: "quest",
         });
+        gotReward = true;
       }
 
       break;
@@ -115,6 +121,7 @@ async function burntHarlequinReward(
           message: `${hero.name} has mastered their skills and transcended`,
           type: "quest",
         });
+        gotReward = true;
       }
 
       break;
@@ -131,6 +138,7 @@ async function burntHarlequinReward(
           message: `${hero.name} has mastered their skills and transcended`,
           type: "quest",
         });
+        gotReward = true;
       }
 
       break;
@@ -147,10 +155,30 @@ async function burntHarlequinReward(
           message: `${hero.name} has mastered their skills and transcended`,
           type: "quest",
         });
+        gotReward = true;
       }
 
       break;
+    case HeroClasses.Daredevil:
+    case HeroClasses.Gladiator:
+    case HeroClasses.EnragedBerserker:
+    case HeroClasses.MasterWizard:
+    case HeroClasses.MasterWarlock:
+    case HeroClasses.DemonHunter:
+    case HeroClasses.Zealot:
+    case HeroClasses.Archer:
+    case HeroClasses.Vampire:
+      // has class upgrade, reward?
+
+      hero = giveQuestItemNotification(context, hero, "essence-of-ash");
+      gotReward = true;
+      break;
     default:
       break;
+  }
+
+  if (!gotReward) {
+    // why did you kill this?
+    // get something bonus?
   }
 }

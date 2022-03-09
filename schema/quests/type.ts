@@ -16,6 +16,7 @@ export default gql`
     DroopsQuest # kill hobgoblins to find a hidden location
     NagaScale # collect and combine a bunch of stuff
     MysteriousAutomation # automation!.... FORCED DOWN YOUR THROAT
+    TavernChampion # beat all the big bois
   }
 
   type QuestLog {
@@ -26,6 +27,7 @@ export default gql`
     droop: QuestProgress
     nagaScale: QuestProgress
     clockwork: QuestProgress
+    tavernChampion: QuestProgress
   }
 
   type QuestEvent {

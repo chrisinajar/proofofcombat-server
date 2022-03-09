@@ -59,7 +59,7 @@ const httpsServer = getHttpsServer(app);
 const socketioHttpsServer = getHttpsServer();
 
 app.use(cors(corsOptions));
-const io = addSocketToServer(socketioHttpsServer);
+export const io = addSocketToServer(socketioHttpsServer);
 
 app.get("/external-api/github-ui-release", (req, res) => {
   const auth = req.headers.authorization || "";

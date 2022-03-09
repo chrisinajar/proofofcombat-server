@@ -13,6 +13,8 @@ import questsResolvers from "./quests/resolvers";
 import locationsResolvers from "./locations/resolvers";
 import itemsResolvers from "./items/resolvers";
 
+import "./aberration";
+
 let schema = makeExecutableSchema({
   typeDefs,
   resolvers: mergeResolvers([
