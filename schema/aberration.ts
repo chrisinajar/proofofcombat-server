@@ -9,9 +9,10 @@ import { io } from "../index";
 // at least 1 minute between spawns
 const minSpawnTime = 60000;
 // const minSpawnTime = 10000;
-const maxSpawnTime = 26 * 60 * 60 * 1000;
+const maxSpawnTime = 48 * 60 * 60 * 1000;
 // const maxSpawnTime = 120 * 1000;
-const idealSpawnTime = 3 * 60 * 60 * 1000;
+
+const idealSpawnTime = 5 * 60 * 60 * 1000;
 // const idealSpawnTime = 30 * 1000;
 const changeWindow = 1000;
 
@@ -93,7 +94,7 @@ export function getCurrentOdds() {
   if (ellapsedTime >= maxSpawnTime) {
     return 1;
   }
-  return ellapsedTime / maxSpawnTime + 1 / (idealSpawnTime / changeWindow);
+  return 1 / (idealSpawnTime / changeWindow);
 }
 
 export function setNextMinTime() {
