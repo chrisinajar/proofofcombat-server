@@ -12,9 +12,9 @@ const minSpawnTime = 60000;
 const maxSpawnTime = 48 * 60 * 60 * 1000;
 // const maxSpawnTime = 120 * 1000;
 
-const idealSpawnTime = 3 * 60 * 60 * 1000;
+const idealSpawnTime = 6 * 60 * 60 * 1000;
 // const idealSpawnTime = 30 * 1000;
-const changeWindow = 1000;
+const changeWindow = 500;
 
 let lastAberrationSpawn = Date.now();
 let nextMinSpawnTime = lastAberrationSpawn;

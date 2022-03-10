@@ -65,6 +65,8 @@ export default gql`
     MinusEnemyArmor
     BonusArmor
     CounterSpell
+    Mesmerize
+    Focus
     # minus enemy stats
     MinusEnemyStrength
     MinusEnemyDexterity

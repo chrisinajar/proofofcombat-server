@@ -72,6 +72,7 @@ export default gql`
     from: String!
     to: String!
     critical: Boolean!
+    isMesmerize: Boolean
   }
 
   enum AttackType {

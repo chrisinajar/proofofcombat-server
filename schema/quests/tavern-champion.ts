@@ -36,11 +36,12 @@ export function checkHeroDrop(
   if (Math.random() > 1 / 800) {
     return hero;
   }
-  if (monster.monster.level !== 39) {
+  if (monster.monster.level < 39) {
     return hero;
   }
   const progress = hero.questLog.tavernChampion?.progress ?? 0;
   if (
+    monster.monster.level === 39 &&
     (progress & Hellhound) === 0 &&
     heroLocationName(hero) === "The Hellhound's Fur"
   ) {
@@ -50,6 +51,7 @@ export function checkHeroDrop(
   }
 
   if (
+    monster.monster.level === 40 &&
     (progress & HiddenStump) === 0 &&
     heroLocationName(hero) === "The Hidden Stump Inn"
   ) {
@@ -59,6 +61,7 @@ export function checkHeroDrop(
   }
 
   if (
+    monster.monster.level === 40 &&
     (progress & Steamgear) === 0 &&
     heroLocationName(hero) === "Steamgear Tap House"
   ) {
@@ -68,6 +71,7 @@ export function checkHeroDrop(
   }
 
   if (
+    monster.monster.level === 39 &&
     (progress & Drowning) === 0 &&
     heroLocationName(hero) === "The Drowning Fish"
   ) {

@@ -297,6 +297,9 @@ type EnchantedCombatant = Combatant & {
   bonusDodge: number;
   bonusWeaponTiers: number;
   bonusArmorTiers: number;
+  // inverse for MATHS
+  mesmerizeChance: number;
+  focusChance: number;
 };
 
 export function getEnchantedAttributes(
@@ -363,6 +366,8 @@ export function enchantAttacker(
   attacker.bonusAccuracy = attacker.bonusAccuracy ?? 1;
   attacker.bonusWeaponTiers = attacker.bonusWeaponTiers ?? 0;
   attacker.bonusArmorTiers = attacker.bonusArmorTiers ?? 0;
+  attacker.mesmerizeChance = attacker.mesmerizeChance ?? 1;
+  attacker.focusChance = attacker.focusChance ?? 1;
 
   victim.attributes = { ...victim.attributes };
   victim.percentageDamageIncrease = victim.percentageDamageIncrease ?? 1;
@@ -372,6 +377,8 @@ export function enchantAttacker(
   victim.bonusAccuracy = victim.bonusAccuracy ?? 1;
   victim.bonusWeaponTiers = victim.bonusWeaponTiers ?? 0;
   victim.bonusArmorTiers = victim.bonusArmorTiers ?? 0;
+  victim.mesmerizeChance = victim.mesmerizeChance ?? 1;
+  victim.focusChance = victim.focusChance ?? 1;
 
   const enchantments = getCounteredGearEnchantments(attacker, victim);
 
@@ -505,6 +512,12 @@ export function enchantAttacker(
         attacker.attributes.wisdom *= 1.4;
         attacker.attributes.dexterity *= 1.4;
         attacker.attributes.willpower *= 1.4;
+        break;
+      case EnchantmentType.Mesmerize:
+        attacker.mesmerizeChance *= 0.5;
+        break;
+      case EnchantmentType.Focus:
+        attacker.focusChance *= 0.5;
         break;
 
       // quest rewards
@@ -1319,6 +1332,7 @@ export async function fightMonster(
   );
   let heroDamage = 0;
 
+  // disallow overhealing.... hmm.....
   enchantmentBattle.attackerHeal = Math.min(
     hero.combat.maxHealth - hero.combat.health,
     enchantmentBattle.attackerHeal
@@ -1327,6 +1341,48 @@ export async function fightMonster(
     monster.combat.maxHealth - monster.combat.health,
     enchantmentBattle.victimHeal
   );
+
+  const { attacker, victim } = getEnchantedAttributes(
+    heroCombatant,
+    monsterCombatant
+  );
+
+  const attackerDidMesmerize = Math.random() > attacker.mesmerizeChance;
+  const victimDidMesmerize = Math.random() > victim.mesmerizeChance;
+  const attackerDidFocus = Math.random() > attacker.focusChance;
+  const victimDidFocus = Math.random() > victim.focusChance;
+
+  const attackerIsMesmerized = !attackerDidFocus && victimDidMesmerize;
+  const victimIsMesmerized = !victimDidFocus && attackerDidMesmerize;
+
+  if (attackerIsMesmerized) {
+    battleResults.push({
+      attackType: monster.attackType,
+      success: true,
+      isEnchantment: true,
+      isMesmerize: true,
+      from: monster.name,
+      to: hero.name,
+      damage: 0,
+      critical: false,
+    });
+    enchantmentBattle.victimDamage = 0;
+    enchantmentBattle.attackerHeal = 0;
+  }
+  if (victimIsMesmerized) {
+    battleResults.push({
+      attackType: heroAttackType,
+      success: true,
+      isEnchantment: true,
+      isMesmerize: true,
+      from: hero.name,
+      to: monster.name,
+      damage: 0,
+      critical: false,
+    });
+    enchantmentBattle.attackerDamage = 0;
+    enchantmentBattle.victimHeal = 0;
+  }
 
   if (enchantmentBattle.victimDamage > 0) {
     battleResults.push({
@@ -1377,8 +1433,9 @@ export async function fightMonster(
   }
 
   if (
+    !attackerIsMesmerized &&
     enchantmentBattle.attackerDamage - enchantmentBattle.attackerHeal <
-    hero.combat.health
+      hero.combat.health
   ) {
     const heroAttack = attackCombatant(
       heroCombatant,
@@ -1397,10 +1454,10 @@ export async function fightMonster(
 
   let monsterDamage = heroAttackType === AttackType.Blood ? bloodMageDamage : 0;
 
-  // however, enchantments can still stop a mob from attacking!
   if (
+    !victimIsMesmerized &&
     enchantmentBattle.victimDamage - enchantmentBattle.victimHeal + heroDamage <
-    monster.combat.health
+      monster.combat.health
   ) {
     const monsterAttack = attackCombatant(
       monsterCombatant,
@@ -1413,6 +1470,7 @@ export async function fightMonster(
   }
 
   if (
+    !attackerIsMesmerized &&
     enchantmentBattle.attackerDamage -
       enchantmentBattle.attackerHeal +
       monsterDamage <
