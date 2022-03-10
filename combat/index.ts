@@ -488,7 +488,7 @@ export function enchantAttacker(
         stealStat(attacker, victim, "luck", 0.2);
         break;
       case EnchantmentType.Vampirism:
-        stealStat(attacker, victim, "constitution", 0.2);
+        stealStat(attacker, victim, "constitution", 0.3);
         break;
       case EnchantmentType.AllStatsSteal:
         stealStat(attacker, victim, "strength", 0.2);
@@ -1163,8 +1163,21 @@ function calculateEnchantmentDamage(
     }
   });
 
-  attackerDamage /= attacker.level;
-  victimDamage /= victim.level;
+  if (attacker.class === HeroClasses.Vampire) {
+    victimDamage /= Math.max(1, victim.level / 2);
+    attackerHeal /= Math.max(1, victim.level / 2);
+  } else {
+    victimDamage /= victim.level;
+    attackerHeal /= victim.level;
+  }
+
+  if (victim.class === HeroClasses.Vampire) {
+    attackerDamage /= Math.max(1, attacker.level / 2);
+    victimHeal /= Math.max(1, attacker.level / 2);
+  } else {
+    attackerDamage /= attacker.level;
+    victimHeal /= attacker.level;
+  }
 
   const victimCanOnlyTakeOneDamage = getAllGearEnchantments(victim).find(
     (ench) => ench === EnchantmentType.CanOnlyTakeOneDamage
