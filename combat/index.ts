@@ -488,7 +488,7 @@ export function enchantAttacker(
         stealStat(attacker, victim, "luck", 0.2);
         break;
       case EnchantmentType.Vampirism:
-        stealStat(attacker, victim, "constitution", 0.3);
+        stealStat(attacker, victim, "constitution", 0.2);
         break;
       case EnchantmentType.AllStatsSteal:
         stealStat(attacker, victim, "strength", 0.2);
@@ -1162,6 +1162,9 @@ function calculateEnchantmentDamage(
         break;
     }
   });
+
+  attackerDamage /= attacker.level;
+  victimDamage /= victim.level;
 
   const victimCanOnlyTakeOneDamage = getAllGearEnchantments(victim).find(
     (ench) => ench === EnchantmentType.CanOnlyTakeOneDamage
