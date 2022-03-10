@@ -1,4 +1,4 @@
-import { EnchantmentType, HeroClasses } from "types/graphql";
+import { EnchantmentType, HeroClasses, AttackType } from "types/graphql";
 
 import { BaseItems } from "../schema/items/base-items";
 
@@ -126,9 +126,13 @@ export function enchantAttacker(
     return { attacker, victim };
   }
 
+  const { attackType } = attacker;
+
   attacker.attributes = { ...attacker.attributes };
   attacker.percentageDamageIncrease = attacker.percentageDamageIncrease ?? 1;
   attacker.percentageDamageReduction = attacker.percentageDamageReduction ?? 1;
+  attacker.percentageEnchantmentDamageReduction =
+    attacker.percentageEnchantmentDamageReduction ?? 1;
   attacker.enchanted = true;
   attacker.bonusDodge = attacker.bonusDodge ?? 1;
   attacker.bonusAccuracy = attacker.bonusAccuracy ?? 1;
@@ -140,6 +144,8 @@ export function enchantAttacker(
   victim.attributes = { ...victim.attributes };
   victim.percentageDamageIncrease = victim.percentageDamageIncrease ?? 1;
   victim.percentageDamageReduction = victim.percentageDamageReduction ?? 1;
+  victim.percentageEnchantmentDamageReduction =
+    victim.percentageEnchantmentDamageReduction ?? 1;
   victim.enchanted = true;
   victim.bonusDodge = victim.bonusDodge ?? 1;
   victim.bonusAccuracy = victim.bonusAccuracy ?? 1;
@@ -332,6 +338,47 @@ export function enchantAttacker(
       case EnchantmentType.BonusArmorTier:
         attacker.bonusArmorTiers += 1;
         break;
+
+      case EnchantmentType.BonusMeleeWeaponTier:
+        if (attackType === AttackType.Melee) {
+          attacker.bonusWeaponTiers += 1;
+        }
+        break;
+      case EnchantmentType.BonusCasterWeaponTier:
+        if (attackType === AttackType.Cast) {
+          attacker.bonusWeaponTiers += 1;
+        }
+        break;
+      case EnchantmentType.BonusSmiteWeaponTier:
+        if (attackType === AttackType.Smite) {
+          attacker.bonusWeaponTiers += 1;
+        }
+        break;
+      case EnchantmentType.RangedArmorPiercing:
+        if (attackType === AttackType.Ranged) {
+          victim.percentageDamageReduction *= 0.8;
+        }
+        break;
+      case EnchantmentType.MeleeArmorPiercing:
+        if (attackType === AttackType.Melee) {
+          victim.percentageDamageReduction *= 0.8;
+        }
+        break;
+      case EnchantmentType.CasterArmorPiercing:
+        if (attackType === AttackType.Cast) {
+          victim.percentageDamageReduction *= 0.8;
+        }
+        break;
+      case EnchantmentType.SmiteArmorPiercing:
+        if (attackType === AttackType.Smite) {
+          victim.percentageDamageReduction *= 0.8;
+        }
+        break;
+      case EnchantmentType.VampireArmorPiercing:
+        if (attackType === AttackType.Blood) {
+          victim.percentageEnchantmentDamageReduction *= 0.5;
+        }
+        break;
     }
   });
 
@@ -453,6 +500,10 @@ export function enchantAttacker(
       attacker.attributes.constitution *= 1.5;
       attacker.attributes.willpower *= 1.5;
       attacker.bonusAccuracy *= 2;
+
+      if (attackType === AttackType.Blood) {
+        victim.percentageEnchantmentDamageReduction *= 0.25;
+      }
     case HeroClasses.BloodMage:
       // you've had enough...
       break;

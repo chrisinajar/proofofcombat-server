@@ -20,6 +20,21 @@ export function calculateHit(
   let victimDodgeStat = victim.attributes[attackAttributes.dodge];
 
   if (
+    attacker.class === HeroClasses.DemonHunter ||
+    attacker.class === HeroClasses.BattleMage
+  ) {
+    let otherAccStat = 0;
+    if (attackType === AttackType.Melee) {
+      const otherAttackAttributes = attributesForAttack(AttackType.Cast);
+      otherAccStat = attacker.attributes[attackAttributes.toHit];
+    } else if (attackType === AttackType.Cast) {
+      const otherAttackAttributes = attributesForAttack(AttackType.Melee);
+      otherAccStat = attacker.attributes[attackAttributes.toHit];
+    }
+    attackerAccStat += 0.5 * otherAccStat;
+  }
+
+  if (
     attacker.class === HeroClasses.Gambler ||
     attacker.class === HeroClasses.Daredevil
   ) {

@@ -487,6 +487,167 @@ export function getQuestRewards() {
       level: 2,
       canBuy: false,
     },
+
+    // minor class upgrades...
+    "archers-impatience": {
+      id: "archers-impatience",
+      name: "Archer's Impatience",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [EnchantmentType.RangedSecondAttackChance],
+    },
+    "archers-determination": {
+      id: "archers-determination",
+      name: "Archer's Determination",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.RangedSecondAttackChance,
+        EnchantmentType.RangedArmorPiercing,
+      ],
+    },
+    "archers-balance": {
+      id: "archers-balance",
+      name: "Archer's Balance",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.RangedSecondAttackChance,
+        EnchantmentType.RangedArmorPiercing,
+        EnchantmentType.RangedSecondAttackChance,
+      ],
+    },
+
+    "attackers-precision": {
+      id: "attackers-precision",
+      name: "Attacker's Precision",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [EnchantmentType.BonusDexterity],
+    },
+    "attackers-honor": {
+      id: "attackers-honor",
+      name: "Attacker's Honor",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.BonusDexterity,
+        EnchantmentType.MeleeArmorPiercing,
+      ],
+    },
+    "attackers-warbanner": {
+      id: "attackers-warbanner",
+      name: "Attacker's War Banner",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.BonusDexterity,
+        EnchantmentType.MeleeArmorPiercing,
+        EnchantmentType.BonusMeleeWeaponTier,
+      ],
+    },
+
+    "casters-book": {
+      id: "casters-book",
+      name: "Caster's Book",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [EnchantmentType.BonusWisdom],
+    },
+    "casters-wisdom": {
+      id: "casters-wisdom",
+      name: "Caster's Wisdom",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.BonusWisdom,
+        EnchantmentType.CasterArmorPiercing,
+      ],
+    },
+    "casters-destiny": {
+      id: "casters-destiny",
+      name: "Caster's Destiny",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.BonusWisdom,
+        EnchantmentType.CasterArmorPiercing,
+        EnchantmentType.BonusCasterWeaponTier,
+      ],
+    },
+
+    "smiters-inspiration": {
+      id: "smiters-inspiration",
+      name: "Smiter's Inspiration",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [EnchantmentType.BonusWillpower],
+    },
+    "smiters-calling": {
+      id: "smiters-calling",
+      name: "Smiter's Calling",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.BonusWillpower,
+        EnchantmentType.SmiteArmorPiercing,
+      ],
+    },
+    "smiters-light": {
+      id: "smiters-light",
+      name: "Smiter's Light",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.BonusWillpower,
+        EnchantmentType.SmiteArmorPiercing,
+        EnchantmentType.BonusSmiteWeaponTier,
+      ],
+    },
+
+    "vampires-blood": {
+      id: "vampires-blood",
+      name: "Vampire's Blood",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [EnchantmentType.BonusConstitution],
+    },
+    "vampires-gaze": {
+      id: "vampires-gaze",
+      name: "Vampire's Gaze",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.BonusConstitution,
+        EnchantmentType.VampireArmorPiercing,
+      ],
+    },
+    "vampires-darkness": {
+      id: "vampires-darkness",
+      name: "Vampire's Darkness",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.BonusConstitution,
+        EnchantmentType.VampireArmorPiercing,
+        EnchantmentType.VampireArmorPiercing,
+      ],
+    },
   };
 }
 

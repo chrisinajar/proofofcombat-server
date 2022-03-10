@@ -30,6 +30,7 @@ export type Combatant = {
 export type EnchantedCombatant = Combatant & {
   percentageDamageIncrease: number;
   percentageDamageReduction: number;
+  percentageEnchantmentDamageReduction: number;
   enchanted: true;
   bonusAccuracy: number;
   bonusDodge: number;

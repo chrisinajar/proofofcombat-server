@@ -82,21 +82,23 @@ export function calculateEnchantmentDamage(
     }
   });
 
-  if (attacker.class === HeroClasses.Vampire) {
-    victimDamage /= Math.max(1, victim.level / 4);
-    attackerHeal /= Math.max(1, victim.level / 4);
-  } else {
-    victimDamage /= victim.level;
-    attackerHeal /= victim.level;
-  }
+  victimDamage /= Math.max(
+    1,
+    victim.level * victim.percentageEnchantmentDamageReduction
+  );
+  attackerHeal /= Math.max(
+    1,
+    victim.level * victim.percentageEnchantmentDamageReduction
+  );
 
-  if (victim.class === HeroClasses.Vampire) {
-    attackerDamage /= Math.max(1, attacker.level / 4);
-    victimHeal /= Math.max(1, attacker.level / 4);
-  } else {
-    attackerDamage /= attacker.level;
-    victimHeal /= attacker.level;
-  }
+  attackerDamage /= Math.max(
+    1,
+    attacker.level * attacker.percentageEnchantmentDamageReduction
+  );
+  victimHeal /= Math.max(
+    1,
+    attacker.level * attacker.percentageEnchantmentDamageReduction
+  );
 
   const victimCanOnlyTakeOneDamage = getAllGearEnchantments(victim).find(
     (ench) => ench === EnchantmentType.CanOnlyTakeOneDamage

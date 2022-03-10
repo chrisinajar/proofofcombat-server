@@ -125,6 +125,16 @@ export default gql`
     DoubleAllStats
     BonusWeaponTier
     BonusArmorTier
+    RangedSecondAttackChance
+    BonusMeleeWeaponTier
+    BonusCasterWeaponTier
+    BonusSmiteWeaponTier
+    RangedArmorPiercing
+    MeleeArmorPiercing
+    CasterArmorPiercing
+    SmiteArmorPiercing
+    VampireArmorPiercing
+
     # travel
     ReduceTeleportCost
     AncientKey
