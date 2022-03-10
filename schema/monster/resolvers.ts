@@ -20,7 +20,8 @@ import {
   enchantItem,
 } from "../items/helpers";
 import { checkHeroDrop } from "../quests/helpers";
-import { fightMonster, createMonsterEquipment } from "../../combat";
+import { createMonsterEquipment } from "../../combat/monster";
+import { fightMonster } from "../../combat/fight-monster";
 import { LocationData, MapNames } from "../../constants";
 import { specialLocations, distance2d } from "../../helpers";
 
@@ -87,9 +88,9 @@ const resolvers: Resolvers = {
           Math.min(
             hero.combat.maxHealth,
             hero.combat.health -
-              fightResult.monsterDamage -
-              fightResult.monsterEnchantmentDamage +
-              fightResult.heroHeal
+              fightResult.attackerDamage -
+              fightResult.attackerEnchantmentDamage +
+              fightResult.attackerHeal
           )
         )
       );
@@ -109,21 +110,21 @@ const resolvers: Resolvers = {
           Math.min(
             monster.monster.combat.maxHealth,
             monster.monster.combat.health -
-              fightResult.heroDamage -
-              fightResult.heroEnchantmentDamage +
-              fightResult.monsterHeal +
+              fightResult.victimDamage -
+              fightResult.victimEnchantmentDamage +
+              fightResult.victimHeal +
               heroDeathHeal
           )
         )
       );
 
       // i am undeath
-      fightResult.monsterDied = monster.monster.combat.health < 1;
+      fightResult.victimDied = monster.monster.combat.health < 1;
 
       let droppedItem: null | InventoryItem = null;
 
       // victory
-      if (fightResult.monsterDied) {
+      if (fightResult.victimDied) {
         const currentTavern = specialLocations(
           hero.location.x,
           hero.location.y,
@@ -231,10 +232,10 @@ const resolvers: Resolvers = {
         hero,
         monster,
         log: fightResult.log,
-        victory: fightResult.monsterDied,
+        victory: fightResult.victimDied,
         drop: droppedItem ?? undefined,
-        gold: fightResult.monsterDied ? goldReward : undefined,
-        experience: fightResult.monsterDied ? experienceRewards : undefined,
+        gold: fightResult.victimDied ? goldReward : undefined,
+        experience: fightResult.victimDied ? experienceRewards : undefined,
         didLevel: hero.level !== startLevel,
       };
     },

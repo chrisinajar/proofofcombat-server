@@ -26,7 +26,8 @@ import { BaseItems } from "../items/base-items";
 import { createItemInstance } from "../items/helpers";
 import type { BaseItem } from "../items";
 import { checkHero } from "../quests/helpers";
-import { createHeroCombatant, getEnchantedAttributes } from "../../combat";
+import { createHeroCombatant } from "../../combat/hero";
+import { getEnchantedAttributes } from "../../combat/enchantments";
 
 const resolvers: Resolvers = {
   Query: {
@@ -268,6 +269,7 @@ const resolvers: Resolvers = {
       const attacker = createHeroCombatant(parent, attackType);
       const victim = {
         class: HeroClasses.Adventurer,
+        attackType: AttackType.Melee,
         level: 1,
         name: "System",
         equipment: { armor: [], weapons: [], quests: [] },
