@@ -1180,6 +1180,11 @@ function calculateEnchantmentDamage(
     attackerDamage = Math.min(1, attackerDamage);
   }
 
+  attackerDamage = Math.round(attackerDamage);
+  victimDamage = Math.round(victimDamage);
+  attackerHeal = Math.round(attackerHeal);
+  victimHeal = Math.round(victimHeal);
+
   return {
     attackerDamage,
     victimDamage,
