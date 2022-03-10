@@ -1164,16 +1164,16 @@ function calculateEnchantmentDamage(
   });
 
   if (attacker.class === HeroClasses.Vampire) {
-    victimDamage /= Math.max(1, victim.level / 2);
-    attackerHeal /= Math.max(1, victim.level / 2);
+    victimDamage /= Math.max(1, victim.level / 5);
+    attackerHeal /= Math.max(1, victim.level / 5);
   } else {
     victimDamage /= victim.level;
     attackerHeal /= victim.level;
   }
 
   if (victim.class === HeroClasses.Vampire) {
-    attackerDamage /= Math.max(1, attacker.level / 2);
-    victimHeal /= Math.max(1, attacker.level / 2);
+    attackerDamage /= Math.max(1, attacker.level / 5);
+    victimHeal /= Math.max(1, attacker.level / 5);
   } else {
     attackerDamage /= attacker.level;
     victimHeal /= attacker.level;
