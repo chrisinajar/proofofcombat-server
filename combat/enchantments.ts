@@ -263,6 +263,8 @@ export function enchantAttacker(
         break;
       case EnchantmentType.Vampirism:
         stealStat(attacker, victim, "constitution", 0.3);
+        victim.percentageEnchantmentDamageReduction *= 0.9;
+
         break;
       case EnchantmentType.AllStatsSteal:
         stealStat(attacker, victim, "strength", 0.3);
@@ -488,8 +490,7 @@ export function enchantAttacker(
       break;
 
     case HeroClasses.Archer:
-      attacker.attributes.dexterity *= 2;
-      attacker.bonusAccuracy *= 2;
+      attacker.attributes.dexterity *= 3;
       attacker.bonusWeaponTiers += 1;
 
     case HeroClasses.Ranger:
@@ -499,13 +500,12 @@ export function enchantAttacker(
     case HeroClasses.Vampire:
       attacker.attributes.constitution *= 1.5;
       attacker.attributes.willpower *= 1.5;
-      attacker.bonusAccuracy *= 2;
 
       if (attackType === AttackType.Blood) {
         victim.percentageEnchantmentDamageReduction *= 0.25;
       }
     case HeroClasses.BloodMage:
-      // you've had enough...
+      attacker.attributes.constitution *= 1.2;
       break;
   }
 

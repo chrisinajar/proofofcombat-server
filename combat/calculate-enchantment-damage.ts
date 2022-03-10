@@ -31,7 +31,7 @@ export function calculateEnchantmentDamage(
 
   // blood attacks deal additional enchantment damage!
   if (attackType === AttackType.Blood) {
-    attacker.attributes.constitution *= 1.2;
+    victim.percentageEnchantmentDamageReduction *= 0.75;
   }
 
   const attackerEnchantments = getCounteredGearEnchantments(attacker, victim);
