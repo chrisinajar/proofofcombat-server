@@ -668,6 +668,48 @@ export function getQuestRewards() {
         EnchantmentType.RangedSecondAttackChance,
       ],
     },
+    "orb-of-forbidden-power": {
+      id: "orb-of-forbidden-power",
+      name: "Orb of Forbidden Power",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        // Orb specific
+        EnchantmentType.CanTravelOnForbidden,
+        // Kraken Shell Medallion
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.BonusArmorTier,
+        // Interesting Mechanical Trophy
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.ImprovedAutomation,
+        // Hidden Stump Trophy
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.DoubleDodge,
+        // Engraved Lich Rib
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.BonusWeaponTier,
+        // Totem of Heroic Rebirth
+        EnchantmentType.AutoBattle,
+        EnchantmentType.DoubleExperience,
+        EnchantmentType.CanRebirth,
+        // Aqua Lungs
+        EnchantmentType.CanTravelOnWater,
+        // Naga Scale
+        EnchantmentType.CounterSpell,
+        EnchantmentType.BonusWeaponTier,
+        // Alvarado’s Cloak
+        EnchantmentType.DoubleAccuracy,
+        EnchantmentType.DoubleDodge,
+        // Hero's Guidance
+        EnchantmentType.BonusAllStats,
+        EnchantmentType.VampireArmorPiercing,
+        EnchantmentType.VampireArmorPiercing,
+        EnchantmentType.MinusEnemyArmor,
+        EnchantmentType.BonusWeaponTier,
+        EnchantmentType.RangedSecondAttackChance,
+      ],
+    },
   };
 }
 

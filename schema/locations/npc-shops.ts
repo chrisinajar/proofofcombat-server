@@ -9,7 +9,12 @@ import {
   NpcShopItems,
 } from "types/graphql";
 import { LocationData, MapNames } from "../../constants";
-import { giveQuestItemNotification, takeQuestItem } from "../quests/helpers";
+import {
+  giveQuestItemNotification,
+  takeQuestItem,
+  hasQuestItem,
+} from "../quests/helpers";
+import { getQuestRewards } from "../quests/items";
 import { AberrationStats } from "../monster/aberration-stats";
 import { BaseContext } from "../context";
 
@@ -32,6 +37,9 @@ export async function executeNpcTrade(
   if (tradeId.startsWith("trimarim")) {
     return executeTrimarimTrade(context, hero, tradeId);
   }
+  if (tradeId.startsWith("amixea")) {
+    return executeAmixeaTrade(context, hero, tradeId);
+  }
 
   return { success: false, message: "not implemented" };
 }
@@ -53,9 +61,173 @@ export function getShopData(
   return null;
 }
 
+async function executeAmixeaTrade(
+  context: BaseContext,
+  hero: Hero,
+  tradeId: string
+): Promise<NpcTradeResult> {
+  if (tradeId === "amixea-heroes-guidance") {
+    if (
+      !hero.questLog.minorClassUpgrades ||
+      hero.questLog.minorClassUpgrades.finished ||
+      hero.questLog.minorClassUpgrades.progress !== 32767 ||
+      !hasQuestItem(hero, "archers-balance") ||
+      !hasQuestItem(hero, "attackers-warbanner") ||
+      !hasQuestItem(hero, "casters-destiny") ||
+      !hasQuestItem(hero, "smiters-light") ||
+      !hasQuestItem(hero, "vampires-darkness")
+    ) {
+      return { success: false, message: "You do not have the required items" };
+    }
+
+    if (hero.enchantingDust < 500) {
+      return { success: false, message: "You do not have the required items" };
+    }
+
+    hero.enchantingDust -= 500;
+
+    takeQuestItem(hero, "archers-balance");
+    takeQuestItem(hero, "attackers-warbanner");
+    takeQuestItem(hero, "casters-destiny");
+    takeQuestItem(hero, "smiters-light");
+    takeQuestItem(hero, "vampires-darkness");
+
+    context.io.sendNotification(hero.id, {
+      message: `Amixea takes the 5 items and places them upon her might witchforge`,
+      type: "quest",
+    });
+
+    giveQuestItemNotification(context, hero, "heros-guidance");
+    hero.questLog.minorClassUpgrades.progress =
+      hero.questLog.minorClassUpgrades.progress | (0x01 << 15);
+    hero.questLog.minorClassUpgrades.finished = true;
+
+    context.io.sendGlobalNotification({
+      message: `${hero.name} has found guidance`,
+      type: "quest",
+    });
+
+    await context.db.hero.put(hero);
+  }
+
+  if (tradeId === "amixea-orb-of-forbidden-power") {
+    if (
+      !hero.questLog.minorClassUpgrades?.finished ||
+      !hero.questLog.nagaScale?.finished ||
+      !hero.questLog.washedUp?.finished ||
+      !hero.questLog.droop?.finished ||
+      hero.questLog.tavernChampion?.progress !== 15 ||
+      !hasQuestItem(hero, "totem-of-hero-rebirth")
+    ) {
+      return { success: false, message: "You do not have the required items" };
+    }
+
+    if (hero.enchantingDust < 2000) {
+      return { success: false, message: "You do not have the required items" };
+    }
+
+    hero.enchantingDust -= 2000;
+
+    takeQuestItem(hero, "totem-of-hero-rebirth");
+    takeQuestItem(hero, "heros-guidance");
+    takeQuestItem(hero, "dont-get-hit");
+    takeQuestItem(hero, "naga-scale");
+    takeQuestItem(hero, "aqua-lungs");
+    takeQuestItem(hero, "trophy-hellhound");
+    takeQuestItem(hero, "trophy-drowning");
+    takeQuestItem(hero, "trophy-steamgear");
+    takeQuestItem(hero, "trophy-hiddenstump");
+
+    context.io.sendNotification(hero.id, {
+      message: `Amixea's withforge roars with energy`,
+      type: "quest",
+    });
+
+    giveQuestItemNotification(context, hero, "orb-of-forbidden-power");
+    hero.questLog.tavernChampion.progress =
+      hero.questLog.tavernChampion.progress | (0x01 << 4);
+    hero.questLog.tavernChampion.finished = true;
+
+    context.io.sendGlobalNotification({
+      message: `${hero.name} has transcended the ranks of hero`,
+      type: "quest",
+    });
+
+    await context.db.hero.put(hero);
+  }
+  return { success: false, message: "not implemented" };
+}
+
 function getAmixeaTrades(context: BaseContext, hero: Hero): NpcShop | null {
   // Amixea is a old small quiet witch who radiates with a magical aura.
-  return null;
+  const shop: NpcShop = {
+    name: "Amixea's Witchforge",
+
+    trades: [],
+  };
+  const questItems = getQuestRewards();
+  // (0x01 << 0) + (0x01 << 1) + (0x01 << 2) + (0x01 << 3) + (0x01 << 4) + (0x01 << 5) + (0x01 << 6) + (0x01 << 7) + (0x01 << 8) + (0x01 << 9) + (0x01 << 10) + (0x01 << 11) + (0x01 << 12) + (0x01 << 13) + (0x01 << 14)
+  if (
+    hero.questLog.minorClassUpgrades &&
+    hero.questLog.minorClassUpgrades.progress === 32767
+  ) {
+    shop.trades.push({
+      id: "amixea-heroes-guidance",
+      price: {
+        dust: 500,
+        description: "five",
+        questItems: [
+          questItems["archers-balance"].name,
+          questItems["attackers-warbanner"].name,
+          questItems["casters-destiny"].name,
+          questItems["smiters-light"].name,
+          questItems["vampires-darkness"].name,
+        ],
+      },
+      offer: {
+        questItems: [questItems["heros-guidance"].name],
+        description: "guidance",
+      },
+    });
+  }
+  if (
+    hero.questLog.minorClassUpgrades?.finished &&
+    hero.questLog.nagaScale?.finished &&
+    hero.questLog.washedUp?.finished &&
+    hero.questLog.droop?.finished &&
+    hero.questLog.tavernChampion?.progress === 15 &&
+    !hero.questLog.tavernChampion?.finished &&
+    hasQuestItem(hero, "totem-of-hero-rebirth")
+  ) {
+    shop.trades.push({
+      id: "amixea-orb-of-forbidden-power",
+      price: {
+        dust: 2000,
+        description: "all that you've worked for",
+        questItems: [
+          questItems["totem-of-hero-rebirth"].name,
+          questItems["heros-guidance"].name,
+          questItems["dont-get-hit"].name,
+          questItems["naga-scale"].name,
+          questItems["aqua-lungs"].name,
+          questItems["trophy-hellhound"].name,
+          questItems["trophy-drowning"].name,
+          questItems["trophy-steamgear"].name,
+          questItems["trophy-hiddenstump"].name,
+        ],
+      },
+      offer: {
+        questItems: [questItems["orb-of-forbidden-power"].name],
+        description: "fobidden power",
+      },
+    });
+  }
+
+  if (!shop.trades.length) {
+    // amixea does not care for you
+    return null;
+  }
+  return shop;
 }
 
 function payForTrimarim(hero: Hero, price: NpcShopItems): NpcTradeResult {

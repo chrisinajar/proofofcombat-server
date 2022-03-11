@@ -2,7 +2,12 @@ import { Monster, AttackType, HeroClasses } from "types/graphql";
 
 const MONSTERS: { [x in string]: Monster } = {};
 
-function makeMonster(factor: number, amp: number, terrain: string) {
+function makeMonster(
+  factor: number,
+  amp: number,
+  terrain: string,
+  levelScale: number = 1
+) {
   return function (
     { name, attackType }: { name: string; attackType: AttackType },
     index: number
@@ -10,7 +15,7 @@ function makeMonster(factor: number, amp: number, terrain: string) {
     MONSTERS[name] = {
       id: name,
 
-      level: index + 1,
+      level: Math.round(levelScale * (index + 1)),
       name,
       attackType,
       combat: {
@@ -106,6 +111,48 @@ export const WATER_MONSTERS: Monster[] = [
   { name: "Skeletal Leviathan", attackType: AttackType.Ranged },
   { name: "Kurumthuli Kraken", attackType: AttackType.Cast },
 ].map(makeMonster(1.4, 8, "water"));
+
+export const FORBIDDEN_MONSTERS: Monster[] = [
+  { name: "Twin-headed Viper", attackType: AttackType.Melee },
+  { name: "Razorbeak Ibis", attackType: AttackType.Cast },
+  { name: "Burrowing Haydeniana", attackType: AttackType.Ranged },
+  { name: "Speartailed Pangolin", attackType: AttackType.Ranged },
+  { name: "Common Slime", attackType: AttackType.Melee },
+  { name: "Ferric Talpidae", attackType: AttackType.Melee },
+  { name: "Gargantuan Pika", attackType: AttackType.Cast },
+  { name: "Disgruntled Rockthrower", attackType: AttackType.Melee },
+  { name: "Lancehorns", attackType: AttackType.Ranged },
+  { name: "Corrupted Ent", attackType: AttackType.Melee },
+  { name: "Hypnotic Maneating-Plant", attackType: AttackType.Melee },
+  { name: "Highland Satyr", attackType: AttackType.Cast },
+  { name: "Adolescent Harlequin", attackType: AttackType.Melee },
+  { name: "Nameless Ghoul", attackType: AttackType.Smite },
+  { name: "Acid-Jaw Soldier Ant", attackType: AttackType.Melee },
+  { name: "Cliff Yeti", attackType: AttackType.Melee },
+  { name: "Scorpion Centaur", attackType: AttackType.Melee },
+  { name: "Wyvern", attackType: AttackType.Cast },
+  { name: "Cave Horror", attackType: AttackType.Cast },
+  { name: "Craggy Basilisk", attackType: AttackType.Melee },
+  { name: "Living Fossil", attackType: AttackType.Cast },
+  { name: "Lesser Demon", attackType: AttackType.Ranged },
+  { name: "Sadistic Executioner", attackType: AttackType.Melee },
+  { name: "Fallen Wingbearer", attackType: AttackType.Cast },
+  { name: "Grizzled Manticore", attackType: AttackType.Melee },
+  { name: "Matriarch Webslinger", attackType: AttackType.Ranged },
+  { name: "Fissure Fiend", attackType: AttackType.Melee },
+  { name: "Tormented Wight", attackType: AttackType.Melee },
+  { name: "4-Armed Colossus", attackType: AttackType.Smite },
+  { name: "Platinum Behemoth", attackType: AttackType.Melee },
+  { name: "Contracted Ifrit", attackType: AttackType.Melee },
+  { name: "Empyrean Prince", attackType: AttackType.Melee },
+  { name: "Arctotherium Ursa", attackType: AttackType.Melee },
+  { name: "Thermonuclear Devil", attackType: AttackType.Cast },
+  { name: "Warlord Asura", attackType: AttackType.Cast },
+  { name: "Beelzebub's Offshoot", attackType: AttackType.Cast },
+  { name: "Tarrasque", attackType: AttackType.Smite },
+  { name: "Shub Niggurath", attackType: AttackType.Ranged },
+  { name: "Shai'taan", attackType: AttackType.Cast },
+].map(makeMonster(1.6, 4096, "forbidden", 1.5));
 
 export async function getMonster(id: string): Promise<Monster | undefined> {
   return MONSTERS[id];

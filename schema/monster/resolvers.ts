@@ -26,7 +26,12 @@ import { LocationData, MapNames } from "../../constants";
 import { specialLocations, distance2d } from "../../helpers";
 
 import { checkAberrationDrop } from "./aberration-drops";
-import { getMonster, LAND_MONSTERS, WATER_MONSTERS } from "./monster-lists";
+import {
+  getMonster,
+  LAND_MONSTERS,
+  WATER_MONSTERS,
+  FORBIDDEN_MONSTERS,
+} from "./monster-lists";
 
 const resolvers: Resolvers = {
   Mutation: {
@@ -125,6 +130,13 @@ const resolvers: Resolvers = {
 
       // victory
       if (fightResult.victimDied) {
+        // if (location.terrain === "water") {
+
+        const location =
+          LocationData[hero.location.map as MapNames]?.locations[
+            hero.location.x
+          ][hero.location.y];
+
         const currentTavern = specialLocations(
           hero.location.x,
           hero.location.y,
@@ -147,6 +159,12 @@ const resolvers: Resolvers = {
           } else if (currentTavern.name === "The Drowning Fish") {
             bonusDropRate = 2;
           }
+        }
+
+        if (location.terrain === "forbidden") {
+          bonusDropRate *= 3;
+          experienceRewards *= 3;
+          goldReward *= 3;
         }
 
         experienceRewards = Math.round(experienceRewards);
@@ -389,6 +407,10 @@ const resolvers: Resolvers = {
       if (location.terrain === "water") {
         return WATER_MONSTERS;
       }
+      if (location.terrain === "forbidden") {
+        return FORBIDDEN_MONSTERS;
+      }
+
       return LAND_MONSTERS;
     },
   },
