@@ -12,7 +12,7 @@ const minSpawnTime = 60000;
 const maxSpawnTime = 48 * 60 * 60 * 1000;
 // const maxSpawnTime = 120 * 1000;
 
-const idealSpawnTime = 2 * 60 * 60 * 1000;
+const idealSpawnTime = 1 * 60 * 60 * 1000;
 // const idealSpawnTime = 30 * 1000;
 const changeWindow = 500;
 
