@@ -358,22 +358,22 @@ export function enchantAttacker(
         break;
       case EnchantmentType.RangedArmorPiercing:
         if (attackType === AttackType.Ranged) {
-          victim.percentageDamageReduction *= 0.8;
+          victim.percentageDamageReduction *= 0.5;
         }
         break;
       case EnchantmentType.MeleeArmorPiercing:
         if (attackType === AttackType.Melee) {
-          victim.percentageDamageReduction *= 0.8;
+          victim.percentageDamageReduction *= 0.5;
         }
         break;
       case EnchantmentType.CasterArmorPiercing:
         if (attackType === AttackType.Cast) {
-          victim.percentageDamageReduction *= 0.8;
+          victim.percentageDamageReduction *= 0.5;
         }
         break;
       case EnchantmentType.SmiteArmorPiercing:
         if (attackType === AttackType.Smite) {
-          victim.percentageDamageReduction *= 0.8;
+          victim.percentageDamageReduction *= 0.5;
         }
         break;
       case EnchantmentType.VampireArmorPiercing:
@@ -395,6 +395,7 @@ export function enchantAttacker(
       attacker.attributes.wisdom *= 1.5;
       attacker.attributes.willpower *= 1.5;
       break;
+
     case HeroClasses.Daredevil:
       attacker.attributes.strength *= 1 + Math.random();
       attacker.attributes.dexterity *= 1 + Math.random();
@@ -405,7 +406,6 @@ export function enchantAttacker(
       attacker.attributes.luck *= 1 + Math.random();
       attacker.bonusAccuracy *= 2;
       attacker.bonusWeaponTiers += Math.round(Math.random() * 3);
-
     case HeroClasses.Gambler:
       attacker.attributes.strength *= 1.1;
       attacker.attributes.dexterity *= 1.2;
@@ -422,17 +422,16 @@ export function enchantAttacker(
       attacker.attributes.dexterity *= 2;
       attacker.bonusAccuracy *= 2;
       attacker.bonusWeaponTiers += 1;
-
     case HeroClasses.Berserker:
       attacker.attributes.strength *= 2;
       attacker.attributes.dexterity *= 1.3;
       break;
+
     case HeroClasses.Gladiator:
       attacker.attributes.strength *= 2;
       attacker.attributes.dexterity *= 2;
       attacker.bonusAccuracy *= 2;
       attacker.bonusWeaponTiers += 1;
-
     case HeroClasses.Fighter:
       attacker.attributes.strength *= 1.5;
       attacker.attributes.dexterity *= 1.3;
@@ -445,17 +444,16 @@ export function enchantAttacker(
       attacker.attributes.wisdom *= 2;
       attacker.bonusAccuracy *= 2;
       attacker.bonusWeaponTiers += 1;
-
     case HeroClasses.Wizard:
       attacker.attributes.intelligence *= 2;
       attacker.attributes.wisdom *= 1.3;
       break;
+
     case HeroClasses.MasterWarlock:
       attacker.attributes.intelligence *= 2;
       attacker.attributes.wisdom *= 2;
       attacker.bonusAccuracy *= 2;
       attacker.bonusWeaponTiers += 1;
-
     case HeroClasses.Warlock:
       attacker.attributes.intelligence *= 1.5;
       attacker.attributes.wisdom *= 1.3;
@@ -471,7 +469,6 @@ export function enchantAttacker(
       attacker.attributes.willpower *= 1.2;
       attacker.bonusAccuracy *= 2;
       attacker.bonusWeaponTiers += 1;
-
     case HeroClasses.BattleMage:
       attacker.attributes.strength *= 2;
       attacker.attributes.dexterity *= 1.3;
@@ -479,31 +476,28 @@ export function enchantAttacker(
       attacker.attributes.wisdom *= 1.3;
       attacker.attributes.willpower *= 1.2;
       break;
+
     case HeroClasses.Zealot:
       attacker.attributes.willpower *= 1.3;
       attacker.attributes.wisdom *= 2;
       attacker.bonusAccuracy *= 2;
       attacker.bonusWeaponTiers += 1;
-
     case HeroClasses.Paladin:
       attacker.attributes.willpower *= 1.3;
       break;
 
     case HeroClasses.Archer:
-      attacker.attributes.dexterity *= 3;
+      attacker.attributes.dexterity *= 4;
       attacker.bonusWeaponTiers += 1;
-
     case HeroClasses.Ranger:
       attacker.attributes.dexterity *= 2;
       attacker.bonusAccuracy *= 2;
       break;
+
     case HeroClasses.Vampire:
       attacker.attributes.constitution *= 1.5;
       attacker.attributes.willpower *= 1.5;
-
-      if (attackType === AttackType.Blood) {
-        victim.percentageEnchantmentDamageReduction *= 0.25;
-      }
+      victim.percentageEnchantmentDamageReduction *= 0.25;
     case HeroClasses.BloodMage:
       attacker.attributes.constitution *= 1.2;
       break;

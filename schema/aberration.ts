@@ -1,5 +1,6 @@
 import { AttackType, EnchantmentType } from "types/graphql";
 
+import { AberrationStats } from "./monster/aberration-stats";
 import { BaseContext } from "./context";
 
 import Databases from "../db";
@@ -37,6 +38,9 @@ export async function spawnRandomAberration(context: BaseContext) {
     case "random-aberration-thornbrute":
       spawnMessage = "A horrible crack is heard near {{loc}}";
       break;
+    case "domari-aberration-1":
+      spawnMessage = "Ash can be seem overhead near {{loc}}";
+      break;
   }
 
   const location = [
@@ -55,6 +59,15 @@ export async function spawnRandomAberration(context: BaseContext) {
   };
 
   await context.db.monsterInstances.create(monster);
+
+  location[0] = Math.min(
+    127,
+    Math.max(0, location[0] + (Math.floor(Math.random() * 3) - 1))
+  );
+  location[1] = Math.min(
+    95,
+    Math.max(0, location[1] + (Math.floor(Math.random() * 3) - 1))
+  );
 
   // Aberrations
   io.sendGlobalMessage({
@@ -119,64 +132,15 @@ setTimeout(init, minSpawnTime / 3);
 
 const Aberrations = [
   {
+    id: "domari-aberration-1",
+    ...AberrationStats["domari-aberration-1"],
+  },
+  {
     id: "random-aberration-unholy-paladin",
-    monster: {
-      name: "The Unholy Paladin",
-      id: "random-aberration-unholy-paladin",
-      attackType: AttackType.Smite,
-      level: 8,
-      combat: {
-        maxHealth: 250,
-        health: 250,
-      },
-    },
-    equipment: {
-      bodyArmor: {
-        level: 32,
-        enchantment: EnchantmentType.CanOnlyTakeOneDamage,
-      },
-      handArmor: {
-        level: 32,
-        enchantment: EnchantmentType.MinusEnemyDexterity,
-      },
-      legArmor: { level: 32, enchantment: EnchantmentType.MinusEnemyWisdom },
-      headArmor: { level: 32, enchantment: EnchantmentType.MinusEnemyWisdom },
-      footArmor: {
-        level: 32,
-        enchantment: EnchantmentType.MinusEnemyDexterity,
-      },
-
-      leftHand: { level: 32 },
-      rightHand: { level: 32 },
-    },
+    ...AberrationStats["random-aberration-unholy-paladin"],
   },
   {
     id: "random-aberration-thornbrute",
-    monster: {
-      name: "Thornbrute",
-      id: "random-aberration-thornbrute",
-      attackType: AttackType.Cast,
-      level: 35,
-      combat: {
-        maxHealth: 1000000000,
-        health: 1000000000,
-      },
-    },
-    equipment: {
-      bodyArmor: {
-        level: 33,
-        enchantment: EnchantmentType.MinusEnemyAllStats,
-      },
-      handArmor: {
-        level: 33,
-        enchantment: EnchantmentType.MinusEnemyAllStats,
-      },
-      legArmor: { level: 33, enchantment: EnchantmentType.Vampirism },
-      headArmor: { level: 33 },
-      footArmor: { level: 33 },
-
-      leftHand: { level: 33 },
-      rightHand: { level: 33 },
-    },
+    ...AberrationStats["random-aberration-thornbrute"],
   },
 ];

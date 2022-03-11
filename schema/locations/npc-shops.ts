@@ -10,6 +10,7 @@ import {
 } from "types/graphql";
 import { LocationData, MapNames } from "../../constants";
 import { giveQuestItemNotification, takeQuestItem } from "../quests/helpers";
+import { AberrationStats } from "../monster/aberration-stats";
 import { BaseContext } from "../context";
 
 type NpcTradeResult = { success: boolean; message: string };
@@ -45,8 +46,15 @@ export function getShopData(
     return getNaxxremisTrades(context, hero);
   } else if (location.name === "The Hellhound's Fur") {
     return getTrimarimTrades(context, hero);
+  } else if (location.name === "Amixea's Hut") {
+    return getAmixeaTrades(context, hero);
   }
 
+  return null;
+}
+
+function getAmixeaTrades(context: BaseContext, hero: Hero): NpcShop | null {
+  // Amixea is a old small quiet witch who radiates with a magical aura.
   return null;
 }
 
@@ -331,28 +339,7 @@ const domariAberrationCosts: SummoningCost[] = [
 ];
 
 const domariAberrations: Omit<MonsterInstance, "id" | "location">[] = [
-  {
-    monster: {
-      name: "Burnt Harlequin",
-      id: "domari-aberration-1",
-      attackType: AttackType.Melee,
-      level: 31,
-      combat: {
-        maxHealth: 25000000,
-        health: 25000000,
-      },
-    },
-    equipment: {
-      bodyArmor: { level: 32 },
-      handArmor: { level: 32 },
-      legArmor: { level: 32 },
-      headArmor: { level: 32 },
-      footArmor: { level: 32 },
-
-      leftHand: { level: 32 },
-      rightHand: { level: 32 },
-    },
-  },
+  AberrationStats["domari-aberration-1"],
 ];
 
 // domari the aberration hunter
