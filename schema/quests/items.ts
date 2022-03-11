@@ -369,6 +369,7 @@ export function getQuestRewards() {
       type: InventoryItemType.Quest,
       level: 1,
       canBuy: false,
+      passiveEnchantments: [EnchantmentType.BonusWeaponTier],
     },
 
     "naga-scale": {
@@ -377,7 +378,10 @@ export function getQuestRewards() {
       type: InventoryItemType.Quest,
       level: 1,
       canBuy: false,
-      passiveEnchantments: [EnchantmentType.CounterSpell],
+      passiveEnchantments: [
+        EnchantmentType.CounterSpell,
+        EnchantmentType.BonusWeaponTier,
+      ],
     },
 
     "broken-scepter": {

@@ -87,10 +87,8 @@ export function calculateDamage(
   let weaponLevel = weapon?.level ?? 0;
 
   if (weapon) {
-    // they count as 1 level higher
-    if (getItemPassiveUpgradeTier(weapon) > 1) {
-      weaponLevel += 1;
-    }
+    // for now, each upper tier counts as 2 tiers
+    weaponLevel += getItemPassiveUpgradeTier(weapon);
     weaponLevel += attacker.bonusWeaponTiers;
 
     if (weapon.type === InventoryItemType.Shield) {
