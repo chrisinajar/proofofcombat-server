@@ -265,7 +265,6 @@ export function enchantAttacker(
         break;
       case EnchantmentType.Vampirism:
         stealStat(attacker, victim, "constitution", 0.3);
-        victim.percentageEnchantmentDamageReduction *= 0.9;
 
         break;
       case EnchantmentType.AllStatsSteal:
@@ -502,7 +501,7 @@ export function enchantAttacker(
     case HeroClasses.Vampire:
       attacker.attributes.constitution *= 1.5;
       attacker.attributes.willpower *= 1.5;
-      victim.percentageEnchantmentDamageReduction *= 0.25;
+      victim.percentageEnchantmentDamageReduction *= 0.5;
     case HeroClasses.BloodMage:
       attacker.attributes.constitution *= 1.2;
       break;
