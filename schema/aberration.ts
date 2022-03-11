@@ -39,7 +39,7 @@ export async function spawnRandomAberration(context: BaseContext) {
       spawnMessage = "A horrible crack is heard near {{loc}}";
       break;
     case "domari-aberration-1":
-      spawnMessage = "Ash can be seem overhead near {{loc}}";
+      spawnMessage = "Ash can be seen overhead near {{loc}}";
       break;
   }
 
