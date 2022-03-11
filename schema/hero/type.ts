@@ -137,8 +137,8 @@ export default gql`
   }
 
   type HeroCombatStats implements ComatStats {
-    health: Int!
-    maxHealth: Int!
+    health: Float!
+    maxHealth: Float!
   }
 
   type HeroStats implements Attributes {

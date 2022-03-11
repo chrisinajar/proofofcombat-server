@@ -6,8 +6,8 @@ export default gql`
   }
 
   interface ComatStats {
-    health: Int!
-    maxHealth: Int!
+    health: Float!
+    maxHealth: Float!
   }
 
   interface Attributes {

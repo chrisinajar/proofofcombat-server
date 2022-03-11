@@ -60,8 +60,8 @@ export default gql`
   }
 
   type MonsterCombatStats implements ComatStats {
-    health: Int!
-    maxHealth: Int!
+    health: Float!
+    maxHealth: Float!
   }
 
   type CombatEntry {
