@@ -17,6 +17,7 @@ export default gql`
     NagaScale # collect and combine a bunch of stuff
     MysteriousAutomation # automation!.... FORCED DOWN YOUR THROAT
     TavernChampion # beat all the big bois
+    MinorClassUpgrades # 3 tier system with 5 tracks, ezpz basically free
   }
 
   type QuestLog {
@@ -28,6 +29,7 @@ export default gql`
     nagaScale: QuestProgress
     clockwork: QuestProgress
     tavernChampion: QuestProgress
+    minorClassUpgrades: QuestProgress
   }
 
   type QuestEvent {

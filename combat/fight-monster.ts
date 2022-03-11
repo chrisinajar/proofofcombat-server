@@ -5,11 +5,12 @@ import {
   InventoryItemType,
   CombatEntry,
   Hero,
+  EnchantmentType,
 } from "types/graphql";
 import { attributesForAttack } from "./helpers";
 import { CombatResult } from "./types";
 import { createHeroCombatant } from "./hero";
-import { getEnchantedAttributes } from "./enchantments";
+import { getEnchantedAttributes, getAllGearEnchantments } from "./enchantments";
 import { calculateEnchantmentDamage } from "./calculate-enchantment-damage";
 import { attackCombatant } from "./fight";
 import { createMonsterCombatant } from "./monster";
@@ -42,6 +43,14 @@ export async function fightMonster(
       // so we don't want them (weps are sorted)
       heroHasTwoAttacks = heroCombatant.equipment.weapons[1].level !== 0;
     }
+  }
+
+  if (attackType === AttackType.Ranged) {
+    const secondAttackChances = getAllGearEnchantments(heroCombatant).filter(
+      (ench) => ench === EnchantmentType.RangedSecondAttackChance
+    ).length;
+    // 0 = 1, goes *DOWN* from there
+    heroHasTwoAttacks = Math.random() > Math.pow(0.5, secondAttackChances);
   }
 
   const monsterCombatant = createMonsterCombatant(

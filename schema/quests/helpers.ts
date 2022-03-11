@@ -25,6 +25,7 @@ import {
 } from "./naga-scale";
 import { checkHeroDrop as checkHeroDropForDroop } from "./droop";
 import { checkHeroDrop as checkHeroDropForTavernChamp } from "./tavern-champion";
+import { checkHeroDrop as checkHeroDropForMinorClasses } from "./minor-class-upgrades";
 
 export function checkHeroDrop(
   context: BaseContext,
@@ -37,6 +38,7 @@ export function checkHeroDrop(
   hero = checkHeroDropForNagaScale(context, hero, monster);
   hero = checkHeroDropForClockwork(context, hero, monster);
   hero = checkHeroDropForTavernChamp(context, hero, monster);
+  hero = checkHeroDropForMinorClasses(context, hero, monster);
 
   return hero;
 }
