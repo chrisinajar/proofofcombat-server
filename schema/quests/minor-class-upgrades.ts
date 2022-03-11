@@ -31,7 +31,7 @@ export function checkHeroDrop(
   if (hero.questLog.minorClassUpgrades?.finished) {
     return hero;
   }
-  if (Math.random() > 1 / 3000) {
+  if (Math.random() > 1 / 500) {
     return hero;
   }
   if (monster.monster.level < 10) {
