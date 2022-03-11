@@ -7,5 +7,5 @@ export * from "./fight-monster";
 export * from "./fight";
 export * from "./helpers";
 export * from "./hero";
-export * from "./monsters";
+export * from "./monster";
 export * from "./types";

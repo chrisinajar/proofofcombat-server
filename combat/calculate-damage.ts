@@ -39,7 +39,7 @@ export function calculateDamage(
     if (armor.type === InventoryItemType.Shield) {
       totalArmorDamageReduction *= Math.pow(
         0.98,
-        armor.level + victim.bonusArmorTiers
+        armor.level + victim.bonusShieldTiers + victim.bonusArmorTiers
       );
     } else {
       totalArmorDamageReduction *= Math.pow(
@@ -61,9 +61,12 @@ export function calculateDamage(
     if (armor.type === InventoryItemType.Shield) {
       totalArmorDamageReduction *= Math.pow(
         0.98,
-        armor.level + victim.bonusArmorTiers
+        armor.level + victim.bonusShieldTiers + victim.bonusArmorTiers
       );
-      totalArmor += Math.pow(1.3, armor.level + victim.bonusArmorTiers);
+      totalArmor += Math.pow(
+        1.3,
+        armor.level + victim.bonusShieldTiers + victim.bonusArmorTiers
+      );
 
       if (getItemPassiveUpgradeTier(armor) > 0) {
         baseDamageDecrease *= 0.75;
@@ -89,6 +92,10 @@ export function calculateDamage(
       weaponLevel += 1;
     }
     weaponLevel += attacker.bonusWeaponTiers;
+
+    if (weapon.type === InventoryItemType.Shield) {
+      weaponLevel += attacker.bonusShieldTiers;
+    }
   }
 
   const baseDamage = Math.max(

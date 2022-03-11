@@ -138,6 +138,7 @@ export function enchantAttacker(
   attacker.bonusAccuracy = attacker.bonusAccuracy ?? 1;
   attacker.bonusWeaponTiers = attacker.bonusWeaponTiers ?? 0;
   attacker.bonusArmorTiers = attacker.bonusArmorTiers ?? 0;
+  attacker.bonusShieldTiers = attacker.bonusShieldTiers ?? 0;
   attacker.mesmerizeChance = attacker.mesmerizeChance ?? 1;
   attacker.focusChance = attacker.focusChance ?? 1;
 
@@ -151,6 +152,7 @@ export function enchantAttacker(
   victim.bonusAccuracy = victim.bonusAccuracy ?? 1;
   victim.bonusWeaponTiers = victim.bonusWeaponTiers ?? 0;
   victim.bonusArmorTiers = victim.bonusArmorTiers ?? 0;
+  victim.bonusShieldTiers = victim.bonusShieldTiers ?? 0;
   victim.mesmerizeChance = victim.mesmerizeChance ?? 1;
   victim.focusChance = victim.focusChance ?? 1;
 
@@ -352,9 +354,7 @@ export function enchantAttacker(
         }
         break;
       case EnchantmentType.BonusSmiteWeaponTier:
-        if (attackType === AttackType.Smite) {
-          attacker.bonusWeaponTiers += 1;
-        }
+        attacker.bonusShieldTiers += 1;
         break;
       case EnchantmentType.RangedArmorPiercing:
         if (attackType === AttackType.Ranged) {

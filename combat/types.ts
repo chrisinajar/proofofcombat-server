@@ -35,6 +35,7 @@ export type EnchantedCombatant = Combatant & {
   bonusAccuracy: number;
   bonusDodge: number;
   bonusWeaponTiers: number;
+  bonusShieldTiers: number;
   bonusArmorTiers: number;
   // inverse for MATHS
   mesmerizeChance: number;
