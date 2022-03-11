@@ -517,7 +517,7 @@ export function getQuestRewards() {
       passiveEnchantments: [
         EnchantmentType.RangedSecondAttackChance,
         EnchantmentType.RangedArmorPiercing,
-        EnchantmentType.RangedSecondAttackChance,
+        EnchantmentType.BonusRangedWeaponTier,
       ],
     },
 
@@ -646,6 +646,22 @@ export function getQuestRewards() {
         EnchantmentType.BonusConstitution,
         EnchantmentType.VampireArmorPiercing,
         EnchantmentType.VampireArmorPiercing,
+      ],
+    },
+    // combine now or later?
+    "heros-guidance": {
+      id: "heros-guidance",
+      name: "Hero's Guidance",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.BonusAllStats,
+        EnchantmentType.VampireArmorPiercing,
+        EnchantmentType.VampireArmorPiercing,
+        EnchantmentType.MinusEnemyArmor,
+        EnchantmentType.BonusWeaponTier,
+        EnchantmentType.RangedSecondAttackChance,
       ],
     },
   };

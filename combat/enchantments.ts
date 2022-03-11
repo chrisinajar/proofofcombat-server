@@ -353,6 +353,11 @@ export function enchantAttacker(
           attacker.bonusWeaponTiers += 1;
         }
         break;
+      case EnchantmentType.BonusRangedWeaponTier:
+        if (attackType === AttackType.Ranged) {
+          attacker.bonusWeaponTiers += 1;
+        }
+        break;
       case EnchantmentType.BonusSmiteWeaponTier:
         attacker.bonusShieldTiers += 1;
         break;

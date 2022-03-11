@@ -129,6 +129,7 @@ export default gql`
     BonusMeleeWeaponTier
     BonusCasterWeaponTier
     BonusSmiteWeaponTier
+    BonusRangedWeaponTier
     RangedArmorPiercing
     MeleeArmorPiercing
     CasterArmorPiercing
