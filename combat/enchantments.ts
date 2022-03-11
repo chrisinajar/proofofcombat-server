@@ -265,6 +265,7 @@ export function enchantAttacker(
         break;
       case EnchantmentType.Vampirism:
         stealStat(attacker, victim, "constitution", 0.3);
+        victim.percentageEnchantmentDamageReduction *= 0.95;
 
         break;
       case EnchantmentType.AllStatsSteal:
