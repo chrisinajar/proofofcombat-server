@@ -661,6 +661,7 @@ export function getQuestRewards() {
       canBuy: false,
       passiveEnchantments: [
         EnchantmentType.BonusAllStats,
+        EnchantmentType.BonusAllStats,
         EnchantmentType.VampireArmorPiercing,
         EnchantmentType.VampireArmorPiercing,
         EnchantmentType.MinusEnemyArmor,
@@ -702,6 +703,7 @@ export function getQuestRewards() {
         EnchantmentType.DoubleAccuracy,
         EnchantmentType.DoubleDodge,
         // Hero's Guidance
+        EnchantmentType.BonusAllStats,
         EnchantmentType.BonusAllStats,
         EnchantmentType.VampireArmorPiercing,
         EnchantmentType.VampireArmorPiercing,

@@ -494,9 +494,10 @@ export function enchantAttacker(
     case HeroClasses.Archer:
       attacker.attributes.dexterity *= 4;
       attacker.bonusWeaponTiers += 1;
+      victim.percentageDamageReduction *= 0.5;
     case HeroClasses.Ranger:
       attacker.attributes.dexterity *= 2;
-      attacker.bonusAccuracy *= 2;
+      victim.percentageDamageReduction *= 0.5;
       break;
 
     case HeroClasses.Vampire:
