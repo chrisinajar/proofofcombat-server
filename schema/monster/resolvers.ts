@@ -223,7 +223,10 @@ const resolvers: Resolvers = {
             hero.enchantingDust =
               hero.enchantingDust +
               1 +
-              countEnchantments(hero, EnchantmentType.BonusDust);
+              context.db.hero.countEnchantments(
+                hero,
+                EnchantmentType.BonusDust
+              );
 
             context.io.sendNotification(hero.id, {
               type: "drop",
