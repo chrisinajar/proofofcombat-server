@@ -140,6 +140,13 @@ async function executeTranscendenceTrade(
         message: "You need a non-enchanted Ascended tier equipment to upgrade",
       };
     }
+    if (hero.enchantingDust < 1000) {
+      return {
+        success: false,
+        message: "You do not have enough enchanting dust to activate the altar",
+      };
+    }
+    hero.enchantingDust -= 1000;
     hero = takeQuestItem(hero, "essence-of-ash");
     hero = takeQuestItem(hero, "essence-of-thorns");
     hero = takeQuestItem(hero, "essence-of-darkness");
@@ -167,6 +174,11 @@ async function executeTranscendenceTrade(
     const newItem = createItemInstance(baseItem, hero);
     hero.inventory.push(newItem);
     await context.db.hero.put(hero);
+
+    context.io.sendGlobalNotification({
+      message: `${hero.name} holds transcended power`,
+      type: "quest",
+    });
 
     return {
       success: true,
