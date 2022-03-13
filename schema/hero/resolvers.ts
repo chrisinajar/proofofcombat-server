@@ -16,6 +16,7 @@ import {
   HeroStats,
   AttributeType,
   TradeOffer,
+  AccessRole,
   EnchantmentType,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
@@ -198,10 +199,16 @@ const resolvers: Resolvers = {
   },
   BaseAccount: {
     async hero(parent, args, context: BaseContext): Promise<Hero> {
-      if (context?.auth?.id !== parent.id) {
-        throw new ForbiddenError(
-          "You do not have permission to access that hero"
-        );
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      if (context.auth.id !== parent.id) {
+        const account = await context.db.account.get(context.auth.id);
+        if (account.access !== AccessRole.Admin) {
+          throw new ForbiddenError(
+            "You do not have permission to access that hero"
+          );
+        }
       }
       let hero: Hero | null = null;
       try {

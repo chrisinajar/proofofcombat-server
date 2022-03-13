@@ -8,6 +8,7 @@ import monsterTypes from "./monster/type";
 import questsTypes from "./quests/type";
 import locationsTypes from "./locations/type";
 import itemsTypes from "./items/type";
+import adminTypes from "./admin/type";
 
 export default mergeTypeDefs([
   directives,
@@ -18,4 +19,5 @@ export default mergeTypeDefs([
   questsTypes,
   locationsTypes,
   itemsTypes,
+  adminTypes,
 ]);
