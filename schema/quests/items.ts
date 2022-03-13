@@ -678,6 +678,7 @@ export function getQuestRewards() {
       passiveEnchantments: [
         // Orb specific
         EnchantmentType.CanTravelOnForbidden,
+        EnchantmentType.BonusDust,
         // Kraken Shell Medallion
         EnchantmentType.DoubleAllStats,
         EnchantmentType.BonusArmorTier,

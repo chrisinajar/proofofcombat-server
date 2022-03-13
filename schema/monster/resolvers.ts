@@ -220,7 +220,11 @@ const resolvers: Resolvers = {
             droppedItem = itemInstance;
             hero.inventory.push(itemInstance);
           } else {
-            hero.enchantingDust = hero.enchantingDust + 1;
+            hero.enchantingDust =
+              hero.enchantingDust +
+              1 +
+              countEnchantments(hero, EnchantmentType.BonusDust);
+
             context.io.sendNotification(hero.id, {
               type: "drop",
               message: `The enchanted item falling from ${monster.monster.name} turns to dust`,

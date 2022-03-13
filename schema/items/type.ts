@@ -110,6 +110,7 @@ export default gql`
     AutoBattle # probably shoulda been "CanAutoBattle" but whatever
     DoubleExperience # 2x xp, stacks
     DoubleLeveling # get 2 levels for every level, stacks
+    BonusDust
     # class quests
     MeleeUpgrade
     CasterUpgrade
