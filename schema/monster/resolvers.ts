@@ -19,7 +19,7 @@ import {
   createItemInstance,
   enchantItem,
 } from "../items/helpers";
-import { checkHeroDrop } from "../quests/helpers";
+import { checkHeroDrop, hasQuestItem } from "../quests/helpers";
 import { createMonsterEquipment } from "../../combat/monster";
 import { fightMonster } from "../../combat/fight-monster";
 import { LocationData, MapNames } from "../../constants";
@@ -32,6 +32,12 @@ import {
   WATER_MONSTERS,
   FORBIDDEN_MONSTERS,
 } from "./monster-lists";
+
+const MonsterLockoutItems: { [x in string]?: string } = {
+  "domari-aberration-1": "essence-of-ash",
+  "random-aberration-unholy-paladin": "essence-of-darkness",
+  "random-aberration-thornbrute": "essence-of-thorns",
+};
 
 const resolvers: Resolvers = {
   Mutation: {
@@ -62,6 +68,13 @@ const resolvers: Resolvers = {
       ) {
         throw new UserInputError(
           "You are not in the right location to fight that monster!"
+        );
+      }
+
+      const lockoutItem = MonsterLockoutItems[monster.monster.id];
+      if (lockoutItem && hasQuestItem(hero, lockoutItem)) {
+        throw new UserInputError(
+          "You cannot touch the aberration for you already possess it's essence"
         );
       }
 

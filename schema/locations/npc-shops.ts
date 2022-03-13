@@ -1,4 +1,5 @@
 import {
+  InventoryItemType,
   SpecialLocation,
   NpcShop,
   Hero,
@@ -14,6 +15,8 @@ import {
   takeQuestItem,
   hasQuestItem,
 } from "../quests/helpers";
+import { createItemInstance } from "../items/helpers";
+import { BaseItems } from "../items/base-items";
 import { getQuestRewards } from "../quests/items";
 import { AberrationStats } from "../monster/aberration-stats";
 import { BaseContext } from "../context";
@@ -40,6 +43,9 @@ export async function executeNpcTrade(
   if (tradeId.startsWith("amixea")) {
     return executeAmixeaTrade(context, hero, tradeId);
   }
+  if (tradeId.startsWith("transcendence")) {
+    return executeTranscendenceTrade(context, hero, tradeId);
+  }
 
   return { success: false, message: "not implemented" };
 }
@@ -56,9 +62,118 @@ export function getShopData(
     return getTrimarimTrades(context, hero);
   } else if (location.name === "Amixea's Hut") {
     return getAmixeaTrades(context, hero);
+  } else if (location.name === "Altar of Transcendence") {
+    return getTranscendenceTrades(context, hero);
   }
 
   return null;
+}
+
+function getTranscendenceTrades(
+  context: BaseContext,
+  hero: Hero
+): NpcShop | null {
+  // Amixea is a old small quiet witch who radiates with a magical aura.
+  const shop: NpcShop = {
+    name: "Altar of Transcendence",
+
+    trades: [],
+  };
+  const questItems = getQuestRewards();
+  // (0x01 << 0) + (0x01 << 1) + (0x01 << 2) + (0x01 << 3) + (0x01 << 4) + (0x01 << 5) + (0x01 << 6) + (0x01 << 7) + (0x01 << 8) + (0x01 << 9) + (0x01 << 10) + (0x01 << 11) + (0x01 << 12) + (0x01 << 13) + (0x01 << 14)
+  if (
+    hasQuestItem(hero, "essence-of-ash") &&
+    hasQuestItem(hero, "essence-of-thorns") &&
+    hasQuestItem(hero, "essence-of-darkness")
+  ) {
+    shop.trades.push({
+      id: "transcendence-essence-upgrade",
+      price: {
+        dust: 1000,
+        description: "the three great essences",
+        questItems: [
+          questItems["essence-of-ash"].name,
+          questItems["essence-of-thorns"].name,
+          questItems["essence-of-darkness"].name,
+          "Non-Enchanted Ascended Gear",
+        ],
+      },
+      offer: {
+        questItems: ["Transcended Gear"],
+        description: "great power",
+      },
+    });
+  }
+
+  if (!shop.trades.length) {
+    // amixea does not care for you
+    return null;
+  }
+  return shop;
+}
+
+async function executeTranscendenceTrade(
+  context: BaseContext,
+  hero: Hero,
+  tradeId: string
+): Promise<NpcTradeResult> {
+  if (tradeId === "transcendence-essence-upgrade") {
+    if (
+      !hasQuestItem(hero, "essence-of-ash") ||
+      !hasQuestItem(hero, "essence-of-thorns") ||
+      !hasQuestItem(hero, "essence-of-darkness")
+    ) {
+      return {
+        success: false,
+        message: "You lack the essences needed to activate the altar",
+      };
+    }
+    const pureAscendedItem = hero.inventory.find(
+      (item) =>
+        item.level === 33 &&
+        item.type !== InventoryItemType.Quest &&
+        !item.enchantment
+    );
+    if (!pureAscendedItem) {
+      return {
+        success: false,
+        message: "You need a non-enchanted Ascended tier equipment to upgrade",
+      };
+    }
+    hero = takeQuestItem(hero, "essence-of-ash");
+    hero = takeQuestItem(hero, "essence-of-thorns");
+    hero = takeQuestItem(hero, "essence-of-darkness");
+    hero.inventory = hero.inventory.filter(
+      (item) => item.id !== pureAscendedItem.id
+    );
+
+    const baseItem = Object.values(BaseItems).find(
+      (base) => base.level === 34 && base.type === pureAscendedItem.type
+    );
+    if (!baseItem) {
+      return {
+        success: false,
+        message: "Failed to find an upgrade for that item.",
+      };
+    }
+    console.log(
+      hero.name,
+      "is upgrading",
+      pureAscendedItem.name,
+      "to",
+      baseItem.name
+    );
+
+    const newItem = createItemInstance(baseItem, hero);
+    hero.inventory.push(newItem);
+    await context.db.hero.put(hero);
+
+    return {
+      success: true,
+      message: `Your ${pureAscendedItem.name} fuses with the essences and transforms into ${newItem.name}`,
+    };
+  }
+  return { success: false, message: "not implemented" };
 }
 
 async function executeAmixeaTrade(
@@ -108,6 +223,7 @@ async function executeAmixeaTrade(
     });
 
     await context.db.hero.put(hero);
+    return { success: true, message: "Amixea combines the items into one" };
   }
 
   if (tradeId === "amixea-orb-of-forbidden-power") {
@@ -154,6 +270,7 @@ async function executeAmixeaTrade(
     });
 
     await context.db.hero.put(hero);
+    return { success: true, message: "Amixea combines the items into one" };
   }
   return { success: false, message: "not implemented" };
 }

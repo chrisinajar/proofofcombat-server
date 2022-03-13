@@ -113,5 +113,14 @@
       "The cave system connecting here are a labyrinthian death maze,",
       "Surely no outsiders could make it here..."
     ]
+  },
+  {
+    "x": 64,
+    "y": 44,
+    "name": "Altar of Transcendence",
+    "type": "hermit",
+    "description": [
+      "The runestones are confusing, but the power they possess is clear."
+    ]
   }
 ]
