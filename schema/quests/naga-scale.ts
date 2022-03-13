@@ -45,8 +45,8 @@ export function checkHeroDrop(
 
   if (
     (progress & LampOil) === 0 &&
-    monster.monster.level > 12 &&
-    monster.monster.level < 16
+    monster.monster.level >= 12 &&
+    monster.monster.level <= 16
   ) {
     if (Math.random() > 1 / 10000) {
       return hero;

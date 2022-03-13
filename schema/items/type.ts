@@ -95,6 +95,36 @@ export default gql`
 
     # End droppable enchantments
 
+    # tier 4's, not droppable, only craftable
+    SuperDexterity
+    SuperWillpower
+    SuperWisdom
+    SuperMelee
+    SuperCaster
+    SuperMeleeVamp
+    SuperSorcVamp
+    SuperVamp
+    SuperVampMelee
+    SuperVampSorc
+    SuperBattleMage
+    SuperAllStats
+
+    # parts of tier 4's
+    TierFourCommon
+    SuperDexterityStats
+    SuperWillpowerStats
+    SuperWisdomStats
+    SuperVampStats
+    SuperMeleeStats
+    SuperCasterStats
+    SuperVampMeleeStats
+    SuperVampSorcStats
+    SuperMeleeVampStats
+    SuperBattleMageStats
+    SuperSorcVampStats
+    TwentyLifeSteal
+    ThirtyLifeSteal
+
     # Quest reward enchantments
     # brewconia quest
     FishermansStrength

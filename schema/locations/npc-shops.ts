@@ -480,6 +480,220 @@ const TrimarimTrades: {
     message: "The power is overwhelming",
     description: "something far far greater",
   },
+
+  // tier 4 recipes
+
+  "trimarim-enchantment-tier4-superdexterity": {
+    price: {
+      gold: 2000000000,
+      dust: 4000,
+      enchantments: [
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.WisDexWill,
+        EnchantmentType.DexteritySteal,
+      ],
+      description: "only the rarest",
+    },
+    offer: EnchantmentType.SuperDexterity,
+    message: "The enchantments are fused into one",
+    description: "unbelievable power",
+  },
+  "trimarim-enchantment-tier4-superwillpower": {
+    price: {
+      gold: 2000000000,
+      dust: 4000,
+      enchantments: [
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.WisDexWill,
+        EnchantmentType.WillpowerSteal,
+      ],
+      description: "only the rarest",
+    },
+    offer: EnchantmentType.SuperWillpower,
+    message: "The enchantments are fused into one",
+    description: "unbelievable power",
+  },
+  "trimarim-enchantment-tier4-superwisdom": {
+    price: {
+      gold: 2000000000,
+      dust: 4000,
+      enchantments: [
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.WisDexWill,
+        EnchantmentType.WisdomSteal,
+      ],
+      description: "only the rarest",
+    },
+    offer: EnchantmentType.SuperWisdom,
+    message: "The enchantments are fused into one",
+    description: "unbelievable power",
+  },
+  "trimarim-enchantment-tier4-supervamp": {
+    price: {
+      gold: 2000000000,
+      dust: 4000,
+      enchantments: [
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.Vampirism,
+        EnchantmentType.Vampirism,
+        EnchantmentType.Vampirism,
+      ],
+      description: "only the rarest",
+    },
+    offer: EnchantmentType.SuperVamp,
+    message: "The enchantments are fused into one",
+    description: "unbelievable power",
+  },
+  "trimarim-enchantment-tier4-supermelee": {
+    price: {
+      gold: 2000000000,
+      dust: 4000,
+      enchantments: [
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.BigMelee,
+        EnchantmentType.BigMelee,
+        EnchantmentType.BigMelee,
+      ],
+      description: "only the rarest",
+    },
+    offer: EnchantmentType.SuperMelee,
+    message: "The enchantments are fused into one",
+    description: "unbelievable power",
+  },
+  "trimarim-enchantment-tier4-supercaster": {
+    price: {
+      gold: 2000000000,
+      dust: 4000,
+      enchantments: [
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.BigCaster,
+        EnchantmentType.BigCaster,
+        EnchantmentType.BigCaster,
+      ],
+      description: "only the rarest",
+    },
+    offer: EnchantmentType.SuperCaster,
+    message: "The enchantments are fused into one",
+    description: "unbelievable power",
+  },
+  "trimarim-enchantment-tier4-superbattlemage": {
+    price: {
+      gold: 2000000000,
+      dust: 4000,
+      enchantments: [
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.BigMelee,
+        EnchantmentType.BigCaster,
+        EnchantmentType.BigCaster,
+      ],
+      description: "only the rarest",
+    },
+    offer: EnchantmentType.SuperBattleMage,
+    message: "The enchantments are fused into one",
+    description: "unbelievable power",
+  },
+  "trimarim-enchantment-tier4-superbattlemage-2": {
+    price: {
+      gold: 2000000000,
+      dust: 4000,
+      enchantments: [
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.BigMelee,
+        EnchantmentType.BigMelee,
+        EnchantmentType.BigCaster,
+      ],
+      description: "only the rarest",
+    },
+    offer: EnchantmentType.SuperBattleMage,
+    message: "The enchantments are fused into one",
+    description: "unbelievable power",
+  },
+  "trimarim-enchantment-tier4-superallstats": {
+    price: {
+      gold: 2000000000,
+      dust: 4000,
+      enchantments: [
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.BigMelee,
+        EnchantmentType.BigCaster,
+        EnchantmentType.Vampirism,
+      ],
+      description: "only the rarest",
+    },
+    offer: EnchantmentType.SuperAllStats,
+    message: "The enchantments are fused into one",
+    description: "unbelievable power",
+  },
+  "trimarim-enchantment-tier4-supervampmelee": {
+    price: {
+      gold: 2000000000,
+      dust: 4000,
+      enchantments: [
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.Vampirism,
+        EnchantmentType.Vampirism,
+        EnchantmentType.BigMelee,
+      ],
+      description: "only the rarest",
+    },
+    offer: EnchantmentType.SuperVampMelee,
+    message: "The enchantments are fused into one",
+    description: "unbelievable power",
+  },
+  "trimarim-enchantment-tier4-supervampsorc": {
+    price: {
+      gold: 2000000000,
+      dust: 4000,
+      enchantments: [
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.Vampirism,
+        EnchantmentType.Vampirism,
+        EnchantmentType.BigCaster,
+      ],
+      description: "only the rarest",
+    },
+    offer: EnchantmentType.SuperVampSorc,
+    message: "The enchantments are fused into one",
+    description: "unbelievable power",
+  },
+  "trimarim-enchantment-tier4-supermeleevamp": {
+    price: {
+      gold: 2000000000,
+      dust: 4000,
+      enchantments: [
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.BigMelee,
+        EnchantmentType.BigMelee,
+        EnchantmentType.Vampirism,
+      ],
+      description: "only the rarest",
+    },
+    offer: EnchantmentType.SuperMeleeVamp,
+    message: "The enchantments are fused into one",
+    description: "unbelievable power",
+  },
+  "trimarim-enchantment-tier4-supersorcvamp": {
+    price: {
+      gold: 2000000000,
+      dust: 4000,
+      enchantments: [
+        EnchantmentType.AllStatsSteal,
+        EnchantmentType.BigCaster,
+        EnchantmentType.BigCaster,
+        EnchantmentType.Vampirism,
+      ],
+      description: "only the rarest",
+    },
+    offer: EnchantmentType.SuperSorcVamp,
+    message: "The enchantments are fused into one",
+    description: "unbelievable power",
+  },
 };
 
 async function executeTrimarimTrade(

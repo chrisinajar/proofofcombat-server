@@ -6,6 +6,14 @@ export default gql`
     account(id: ID!): BaseAccount! @auth @admin
   }
 
+  type Mutation {
+    createItem(
+      id: ID!
+      baseItem: String!
+      enchantment: EnchantmentType
+    ): BaseAccount! @auth @admin
+  }
+
   type AccountListResponse {
     count: Int!
     accounts: [BaseAccount!]!

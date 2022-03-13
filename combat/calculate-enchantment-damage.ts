@@ -55,6 +55,20 @@ export function calculateEnchantmentDamage(
         attackerHeal += Math.round(attacker.attributes.constitution * 0.2);
         victimDamage += Math.round(attacker.attributes.constitution * 0.2);
         break;
+
+      case EnchantmentType.TwentyLifeSteal:
+        attackerHeal += Math.round(attacker.attributes.constitution * 0.2);
+        victimDamage += Math.round(attacker.attributes.constitution * 0.2);
+        break;
+      case EnchantmentType.ThirtyLifeSteal:
+        attackerHeal += Math.round(attacker.attributes.constitution * 0.3);
+        victimDamage += Math.round(attacker.attributes.constitution * 0.3);
+        break;
+
+      case EnchantmentType.SuperVampStats:
+        attackerHeal += Math.round(attacker.attributes.constitution * 0.5);
+        victimDamage += Math.round(attacker.attributes.constitution * 0.5);
+        break;
     }
   });
 

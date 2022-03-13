@@ -8,6 +8,7 @@ import {
   EnchantmentActivationOrder,
   EnchantmentCounterSpellOrder,
 } from "./enchantment-order";
+import { expandEnchantmentList } from "./enchantment-groups";
 
 export function countCounterSpells(attacker: Combatant): number {
   // eventually other sources of counter spell maybe?
@@ -62,6 +63,8 @@ export function getAllGearEnchantments(
       )
       .slice(counterSpells);
   }
+
+  enchantments = expandEnchantmentList(enchantments);
 
   return enchantments.sort(
     (a, b) =>
@@ -385,6 +388,72 @@ export function enchantAttacker(
         if (attackType === AttackType.Blood) {
           victim.percentageEnchantmentDamageReduction *= 0.5;
         }
+        break;
+
+      // tier 4's
+      case EnchantmentType.SuperDexterityStats:
+        attacker.attributes.dexterity *= 3;
+        attacker.attributes.willpower *= 1.5;
+        attacker.attributes.wisdom *= 1.5;
+
+        break;
+      case EnchantmentType.SuperWillpowerStats:
+        attacker.attributes.dexterity *= 1.5;
+        attacker.attributes.willpower *= 3;
+        attacker.attributes.wisdom *= 1.5;
+
+        break;
+      case EnchantmentType.SuperWisdomStats:
+        attacker.attributes.dexterity *= 1.5;
+        attacker.attributes.willpower *= 1.5;
+        attacker.attributes.wisdom *= 3;
+
+        break;
+      case EnchantmentType.SuperVampStats:
+        stealStat(attacker, victim, "constitution", 0.8);
+        victim.percentageEnchantmentDamageReduction *= 0.8;
+
+        break;
+      case EnchantmentType.SuperMeleeStats:
+        attacker.attributes.strength *= 3.5;
+        stealStat(attacker, victim, "dexterity", 0.8);
+
+        break;
+      case EnchantmentType.SuperCasterStats:
+        attacker.attributes.intelligence *= 3.5;
+        stealStat(attacker, victim, "wisdom", 0.8);
+
+        break;
+      case EnchantmentType.SuperVampMeleeStats:
+        attacker.attributes.strength *= 2.5;
+        stealStat(attacker, victim, "constitution", 0.6);
+        stealStat(attacker, victim, "dexterity", 0.6);
+
+        break;
+      case EnchantmentType.SuperVampSorcStats:
+        attacker.attributes.intelligence *= 2.5;
+        stealStat(attacker, victim, "constitution", 0.6);
+        stealStat(attacker, victim, "wisdom", 0.6);
+
+        break;
+      case EnchantmentType.SuperMeleeVampStats:
+        attacker.attributes.strength *= 3;
+        stealStat(attacker, victim, "constitution", 0.5);
+        stealStat(attacker, victim, "dexterity", 0.5);
+
+        break;
+      case EnchantmentType.SuperSorcVampStats:
+        attacker.attributes.intelligence *= 3;
+        stealStat(attacker, victim, "constitution", 0.5);
+        stealStat(attacker, victim, "wisdom", 0.5);
+
+        break;
+      case EnchantmentType.SuperBattleMageStats:
+        attacker.attributes.intelligence *= 2.5;
+        attacker.attributes.strength *= 2.5;
+        stealStat(attacker, victim, "dexterity", 0.6);
+        stealStat(attacker, victim, "wisdom", 0.6);
+
         break;
     }
   });
