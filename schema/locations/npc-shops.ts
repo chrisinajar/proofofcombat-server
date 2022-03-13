@@ -359,26 +359,42 @@ function getAmixeaTrades(context: BaseContext, hero: Hero): NpcShop | null {
   return shop;
 }
 
-function payForTrimarim(hero: Hero, price: NpcShopItems): NpcTradeResult {
-  const enchantmentsFound: { [x in EnchantmentType]?: 0 | 1 } = {};
+function hasEnchantmentsForTrimarim(
+  hero: Hero,
+  price: NpcShopItems
+): false | EnchantmentType[] {
+  const enchantmentsFound: { [x in EnchantmentType]?: number } = {};
 
   if (price.enchantments) {
     price.enchantments.forEach((ench) => {
-      enchantmentsFound[ench] = 0;
+      enchantmentsFound[ench] = (enchantmentsFound[ench] ?? 0) + 1;
     });
   }
 
   const filteredEnchantments = hero.enchantments.filter((enchantment) => {
-    if (enchantmentsFound[enchantment] === 0) {
-      enchantmentsFound[enchantment] = 1;
-      return false;
+    const found = enchantmentsFound[enchantment];
+    if (found) {
+      if (found > 0) {
+        enchantmentsFound[enchantment] = found - 1;
+        return false;
+      }
     }
     return true;
   });
 
-  let metCosts = Object.values(enchantmentsFound).indexOf(0) === -1;
+  let metCosts =
+    Object.values(enchantmentsFound).filter((val) => val > 0).length === 0;
 
-  if (!metCosts) {
+  if (metCosts) {
+    return filteredEnchantments;
+  }
+
+  return false;
+}
+
+function payForTrimarim(hero: Hero, price: NpcShopItems): NpcTradeResult {
+  const filteredEnchantments = hasEnchantmentsForTrimarim(hero, price);
+  if (!filteredEnchantments) {
     return {
       success: false,
       message: "You lack the pure enchantments for this.",
@@ -400,47 +416,69 @@ function payForTrimarim(hero: Hero, price: NpcShopItems): NpcTradeResult {
   return { success: true, message: "" };
 }
 
-const TrimarimPrices = {
+const TrimarimTrades: {
+  [x in string]?: {
+    price: NpcShopItems;
+    offer: EnchantmentType;
+    message: string;
+    description: string;
+  };
+} = {
   "trimarim-enchantment-combiner": {
-    gold: 1000000,
-    dust: 50,
-    enchantments: [
-      EnchantmentType.BonusStrength,
-      EnchantmentType.BonusDexterity,
-      EnchantmentType.BonusConstitution,
-      EnchantmentType.BonusIntelligence,
-      EnchantmentType.BonusWisdom,
-      EnchantmentType.BonusWillpower,
-      EnchantmentType.BonusLuck,
-    ],
-    description: "one of each normal enchantment and a small fee",
+    price: {
+      gold: 1000000,
+      dust: 50,
+      enchantments: [
+        EnchantmentType.BonusStrength,
+        EnchantmentType.BonusDexterity,
+        EnchantmentType.BonusConstitution,
+        EnchantmentType.BonusIntelligence,
+        EnchantmentType.BonusWisdom,
+        EnchantmentType.BonusWillpower,
+        EnchantmentType.BonusLuck,
+      ],
+      description: "one of each normal enchantment and a small fee",
+    },
+    offer: EnchantmentType.BonusAllStats,
+    message: "You shall know power like none before",
+    description: "a combination of all of them",
   },
   "trimarim-enchantment-combiner-minus-enemy": {
-    gold: 1000000,
-    dust: 50,
-    enchantments: [
-      EnchantmentType.MinusEnemyStrength,
-      EnchantmentType.MinusEnemyDexterity,
-      EnchantmentType.MinusEnemyConstitution,
-      EnchantmentType.MinusEnemyIntelligence,
-      EnchantmentType.MinusEnemyWisdom,
-      EnchantmentType.MinusEnemyWillpower,
-    ],
-    description: "one of each destructive enchantment and a small fee",
+    price: {
+      gold: 1000000,
+      dust: 50,
+      enchantments: [
+        EnchantmentType.MinusEnemyStrength,
+        EnchantmentType.MinusEnemyDexterity,
+        EnchantmentType.MinusEnemyConstitution,
+        EnchantmentType.MinusEnemyIntelligence,
+        EnchantmentType.MinusEnemyWisdom,
+        EnchantmentType.MinusEnemyWillpower,
+      ],
+      description: "one of each destructive enchantment and a small fee",
+    },
+    offer: EnchantmentType.MinusEnemyAllStats,
+    message: "Your enemies will melt before you",
+    description: "a combination of all of them",
   },
   "trimarim-enchantment-make-sa": {
-    gold: 2000000000,
-    dust: 500,
-    enchantments: [
-      EnchantmentType.StrengthSteal,
-      EnchantmentType.DexteritySteal,
-      EnchantmentType.ConstitutionSteal,
-      EnchantmentType.IntelligenceSteal,
-      EnchantmentType.WisdomSteal,
-      EnchantmentType.WillpowerSteal,
-      EnchantmentType.LuckSteal,
-    ],
-    description: "the seven greedy enchantments",
+    price: {
+      gold: 2000000000,
+      dust: 500,
+      enchantments: [
+        EnchantmentType.StrengthSteal,
+        EnchantmentType.DexteritySteal,
+        EnchantmentType.ConstitutionSteal,
+        EnchantmentType.IntelligenceSteal,
+        EnchantmentType.WisdomSteal,
+        EnchantmentType.WillpowerSteal,
+        EnchantmentType.LuckSteal,
+      ],
+      description: "the seven greedy enchantments",
+    },
+    offer: EnchantmentType.AllStatsSteal,
+    message: "The power is overwhelming",
+    description: "something far far greater",
   },
 };
 
@@ -449,45 +487,19 @@ async function executeTrimarimTrade(
   hero: Hero,
   tradeId: string
 ): Promise<NpcTradeResult> {
-  if (tradeId === "trimarim-enchantment-combiner") {
-    const priceResult = payForTrimarim(
-      hero,
-      TrimarimPrices["trimarim-enchantment-combiner"]
-    );
-    if (!priceResult.success) {
-      return priceResult;
-    }
-
-    hero.enchantments.push(EnchantmentType.BonusAllStats);
-    await context.db.hero.put(hero);
-    return { success: true, message: "You shall know power like none before" };
-  } else if (tradeId === "trimarim-enchantment-combiner-minus-enemy") {
-    const priceResult = payForTrimarim(
-      hero,
-      TrimarimPrices["trimarim-enchantment-combiner-minus-enemy"]
-    );
-    if (!priceResult.success) {
-      return priceResult;
-    }
-
-    hero.enchantments.push(EnchantmentType.MinusEnemyAllStats);
-    await context.db.hero.put(hero);
-    return { success: true, message: "Your enemies will melt before you" };
-  } else if (tradeId === "trimarim-enchantment-make-sa") {
-    const priceResult = payForTrimarim(
-      hero,
-      TrimarimPrices["trimarim-enchantment-make-sa"]
-    );
-    if (!priceResult.success) {
-      return priceResult;
-    }
-
-    hero.enchantments.push(EnchantmentType.AllStatsSteal);
-    await context.db.hero.put(hero);
-    return { success: true, message: "The power is overwhelming" };
+  const trade = TrimarimTrades[tradeId];
+  if (!trade) {
+    return { success: false, message: "not implemented" };
   }
 
-  return { success: false, message: "not implemented" };
+  const priceResult = payForTrimarim(hero, trade.price);
+  if (!priceResult.success) {
+    return priceResult;
+  }
+
+  hero.enchantments.push(trade.offer);
+  await context.db.hero.put(hero);
+  return { success: true, message: trade.message };
 }
 
 function getTrimarimTrades(context: BaseContext, hero: Hero): NpcShop {
@@ -497,31 +509,21 @@ function getTrimarimTrades(context: BaseContext, hero: Hero): NpcShop {
     trades: [],
   };
 
-  shop.trades.push({
-    id: "trimarim-enchantment-combiner",
-    price: TrimarimPrices["trimarim-enchantment-combiner"],
-    offer: {
-      enchantments: [EnchantmentType.BonusAllStats],
-      description: "a combination of all of them",
-    },
-  });
-
-  shop.trades.push({
-    id: "trimarim-enchantment-combiner-minus-enemy",
-    price: TrimarimPrices["trimarim-enchantment-combiner-minus-enemy"],
-    offer: {
-      enchantments: [EnchantmentType.MinusEnemyAllStats],
-      description: "a combination of all of them",
-    },
-  });
-
-  shop.trades.push({
-    id: "trimarim-enchantment-make-sa",
-    price: TrimarimPrices["trimarim-enchantment-make-sa"],
-    offer: {
-      enchantments: [EnchantmentType.AllStatsSteal],
-      description: "something far far greater",
-    },
+  Object.keys(TrimarimTrades).forEach((tradeId) => {
+    const trade = TrimarimTrades[tradeId];
+    if (!trade) {
+      return;
+    }
+    if (hasEnchantmentsForTrimarim(hero, trade.price)) {
+      shop.trades.push({
+        id: tradeId,
+        price: trade.price,
+        offer: {
+          enchantments: [trade.offer],
+          description: trade.description,
+        },
+      });
+    }
   });
 
   return shop;
