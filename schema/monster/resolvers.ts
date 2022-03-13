@@ -145,6 +145,7 @@ const resolvers: Resolvers = {
 
         let equipment: MonsterEquipment | undefined = undefined;
         let bonusDropRate = 1;
+        let bonusEnchantmentDropRate = 1;
         const monsterAntiLuck = goldReward;
 
         if (currentTavern) {
@@ -158,6 +159,8 @@ const resolvers: Resolvers = {
             experienceRewards *= 1.2;
           } else if (currentTavern.name === "The Drowning Fish") {
             bonusDropRate = 2;
+          } else if (currentTavern.name === "Wyverns Holm") {
+            bonusEnchantmentDropRate = 1.5;
           }
         }
 
@@ -210,7 +213,9 @@ const resolvers: Resolvers = {
             // so max value should be 3.33.. at 32, so that there's a 10% chance it remains above 3.0
             // (32 / (3 / 0.9)) = 9.6!
             const enchantment = randomEnchantment(
-              Math.floor(Math.random() * (monsterLevel / 9.6))
+              Math.floor(
+                bonusEnchantmentDropRate * Math.random() * (monsterLevel / 9.6)
+              )
             );
             const itemInstance = enchantItem(
               createItemInstance(baseItem, hero),
@@ -366,6 +371,38 @@ const resolvers: Resolvers = {
             footArmor: {
               level: monster.level + 2,
               enchantment: randomEnchantment(1, false),
+            },
+          };
+        } else if (currentTavern.name === "Wyverns Holm") {
+          equipment = {
+            leftHand: {
+              level: monster.level + 2,
+              enchantment: randomEnchantment(2, false),
+            },
+            rightHand: {
+              level: monster.level + 2,
+              enchantment: randomEnchantment(2, false),
+            },
+
+            bodyArmor: {
+              level: monster.level + 2,
+              enchantment: randomEnchantment(2, false),
+            },
+            handArmor: {
+              level: monster.level + 2,
+              enchantment: randomEnchantment(2, false),
+            },
+            legArmor: {
+              level: monster.level + 2,
+              enchantment: randomEnchantment(2, false),
+            },
+            headArmor: {
+              level: monster.level + 2,
+              enchantment: randomEnchantment(2, false),
+            },
+            footArmor: {
+              level: monster.level + 2,
+              enchantment: randomEnchantment(2, false),
             },
           };
         }

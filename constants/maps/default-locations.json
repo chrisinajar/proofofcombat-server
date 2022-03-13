@@ -73,6 +73,16 @@
     "type": "tavern",
     "description": [""]
   },
+  {
+    "x": 55,
+    "y": 49,
+    "name": "Wyverns Holm",
+    "type": "tavern",
+    "description": [
+      "Deep in the ruins you find a small tavern protected by ancient debre and bones that must have belonged to titans",
+      "The air is still and most are quiet. A powerful enchanted energy runs through this place."
+    ]
+  },
 
   {
     "x": 112,
