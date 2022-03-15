@@ -189,24 +189,42 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
       hero.attributePoints = hero.attributePoints + 1;
     } else {
-      const minStats =
-        hero.settings.minimumStats.strength +
-        hero.settings.minimumStats.dexterity +
-        hero.settings.minimumStats.constitution +
-        hero.settings.minimumStats.intelligence +
-        hero.settings.minimumStats.wisdom +
-        hero.settings.minimumStats.willpower +
-        hero.settings.minimumStats.luck;
-      const totalStats =
-        hero.stats.strength +
-        hero.stats.dexterity +
-        hero.stats.constitution +
-        hero.stats.intelligence +
-        hero.stats.wisdom +
-        hero.stats.willpower +
-        hero.stats.luck;
+      const extraStats =
+        Math.max(
+          0,
+          hero.stats.strength - Math.max(1, hero.settings.minimumStats.strength)
+        ) +
+        Math.max(
+          0,
+          hero.stats.dexterity -
+            Math.max(1, hero.settings.minimumStats.dexterity)
+        ) +
+        Math.max(
+          0,
+          hero.stats.constitution -
+            Math.max(1, hero.settings.minimumStats.constitution)
+        ) +
+        Math.max(
+          0,
+          hero.stats.intelligence -
+            Math.max(1, hero.settings.minimumStats.intelligence)
+        ) +
+        Math.max(
+          0,
+          hero.stats.wisdom - Math.max(1, hero.settings.minimumStats.wisdom)
+        ) +
+        Math.max(
+          0,
+          hero.stats.willpower -
+            Math.max(1, hero.settings.minimumStats.willpower)
+        ) +
+        Math.max(
+          0,
+          hero.stats.luck - Math.max(1, hero.settings.minimumStats.luck)
+        );
+
       // make sure we have 7 stats to spend
-      if (totalStats > minStats + 7) {
+      if (extraStats > 7) {
         const removableStats = stats
           .filter(
             (statName) =>
