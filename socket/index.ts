@@ -1,6 +1,7 @@
 import { Server, Socket } from "socket.io";
 import { createServer, Server as HttpServer } from "http";
 
+import Database from "../db";
 import { InventoryItem } from "../types/graphql";
 import { ChatMessage, SystemMessage } from "../db/models/system";
 import { confirm, ChatTokenData } from "../security";
@@ -28,6 +29,10 @@ export type SocketServerAPI = {
   sendGlobalMessage: (message: SystemMessage) => void;
   sendNotification: (heroId: string, notification: Notification) => void;
   sendGlobalNotification: (notification: Notification) => void;
+  sendLocalNotification: (
+    location: { x: number; y: number; map: string },
+    notification: Notification
+  ) => void;
 };
 
 export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
@@ -155,6 +160,26 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
     });
   }
 
+  function sendLocalNotification(
+    location: { x: number; y: number; map: string },
+    notification: Notification
+  ) {
+    console.log("Sending LOCAL notification!", location);
+    io.sockets.sockets.forEach(async (socket: ExtendedSocket, id: string) => {
+      if (!socket.heroId) {
+        return;
+      }
+      const hero = await Database.hero.get(socket.heroId);
+      if (
+        hero.location.x === location.x &&
+        hero.location.y === location.y &&
+        hero.location.map === location.map
+      ) {
+        socket.emit("notification", notification);
+      }
+    });
+  }
+
   function sendPrivateMessage(heroId: string, message: PrivateMessage) {
     io.sockets.sockets.forEach((socket: ExtendedSocket, id: string) => {
       if (socket.heroId === heroId) {
@@ -170,5 +195,6 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
     sendNotification,
     sendGlobalNotification,
     sendPrivateMessage,
+    sendLocalNotification,
   };
 }

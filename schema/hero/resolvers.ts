@@ -138,9 +138,17 @@ const resolvers: Resolvers = {
 
       if (hero.combat.health === 0) {
         console.log(victim.name, "killed", hero.name, "while defending");
+        context.io.sendLocalNotification(hero.location, {
+          message: `${victim.name} has defeated ${hero.name} while defending themselves`,
+          type: "quest",
+        });
       }
       if (victim.combat.health === 0) {
         console.log(hero.name, "killed", victim.name);
+        context.io.sendLocalNotification(hero.location, {
+          message: `${hero.name} has slain ${victim.name} in single combat`,
+          type: "quest",
+        });
       }
 
       // i am undeath
