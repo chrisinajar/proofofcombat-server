@@ -125,6 +125,8 @@ export function createHeroCombatant(
     attackType,
     level: hero.level,
     name: hero.name,
+    health: hero.combat.health,
+    maxHealth: hero.combat.maxHealth,
     equipment: {
       armor: [],
       weapons: [],

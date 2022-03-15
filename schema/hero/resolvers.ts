@@ -18,6 +18,7 @@ import {
   TradeOffer,
   AccessRole,
   EnchantmentType,
+  HeroFightResult,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -29,6 +30,7 @@ import type { BaseItem } from "../items";
 import { checkHero } from "../quests/helpers";
 import { createHeroCombatant } from "../../combat/hero";
 import { getEnchantedAttributes } from "../../combat/enchantments";
+import { fightHero } from "../../combat/fight-hero";
 
 const resolvers: Resolvers = {
   Query: {
@@ -49,6 +51,126 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
+    async attackHero(parent, args, context): Promise<HeroFightResult> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      let hero = await context.db.hero.get(context.auth.id);
+
+      if (hero.combat.health <= 0) {
+        throw new UserInputError("You must heal before attacking!");
+      }
+
+      let victim = await context.db.hero.get(args.id);
+      if (
+        hero.location.x !== victim.location.x ||
+        hero.location.y !== victim.location.y ||
+        hero.location.map !== victim.location.map
+      ) {
+        throw new UserInputError(
+          "That hero is not in the same location as you."
+        );
+      }
+      const attackType: AttackType = args.attackType || AttackType.Melee;
+      const fightResult = await fightHero(hero, victim, attackType);
+
+      hero.combat.health = Math.round(
+        Math.max(
+          0,
+          Math.min(
+            hero.combat.maxHealth,
+            hero.combat.health -
+              fightResult.attackerDamage -
+              fightResult.attackerEnchantmentDamage +
+              fightResult.attackerHeal
+          )
+        )
+      );
+
+      victim.combat.health = Math.round(
+        Math.max(
+          0,
+          Math.min(
+            victim.combat.maxHealth,
+            victim.combat.health -
+              fightResult.victimDamage -
+              fightResult.victimEnchantmentDamage +
+              fightResult.victimHeal
+          )
+        )
+      );
+
+      let attackerDeathHeal = 0;
+      let victimDeathHeal = 0;
+
+      if (hero.combat.health === 0) {
+        victimDeathHeal = Math.max(
+          victim.combat.maxHealth * 0.1,
+          hero.combat.maxHealth
+        );
+      }
+      if (victim.combat.health === 0) {
+        attackerDeathHeal = Math.max(
+          hero.combat.maxHealth * 0.1,
+          victim.combat.maxHealth
+        );
+      }
+
+      victim.combat.health = Math.round(
+        Math.max(
+          0,
+          Math.min(
+            victim.combat.maxHealth,
+            victim.combat.health + victimDeathHeal
+          )
+        )
+      );
+      hero.combat.health = Math.round(
+        Math.max(
+          0,
+          Math.min(
+            hero.combat.maxHealth,
+            hero.combat.health + attackerDeathHeal
+          )
+        )
+      );
+
+      if (hero.combat.health === 0) {
+        console.log(victim.name, "killed", hero.name, "while defending");
+      }
+      if (victim.combat.health === 0) {
+        console.log(hero.name, "killed", victim.name);
+      }
+
+      // i am undeath
+      fightResult.victimDied = victim.combat.health < 1;
+      fightResult.attackerDied = hero.combat.health < 1;
+
+      await Promise.all([
+        context.db.hero.put(hero),
+        context.db.hero.put(victim),
+      ]);
+
+      const account = await context.db.account.get(context.auth.id);
+      return {
+        account,
+        hero,
+        otherHero: {
+          id: victim.id,
+          name: victim.name,
+          level: victim.level,
+          class: victim.class,
+          local: true,
+          combat: {
+            health: victim.combat.health,
+            maxHealth: victim.combat.maxHealth,
+          },
+        },
+        log: fightResult.log,
+        victory: fightResult.victimDied,
+      };
+    },
     async changeMinimumStat(parent, args, context): Promise<LevelUpResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -281,6 +403,8 @@ const resolvers: Resolvers = {
         name: "System",
         equipment: { armor: [], weapons: [], quests: [] },
         damageReduction: 1,
+        health: 1000000,
+        maxHealth: 1000000,
         attributes: {
           strength: 1000000,
           dexterity: 1000000,

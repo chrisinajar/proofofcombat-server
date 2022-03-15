@@ -81,9 +81,10 @@ export function calculateDamage(
     baseDamageDecrease *= 0.5;
   }
 
-  const weapon = isSecondAttack
-    ? attacker.equipment.weapons[1]
-    : attacker.equipment.weapons[0];
+  const weapon =
+    isSecondAttack && attacker.attackType !== AttackType.Ranged
+      ? attacker.equipment.weapons[1]
+      : attacker.equipment.weapons[0];
   let weaponLevel = weapon?.level ?? 0;
 
   if (weapon) {

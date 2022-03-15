@@ -129,7 +129,15 @@ function simulateMonsterCombat(
   attackType: AttackType,
   debug: boolean = false
 ) {
-  const monster = createMonsterCombatant(level, `Level ${level} Mob`);
+  const monster = createMonsterCombatant({
+    level,
+    name: `Level ${level} Mob`,
+    attackType: AttackType.Melee,
+    combat: {
+      health: Math.round(Math.pow(1.4, level) * 8),
+      maxHealth: Math.round(Math.pow(1.4, level) * 8),
+    },
+  });
 
   const heroHitOdds = getHitOdds(hero, attackType, monster);
   const heroAverageDamage = getAverageDamage(hero, attackType, monster, debug);

@@ -100,23 +100,31 @@ export function createMonsterEquipment(
 }
 
 export function createMonsterCombatant(
-  level: number,
-  name: string,
-  attackType: AttackType,
+  monster: Omit<
+    Partial<Monster>,
+    "level" | "combat" | "name" | "attackType"
+  > & {
+    level: number;
+    combat: { health: number; maxHealth: number };
+    name: string;
+    attackType: AttackType;
+  },
   equipment?: MonsterEquipment | null
 ) {
-  const monsterAttributes = createMonsterStatsByLevel(level);
+  const monsterAttributes = createMonsterStatsByLevel(monster.level);
 
   return {
     class: HeroClasses.Monster,
-    attackType,
-    level: level,
-    name: name,
+    attackType: monster.attackType,
+    level: monster.level,
+    name: monster.name,
     equipment: equipment
-      ? createMonsterEquipment({ level }, equipment)
-      : createMonsterEquipment({ level }),
+      ? createMonsterEquipment({ level: monster.level }, equipment)
+      : createMonsterEquipment({ level: monster.level }),
     damageReduction: monsterAttributes.constitution / 2,
     attributes: monsterAttributes,
     luck: createLuck(monsterAttributes.luck),
+    health: monster.combat.health,
+    maxHealth: monster.combat.maxHealth,
   };
 }

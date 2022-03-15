@@ -4,7 +4,7 @@ import {
   Resolvers,
   Monster,
   MonsterInstance,
-  FightResult,
+  MonsterFightResult,
   AttackType,
   InventoryItem,
   HeroClasses,
@@ -41,7 +41,11 @@ const MonsterLockoutItems: { [x in string]?: string } = {
 
 const resolvers: Resolvers = {
   Mutation: {
-    async fight(parent, args, context: BaseContext): Promise<FightResult> {
+    async fight(
+      parent,
+      args,
+      context: BaseContext
+    ): Promise<MonsterFightResult> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
       }

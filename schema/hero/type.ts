@@ -13,6 +13,10 @@ export default gql`
       amount: Int
     ): LevelUpResponse! @auth @delay(delay: 1000)
 
+    attackHero(id: ID!, attackType: AttackType): HeroFightResult!
+      @auth
+      @delay(delay: 1000)
+
     # settings
     changeMinimumStat(name: String!, value: Int!): LevelUpResponse! @auth
     changeAutoDust(value: Int!): LevelUpResponse! @auth
@@ -31,6 +35,7 @@ export default gql`
     gold: Int!
     enchantingDust: Int!
     location: Location!
+    home: Location
     attributePoints: Int!
 
     combat: HeroCombatStats!
@@ -46,6 +51,23 @@ export default gql`
     incomingTrades: [TradeOffer!]!
     outgoingTrades: [TradeOffer!]!
     settings: HeroSettings!
+  }
+
+  type PublicHero {
+    id: ID!
+    name: String!
+    level: Int!
+    class: HeroClasses!
+    local: Boolean!
+    combat: HeroCombatStats!
+  }
+
+  type HeroFightResult {
+    account: BaseAccount!
+    hero: Hero!
+    otherHero: PublicHero!
+    log: [CombatEntry!]!
+    victory: Boolean!
   }
 
   type HeroSettings {

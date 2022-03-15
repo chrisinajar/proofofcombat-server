@@ -49,6 +49,37 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     return countEnchantments(hero, enchantment);
   }
 
+  async getHeroesInLocation({
+    x,
+    y,
+    map,
+  }: {
+    x: number;
+    y: number;
+    map: string;
+  }): Promise<Hero[]> {
+    const resultList: Hero[] = [];
+    const iterator = this.db.iterate({});
+    // ? iterator.seek(...); // You can first seek if you'd like.
+    for await (const { key, value } of iterator) {
+      if (resultList.length >= inMemoryLeaderboardLength) {
+        break;
+      }
+      if (
+        value.location.x !== x ||
+        value.location.y !== y ||
+        value.location.map !== map
+      ) {
+        continue;
+      } else {
+        resultList.push(value);
+      }
+    } // If the end of the iterable is reached, iterator.end() is callend.
+    await iterator.end();
+
+    return resultList;
+  }
+
   async getTopHeros(): Promise<Hero[]> {
     const resultList: Hero[] = [];
     const iterator = this.db.iterate({});

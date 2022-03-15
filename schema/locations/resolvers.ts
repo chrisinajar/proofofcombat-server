@@ -12,6 +12,7 @@ import {
   EnchantmentType,
   Hero,
   Location,
+  PublicHero,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -339,6 +340,24 @@ const resolvers: Resolvers = {
       //   id: parent.name,
       // name: String!
       // trades: [NpcShopTrade!]
+    },
+    async players(parent, args, context): Promise<PublicHero[]> {
+      const heroList = await context.db.hero.getHeroesInLocation(
+        parent.location
+      );
+
+      return heroList.map((hero) => ({
+        id: hero.id,
+        name: hero.name,
+        level: hero.level,
+        class: hero.class,
+        local: true,
+
+        combat: {
+          health: hero.combat.health,
+          maxHealth: hero.combat.maxHealth,
+        },
+      }));
     },
   },
 };

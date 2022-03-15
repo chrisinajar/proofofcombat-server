@@ -159,6 +159,10 @@ export function enchantAttacker(
   victim.mesmerizeChance = victim.mesmerizeChance ?? 1;
   victim.focusChance = victim.focusChance ?? 1;
 
+  if (attacker.attackType === AttackType.Ranged) {
+    attacker.bonusWeaponTiers += 1;
+  }
+
   const enchantments = getCounteredGearEnchantments(attacker, victim);
 
   enchantments.forEach((enchantment) => {

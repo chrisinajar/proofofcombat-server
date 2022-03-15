@@ -12,11 +12,24 @@ export default gql`
     npcTrade(trade: ID!): NpcShopTradeResponse! @auth @delay(delay: 2000)
   }
 
+  type PlayerLocation {
+    id: ID!
+    location: Location!
+    owner: ID!
+    ownerName: String!
+    type: PlayerLocationType!
+  }
+
+  enum PlayerLocationType {
+    Settlement
+  }
+
   type LocationDetails {
     location: Location!
     specialLocations: [SpecialLocation!]!
     terrain: TerrainData!
     shop: NpcShop
+    players: [PublicHero!]
   }
   type SpecialLocation {
     location: Location!
