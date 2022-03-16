@@ -17,12 +17,12 @@ export function calculateEnchantmentDamage(
   attackerHeal: number;
   victimHeal: number;
 } {
-  const { attackType } = attackerInput;
-  const attackAttributes = attributesForAttack(attackType);
   let attackerDamage = 0;
   let victimDamage = 0;
   let attackerHeal = 0;
   let victimHeal = 0;
+  let attackerLeech = 0;
+  let victimLeech = 0;
 
   const { attacker, victim } = getEnchantedAttributes(
     attackerInput,
@@ -30,77 +30,78 @@ export function calculateEnchantmentDamage(
   );
 
   // blood attacks deal additional enchantment damage!
-  if (attackType === AttackType.Blood) {
+  if (attacker.attackType === AttackType.Blood) {
     victim.percentageEnchantmentDamageReduction *= 0.75;
+  }
+  // blood attacks deal additional enchantment damage!
+  if (victim.attackType === AttackType.Blood) {
+    attacker.percentageEnchantmentDamageReduction *= 0.75;
   }
 
   const attackerEnchantments = getCounteredGearEnchantments(attacker, victim);
 
-  attackerEnchantments.forEach((enchantment) => {
+  function reduceEnchantment(
+    total: { damage: number; heal: number; leech: number },
+    enchantment: EnchantmentType
+  ) {
     switch (enchantment) {
       case EnchantmentType.LifeHeal:
-        attackerHeal += Math.round(attacker.attributes.constitution * 0.1);
+        total.heal += Math.round(attacker.attributes.constitution * 0.1);
         break;
 
       case EnchantmentType.LifeDamage:
-        victimDamage += Math.round(attacker.attributes.constitution * 0.1);
+        total.damage += Math.round(attacker.attributes.constitution * 0.1);
         break;
 
       case EnchantmentType.LifeSteal:
-        attackerHeal += Math.round(attacker.attributes.constitution * 0.1);
-        victimDamage += Math.round(attacker.attributes.constitution * 0.1);
+        total.leech += Math.round(attacker.attributes.constitution * 0.1);
         break;
 
       case EnchantmentType.Vampirism:
-        attackerHeal += Math.round(attacker.attributes.constitution * 0.2);
-        victimDamage += Math.round(attacker.attributes.constitution * 0.2);
+        total.leech += Math.round(attacker.attributes.constitution * 0.2);
         break;
 
       case EnchantmentType.TwentyLifeSteal:
-        attackerHeal += Math.round(attacker.attributes.constitution * 0.2);
-        victimDamage += Math.round(attacker.attributes.constitution * 0.2);
+        total.leech += Math.round(attacker.attributes.constitution * 0.2);
         break;
       case EnchantmentType.ThirtyLifeSteal:
-        attackerHeal += Math.round(attacker.attributes.constitution * 0.3);
-        victimDamage += Math.round(attacker.attributes.constitution * 0.3);
+        total.leech += Math.round(attacker.attributes.constitution * 0.3);
         break;
 
       case EnchantmentType.SuperVampStats:
-        attackerHeal += Math.round(attacker.attributes.constitution * 0.5);
-        victimDamage += Math.round(attacker.attributes.constitution * 0.5);
+        total.leech += Math.round(attacker.attributes.constitution * 0.5);
         break;
     }
-  });
+    return total;
+  }
+
+  const attackEnchantmentResults = attackerEnchantments.reduce<{
+    damage: number;
+    heal: number;
+    leech: number;
+  }>(reduceEnchantment, { damage: 0, heal: 0, leech: 0 });
+
+  attackerHeal = attackEnchantmentResults.heal;
+  victimDamage = attackEnchantmentResults.damage;
+  attackerLeech = attackEnchantmentResults.leech;
 
   const victimEnchantments = getCounteredGearEnchantments(victim, attacker);
 
-  victimEnchantments.forEach((enchantment) => {
-    switch (enchantment) {
-      case EnchantmentType.LifeHeal:
-        victimHeal += Math.round(victim.attributes.constitution * 0.1);
-        break;
+  const victimEnchantmentResults = victimEnchantments.reduce<{
+    damage: number;
+    heal: number;
+    leech: number;
+  }>(reduceEnchantment, { damage: 0, heal: 0, leech: 0 });
 
-      case EnchantmentType.LifeDamage:
-        attackerDamage += Math.round(victim.attributes.constitution * 0.1);
-        break;
-
-      case EnchantmentType.LifeSteal:
-        victimHeal += Math.round(victim.attributes.constitution * 0.1);
-        attackerDamage += Math.round(victim.attributes.constitution * 0.1);
-        break;
-
-      case EnchantmentType.Vampirism:
-        victimHeal += Math.round(victim.attributes.constitution * 0.2);
-        attackerDamage += Math.round(victim.attributes.constitution * 0.2);
-        break;
-    }
-  });
+  victimHeal = victimEnchantmentResults.heal;
+  attackerDamage = victimEnchantmentResults.damage;
+  victimLeech = victimEnchantmentResults.leech;
 
   victimDamage /= Math.max(
     1,
     victim.level * victim.percentageEnchantmentDamageReduction
   );
-  attackerHeal /= Math.max(
+  attackerLeech /= Math.max(
     1,
     victim.level * victim.percentageEnchantmentDamageReduction
   );
@@ -109,10 +110,16 @@ export function calculateEnchantmentDamage(
     1,
     attacker.level * attacker.percentageEnchantmentDamageReduction
   );
-  victimHeal /= Math.max(
+  victimLeech /= Math.max(
     1,
     attacker.level * attacker.percentageEnchantmentDamageReduction
   );
+
+  attackerHeal += attackerLeech;
+  victimDamage += attackerLeech;
+
+  victimHeal += victimLeech;
+  attackerDamage += victimLeech;
 
   const victimCanOnlyTakeOneDamage = getAllGearEnchantments(victim).find(
     (ench) => ench === EnchantmentType.CanOnlyTakeOneDamage
