@@ -267,7 +267,7 @@ async function executeAmixeaTrade(
     takeQuestItem(hero, "trophy-hiddenstump");
 
     context.io.sendNotification(hero.id, {
-      message: `Amixea's withforge roars with energy`,
+      message: `Amixea's witchforge roars with energy`,
       type: "quest",
     });
 
