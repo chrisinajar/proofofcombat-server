@@ -106,10 +106,10 @@ const resolvers: Resolvers = {
       offerHero.inventory = offerHero.inventory.filter(
         (item) => item.id !== offerItem.id
       );
+      offerHero.gold += Math.round(offer.gold);
       await context.db.hero.put(offerHero);
 
       hero.gold -= Math.round(offer.gold);
-      offerHero.gold += Math.round(offer.gold);
       offerItem.owner = hero.id;
       hero.inventory.push(offerItem);
 
