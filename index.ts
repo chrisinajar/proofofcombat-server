@@ -106,10 +106,12 @@ async function startApolloServer() {
         },
         usage: {
           clientInfo(context) {
-            const { name, version } = context.client;
+            if (context.client) {
+              const { name, version } = context.client;
 
-            if (name && version) {
-              return { name, version };
+              if (name && version) {
+                return { name, version };
+              }
             }
 
             return null;
