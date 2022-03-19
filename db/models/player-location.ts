@@ -78,8 +78,16 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     });
   }
 
-  resourceCost(resource: string): number {
-    return 10000;
+  resourceCost(resource: string): number | null {
+    if (
+      resource === "water" ||
+      resource === "food" ||
+      resource === "stone" ||
+      resource === "wood"
+    ) {
+      return 10000;
+    }
+    return null;
   }
 
   hasUpgrade(
@@ -100,6 +108,10 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
   resourceStorage(location: PlayerLocation, resource: string): number {
     const storageImprovements = this.countStorageImprovements(location);
+    if (resource === "population") {
+      return 1000000;
+    }
+
     if (resource === "water") {
       if (
         this.hasUpgrade(location, PlayerLocationUpgrades.RainCollectionUnit)
@@ -185,9 +197,21 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           resource.value += Math.floor(Math.random() * Math.random() * 10);
         } else if (hasGarden && resource.name === "food") {
           resource.value += Math.floor(Math.random() * Math.random() * 10);
+        } else if (resource.name === "population") {
+          resource.value += Math.round(
+            (Math.random() * Math.random() * resource.value) / 2
+          );
+        } else if (resource.name === "population") {
+          resource.value += Math.round(
+            (Math.random() * Math.random() * resource.value) / 2
+          );
         } else if (hasHelper) {
           resource.value += Math.floor(Math.random() * Math.random() * 10);
         }
+        resource.value = Math.min(
+          this.resourceStorage(location, resource.name),
+          resource.value
+        );
 
         // pay upkeep costs
         const cost = upkeepCosts[resource.name as keyof UpkeepCosts];
@@ -296,6 +320,9 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       water: 1,
       stone: 1,
     };
+    if (data.type === PlayerLocationType.Settlement) {
+      defaultResources.population = 2;
+    }
     const foundResources: { [x in string]?: true } = {};
     playerLocation.resources = playerLocation.resources.filter((resource) => {
       resource.maximum = this.resourceStorage(playerLocation, resource.name);

@@ -295,8 +295,15 @@ const resolvers: Resolvers = {
         throw new UserInputError("Invalid amount!");
       }
 
-      const goldCost =
-        args.amount * context.db.playerLocation.resourceCost(args.resource);
+      const resourceCost = context.db.playerLocation.resourceCost(
+        args.resource
+      );
+
+      if (!resourceCost) {
+        throw new UserInputError("You cannot purchase that resource");
+      }
+
+      const goldCost = args.amount * resourceCost;
 
       if (hero.gold < goldCost) {
         throw new UserInputError(
@@ -337,8 +344,15 @@ const resolvers: Resolvers = {
         );
       }
 
-      const goldAmount =
-        args.amount * context.db.playerLocation.resourceCost(args.resource);
+      const resourceCost = context.db.playerLocation.resourceCost(
+        args.resource
+      );
+
+      if (!resourceCost) {
+        throw new UserInputError("You cannot sell that resource");
+      }
+
+      const goldAmount = args.amount * resourceCost;
 
       resource.value -= Math.round(args.amount);
       hero.gold += Math.round(goldAmount);
