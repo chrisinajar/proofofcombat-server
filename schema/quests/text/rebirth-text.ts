@@ -5,6 +5,8 @@ export const questEvents = {
     "The creatue's voice resonates from within your own mind",
     '"... but time has been cruel to you. You have reached the limits of this body."',
     "When you are ready for your next life, use this.",
+    "",
+    'Find the "Totem of Rebirth" in your inventory',
   ],
 
   firstRebirth: [
