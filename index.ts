@@ -23,7 +23,12 @@ const socketIoPort = process.env.SOCKET_PORT ?? 2096;
 const corsOptions = {
   origin: true,
   credentials: true,
-  allowedHeaders: ["Authorization", "Content-Type"],
+  allowedHeaders: [
+    "Authorization",
+    "Content-Type",
+    "ApolloGraphQL-Client-Name",
+    "ApolloGraphQL-Client-Version",
+  ],
 };
 
 function getHttpsServer(app?: express.Application): http.Server {
