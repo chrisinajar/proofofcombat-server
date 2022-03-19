@@ -97,6 +97,10 @@ async function startApolloServer() {
         enabled: !!process.env.HIVE_TOKEN,
         token: process.env.HIVE_TOKEN ?? "",
         usage: true, // or { ... usage options }
+        reporting: {
+          author: "chrisinajar",
+          commit: "automated",
+        },
       }),
     ],
 
