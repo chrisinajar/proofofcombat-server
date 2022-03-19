@@ -109,6 +109,7 @@ const resolvers: Resolvers = {
       await context.db.hero.put(offerHero);
 
       hero.gold -= Math.round(offer.gold);
+      offerHero.gold += Math.round(offer.gold);
       offerItem.owner = hero.id;
       hero.inventory.push(offerItem);
 
