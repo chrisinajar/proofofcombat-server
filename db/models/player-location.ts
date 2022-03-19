@@ -33,7 +33,11 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
   }
 
   async get(id: string): Promise<PlayerLocation> {
-    const result = await this.upkeep(await super.get(id));
+    let location = await super.get(id);
+    if (location.id !== id) {
+      location = await super.get(location.id);
+    }
+    const result = await this.upkeep(location);
     if (!result) {
       throw new Error("missing");
     }
