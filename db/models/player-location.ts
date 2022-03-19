@@ -256,7 +256,9 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       ) {
         continue;
       } else {
-        resultList.push(value);
+        if (key === this.playerLocationId(value)) {
+          resultList.push(value);
+        }
       }
     }
     resultList = (
