@@ -4,10 +4,12 @@ import {
   InventoryItemType,
   EnchantmentType,
   PublicHero,
+  Location,
 } from "types/graphql";
 import { startingLevelCap } from "../../schema/quests/rebirth";
 import { hasQuestItem, takeQuestItem } from "../../schema/quests/helpers";
 import { BaseItems } from "../../schema/items/base-items";
+import { LocationData } from "../../constants";
 
 import DatabaseInterface from "../interface";
 
@@ -269,15 +271,20 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     return Math.ceil((level * 60 - (1 / level) * 50) / 10) * 10;
   }
 
+  randomStartingLocation(): Location {
+    const options = LocationData.default.specialLocations.filter(
+      (loc) => loc.type === "dock"
+    );
+
+    const choice = options[Math.floor(Math.random() * options.length)];
+    return { map: "default", x: choice.x, y: choice.y };
+  }
+
   // turn old heroes into new heroes
   // as heroes are saved/loaded they run through this
   // any time we add a new field we need to make sure to populate it here
   upgrade(data: PartialHero): Hero {
-    data.location = data.location ?? {
-      x: Math.floor(Math.random() * 128),
-      y: Math.floor(Math.random() * 96),
-      map: "default",
-    };
+    data.location = data.location ?? this.randomStartingLocation();
     data.gold = data.gold ?? 0;
     data.level = data.level ?? 1;
     data.experience = data.experience ?? 0;
@@ -376,10 +383,6 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
       data.version = 7;
     }
-
-    // data.questLog = {
-    //   id: data.id,
-    // };
 
     if (data.inventory) {
       data.inventory = data.inventory.filter(
