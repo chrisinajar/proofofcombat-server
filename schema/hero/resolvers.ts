@@ -19,6 +19,7 @@ import {
   AccessRole,
   EnchantmentType,
   HeroFightResult,
+  PlayerLocation,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -164,17 +165,7 @@ const resolvers: Resolvers = {
       return {
         account,
         hero,
-        otherHero: {
-          id: victim.id,
-          name: victim.name,
-          level: victim.level,
-          class: victim.class,
-          local: true,
-          combat: {
-            health: victim.combat.health,
-            maxHealth: victim.combat.maxHealth,
-          },
-        },
+        otherHero: context.db.hero.publicHero(victim, true),
         log: fightResult.log,
         victory: fightResult.victimDied,
       };
@@ -366,6 +357,9 @@ const resolvers: Resolvers = {
     },
   },
   Hero: {
+    async home(parent, args, context): Promise<PlayerLocation | null> {
+      return context.db.playerLocation.getHome(parent.id);
+    },
     async incomingTrades(parent, args, context): Promise<TradeOffer[]> {
       return context.db.trades.offersForHero(parent.id);
     },

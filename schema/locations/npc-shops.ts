@@ -716,7 +716,7 @@ async function executeTrimarimTrade(
   return { success: true, message: trade.message };
 }
 
-function getTrimarimTrades(context: BaseContext, hero: Hero): NpcShop {
+function getTrimarimTrades(context: BaseContext, hero: Hero): NpcShop | null {
   const shop: NpcShop = {
     name: "Trimarim's Enchantment Shop",
 
@@ -740,7 +740,10 @@ function getTrimarimTrades(context: BaseContext, hero: Hero): NpcShop {
     }
   });
 
-  return shop;
+  if (shop.trades.length) {
+    return shop;
+  }
+  return null;
 }
 
 function getUnupgradedItems(hero: Hero): InventoryItem[] {

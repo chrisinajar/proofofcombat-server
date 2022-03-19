@@ -3,6 +3,7 @@ import {
   BaseAccount,
   InventoryItemType,
   EnchantmentType,
+  PublicHero,
 } from "types/graphql";
 import { startingLevelCap } from "../../schema/quests/rebirth";
 import { hasQuestItem, takeQuestItem } from "../../schema/quests/helpers";
@@ -47,6 +48,17 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
   countEnchantments(hero: Hero, enchantment: EnchantmentType): number {
     return countEnchantments(hero, enchantment);
+  }
+
+  publicHero(hero: Hero, local: boolean): PublicHero {
+    return {
+      id: hero.id,
+      name: hero.name,
+      level: hero.level,
+      class: hero.class,
+      combat: hero.combat,
+      local,
+    };
   }
 
   async getHeroesInLocation({

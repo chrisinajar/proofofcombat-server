@@ -35,7 +35,7 @@ export default gql`
     gold: Int!
     enchantingDust: Int!
     location: Location!
-    home: Location
+    home: PlayerLocation
     attributePoints: Int!
 
     combat: HeroCombatStats!
