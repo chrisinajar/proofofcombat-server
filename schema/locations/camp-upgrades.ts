@@ -98,9 +98,9 @@ export const CampUpgrades: {
     type: PlayerLocationUpgrades.Settlement,
     cost: [
       { name: "wood", value: 100000 },
-      { name: "wood", value: 100000 },
-      { name: "wood", value: 100000 },
-      { name: "wood", value: 100000 },
+      { name: "stone", value: 100000 },
+      { name: "water", value: 100000 },
+      { name: "food", value: 100000 },
     ],
   },
 
