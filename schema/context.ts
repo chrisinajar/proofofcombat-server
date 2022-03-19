@@ -7,6 +7,10 @@ export type BaseContext = {
     id: string;
     delay?: string;
   };
+  client: null | {
+    name: string;
+    version: string;
+  };
   db: typeof DatabaseList;
   io: SocketServerAPI;
 };

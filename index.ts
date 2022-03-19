@@ -90,7 +90,6 @@ socketioHttpsServer.listen(socketIoPort, () => {
 });
 
 async function startApolloServer() {
-  console.log(process.env.HIVE_TOKEN);
   // The ApolloServer constructor requires two parameters: your schema
   // definition and your set of resolvers.
   const server = new ApolloServer({
@@ -101,17 +100,45 @@ async function startApolloServer() {
       hiveApollo({
         enabled: !!process.env.HIVE_TOKEN,
         token: process.env.HIVE_TOKEN ?? "",
-        usage: true, // or { ... usage options }
         reporting: {
           author: "chrisinajar",
           commit: "automated",
+        },
+        usage: {
+          clientInfo(context) {
+            const { name, version } = context.client;
+
+            if (name && version) {
+              return { name, version };
+            }
+
+            return null;
+          },
         },
       }),
     ],
 
     context: async ({ res, req }): Promise<BaseContext> => {
       let token = req.headers.authorization;
-      const context: BaseContext = { db, io };
+      let name = req.headers["apollographql-client-name"];
+      if (Array.isArray(name)) {
+        name = name.join(",");
+      }
+      let version = req.headers["apollographql-client-version"];
+      if (Array.isArray(version)) {
+        version = version.join(",");
+      }
+
+      const context: BaseContext = {
+        db,
+        io,
+        client: name
+          ? {
+              name,
+              version: version ?? "",
+            }
+          : null,
+      };
 
       if (token) {
         if (token.toLowerCase().startsWith("bearer ")) {
