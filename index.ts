@@ -1,6 +1,7 @@
 import "dotenv/config";
 
 import { ApolloServer } from "apollo-server-express";
+import { hiveApollo } from "@graphql-hive/client";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import express from "express";
 import fs from "fs";
@@ -84,6 +85,7 @@ socketioHttpsServer.listen(socketIoPort, () => {
 });
 
 async function startApolloServer() {
+  console.log(process.env.HIVE_TOKEN);
   // The ApolloServer constructor requires two parameters: your schema
   // definition and your set of resolvers.
   const server = new ApolloServer({
@@ -91,6 +93,11 @@ async function startApolloServer() {
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
       ApolloServerPluginDrainHttpServer({ httpServer: httpsServer }),
+      hiveApollo({
+        enabled: !!process.env.HIVE_TOKEN,
+        token: process.env.HIVE_TOKEN ?? "",
+        usage: true, // or { ... usage options }
+      }),
     ],
 
     context: async ({ res, req }): Promise<BaseContext> => {

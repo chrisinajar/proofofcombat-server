@@ -87,6 +87,9 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     ) {
       return 10000;
     }
+    if (resource === "honey") {
+      return 1000000000;
+    }
     return null;
   }
 
