@@ -238,7 +238,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
         );
 
       // make sure we have 7 stats to spend
-      if (extraStats > 7) {
+      if (extraStats >= 7) {
         const removableStats = stats
           .filter(
             (statName) =>
