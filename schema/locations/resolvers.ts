@@ -19,6 +19,7 @@ import {
   PlayerLocationUpgradeDescription,
   PlayerLocationUpgrades,
   PlayerLocationType,
+  SettlementManager,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -76,6 +77,25 @@ function isAllowedThere(hero: Hero, location: Location): boolean {
 
 const resolvers: Resolvers = {
   Query: {
+    async settlementManager(parent, args, context): Promise<SettlementManager> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      const hero = await context.db.hero.get(context.auth.id);
+      const capital = await context.db.playerLocation.getHome(hero.id);
+
+      if (!capital) {
+        throw new UserInputError("You do not have a capital city");
+      }
+
+      return {
+        id: hero.id,
+        capital,
+        range: 2,
+        availableUpgrades: [],
+        availableBuildings: [],
+      };
+    },
     async availableUpgrades(parent, args, context) {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -184,6 +204,14 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
+    // async buildBuilding(parent, args, context) {
+    //   if (!context?.auth?.id) {
+    //     throw new ForbiddenError("Missing auth");
+    //   }
+    // do i actually need a pathfinding algorithm here?...
+    // maybe my existing dumb walk can output empty points in range
+    // then we're just checking if that's in that array but hot damn that's a dumb way to do it
+    // },
     async upgradeCamp(parent, args, context) {
       // upgrade: PlayerLocationUpgrades)
       if (!context?.auth?.id) {
@@ -621,7 +649,10 @@ const resolvers: Resolvers = {
   },
   PlayerLocation: {
     async resources(parent, args, context): Promise<CampResources[]> {
-      if (parent.owner !== context.auth?.id) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      if (parent.owner !== context.auth.id) {
         return [];
       }
       return parent.resources;
@@ -629,6 +660,97 @@ const resolvers: Resolvers = {
     async publicOwner(parent, args, context): Promise<PublicHero> {
       const hero = await context.db.hero.get(parent.owner);
       return context.db.hero.publicHero(hero, true);
+    },
+    async connections(parent, args, context): Promise<PlayerLocation[]> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      if (parent.owner !== context.auth.id) {
+        return [];
+      }
+      const home = await context.db.playerLocation.getHome(parent.owner);
+      // only link from home
+      if (!home || home.id !== parent.id) {
+        return [];
+      }
+
+      return context.db.playerLocation.getConnections(home);
+    },
+
+    async availableUpgrades(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      if (parent.owner !== context.auth.id) {
+        return [];
+      }
+      const hero = await context.db.hero.get(context.auth.id);
+      const playerLocation = await context.db.playerLocation.get(parent.owner);
+
+      if (!playerLocation) {
+        return [];
+      }
+
+      const upgradeList: PlayerLocationUpgradeDescription[] = [];
+
+      upgradeList.push(...Object.values(CampUpgrades));
+
+      return upgradeList
+        .filter((upgrade) => {
+          if (playerLocation.upgrades.indexOf(upgrade.type) > -1) {
+            return false;
+          }
+          if (
+            !upgrade.cost.reduce((canAfford, cost) => {
+              const resource = playerLocation.resources.find(
+                (res) => res.name === cost.name
+              );
+              if (!resource) {
+                return canAfford;
+              }
+              return canAfford && cost.value <= (resource.maximum ?? 0);
+            }, true)
+          ) {
+            return false;
+          }
+          return true;
+        })
+        .slice(0, 3);
+    },
+  },
+  SettlementManager: {
+    async availableUpgrades(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      if (parent.id !== context.auth.id) {
+        return [];
+      }
+      return [];
+    },
+    async availableBuildings(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      if (parent.id !== context.auth.id) {
+        return [];
+      }
+      // Treasury
+      return [
+        {
+          type: PlayerLocationType.Farm,
+          name: "Farm",
+          cost: [
+            { name: "water", value: 200000 },
+            { name: "food", value: 300000 },
+            { name: "wood", value: 100000 },
+            { name: "stone", value: 100000 },
+          ],
+        },
+        { type: PlayerLocationType.Shrine, name: "Shrine", cost: [] },
+        { type: PlayerLocationType.Apiary, name: "Apiary", cost: [] },
+        { type: PlayerLocationType.Barracks, name: "Barracks", cost: [] },
+      ];
     },
   },
 };

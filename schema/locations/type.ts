@@ -5,6 +5,7 @@ export default gql`
     locationDetails(location: LocationInput): LocationDetails! @auth
     docks(map: String): [SpecialLocation!]! @auth
     availableUpgrades: [PlayerLocationUpgradeDescription!]! @auth
+    settlementManager: SettlementManager! @auth
   }
   type Mutation {
     teleport(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 5000)
@@ -23,6 +24,10 @@ export default gql`
     upgradeCamp(upgrade: PlayerLocationUpgrades!): ExtendedLocationResponse!
       @auth
       @delay(delay: 1000)
+    buildBuilding(
+      type: PlayerLocationType!
+      location: LocationInput!
+    ): ExtendedLocationResponse! @auth @delay(delay: 2000)
   }
 
   type ExtendedLocationResponse {
@@ -37,12 +42,18 @@ export default gql`
     cost: [CampResources!]!
   }
 
-  # will i use these? probably not...
-  type LocationBuilding {
+  type SettlementManager {
     id: ID!
-    location: Location!
-    owner: ID!
-    publicOwner: PublicHero
+    capital: PlayerLocation!
+    range: Int!
+    availableUpgrades: [PlayerLocationUpgradeDescription!]!
+    availableBuildings: [PlayerLocationBuildingDescription!]!
+  }
+
+  type PlayerLocationBuildingDescription {
+    type: PlayerLocationType!
+    name: String!
+    cost: [CampResources!]!
   }
 
   # camps have the hero id as the id
@@ -56,6 +67,8 @@ export default gql`
     upgrades: [PlayerLocationUpgrades!]!
     resources: [CampResources!]!
     lastUpkeep: String
+    connections: [PlayerLocation!]!
+    availableUpgrades: [PlayerLocationUpgradeDescription!]!
   }
 
   type CampResources {
@@ -74,15 +87,22 @@ export default gql`
     ImprovedCamp
     Garden
     HiredHelp
-
     TradingPost
     StorageCache
     Settlement
+
+    # post-settlement upgrades
   }
 
   enum PlayerLocationType {
     Camp
     Settlement
+
+    Treasury
+    Farm
+    Shrine
+    Apiary
+    Barracks
   }
 
   type LocationDetails {

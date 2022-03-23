@@ -14,7 +14,7 @@ import { io } from "../../index";
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 type PartialPlayerLocation = Optional<
   PlayerLocation,
-  "upgrades" | "resources" | "lastUpkeep"
+  "upgrades" | "resources" | "lastUpkeep" | "connections" | "availableUpgrades"
 >;
 
 const inMemoryLocationMaxLength = 100;
@@ -65,6 +65,84 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     } catch (e) {
       return null;
     }
+  }
+
+  async getConnections(location: PlayerLocation): Promise<PlayerLocation[]> {
+    if (location.type !== PlayerLocationType.Settlement) {
+      return [];
+    }
+    let links = 2;
+    const connections: PlayerLocation[] = [];
+    const checkedLocations: { [x in string]?: number } = {};
+
+    const checkLocation = async (
+      check: Location,
+      limit: number
+    ): Promise<void> => {
+      const locId = this.locationId(check);
+      if ((checkedLocations[locId] ?? 0) >= limit) {
+        return;
+      }
+      try {
+        const loc = await this.get(locId);
+        if (loc.owner === location.owner) {
+          if (!checkedLocations[locId]) {
+            connections.push(loc);
+          }
+          if (limit > 1) {
+            await checkNeighbors(loc, limit - 1);
+          }
+        }
+      } catch (e) {
+      } finally {
+        checkedLocations[locId] = limit;
+      }
+    };
+    const checkNeighbors = async (
+      check: PlayerLocation,
+      limit: number
+    ): Promise<void> => {
+      const loc = { ...check.location };
+
+      await Promise.all([
+        checkLocation(
+          {
+            x: loc.x + 1,
+            y: loc.y,
+            map: loc.map,
+          },
+          limit
+        ),
+        checkLocation(
+          {
+            x: loc.x - 1,
+            y: loc.y,
+            map: loc.map,
+          },
+          limit
+        ),
+        checkLocation(
+          {
+            x: loc.x,
+            y: loc.y + 1,
+            map: loc.map,
+          },
+          limit
+        ),
+        checkLocation(
+          {
+            x: loc.x,
+            y: loc.y - 1,
+            map: loc.map,
+          },
+          limit
+        ),
+      ]);
+    };
+
+    await checkNeighbors(location, links);
+
+    return connections;
   }
 
   addResource(location: PlayerLocation, name: string, value: number): void {
@@ -165,6 +243,13 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       costs.wood += 1;
       costs.stone += 1;
     }
+    if (this.hasUpgrade(location, PlayerLocationUpgrades.Settlement)) {
+      const population =
+        location.resources.find((r) => r.name === "population")?.value ?? 2;
+
+      costs.food += Math.ceil(population / 5);
+      costs.water += Math.ceil(population / 5);
+    }
 
     return costs;
   }
@@ -192,6 +277,8 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
     for (let i = 0; i < upkeeps; ++i) {
       const upkeepCosts = this.calculateUpkeepCosts(location);
+      const food =
+        location.resources.find((r) => r.name === "food")?.value ?? 0;
       console.log("Upkeeping...", upkeepCosts, location.resources);
 
       location.resources.forEach((resource) => {
@@ -201,9 +288,15 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         } else if (hasGarden && resource.name === "food") {
           resource.value += Math.floor(Math.random() * Math.random() * 10);
         } else if (resource.name === "population") {
-          resource.value += Math.round(
-            (Math.random() * Math.random() * resource.value) / 2
-          );
+          if (food < resource.value) {
+            resource.value -= Math.ceil((Math.random() * resource.value) / 100);
+          } else if (food > upkeepCosts.food * 2) {
+            resource.value += Math.round((Math.random() * resource.value) / 2);
+          } else {
+            resource.value += Math.round(
+              (Math.random() * Math.random() * resource.value) / 2
+            );
+          }
         } else if (resource.name === "population") {
           resource.value += Math.round(
             (Math.random() * Math.random() * resource.value) / 2
@@ -308,6 +401,8 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     data.upgrades = data.upgrades ?? [];
     data.resources = data.resources ?? [];
     data.lastUpkeep = data.lastUpkeep ?? this.upkeepNow();
+    data.connections = [];
+    data.availableUpgrades = [];
 
     const lastUpkeep = Number(data.lastUpkeep);
     if (isNaN(lastUpkeep) || !Number.isFinite(lastUpkeep)) {
@@ -317,14 +412,18 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     // construct real object to manipulate further will easier type checking...
     const playerLocation = data as PlayerLocation;
 
-    const defaultResources: { [x in string]: number } = {
-      wood: 1,
-      food: 1,
-      water: 1,
-      stone: 1,
-    };
-    if (data.type === PlayerLocationType.Settlement) {
-      defaultResources.population = 2;
+    const defaultResources: { [x in string]: number } = {};
+    if (
+      data.type === PlayerLocationType.Camp ||
+      data.type === PlayerLocationType.Settlement
+    ) {
+      defaultResources.wood = 1;
+      defaultResources.food = 1;
+      defaultResources.water = 1;
+      defaultResources.stone = 1;
+      if (data.type === PlayerLocationType.Settlement) {
+        defaultResources.population = 2;
+      }
     }
     const foundResources: { [x in string]?: true } = {};
     playerLocation.resources = playerLocation.resources.filter((resource) => {
