@@ -308,7 +308,7 @@ const resolvers: Resolvers = {
 
       const account = await context.db.account.get(context.auth.id);
       const hero = await context.db.hero.get(context.auth.id);
-      console.log("Healing", hero.name);
+
       hero.combat.health = hero.combat.maxHealth;
       await context.db.hero.put(hero);
 

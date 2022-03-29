@@ -32,7 +32,7 @@ export default gql`
     levelCap: Int!
     experience: Int!
     needed: Int!
-    gold: Int!
+    gold: Float!
     enchantingDust: Int!
     location: Location!
     home: PlayerLocation
@@ -113,7 +113,7 @@ export default gql`
   type LeadboardEntry {
     id: ID!
     name: String!
-    gold: Int!
+    gold: Float!
     level: Int!
     class: String!
   }

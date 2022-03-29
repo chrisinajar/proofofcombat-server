@@ -145,7 +145,7 @@ const resolvers: Resolvers = {
 
       if (
         gold < 1 ||
-        gold > 2000000000 ||
+        gold > context.db.hero.maxGold(hero) ||
         isNaN(gold) ||
         !Number.isFinite(gold)
       ) {

@@ -77,6 +77,7 @@ export class Pathfinder<Node> {
           existingItem = {
             parent: node,
             data: neighbor,
+            distance: Infinity,
             cost: Infinity,
             score: Infinity,
           };

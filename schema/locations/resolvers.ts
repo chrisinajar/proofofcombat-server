@@ -16,20 +16,27 @@ import {
   PlayerLocation,
   LevelUpResponse,
   CampResources,
-  PlayerLocationUpgradeDescription,
-  PlayerLocationUpgrades,
   PlayerLocationType,
+  PlayerLocationUpgrades,
+  PlayerLocationUpgradeDescription,
+  PlayerLocationBuildingDescription,
   SettlementManager,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
 import { LocationData, MapNames } from "../../constants";
 import { specialLocations, distance2d } from "../../helpers";
+import { Pathfinder } from "../../pathfinding";
 import { hasQuestItem } from "../quests/helpers";
 import { countEnchantments } from "../items/helpers";
 
 import { getShopData, executeNpcTrade } from "./npc-shops";
 import { CampUpgrades } from "./camp-upgrades";
+import {
+  payForBuilding,
+  canAffordBuilding,
+  Buildings,
+} from "./settlement-buildings";
 
 function isCloseToSpecialLocation(location: Location): boolean {
   return !!LocationData[location.map as MapNames].specialLocations.find(
@@ -75,6 +82,20 @@ function isAllowedThere(hero: Hero, location: Location): boolean {
   ``;
 }
 
+function createSettlementManager(
+  context: BaseContext,
+  hero: Hero,
+  capital: PlayerLocation
+): SettlementManager {
+  return {
+    id: hero.id,
+    capital,
+    range: context.db.playerLocation.range(capital),
+    availableUpgrades: [],
+    availableBuildings: [],
+  };
+}
+
 const resolvers: Resolvers = {
   Query: {
     async settlementManager(parent, args, context): Promise<SettlementManager> {
@@ -88,13 +109,7 @@ const resolvers: Resolvers = {
         throw new UserInputError("You do not have a capital city");
       }
 
-      return {
-        id: hero.id,
-        capital,
-        range: 2,
-        availableUpgrades: [],
-        availableBuildings: [],
-      };
+      return createSettlementManager(context, hero, capital);
     },
     async availableUpgrades(parent, args, context) {
       if (!context?.auth?.id) {
@@ -204,14 +219,144 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
-    // async buildBuilding(parent, args, context) {
-    //   if (!context?.auth?.id) {
-    //     throw new ForbiddenError("Missing auth");
-    //   }
-    // do i actually need a pathfinding algorithm here?...
-    // maybe my existing dumb walk can output empty points in range
-    // then we're just checking if that's in that array but hot damn that's a dumb way to do it
-    // },
+    async destroyBuilding(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+      const targetLocation = args.location;
+      const playerLocation = await context.db.playerLocation.get(
+        context.db.playerLocation.locationId(targetLocation)
+      );
+
+      if (!playerLocation || playerLocation.owner !== hero.id) {
+        throw new UserInputError("You do not own a building on that location");
+      }
+
+      await context.db.playerLocation.del(playerLocation);
+
+      return { hero, account };
+    },
+    async buildBuilding(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+      const capital = await context.db.playerLocation.getHome(hero.id);
+      if (!capital) {
+        throw new UserInputError("You do not own a settlement.");
+      }
+      const targetLocation = args.location;
+      let existingPlayerLocation: PlayerLocation | null = null;
+      try {
+        existingPlayerLocation = await context.db.playerLocation.get(
+          context.db.playerLocation.locationId(targetLocation)
+        );
+      } catch (e) {}
+
+      if (existingPlayerLocation) {
+        throw new UserInputError(
+          "There is already something built on that square."
+        );
+      }
+      function locationHash(loc: Location): string {
+        return `${loc.x}-${loc.y}`;
+      }
+      const locationCoords = {
+        [locationHash(capital.location)]: capital.location,
+      };
+      capital.connections = await context.db.playerLocation.getConnections(
+        capital
+      );
+      capital.connections.forEach((loc) => {
+        locationCoords[locationHash(loc.location)] = loc.location;
+      });
+      const pf = new Pathfinder<Location>({
+        hash: locationHash,
+        distance: (a: Location, b: Location): number =>
+          Math.abs(a.x - b.x) + Math.abs(a.y - b.y),
+        cost: (a: Location): number => 1,
+        neighbors: (a: Location): Location[] => {
+          const results: Location[] = [];
+          if (locationCoords[locationHash({ ...a, x: a.x + 1 })]) {
+            results.push(locationCoords[locationHash({ ...a, x: a.x + 1 })]);
+          }
+          if (locationCoords[locationHash({ ...a, x: a.x - 1 })]) {
+            results.push(locationCoords[locationHash({ ...a, x: a.x - 1 })]);
+          }
+          if (locationCoords[locationHash({ ...a, y: a.y + 1 })]) {
+            results.push(locationCoords[locationHash({ ...a, y: a.y + 1 })]);
+          }
+          if (locationCoords[locationHash({ ...a, y: a.y - 1 })]) {
+            results.push(locationCoords[locationHash({ ...a, y: a.y - 1 })]);
+          }
+
+          return results;
+        },
+      });
+
+      const path = pf.findPath(targetLocation, capital.location);
+
+      if (!path.success) {
+        throw new UserInputError(
+          "That location has no connection to your capital"
+        );
+      }
+      console.log(path);
+      // range? i dunno man... i'll get to it
+      if (path.path.length > context.db.playerLocation.range(capital)) {
+        throw new UserInputError(
+          "That location is too far away from your capital"
+        );
+      }
+      switch (args.type) {
+        case PlayerLocationType.Farm:
+          break;
+        case PlayerLocationType.Apiary:
+        case PlayerLocationType.Shrine:
+        case PlayerLocationType.Barracks:
+        case PlayerLocationType.Settlement:
+        case PlayerLocationType.Camp:
+        default:
+          throw new UserInputError("Invalid location type");
+          break;
+      }
+
+      if (!payForBuilding(capital, args.type)) {
+        throw new UserInputError(
+          "You do not have enough resources for that building"
+        );
+      }
+
+      const newLocation = await context.db.playerLocation.put({
+        id: context.db.playerLocation.locationId(targetLocation),
+        type: args.type,
+        availableUpgrades: [],
+        connections: [],
+        location: targetLocation,
+        owner: context.auth.id,
+        resources: [],
+        upgrades: [],
+      });
+
+      capital.connections.push(newLocation);
+      if (
+        newLocation.type === PlayerLocationType.Farm &&
+        capital.upgrades.indexOf(PlayerLocationUpgrades.HasBuiltFarm) === -1
+      ) {
+        capital.upgrades.push(PlayerLocationUpgrades.HasBuiltFarm);
+      }
+
+      await context.db.playerLocation.put(capital);
+
+      return {
+        hero,
+        account,
+        settlement: createSettlementManager(context, hero, capital),
+      };
+    },
     async upgradeCamp(parent, args, context) {
       // upgrade: PlayerLocationUpgrades)
       if (!context?.auth?.id) {
@@ -229,6 +374,9 @@ const resolvers: Resolvers = {
         throw new UserInputError("You already own that upgrade!");
       }
       const upgrade = CampUpgrades[args.upgrade];
+      if (!upgrade) {
+        throw new UserInputError("Unknown upgrade!");
+      }
       const isSettlement = upgrade.type === PlayerLocationUpgrades.Settlement;
 
       if (isSettlement) {
@@ -735,22 +883,25 @@ const resolvers: Resolvers = {
       if (parent.id !== context.auth.id) {
         return [];
       }
-      // Treasury
-      return [
-        {
-          type: PlayerLocationType.Farm,
-          name: "Farm",
-          cost: [
-            { name: "water", value: 200000 },
-            { name: "food", value: 300000 },
-            { name: "wood", value: 100000 },
-            { name: "stone", value: 100000 },
-          ],
-        },
-        { type: PlayerLocationType.Shrine, name: "Shrine", cost: [] },
-        { type: PlayerLocationType.Apiary, name: "Apiary", cost: [] },
-        { type: PlayerLocationType.Barracks, name: "Barracks", cost: [] },
-      ];
+
+      const stone = parent.capital.resources.find(
+        (res) => res.name === "stone"
+      );
+      const wood = parent.capital.resources.find((res) => res.name === "wood");
+      const population = parent.capital.resources.find(
+        (res) => res.name === "population"
+      );
+      const water = parent.capital.resources.find(
+        (res) => res.name === "water"
+      );
+
+      const result: PlayerLocationBuildingDescription[] = [];
+
+      if (canAffordBuilding(parent.capital, PlayerLocationType.Farm)) {
+        result.push(Buildings[PlayerLocationType.Farm]);
+      }
+
+      return result;
     },
   },
 };

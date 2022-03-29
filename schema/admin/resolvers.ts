@@ -22,6 +22,21 @@ const resolvers: Resolvers = {
   },
 
   Mutation: {
+    async giveGold(parent, args, context): Promise<BaseAccount> {
+      const hero = await context.db.hero.get(args.id);
+
+      if (isNaN(args.amount) || !Number.isFinite(args.amount)) {
+        throw new UserInputError("Bad amount");
+      }
+
+      hero.gold = Math.min(
+        context.db.hero.maxGold(hero),
+        Math.max(0, Math.round(hero.gold + args.amount))
+      );
+      await context.db.hero.put(hero);
+
+      return context.db.account.get(args.id);
+    },
     async createItem(parent, args, context): Promise<BaseAccount> {
       if (!BaseItems[args.baseItem]) {
         throw new UserInputError("Unknown base item");

@@ -14,26 +14,35 @@ export default gql`
     npcTrade(trade: ID!): NpcShopTradeResponse! @auth @delay(delay: 2000)
 
     # camps
-    settleCamp: ExtendedLocationResponse! @auth @delay(delay: 10000)
+    settleCamp: ExtendedCampResponse! @auth @delay(delay: 10000)
     buyResource(resource: String!, amount: Int!): LevelUpResponse!
       @auth
       @delay(delay: 1000)
     sellResource(resource: String!, amount: Int!): LevelUpResponse!
       @auth
       @delay(delay: 1000)
-    upgradeCamp(upgrade: PlayerLocationUpgrades!): ExtendedLocationResponse!
+    upgradeCamp(upgrade: PlayerLocationUpgrades!): ExtendedCampResponse!
       @auth
       @delay(delay: 1000)
     buildBuilding(
       type: PlayerLocationType!
       location: LocationInput!
-    ): ExtendedLocationResponse! @auth @delay(delay: 2000)
+    ): ExtendedSettlementResponse! @auth @delay(delay: 2000)
+    destroyBuilding(location: LocationInput!): LevelUpResponse!
+      @auth
+      @delay(delay: 2000)
   }
 
-  type ExtendedLocationResponse {
+  type ExtendedCampResponse {
     account: BaseAccount!
     hero: Hero!
     camp: PlayerLocation
+  }
+
+  type ExtendedSettlementResponse {
+    account: BaseAccount!
+    hero: Hero!
+    settlement: SettlementManager!
   }
 
   type PlayerLocationUpgradeDescription {
@@ -92,6 +101,7 @@ export default gql`
     Settlement
 
     # post-settlement upgrades
+    HasBuiltFarm
   }
 
   enum PlayerLocationType {
@@ -129,7 +139,7 @@ export default gql`
     offer: NpcShopItems!
   }
   type NpcShopItems {
-    gold: Int
+    gold: Float
     dust: Int
     baseItems: [String!]
     enchantments: [EnchantmentType!]

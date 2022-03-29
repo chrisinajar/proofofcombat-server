@@ -141,6 +141,7 @@ export default gql`
     DoubleExperience # 2x xp, stacks
     DoubleLeveling # get 2 levels for every level, stacks
     BonusDust
+    IncreasedGoldCap
     # class quests
     MeleeUpgrade
     CasterUpgrade
@@ -195,7 +196,7 @@ export default gql`
   input TradeOfferInput {
     to: ID!
     item: String!
-    gold: Int!
+    gold: Float!
   }
 
   type TradeOffer {
@@ -205,7 +206,7 @@ export default gql`
     toId: ID!
     toName: String!
     item: InventoryItem!
-    gold: Int!
+    gold: Float!
   }
 
   type TradeOfferReply {

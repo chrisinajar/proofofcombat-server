@@ -4,7 +4,7 @@ import {
 } from "types/graphql";
 
 export const CampUpgrades: {
-  [x in PlayerLocationUpgrades]: PlayerLocationUpgradeDescription;
+  [x in PlayerLocationUpgrades]?: PlayerLocationUpgradeDescription;
 } = {
   [PlayerLocationUpgrades.ChoppingBlock]: {
     name: "Build chopping block",

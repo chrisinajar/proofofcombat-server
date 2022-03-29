@@ -15,7 +15,7 @@ type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 type PartialPlayerLocation = Optional<
   PlayerLocation,
   "upgrades" | "resources" | "lastUpkeep" | "connections" | "availableUpgrades"
->;
+> & { version?: number };
 
 const inMemoryLocationMaxLength = 100;
 const upkeepInterval = 1000 * 60 * 60;
@@ -30,6 +30,10 @@ type UpkeepCosts = {
 export default class PlayerLocationModel extends DatabaseInterface<PlayerLocation> {
   constructor() {
     super("playerLocation");
+  }
+
+  range(capital: PlayerLocation): number {
+    return 5;
   }
 
   async get(id: string): Promise<PlayerLocation> {
@@ -71,9 +75,11 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     if (location.type !== PlayerLocationType.Settlement) {
       return [];
     }
-    let links = 2;
+    let links = this.range(location);
     const connections: PlayerLocation[] = [];
-    const checkedLocations: { [x in string]?: number } = {};
+    const checkedLocations: { [x in string]?: number } = {
+      [this.locationId(location.location)]: 1,
+    };
 
     const checkLocation = async (
       check: Location,
@@ -88,15 +94,15 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         if (loc.owner === location.owner) {
           if (!checkedLocations[locId]) {
             connections.push(loc);
+            checkedLocations[locId] = 1;
           }
-          if (limit > 1) {
+          const oldLimit = checkedLocations[locId];
+          if (!oldLimit || limit > oldLimit) {
+            checkedLocations[locId] = limit;
             await checkNeighbors(loc, limit - 1);
           }
         }
-      } catch (e) {
-      } finally {
-        checkedLocations[locId] = limit;
-      }
+      } catch (e) {}
     };
     const checkNeighbors = async (
       check: PlayerLocation,
@@ -165,9 +171,9 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     ) {
       return 10000;
     }
-    if (resource === "honey") {
-      return 1000000000;
-    }
+    // if (resource === "honey") {
+    //   return 1000000000;
+    // }
     return null;
   }
 
@@ -193,33 +199,41 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       return 1000000;
     }
 
+    if (resource === "cattle") {
+      return 10000;
+    }
+
+    if (resource === "honey") {
+      return 500;
+    }
+
     if (resource === "water") {
       if (
         this.hasUpgrade(location, PlayerLocationUpgrades.RainCollectionUnit)
       ) {
-        return 1000 * Math.pow(10, storageImprovements);
+        return 2000 * Math.pow(10, storageImprovements);
       }
     }
 
     if (resource === "stone") {
       if (this.hasUpgrade(location, PlayerLocationUpgrades.StoneStorage)) {
-        return 1000 * Math.pow(10, storageImprovements);
+        return 2000 * Math.pow(10, storageImprovements);
       }
     }
 
     if (resource === "wood") {
       if (this.hasUpgrade(location, PlayerLocationUpgrades.WoodStorage)) {
-        return 1000 * Math.pow(10, storageImprovements);
+        return 2000 * Math.pow(10, storageImprovements);
       }
     }
 
     if (resource === "food") {
       if (this.hasUpgrade(location, PlayerLocationUpgrades.Garden)) {
-        return 1000 * Math.pow(10, storageImprovements);
+        return 2000 * Math.pow(10, storageImprovements);
       }
     }
 
-    return 50;
+    return 100;
   }
 
   upkeepNow(): string {
@@ -247,8 +261,10 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       const population =
         location.resources.find((r) => r.name === "population")?.value ?? 2;
 
-      costs.food += Math.ceil(population / 5);
-      costs.water += Math.ceil(population / 5);
+      if (population > 0) {
+        costs.food += Math.ceil(population / 5);
+        costs.water += Math.ceil(population / 5);
+      }
     }
 
     return costs;
@@ -259,6 +275,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     const now = Number(this.upkeepNow());
     const lastUpkeep = Number(location.lastUpkeep);
     let canAffordUpkeep = true;
+    let settlementDead = false;
 
     const hasRainCollection = this.hasUpgrade(
       location,
@@ -270,44 +287,100 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       PlayerLocationUpgrades.HiredHelp
     );
 
-    const upkeeps = Math.max(
-      0,
-      Math.floor((now - lastUpkeep) / upkeepInterval)
+    const startingCattle =
+      location.resources.find((r) => r.name === "cattle")?.value ?? 0;
+    const startingHoney =
+      location.resources.find((r) => r.name === "honey")?.value ?? 0;
+    const startingBees =
+      location.resources.find((r) => r.name === "bees")?.value ?? 0;
+
+    const upkeeps = Math.min(
+      24,
+      Math.max(0, Math.floor((now - lastUpkeep) / upkeepInterval))
     );
+
+    let foodProduction = 0;
 
     for (let i = 0; i < upkeeps; ++i) {
       const upkeepCosts = this.calculateUpkeepCosts(location);
       const food =
         location.resources.find((r) => r.name === "food")?.value ?? 0;
+      const population =
+        location.resources.find((r) => r.name === "population")?.value ?? 0;
+      const bees =
+        location.resources.find((r) => r.name === "bees")?.value ?? 0;
+
       console.log("Upkeeping...", upkeepCosts, location.resources);
 
       location.resources.forEach((resource) => {
         // upgrades
-        if (hasRainCollection && resource.name === "water") {
-          resource.value += Math.floor(Math.random() * Math.random() * 10);
-        } else if (hasGarden && resource.name === "food") {
-          resource.value += Math.floor(Math.random() * Math.random() * 10);
+        if (resource.name === "water") {
+          if (hasRainCollection) {
+            resource.value += Math.floor(Math.random() * Math.random() * 10);
+          }
+
+          resource.value += Math.floor(population / 6);
+          resource.value += Math.floor(
+            resource.value * 0.005 * (population / (population + 500))
+          );
+        } else if (resource.name === "bees") {
+          resource.value += Math.floor(Math.random() * 1.1);
+        } else if (resource.name === "honey") {
+          resource.value += Math.floor(
+            Math.random() *
+              Math.random() *
+              Math.random() *
+              Math.random() *
+              Math.log2(bees)
+          );
+        } else if (resource.name === "cattle") {
+          // random between 1-3 per cattle
+          foodProduction += Math.ceil(resource.value * 3 * Math.random());
+          resource.value += Math.round(
+            Math.random() * Math.random() * Math.log2(resource.value) +
+              (Math.random() * Math.random() * resource.value) / 100
+          );
+        } else if (resource.name === "food") {
+          if (hasGarden) {
+            resource.value += Math.floor(Math.random() * Math.random() * 10);
+          }
+          resource.value += Math.floor(
+            (1 /
+              (1 +
+                Math.pow(
+                  1.3,
+                  1 - Math.log(population / 1000) / Math.log(16)
+                ))) *
+              (5000 * (population / (population + 10000)))
+          );
         } else if (resource.name === "population") {
+          const populationGrowth = Math.max(
+            1,
+            (2 * Math.log(resource.value)) / Math.log(1.4)
+          );
           if (food < resource.value) {
             resource.value -= Math.ceil((Math.random() * resource.value) / 100);
-          } else if (food > upkeepCosts.food * 2) {
-            resource.value += Math.round((Math.random() * resource.value) / 2);
+            if (resource.value < 1) {
+              settlementDead = true;
+            }
+          } else if (food > upkeepCosts.food * 24) {
+            resource.value += Math.floor(
+              (Math.random() * 0.4 + 0.8) * populationGrowth
+            );
+          } else if (food < upkeepCosts.food) {
+            // people are starving
+            resource.value = Math.floor(resource.value * 0.8);
           } else {
-            resource.value += Math.round(
-              (Math.random() * Math.random() * resource.value) / 2
+            resource.value += Math.floor(
+              (Math.random() * Math.random() * 0.6 + 0.5) * populationGrowth
             );
           }
-        } else if (resource.name === "population") {
-          resource.value += Math.round(
-            (Math.random() * Math.random() * resource.value) / 2
-          );
-        } else if (hasHelper) {
-          resource.value += Math.floor(Math.random() * Math.random() * 10);
+        } else if (resource.name === "wood" || resource.name === "stone") {
+          if (hasHelper) {
+            resource.value += Math.floor(Math.random() * Math.random() * 20);
+          }
+          resource.value += Math.floor(population / 1000);
         }
-        resource.value = Math.min(
-          this.resourceStorage(location, resource.name),
-          resource.value
-        );
 
         // pay upkeep costs
         const cost = upkeepCosts[resource.name as keyof UpkeepCosts];
@@ -319,26 +392,107 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             resource.value -= cost;
           }
         }
-      });
-      if (!canAffordUpkeep) {
-        break;
-      }
-    }
 
-    if (!canAffordUpkeep) {
-      io.sendNotification(location.owner, {
-        message: `Could not pay upkeep at ${location.location.x}, ${location.location.y}, the camp was lost`,
-        type: "quest",
+        resource.value = Math.max(
+          0,
+          Math.min(
+            this.resourceStorage(location, resource.name),
+            resource.value
+          )
+        );
       });
-      await this.del(location);
-      return null;
     }
 
     if (upkeeps > 0) {
-      io.sendNotification(location.owner, {
-        message: `Your camp at ${location.location.x}, ${location.location.y} paid upkeep.`,
-        type: "quest",
-      });
+      if (!canAffordUpkeep) {
+        if (location.type === PlayerLocationType.Camp) {
+          io.sendNotification(location.owner, {
+            message: `Could not pay upkeep at ${location.location.x}, ${location.location.y}, the camp was lost`,
+            type: "quest",
+          });
+          await this.del(location);
+          return null;
+        }
+        if (location.type === PlayerLocationType.Settlement) {
+          if (settlementDead) {
+            io.sendNotification(location.owner, {
+              message: `Your people at ${location.location.x}, ${location.location.y} have all starved to death`,
+              type: "quest",
+            });
+            await this.del(location);
+            return null;
+          } else {
+            io.sendNotification(location.owner, {
+              message: `Your people at ${location.location.x}, ${location.location.y} are starving`,
+              type: "quest",
+            });
+          }
+        }
+      } else {
+        if (location.type === PlayerLocationType.Camp) {
+          io.sendNotification(location.owner, {
+            message: `Your camp at ${location.location.x}, ${location.location.y} paid upkeep.`,
+            type: "quest",
+          });
+        }
+        if (location.type === PlayerLocationType.Settlement) {
+          io.sendNotification(location.owner, {
+            message: `Your settlement at ${location.location.x}, ${location.location.y} paid upkeep.`,
+            type: "quest",
+          });
+        }
+        if (location.type === PlayerLocationType.Farm) {
+          const endingCattle =
+            location.resources.find((r) => r.name === "cattle")?.value ?? 0;
+          if (endingCattle - startingCattle > 0) {
+            io.sendNotification(location.owner, {
+              message: `Your farm at ${location.location.x}, ${
+                location.location.y
+              } gained ${endingCattle - startingCattle} cattle.`,
+              type: "quest",
+            });
+          }
+          if (foodProduction > 0) {
+            const capital = await this.getHome(location.owner);
+            if (capital) {
+              const food = capital.resources.find((res) => res.name === "food");
+              if (food) {
+                console.log("food", food.value, "+", foodProduction);
+                food.value = Math.min(
+                  this.resourceStorage(capital, "food"),
+                  Math.round(food.value + foodProduction)
+                );
+                console.log("=", food.value);
+                await this.put(capital);
+              }
+            }
+          }
+        }
+        if (location.type === PlayerLocationType.Apiary) {
+          const endingBees =
+            location.resources.find((r) => r.name === "bees")?.value ?? 0;
+
+          const endingHoney =
+            location.resources.find((r) => r.name === "honey")?.value ?? 0;
+
+          const parts: string[] = [];
+
+          if (endingBees - startingBees > 0) {
+            parts.push(`${endingBees - startingBees} bees`);
+          }
+          if (endingHoney - startingHoney > 0) {
+            parts.push(`${endingHoney - startingHoney} honey`);
+          }
+          if (parts.length) {
+            io.sendNotification(location.owner, {
+              message: `Your farm at ${location.location.x}, ${
+                location.location.y
+              } gained ${parts.join(" and ")}.`,
+              type: "quest",
+            });
+          }
+        }
+      }
       location.lastUpkeep = `${now}`;
       await this.put(location);
     }
@@ -409,10 +563,28 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       data.lastUpkeep = this.upkeepNow();
     }
 
+    if (!data.version) {
+      data.version = 1;
+      const population = data.resources.find(
+        (res) => res.name === "population"
+      );
+      if (population) {
+        population.value = 2;
+        console.log("Resetting population", data.location);
+      }
+    }
+
     // construct real object to manipulate further will easier type checking...
     const playerLocation = data as PlayerLocation;
 
     const defaultResources: { [x in string]: number } = {};
+    if (data.type === PlayerLocationType.Farm) {
+      defaultResources.cattle = 10;
+    }
+    if (data.type === PlayerLocationType.Apiary) {
+      defaultResources.bees = 5;
+      defaultResources.honey = 0;
+    }
     if (
       data.type === PlayerLocationType.Camp ||
       data.type === PlayerLocationType.Settlement

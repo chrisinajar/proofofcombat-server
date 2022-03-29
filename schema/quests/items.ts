@@ -667,6 +667,7 @@ export function getQuestRewards() {
         EnchantmentType.MinusEnemyArmor,
         EnchantmentType.BonusWeaponTier,
         EnchantmentType.RangedSecondAttackChance,
+        EnchantmentType.IncreasedGoldCap,
       ],
     },
     "orb-of-forbidden-power": {
@@ -679,6 +680,7 @@ export function getQuestRewards() {
         // Orb specific
         EnchantmentType.CanTravelOnForbidden,
         EnchantmentType.BonusDust,
+        EnchantmentType.IncreasedGoldCap, // 2 of these total
         // Kraken Shell Medallion
         EnchantmentType.DoubleAllStats,
         EnchantmentType.BonusArmorTier,
@@ -711,6 +713,7 @@ export function getQuestRewards() {
         EnchantmentType.MinusEnemyArmor,
         EnchantmentType.BonusWeaponTier,
         EnchantmentType.RangedSecondAttackChance,
+        EnchantmentType.IncreasedGoldCap, // 2 of these total
       ],
     },
   };

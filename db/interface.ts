@@ -1,4 +1,6 @@
 import Level from "level-ts";
+import LRU from "lru-cache";
+
 // import { uuid } from 'uuidv4';
 import { BaseModel } from "types/graphql";
 
@@ -6,6 +8,7 @@ const rootDataPath = process.env.NODE_ENV === "test" ? "./test-data" : "./data";
 
 export default class DatabaseInterface<Model extends BaseModel> {
   db: Level<Model>;
+  cache = new LRU<string, Model>({ max: 1000 });
 
   constructor(database: string) {
     this.db = new Level<Model>(`${rootDataPath}/${database}`);
@@ -16,7 +19,13 @@ export default class DatabaseInterface<Model extends BaseModel> {
   }
 
   async get(id: string): Promise<Model> {
-    return this.upgrade(await this.db.get(id));
+    const possibleResult = this.cache.get(id);
+    if (possibleResult) {
+      return possibleResult;
+    }
+    const data = this.upgrade(await this.db.get(id));
+    this.cache.set(id, data);
+    return data;
   }
 
   async exists(id: string): Promise<boolean> {
@@ -24,9 +33,11 @@ export default class DatabaseInterface<Model extends BaseModel> {
   }
 
   async put(data: Model) {
+    this.cache.set(data.id, data);
     return this.db.put(data.id, this.upgrade(data));
   }
   async del(data: Model) {
+    this.cache.delete(data.id);
     return this.db.del(data.id);
   }
 
