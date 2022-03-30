@@ -36,6 +36,7 @@ import {
   payForBuilding,
   canAffordBuilding,
   Buildings,
+  validBuildingLocationType,
 } from "./settlement-buildings";
 
 function isCloseToSpecialLocation(location: Location): boolean {
@@ -297,7 +298,7 @@ const resolvers: Resolvers = {
         },
       });
 
-      const path = pf.findPath(targetLocation, capital.location);
+      const path = await pf.findPath(targetLocation, capital.location);
 
       if (!path.success) {
         throw new UserInputError(
@@ -311,20 +312,12 @@ const resolvers: Resolvers = {
           "That location is too far away from your capital"
         );
       }
-      switch (args.type) {
-        case PlayerLocationType.Farm:
-          break;
-        case PlayerLocationType.Apiary:
-        case PlayerLocationType.Shrine:
-        case PlayerLocationType.Barracks:
-        case PlayerLocationType.Settlement:
-        case PlayerLocationType.Camp:
-        default:
-          throw new UserInputError("Invalid location type");
-          break;
+      const buildingType = args.type;
+      if (!validBuildingLocationType(buildingType)) {
+        throw new UserInputError("Invalid location type");
       }
 
-      if (!payForBuilding(capital, args.type)) {
+      if (!payForBuilding(capital, buildingType)) {
         throw new UserInputError(
           "You do not have enough resources for that building"
         );
@@ -332,7 +325,7 @@ const resolvers: Resolvers = {
 
       const newLocation = await context.db.playerLocation.put({
         id: context.db.playerLocation.locationId(targetLocation),
-        type: args.type,
+        type: buildingType,
         availableUpgrades: [],
         connections: [],
         location: targetLocation,
@@ -884,21 +877,20 @@ const resolvers: Resolvers = {
         return [];
       }
 
-      const stone = parent.capital.resources.find(
-        (res) => res.name === "stone"
-      );
-      const wood = parent.capital.resources.find((res) => res.name === "wood");
-      const population = parent.capital.resources.find(
-        (res) => res.name === "population"
-      );
-      const water = parent.capital.resources.find(
-        (res) => res.name === "water"
-      );
-
       const result: PlayerLocationBuildingDescription[] = [];
 
       if (canAffordBuilding(parent.capital, PlayerLocationType.Farm)) {
         result.push(Buildings[PlayerLocationType.Farm]);
+      }
+      if (
+        parent.capital.upgrades.indexOf(PlayerLocationUpgrades.HasBuiltFarm) < 0
+      ) {
+        console.log("has never built a farm");
+        return result;
+      }
+
+      if (canAffordBuilding(parent.capital, PlayerLocationType.Apiary)) {
+        result.push(Buildings[PlayerLocationType.Apiary]);
       }
 
       return result;

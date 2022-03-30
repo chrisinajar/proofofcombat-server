@@ -1,9 +1,9 @@
 import Heap from "heap";
 
-type TravelCost<Node> = (a: Node, b: Node) => number;
-type DistanceEstimate<Node> = (a: Node, b: Node) => number;
-type HashMethod<Node> = (node: Node) => string;
-type Neighbors<Node> = (node: Node) => Node[];
+type TravelCost<Node> = (a: Node, b: Node) => number | Promise<number>;
+type DistanceEstimate<Node> = (a: Node, b: Node) => number | Promise<number>;
+type HashMethod<Node> = (node: Node) => string | Promise<string>;
+type Neighbors<Node> = (node: Node) => Node[] | Promise<Node[]>;
 
 type NodeData<Node> = {
   data: Node;
@@ -41,12 +41,15 @@ export class Pathfinder<Node> {
     this.neighbors = neighbors;
   }
 
-  findPath(start: Node, end: Node): { success: boolean; path: Node[] } {
+  async findPath(
+    start: Node,
+    end: Node
+  ): Promise<{ success: boolean; path: Node[] }> {
     const openNodes = new Map<string, NodeData<Node>>();
     const heap = new Heap<NodeData<Node>>((a, b) => a.score - b.score);
     const startData: NodeData<Node> = {
       data: start,
-      distance: this.distance(start, end),
+      distance: await this.distance(start, end),
       cost: 0,
       score: 0,
     };
@@ -54,13 +57,13 @@ export class Pathfinder<Node> {
 
     let bestGuess = startData;
     heap.push(startData);
-    openNodes.set(this.hash(start), startData);
+    openNodes.set(await this.hash(start), startData);
     let iteration = 0;
 
     while (heap.size() && ++iteration < this.maxIterations) {
       const node = heap.pop();
 
-      if (this.distance(node.data, end) === 0) {
+      if ((await this.distance(node.data, end)) === 0) {
         return {
           success: true,
           path: this.createPath(node),
@@ -69,31 +72,35 @@ export class Pathfinder<Node> {
 
       let didUpdate = false;
       // openNodes.delete(this.hash(node.data));
-      this.neighbors(node.data).forEach((neighbor) => {
-        const neighborHash = this.hash(neighbor);
-        const costFromHere = node.cost + this.cost(node.data, neighbor);
-        let existingItem = openNodes.get(neighborHash);
-        if (!existingItem) {
-          existingItem = {
-            parent: node,
-            data: neighbor,
-            distance: Infinity,
-            cost: Infinity,
-            score: Infinity,
-          };
-          openNodes.set(neighborHash, existingItem);
-        }
-        if (existingItem.cost > costFromHere) {
-          existingItem.cost = costFromHere;
-          existingItem.distance = this.distance(neighbor, end);
-          existingItem.score = existingItem.cost + existingItem.distance;
-          if (existingItem.score < bestGuess.score) {
-            bestGuess = existingItem;
+      const neighbors = await this.neighbors(node.data);
+      await Promise.all(
+        neighbors.map(async (neighbor) => {
+          const neighborHash = await this.hash(neighbor);
+          const costFromHere =
+            node.cost + (await this.cost(node.data, neighbor));
+          let existingItem = openNodes.get(neighborHash);
+          if (!existingItem) {
+            existingItem = {
+              parent: node,
+              data: neighbor,
+              distance: Infinity,
+              cost: Infinity,
+              score: Infinity,
+            };
+            openNodes.set(neighborHash, existingItem);
           }
-          didUpdate = true;
-          heap.push(existingItem);
-        }
-      });
+          if (existingItem.cost > costFromHere) {
+            existingItem.cost = costFromHere;
+            existingItem.distance = await this.distance(neighbor, end);
+            existingItem.score = existingItem.cost + existingItem.distance;
+            if (existingItem.score < bestGuess.score) {
+              bestGuess = existingItem;
+            }
+            didUpdate = true;
+            heap.push(existingItem);
+          }
+        })
+      );
       if (didUpdate) {
         heap.heapify();
       }

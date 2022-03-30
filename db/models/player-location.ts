@@ -8,6 +8,7 @@ import {
 } from "types/graphql";
 import DatabaseInterface from "../interface";
 
+import { Pathfinder } from "../../pathfinding";
 import { hash } from "../../hash";
 import { io } from "../../index";
 
@@ -28,6 +29,8 @@ type UpkeepCosts = {
 };
 
 export default class PlayerLocationModel extends DatabaseInterface<PlayerLocation> {
+  upkeepReentrancy: boolean = false;
+
   constructor() {
     super("playerLocation");
   }
@@ -171,9 +174,6 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     ) {
       return 10000;
     }
-    // if (resource === "honey") {
-    //   return 1000000000;
-    // }
     return null;
   }
 
@@ -270,8 +270,67 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     return costs;
   }
 
+  async pathLengthToCapital(
+    location: PlayerLocation,
+    capital: PlayerLocation
+  ): Promise<number | false> {
+    function fasterHash(loc: Location): string {
+      return `${loc.x}-${loc.y}`;
+    }
+
+    const pf = new Pathfinder<Location>({
+      hash: fasterHash,
+      distance: (a: Location, b: Location): number =>
+        Math.abs(a.x - b.x) + Math.abs(a.y - b.y),
+      cost: (a: Location): number => 1,
+      neighbors: async (a: Location): Promise<Location[]> => {
+        const results: Location[] = [];
+        try {
+          const otherLoc = await this.get(
+            this.locationId({ ...a, x: a.x + 1 })
+          );
+          if (otherLoc.owner === location.owner) {
+            results.push(otherLoc.location);
+          }
+        } catch (e) {}
+        try {
+          const otherLoc = await this.get(
+            this.locationId({ ...a, x: a.x - 1 })
+          );
+          if (otherLoc.owner === location.owner) {
+            results.push(otherLoc.location);
+          }
+        } catch (e) {}
+        try {
+          const otherLoc = await this.get(
+            this.locationId({ ...a, y: a.y + 1 })
+          );
+          if (otherLoc.owner === location.owner) {
+            results.push(otherLoc.location);
+          }
+        } catch (e) {}
+        try {
+          const otherLoc = await this.get(
+            this.locationId({ ...a, y: a.y - 1 })
+          );
+          if (otherLoc.owner === location.owner) {
+            results.push(otherLoc.location);
+          }
+        } catch (e) {}
+
+        return results;
+      },
+    });
+
+    const path = await pf.findPath(location.location, capital.location);
+    return path.success && path.path.length - 1;
+  }
+
   async upkeep(location: PlayerLocation): Promise<PlayerLocation | null> {
-    console.log("Checking upkeep for", location.location);
+    if (this.upkeepReentrancy) {
+      return location;
+    }
+    this.upkeepReentrancy = true;
     const now = Number(this.upkeepNow());
     const lastUpkeep = Number(location.lastUpkeep);
     let canAffordUpkeep = true;
@@ -299,7 +358,27 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       Math.max(0, Math.floor((now - lastUpkeep) / upkeepInterval))
     );
 
+    let isDecaying = false;
     let foodProduction = 0;
+
+    if (
+      location.type !== PlayerLocationType.Settlement &&
+      location.type !== PlayerLocationType.Camp
+    ) {
+      // non-central building, like a farm or something
+      const capital = await this.getHome(location.owner);
+      // we are "decaying" if we don't have a capital
+      isDecaying = !capital;
+
+      if (capital) {
+        const distance = await this.pathLengthToCapital(location, capital);
+        if (!distance) {
+          isDecaying = true;
+        } else if (this.range(capital) < distance) {
+          isDecaying = true;
+        }
+      }
+    }
 
     for (let i = 0; i < upkeeps; ++i) {
       const upkeepCosts = this.calculateUpkeepCosts(location);
@@ -309,8 +388,6 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         location.resources.find((r) => r.name === "population")?.value ?? 0;
       const bees =
         location.resources.find((r) => r.name === "bees")?.value ?? 0;
-
-      console.log("Upkeeping...", upkeepCosts, location.resources);
 
       location.resources.forEach((resource) => {
         // upgrades
@@ -359,11 +436,12 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             (2 * Math.log(resource.value)) / Math.log(1.4)
           );
           if (food < resource.value) {
+            // food is low but people are fed
             resource.value -= Math.ceil((Math.random() * resource.value) / 100);
             if (resource.value < 1) {
               settlementDead = true;
             }
-          } else if (food > upkeepCosts.food * 24) {
+          } else if (food > upkeepCosts.food * 100) {
             resource.value += Math.floor(
               (Math.random() * 0.4 + 0.8) * populationGrowth
             );
@@ -380,6 +458,11 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             resource.value += Math.floor(Math.random() * Math.random() * 20);
           }
           resource.value += Math.floor(population / 1000);
+        }
+
+        if (isDecaying) {
+          // 10% decay on all resources when decaying
+          resource.value -= Math.ceil(resource.value * 0.1);
         }
 
         // pay upkeep costs
@@ -404,7 +487,12 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     }
 
     if (upkeeps > 0) {
-      if (!canAffordUpkeep) {
+      if (isDecaying) {
+        io.sendNotification(location.owner, {
+          message: `${location.location.x}, ${location.location.y} has no connection to your capital and is decaying`,
+          type: "quest",
+        });
+      } else if (!canAffordUpkeep) {
         if (location.type === PlayerLocationType.Camp) {
           io.sendNotification(location.owner, {
             message: `Could not pay upkeep at ${location.location.x}, ${location.location.y}, the camp was lost`,
@@ -452,17 +540,15 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
               type: "quest",
             });
           }
-          if (foodProduction > 0) {
+          if (foodProduction > 0 && !isDecaying) {
             const capital = await this.getHome(location.owner);
             if (capital) {
               const food = capital.resources.find((res) => res.name === "food");
               if (food) {
-                console.log("food", food.value, "+", foodProduction);
                 food.value = Math.min(
                   this.resourceStorage(capital, "food"),
                   Math.round(food.value + foodProduction)
                 );
-                console.log("=", food.value);
                 await this.put(capital);
               }
             }
@@ -496,6 +582,8 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       location.lastUpkeep = `${now}`;
       await this.put(location);
     }
+
+    this.upkeepReentrancy = false;
 
     return location;
   }

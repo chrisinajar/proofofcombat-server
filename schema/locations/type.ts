@@ -63,6 +63,7 @@ export default gql`
     type: PlayerLocationType!
     name: String!
     cost: [CampResources!]!
+    description: String!
   }
 
   # camps have the hero id as the id
