@@ -184,7 +184,6 @@ const resolvers: Resolvers = {
         if (location.terrain === "forbidden") {
           bonusDropRate *= 3;
           experienceRewards *= 3;
-          goldReward *= 3;
         }
 
         experienceRewards = Math.round(experienceRewards);

@@ -5,6 +5,7 @@ export default gql`
     locationDetails(location: LocationInput): LocationDetails! @auth
     docks(map: String): [SpecialLocation!]! @auth
     availableUpgrades: [PlayerLocationUpgradeDescription!]! @auth
+    settlementManager: SettlementManager! @auth
   }
   type Mutation {
     teleport(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 5000)
@@ -13,22 +14,35 @@ export default gql`
     npcTrade(trade: ID!): NpcShopTradeResponse! @auth @delay(delay: 2000)
 
     # camps
-    settleCamp: ExtendedLocationResponse! @auth @delay(delay: 10000)
+    settleCamp: ExtendedCampResponse! @auth @delay(delay: 10000)
     buyResource(resource: String!, amount: Int!): LevelUpResponse!
       @auth
       @delay(delay: 1000)
     sellResource(resource: String!, amount: Int!): LevelUpResponse!
       @auth
       @delay(delay: 1000)
-    upgradeCamp(upgrade: PlayerLocationUpgrades!): ExtendedLocationResponse!
+    upgradeCamp(upgrade: PlayerLocationUpgrades!): ExtendedCampResponse!
       @auth
       @delay(delay: 1000)
+    buildBuilding(
+      type: PlayerLocationType!
+      location: LocationInput!
+    ): ExtendedSettlementResponse! @auth @delay(delay: 2000)
+    destroyBuilding(location: LocationInput!): LevelUpResponse!
+      @auth
+      @delay(delay: 2000)
   }
 
-  type ExtendedLocationResponse {
+  type ExtendedCampResponse {
     account: BaseAccount!
     hero: Hero!
     camp: PlayerLocation
+  }
+
+  type ExtendedSettlementResponse {
+    account: BaseAccount!
+    hero: Hero!
+    settlement: SettlementManager!
   }
 
   type PlayerLocationUpgradeDescription {
@@ -37,12 +51,19 @@ export default gql`
     cost: [CampResources!]!
   }
 
-  # will i use these? probably not...
-  type LocationBuilding {
+  type SettlementManager {
     id: ID!
-    location: Location!
-    owner: ID!
-    publicOwner: PublicHero
+    capital: PlayerLocation!
+    range: Int!
+    availableUpgrades: [PlayerLocationUpgradeDescription!]!
+    availableBuildings: [PlayerLocationBuildingDescription!]!
+  }
+
+  type PlayerLocationBuildingDescription {
+    type: PlayerLocationType!
+    name: String!
+    cost: [CampResources!]!
+    description: String!
   }
 
   # camps have the hero id as the id
@@ -56,6 +77,8 @@ export default gql`
     upgrades: [PlayerLocationUpgrades!]!
     resources: [CampResources!]!
     lastUpkeep: String
+    connections: [PlayerLocation!]!
+    availableUpgrades: [PlayerLocationUpgradeDescription!]!
   }
 
   type CampResources {
@@ -74,15 +97,23 @@ export default gql`
     ImprovedCamp
     Garden
     HiredHelp
-
     TradingPost
     StorageCache
     Settlement
+
+    # post-settlement upgrades
+    HasBuiltFarm
   }
 
   enum PlayerLocationType {
     Camp
     Settlement
+
+    Treasury
+    Farm
+    Shrine
+    Apiary
+    Barracks
   }
 
   type LocationDetails {
@@ -109,7 +140,7 @@ export default gql`
     offer: NpcShopItems!
   }
   type NpcShopItems {
-    gold: Int
+    gold: Float
     dust: Int
     baseItems: [String!]
     enchantments: [EnchantmentType!]

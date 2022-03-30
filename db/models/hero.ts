@@ -280,6 +280,29 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     return { map: "default", x: choice.x, y: choice.y };
   }
 
+  maxGold(hero: Hero): number {
+    // NEVER return a value larger than 9007199254740991
+    // that's 9 quadrillion
+    const upCount = countEnchantments(hero, EnchantmentType.IncreasedGoldCap);
+    // orb + purse?
+    if (upCount >= 3) {
+      // 5 trillion
+      return 5000000000000;
+    }
+    // orb
+    if (upCount >= 2) {
+      // 200 billion
+      return 200000000000;
+    }
+    // hero's guidance
+    if (upCount >= 1) {
+      // 50 billion
+      return 50000000000;
+    }
+    // 2 billion
+    return 2000000000;
+  }
+
   // turn old heroes into new heroes
   // as heroes are saved/loaded they run through this
   // any time we add a new field we need to make sure to populate it here
@@ -390,7 +413,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       );
     }
 
-    data.gold = Math.min(2000000000, Math.round(data.gold ?? 0));
+    data.gold = data.gold ?? 0;
     data.experience = Math.round(data.experience ?? 0);
 
     data.incomingTrades = [];
@@ -398,6 +421,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
     // recalculate stats and turn it into a real hero object
     let hero = this.recalculateStats(data as Hero);
+    hero.gold = Math.min(this.maxGold(hero), Math.round(hero.gold));
 
     if (process.env.MAX_LEVEL_TESTING) {
       while (hero.level < hero.levelCap) {

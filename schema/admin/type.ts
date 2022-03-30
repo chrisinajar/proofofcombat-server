@@ -12,6 +12,8 @@ export default gql`
       baseItem: String!
       enchantment: EnchantmentType
     ): BaseAccount! @auth @admin
+
+    giveGold(id: ID!, amount: Float!): BaseAccount! @auth @admin
   }
 
   type AccountListResponse {
