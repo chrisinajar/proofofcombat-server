@@ -258,14 +258,11 @@ const resolvers: Resolvers = {
       } catch (e) {}
 
       if (existingPlayerLocation) {
-        if (existingPlayerLocation.owner !== hero.id) {
-          throw new UserInputError(
-            "There is already something built on that square."
-          );
-        } else {
-          await context.db.playerLocation.del(existingPlayerLocation);
-        }
+        throw new UserInputError(
+          "There is already something built on that square."
+        );
       }
+
       function locationHash(loc: Location): string {
         return `${loc.x}-${loc.y}`;
       }
@@ -389,7 +386,11 @@ const resolvers: Resolvers = {
           );
         } catch (e) {}
         if (existingSettlement) {
-          throw new UserInputError(`There is already a settlement there!`);
+          if (existingSettlement.owner !== hero.id) {
+            throw new UserInputError(`There is already a settlement there!`);
+          } else {
+            await context.db.playerLocation.del(existingSettlement);
+          }
         }
       }
 
