@@ -426,7 +426,7 @@ const resolvers: Resolvers = {
 
       const instance = context.db.monsterInstances.create({
         monster,
-        location: hero.location,
+        location: { ...hero.location },
         equipment,
       });
       return instance;

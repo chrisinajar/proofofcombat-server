@@ -155,5 +155,9 @@ export const FORBIDDEN_MONSTERS: Monster[] = [
 ].map(makeMonster(1.6, 4096, "forbidden", 1.5));
 
 export async function getMonster(id: string): Promise<Monster | undefined> {
-  return MONSTERS[id];
+  const monster = MONSTERS[id];
+  if (!monster) {
+    return monster;
+  }
+  return { ...monster, combat: { ...monster.combat } };
 }
