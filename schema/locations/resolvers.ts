@@ -263,7 +263,7 @@ const resolvers: Resolvers = {
             "There is already something built on that square."
           );
         } else {
-          await context.db.playerLocation.del(existingPlayerLocation.id);
+          await context.db.playerLocation.del(existingPlayerLocation);
         }
       }
       function locationHash(loc: Location): string {
