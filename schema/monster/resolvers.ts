@@ -84,7 +84,7 @@ const resolvers: Resolvers = {
 
       const startLevel = hero.level;
       const attackType: AttackType = args.attackType || AttackType.Melee;
-      let goldReward = monster.monster.combat.maxHealth;
+      let goldReward = monster.monster.combat.maxHealth * 0.8;
 
       const fightResult = await fightMonster(hero, monster, attackType);
       let experienceRewards =
