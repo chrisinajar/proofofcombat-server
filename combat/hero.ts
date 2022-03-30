@@ -26,13 +26,13 @@ export function addItemToCombatant(
       attackType === AttackType.Cast &&
       item.type === InventoryItemType.MeleeWeapon
     ) {
-      itemLevel = item.level / 2;
+      itemLevel = item.level;
     }
     if (
       attackType === AttackType.Melee &&
       item.type === InventoryItemType.SpellFocus
     ) {
-      itemLevel = item.level / 2;
+      itemLevel = item.level;
     }
   }
 
