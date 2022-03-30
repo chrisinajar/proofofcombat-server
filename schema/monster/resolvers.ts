@@ -187,6 +187,7 @@ const resolvers: Resolvers = {
         }
 
         experienceRewards = Math.round(experienceRewards);
+        goldReward = Math.min(1000000000, Math.round(goldReward));
 
         console.log(
           hero.name,
@@ -204,7 +205,6 @@ const resolvers: Resolvers = {
         await checkAberrationDrop(context, hero, monster.monster.id);
 
         context.db.hero.addExperience(hero, experienceRewards);
-        goldReward = Math.min(1000000000, Math.round(goldReward));
         hero.gold = hero.gold + goldReward;
 
         // drop chances!!
