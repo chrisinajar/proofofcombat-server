@@ -33,8 +33,9 @@ export default class DatabaseInterface<Model extends BaseModel> {
   }
 
   async put(data: Model) {
+    data = this.upgrade(data);
     this.cache.set(data.id, data);
-    return this.db.put(data.id, this.upgrade(data));
+    return this.db.put(data.id, data);
   }
   async del(data: Model) {
     this.cache.delete(data.id);
