@@ -358,6 +358,11 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       Math.max(0, Math.floor((now - lastUpkeep) / upkeepInterval))
     );
 
+    if (upkeeps < 1) {
+      this.upkeepReentrancy = false;
+      return location;
+    }
+
     let isDecaying = false;
     let foodProduction = 0;
 
