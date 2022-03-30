@@ -33,12 +33,14 @@ export default class DatabaseInterface<Model extends BaseModel> {
   }
 
   async put(data: Model) {
+    const initialId = data.id;
     data = this.upgrade(data);
-    if (this.cache.has(data.id)) {
-      this.cache.set(data.id, data);
+    if (this.cache.has(initialId)) {
+      this.cache.set(initialId, data);
     }
-    return this.db.put(data.id, data);
+    return this.db.put(initialId, data);
   }
+
   async del(data: Model) {
     this.cache.delete(data.id);
     return this.db.del(data.id);

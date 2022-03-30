@@ -258,9 +258,13 @@ const resolvers: Resolvers = {
       } catch (e) {}
 
       if (existingPlayerLocation) {
-        throw new UserInputError(
-          "There is already something built on that square."
-        );
+        if (existingPlayerLocation.owner !== hero.id) {
+          throw new UserInputError(
+            "There is already something built on that square."
+          );
+        } else {
+          await context.db.playerLocation.del(existingPlayerLocation.id);
+        }
       }
       function locationHash(loc: Location): string {
         return `${loc.x}-${loc.y}`;
@@ -439,7 +443,7 @@ const resolvers: Resolvers = {
 
       if (isSettlement) {
         camp.type = PlayerLocationType.Settlement;
-        const settlement = await context.db.playerLocation.put(camp);
+        const settlement = { ...(await context.db.playerLocation.put(camp)) };
         await context.db.playerLocation.put(settlement);
         return { hero, account, camp: settlement };
       } else {
