@@ -27,7 +27,7 @@ import type { BaseContext } from "schema/context";
 import { LocationData, MapNames } from "../../constants";
 import { specialLocations, distance2d } from "../../helpers";
 import { Pathfinder } from "../../pathfinding";
-import { hasQuestItem } from "../quests/helpers";
+import { hasQuestItem, checkCapital } from "../quests/helpers";
 import { countEnchantments } from "../items/helpers";
 
 import { getShopData, executeNpcTrade } from "./npc-shops";
@@ -109,6 +109,8 @@ const resolvers: Resolvers = {
       if (!capital) {
         throw new UserInputError("You do not have a capital city");
       }
+
+      await checkCapital(context, capital, hero);
 
       return createSettlementManager(context, hero, capital);
     },

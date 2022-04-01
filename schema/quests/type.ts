@@ -18,6 +18,7 @@ export default gql`
     MysteriousAutomation # automation!.... FORCED DOWN YOUR THROAT
     TavernChampion # beat all the big bois
     MinorClassUpgrades # 3 tier system with 5 tracks, ezpz basically free
+    Settlements # governor's title and it's upgrades
   }
 
   type QuestLog {
@@ -30,6 +31,7 @@ export default gql`
     clockwork: QuestProgress
     tavernChampion: QuestProgress
     minorClassUpgrades: QuestProgress
+    settlements: QuestProgress
   }
 
   type QuestEvent {

@@ -8,6 +8,7 @@ const Descriptions: { [x in Quest]?: string } = {
     "You have discovered mechanisms which break the fourth wall.",
   [Quest.NagaScale]:
     "You've found some strange items while fighting. You should see if you can trade your way up to something valuable...",
+  [Quest.Settlements]: "Your people grow to respect and obey you.",
 };
 
 export function getQuestDescription(quest: Quest): string {

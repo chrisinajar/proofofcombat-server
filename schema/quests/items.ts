@@ -716,6 +716,16 @@ export function getQuestRewards() {
         EnchantmentType.IncreasedGoldCap, // 2 of these total
       ],
     },
+
+    // settlement management upgrades
+    "governors-title": {
+      id: "governors-title",
+      name: "Governor's Title",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [EnchantmentType.UpgradedSettlement],
+    },
   };
 }
 

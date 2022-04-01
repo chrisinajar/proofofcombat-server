@@ -1,4 +1,10 @@
-import { Hero, InventoryItem, MonsterInstance, Quest } from "types/graphql";
+import {
+  Hero,
+  InventoryItem,
+  MonsterInstance,
+  Quest,
+  PlayerLocation,
+} from "types/graphql";
 
 import { LocationData, MapNames, SpecialLocation } from "../../constants";
 import { findTerrainType, specialLocations } from "../../helpers";
@@ -26,6 +32,15 @@ import {
 import { checkHeroDrop as checkHeroDropForDroop } from "./droop";
 import { checkHeroDrop as checkHeroDropForTavernChamp } from "./tavern-champion";
 import { checkHeroDrop as checkHeroDropForMinorClasses } from "./minor-class-upgrades";
+import { checkCapital as checkCapitalForSettlements } from "./settlements";
+
+export async function checkCapital(
+  context: BaseContext,
+  capital: PlayerLocation,
+  hero: Hero
+): Promise<void> {
+  await checkCapitalForSettlements(context, capital, hero);
+}
 
 export function checkHeroDrop(
   context: BaseContext,

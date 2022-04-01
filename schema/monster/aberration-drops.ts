@@ -108,7 +108,7 @@ async function burntHarlequinReward(
   hero: Hero
 ): Promise<void> {
   context.io.sendGlobalNotification({
-    message: `ash sits still in the air around ${hero.name}`,
+    message: `at ${hero.location.x}, ${hero.location.y}, ash sits still in the air around ${hero.name}`,
     type: "quest",
   });
 

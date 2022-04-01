@@ -173,6 +173,8 @@ export default gql`
     AncientKey
     CanTravelOnWater
     CanTravelOnForbidden
+    # settlements
+    UpgradedSettlement
     # End quest reward enchantments
 
     # MOB ONLY enchantments
