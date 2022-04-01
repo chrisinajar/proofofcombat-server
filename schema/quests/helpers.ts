@@ -149,7 +149,7 @@ export function setQuestLogProgress(
   const lastEvent =
     hero.currentQuest?.quest === quest ? hero.currentQuest : undefined;
   hero.questLog[entryName] = {
-    id: `NagaScale-${hero.id}`,
+    id: `${quest}-${hero.id}`,
     started: true,
     finished: false,
     progress: progress | (hero.questLog[entryName]?.progress ?? 0),

@@ -5,6 +5,7 @@ import {
   EnchantmentType,
   PublicHero,
   Location,
+  Quest,
 } from "types/graphql";
 import { startingLevelCap } from "../../schema/quests/rebirth";
 import { hasQuestItem, takeQuestItem } from "../../schema/quests/helpers";
@@ -405,6 +406,13 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       }
 
       data.version = 7;
+    }
+    if (data.version < 8) {
+      if (data?.questLog?.settlements) {
+        data.questLog.settlements.id = `${Quest.Settlements}-${data.id}`;
+      }
+
+      data.version = 8;
     }
 
     if (data.inventory) {
