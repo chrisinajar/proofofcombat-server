@@ -185,12 +185,23 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
   }
 
   countStorageImprovements(location: PlayerLocation): number {
-    return location.upgrades.filter(
+    const rawUpgrades = location.upgrades.filter(
       (up) =>
         up === PlayerLocationUpgrades.ImprovedCamp ||
         up === PlayerLocationUpgrades.Settlement ||
         up === PlayerLocationUpgrades.StorageCache
     ).length;
+
+    let populationUpgrades = 0;
+    if (location.type === PlayerLocationType.Settlement) {
+      const population =
+        location.resources.find((res) => res.name === "population")?.value ?? 0;
+      if (population > 1000) {
+        populationUpgrades += 1;
+      }
+    }
+
+    return populationUpgrades + rawUpgrades;
   }
 
   resourceStorage(location: PlayerLocation, resource: string): number {
