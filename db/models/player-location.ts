@@ -33,6 +33,8 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
   constructor() {
     super("playerLocation");
+
+    setInterval(() => (this.upkeepReentrancy = false), 30000);
   }
 
   range(capital: PlayerLocation): number {
