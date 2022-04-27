@@ -32,6 +32,21 @@ export const EnchantmentActivationOrder = [
   EnchantmentType.FishermansWisdom,
   EnchantmentType.FishermansWillpower,
   EnchantmentType.FishermansLuck,
+  EnchantmentType.SuperDexterityStats,
+  EnchantmentType.SuperWillpowerStats,
+  EnchantmentType.SuperWisdomStats,
+  EnchantmentType.DoubleAllStats,
+  EnchantmentType.BonusWeaponTier,
+  EnchantmentType.BonusArmorTier,
+  EnchantmentType.BonusMeleeWeaponTier,
+  EnchantmentType.BonusCasterWeaponTier,
+  EnchantmentType.BonusRangedWeaponTier,
+  EnchantmentType.BonusSmiteWeaponTier,
+  EnchantmentType.RangedArmorPiercing,
+  EnchantmentType.MeleeArmorPiercing,
+  EnchantmentType.CasterArmorPiercing,
+  EnchantmentType.SmiteArmorPiercing,
+  EnchantmentType.VampireArmorPiercing,
 
   // damaging / healing
   EnchantmentType.StrengthSteal,
@@ -46,6 +61,14 @@ export const EnchantmentActivationOrder = [
   EnchantmentType.LifeHeal,
   EnchantmentType.LifeDamage,
   EnchantmentType.Vampirism,
+  EnchantmentType.SuperVampStats,
+  EnchantmentType.SuperMeleeStats,
+  EnchantmentType.SuperCasterStats,
+  EnchantmentType.SuperVampMeleeStats,
+  EnchantmentType.SuperVampSorcStats,
+  EnchantmentType.SuperMeleeVampStats,
+  EnchantmentType.SuperBattleMageStats,
+  EnchantmentType.SuperSorcVampStats,
 ];
 
 export const EnchantmentCounterSpellOrder = [
@@ -53,6 +76,11 @@ export const EnchantmentCounterSpellOrder = [
   EnchantmentType.CounterSpell,
 
   // big heals
+  EnchantmentType.SuperVampStats,
+  EnchantmentType.SuperVampMeleeStats,
+  EnchantmentType.SuperVampSorcStats,
+  EnchantmentType.SuperMeleeVampStats,
+  EnchantmentType.SuperSorcVampStats,
   EnchantmentType.Vampirism,
   EnchantmentType.LifeSteal,
   EnchantmentType.LifeHeal,
@@ -60,6 +88,32 @@ export const EnchantmentCounterSpellOrder = [
 
   // armor is actually stacked
   EnchantmentType.BonusArmor,
+  EnchantmentType.BonusWeaponTier,
+  EnchantmentType.BonusArmorTier,
+  EnchantmentType.BonusMeleeWeaponTier,
+  EnchantmentType.BonusCasterWeaponTier,
+  EnchantmentType.BonusRangedWeaponTier,
+  EnchantmentType.BonusSmiteWeaponTier,
+
+  // remaining t4's
+  EnchantmentType.DoubleAllStats,
+  EnchantmentType.SuperMeleeStats,
+  EnchantmentType.SuperCasterStats,
+  EnchantmentType.SuperDexterityStats,
+  EnchantmentType.SuperWillpowerStats,
+  EnchantmentType.SuperWisdomStats,
+  EnchantmentType.SuperBattleMageStats,
+  EnchantmentType.BonusWeaponTier,
+  EnchantmentType.BonusArmorTier,
+  EnchantmentType.BonusMeleeWeaponTier,
+  EnchantmentType.BonusCasterWeaponTier,
+  EnchantmentType.BonusRangedWeaponTier,
+  EnchantmentType.BonusSmiteWeaponTier,
+  EnchantmentType.RangedArmorPiercing,
+  EnchantmentType.MeleeArmorPiercing,
+  EnchantmentType.CasterArmorPiercing,
+  EnchantmentType.SmiteArmorPiercing,
+  EnchantmentType.VampireArmorPiercing,
 
   // tier 3's
   EnchantmentType.BigMelee,

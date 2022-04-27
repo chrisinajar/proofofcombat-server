@@ -143,4 +143,8 @@ const Aberrations = [
     id: "random-aberration-thornbrute",
     ...AberrationStats["random-aberration-thornbrute"],
   },
+  // {
+  //   id: "random-aberration-void-keeper",
+  //   ...AberrationStats["random-aberration-void-keeper"],
+  // },
 ];

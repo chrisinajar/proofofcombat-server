@@ -33,5 +33,20 @@ export const questEvents = {
     '"Offer up your great power and live your life again, and you shall received ascended treasures."',
   ],
 
+  forbiddenCap: [
+    "The glowing creature from before appears in front of you.",
+    '"You let that horrid witch turn my totem in that awful orb?"',
+    "The creature points to your Orb of Forbidden Power.",
+    '"You are not meant for such a object, give it here"',
+    "The creature begins reaching for the orb. You see its arm reach out, as it reaches the orb you realize something",
+    "This is no god.",
+    "This is just another aberration.",
+    "It's different from the others but you recognize its stench.",
+    "You grab the glowing creature's arm, it reels back in disgust and offense.",
+    "The expression on the creature changes as it realizes what you know.",
+    "Before you can move, the glowing aberration flees up the mountain and disappears into the clouds above the Altar of Transcendence with a massive beam of light.",
+    "Your orb... it's cracked...",
+  ],
+
   ascendedRebirth: ["You are reborn once again."],
 };

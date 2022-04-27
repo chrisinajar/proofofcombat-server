@@ -12,6 +12,24 @@ export function getExpandedEnchantments(
   enchantment: EnchantmentType
 ): EnchantmentType[] {
   switch (enchantment) {
+    case EnchantmentType.BigCounterSpell:
+      return expandEnchantmentList([
+        EnchantmentType.CounterSpell,
+        EnchantmentType.CounterSpell,
+        EnchantmentType.CounterSpell,
+        EnchantmentType.CounterSpell,
+      ]);
+      break;
+
+    case EnchantmentType.SuperCounterSpell:
+      return expandEnchantmentList([
+        EnchantmentType.BigCounterSpell,
+        EnchantmentType.BigCounterSpell,
+        EnchantmentType.BigCounterSpell,
+        EnchantmentType.BigCounterSpell,
+      ]);
+      break;
+
     case EnchantmentType.TierFourCommon:
       return expandEnchantmentList([
         EnchantmentType.CounterSpell,

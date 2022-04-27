@@ -65,6 +65,8 @@ export default gql`
     MinusEnemyArmor
     BonusArmor
     CounterSpell
+    BigCounterSpell
+    SuperCounterSpell
     Mesmerize
     Focus
     # minus enemy stats

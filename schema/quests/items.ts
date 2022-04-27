@@ -716,6 +716,52 @@ export function getQuestRewards() {
         EnchantmentType.IncreasedGoldCap, // 2 of these total
       ],
     },
+    "cracked-orb-of-forbidden-power": {
+      id: "cracked-orb-of-forbidden-power",
+      name: "Cracked Orb of Forbidden Power",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        // Orb specific
+        EnchantmentType.CanTravelOnForbidden,
+        EnchantmentType.BonusDust,
+        EnchantmentType.IncreasedGoldCap, // 2 of these total
+        // Kraken Shell Medallion
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.BonusArmorTier,
+        // Interesting Mechanical Trophy
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.ImprovedAutomation,
+        // Hidden Stump Trophy
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.DoubleDodge,
+        // Engraved Lich Rib
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.BonusWeaponTier,
+        // Totem of Heroic Rebirth
+        EnchantmentType.AutoBattle,
+        EnchantmentType.DoubleExperience,
+        EnchantmentType.CanRebirth,
+        // Aqua Lungs
+        EnchantmentType.CanTravelOnWater,
+        // Naga Scale
+        EnchantmentType.CounterSpell,
+        EnchantmentType.BonusWeaponTier,
+        // Alvarado’s Cloak
+        EnchantmentType.DoubleAccuracy,
+        EnchantmentType.DoubleDodge,
+        // Hero's Guidance
+        EnchantmentType.BonusAllStats,
+        EnchantmentType.BonusAllStats,
+        EnchantmentType.VampireArmorPiercing,
+        EnchantmentType.VampireArmorPiercing,
+        EnchantmentType.MinusEnemyArmor,
+        EnchantmentType.BonusWeaponTier,
+        EnchantmentType.RangedSecondAttackChance,
+        EnchantmentType.IncreasedGoldCap, // 2 of these total
+      ],
+    },
 
     // settlement management upgrades
     "governors-title": {

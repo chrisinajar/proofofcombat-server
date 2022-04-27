@@ -85,32 +85,26 @@ export const AberrationStats = {
     },
   },
 
-  // "random-aberration-armored": {
-  //   monster: {
-  //     name: "Armor Guy",
-  //     id: "random-aberration-armored",
-  //     attackType: AttackType.Smite,
-  //     level: 40,
-  //     combat: {
-  //       maxHealth: 1000000000,
-  //       health: 1000000000,
-  //     },
-  //   },
-  //   equipment: {
-  //     bodyArmor: {
-  //       level: 60,
-  //       enchantment: EnchantmentType.MinusEnemyAllStats,
-  //     },
-  //     handArmor: {
-  //       level: 60,
-  //       enchantment: EnchantmentType.MinusEnemyAllStats,
-  //     },
-  //     legArmor: { level: 60, enchantment: EnchantmentType.Vampirism },
-  //     headArmor: { level: 60 },
-  //     footArmor: { level: 60 },
+  "random-aberration-void-keeper": {
+    monster: {
+      name: "Void Keeper",
+      id: "random-aberration-void-keeper",
+      attackType: AttackType.Cast,
+      level: 50,
+      combat: {
+        maxHealth: 1000000000,
+        health: 1000000000,
+      },
+    },
+    equipment: {
+      bodyArmor: { level: 60, enchantment: EnchantmentType.SuperCounterSpell },
+      handArmor: { level: 60, enchantment: EnchantmentType.SuperDexterity },
+      legArmor: { level: 60, enchantment: EnchantmentType.SuperWisdom },
+      headArmor: { level: 60, enchantment: EnchantmentType.Vampirism },
+      footArmor: { level: 60 },
 
-  //     leftHand: { level: 60 },
-  //     rightHand: { level: 60 },
-  //   },
-  // },
+      leftHand: { level: 60 },
+      rightHand: { level: 60 },
+    },
+  },
 };
