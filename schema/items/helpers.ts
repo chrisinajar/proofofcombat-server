@@ -35,6 +35,89 @@ export function enchantItem(
   return item;
 }
 
+const EnchantmentTiers: EnchantmentType[][] = [
+  [
+    // bonus individual stats
+    EnchantmentType.BonusStrength,
+    EnchantmentType.BonusDexterity,
+    EnchantmentType.BonusConstitution,
+    EnchantmentType.BonusIntelligence,
+    EnchantmentType.BonusWisdom,
+    EnchantmentType.BonusWillpower,
+    EnchantmentType.BonusLuck,
+
+    // minus individual enemy stats
+    EnchantmentType.MinusEnemyStrength,
+    EnchantmentType.MinusEnemyDexterity,
+    EnchantmentType.MinusEnemyConstitution,
+    EnchantmentType.MinusEnemyIntelligence,
+    EnchantmentType.MinusEnemyWisdom,
+    EnchantmentType.MinusEnemyWillpower,
+
+    // heal / damage
+    EnchantmentType.LifeHeal,
+    EnchantmentType.LifeDamage,
+  ],
+  [
+    // combined bonus/minuses
+    EnchantmentType.BonusPhysical,
+    EnchantmentType.BonusMental,
+    EnchantmentType.MinusEnemyPhysical,
+    EnchantmentType.MinusEnemyMental,
+    // armor
+    EnchantmentType.MinusEnemyArmor,
+    EnchantmentType.BonusArmor,
+    // combined heal / damage
+    EnchantmentType.LifeSteal,
+
+    // individual stat leaching
+    EnchantmentType.StrengthSteal,
+    EnchantmentType.DexteritySteal,
+    EnchantmentType.ConstitutionSteal,
+    EnchantmentType.IntelligenceSteal,
+    EnchantmentType.WisdomSteal,
+    EnchantmentType.WillpowerSteal,
+    EnchantmentType.LuckSteal,
+  ],
+  [
+    EnchantmentType.BonusAllStats,
+    EnchantmentType.MinusEnemyAllStats,
+    EnchantmentType.WisDexWill,
+    EnchantmentType.CounterSpell,
+  ],
+  [
+    EnchantmentType.AllStatsSteal,
+    EnchantmentType.Vampirism,
+    EnchantmentType.BigMelee,
+    EnchantmentType.BigCaster,
+  ],
+  [
+    // not droppable
+    EnchantmentType.SuperDexterity,
+    EnchantmentType.SuperWillpower,
+    EnchantmentType.SuperWisdom,
+    EnchantmentType.SuperMelee,
+    EnchantmentType.SuperCaster,
+    EnchantmentType.SuperMeleeVamp,
+    EnchantmentType.SuperSorcVamp,
+    EnchantmentType.SuperVamp,
+    EnchantmentType.SuperVampMelee,
+    EnchantmentType.SuperVampSorc,
+    EnchantmentType.SuperBattleMage,
+    EnchantmentType.SuperAllStats,
+  ],
+];
+
+export function getEnchantmentTier(enchantment: EnchantmentType): number {
+  let result = -1;
+  EnchantmentTiers.map((tier: EnchantmentType[], index) => {
+    if (tier.find((e) => e === enchantment)) {
+      result = index;
+    }
+  });
+  return result;
+}
+
 export function getEnchantments(
   level: number,
   includeLowerTiers: boolean
@@ -48,68 +131,17 @@ export function getEnchantments(
 
   switch (level) {
     case 0:
-      options = options.concat([
-        // bonus individual stats
-        EnchantmentType.BonusStrength,
-        EnchantmentType.BonusDexterity,
-        EnchantmentType.BonusConstitution,
-        EnchantmentType.BonusIntelligence,
-        EnchantmentType.BonusWisdom,
-        EnchantmentType.BonusWillpower,
-        EnchantmentType.BonusLuck,
-
-        // minus individual enemy stats
-        EnchantmentType.MinusEnemyStrength,
-        EnchantmentType.MinusEnemyDexterity,
-        EnchantmentType.MinusEnemyConstitution,
-        EnchantmentType.MinusEnemyIntelligence,
-        EnchantmentType.MinusEnemyWisdom,
-        EnchantmentType.MinusEnemyWillpower,
-
-        // heal / damage
-        EnchantmentType.LifeHeal,
-        EnchantmentType.LifeDamage,
-      ]);
+      options = options.concat(EnchantmentTiers[0]);
       break;
     case 1:
-      options = options.concat([
-        // combined bonus/minuses
-        EnchantmentType.BonusPhysical,
-        EnchantmentType.BonusMental,
-        EnchantmentType.MinusEnemyPhysical,
-        EnchantmentType.MinusEnemyMental,
-        // armor
-        EnchantmentType.MinusEnemyArmor,
-        EnchantmentType.BonusArmor,
-        // combined heal / damage
-        EnchantmentType.LifeSteal,
-
-        // individual stat leaching
-        EnchantmentType.StrengthSteal,
-        EnchantmentType.DexteritySteal,
-        EnchantmentType.ConstitutionSteal,
-        EnchantmentType.IntelligenceSteal,
-        EnchantmentType.WisdomSteal,
-        EnchantmentType.WillpowerSteal,
-        EnchantmentType.LuckSteal,
-      ]);
+      options = options.concat(EnchantmentTiers[1]);
       break;
     case 2:
-      options = options.concat([
-        EnchantmentType.BonusAllStats,
-        EnchantmentType.MinusEnemyAllStats,
-        EnchantmentType.WisDexWill,
-        EnchantmentType.CounterSpell,
-      ]);
+      options = options.concat(EnchantmentTiers[2]);
       break;
     // highest tier of overworld enchantments
     case 3:
-      options = options.concat([
-        EnchantmentType.AllStatsSteal,
-        EnchantmentType.Vampirism,
-        EnchantmentType.BigMelee,
-        EnchantmentType.BigCaster,
-      ]);
+      options = options.concat(EnchantmentTiers[3]);
       break;
     case 4:
       options = options.concat([]);

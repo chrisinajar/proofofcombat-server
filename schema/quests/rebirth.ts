@@ -1,11 +1,15 @@
-import { Hero, Quest, EnchantmentType } from "types/graphql";
+import { Hero, Quest, EnchantmentType, InventoryItem } from "types/graphql";
 
 import Databases from "../../db";
 import { BaseContext } from "../context";
 
 import { questEvents } from "./text/rebirth-text";
-import { giveHeroRandomDrop } from "../items/helpers";
-import { giveQuestItemNotification, takeQuestItem } from "./helpers";
+import { giveHeroRandomDrop, getEnchantmentTier } from "../items/helpers";
+import {
+  giveQuestItemNotification,
+  takeQuestItem,
+  hasQuestItem,
+} from "./helpers";
 
 export const startingLevelCap = 10;
 export const secondLevelCap = 100;
@@ -58,6 +62,23 @@ export function rebirth(context: BaseContext, hero: Hero): Hero {
 
   return Databases.hero.recalculateStats(hero);
 }
+
+function isItemTranscended(item: InventoryItem): boolean {
+  if (!item || item.level !== 34) {
+    return false;
+  }
+  return true;
+}
+
+function isMaxTierItem(item?: InventoryItem | null): boolean {
+  return !!(
+    item &&
+    isItemTranscended(item) &&
+    item.enchantment &&
+    getEnchantmentTier(item.enchantment) === 4
+  );
+}
+
 export function checkHero(context: BaseContext, hero: Hero): Hero {
   // wait for them to dismiss any previous quest messages
   if (hero.currentQuest) {
@@ -67,6 +88,27 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   // we only care if they're currently sitting at a level cap
   if (!isAtLevelCap(hero)) {
     return hero;
+  }
+
+  if (hero.levelCap === thirdLevelCap && hero.level === thirdLevelCap) {
+    if (
+      hasQuestItem(hero, "orb-of-forbidden-power") &&
+      isMaxTierItem(hero.equipment.leftHand) &&
+      isMaxTierItem(hero.equipment.rightHand) &&
+      isMaxTierItem(hero.equipment.bodyArmor) &&
+      isMaxTierItem(hero.equipment.handArmor) &&
+      isMaxTierItem(hero.equipment.legArmor) &&
+      isMaxTierItem(hero.equipment.headArmor) &&
+      isMaxTierItem(hero.equipment.footArmor)
+    ) {
+      hero = rebirthMessage(hero, "forbiddenCap", questEvents.forbiddenCap);
+      takeQuestItem(hero, "orb-of-forbidden-power");
+      giveQuestItemNotification(
+        context,
+        hero,
+        "cracked-orb-of-forbidden-power"
+      );
+    }
   }
 
   if (
