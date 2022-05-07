@@ -7,6 +7,7 @@ import { questEvents } from "./text/rebirth-text";
 import { giveHeroRandomDrop, getEnchantmentTier } from "../items/helpers";
 import {
   giveQuestItemNotification,
+  heroLocationName,
   takeQuestItem,
   hasQuestItem,
 } from "./helpers";
@@ -88,6 +89,13 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   // we only care if they're currently sitting at a level cap
   if (!isAtLevelCap(hero)) {
     return hero;
+  }
+
+  if (
+    hasQuestItem(hero, "cracked-orb-of-forbidden-power") &&
+    heroLocationName(hero) === "Altar of Transcendence"
+  ) {
+    // console.log("At the altar with the broken orb");
   }
 
   if (hero.levelCap === thirdLevelCap && hero.level === thirdLevelCap) {
