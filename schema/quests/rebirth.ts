@@ -116,6 +116,10 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
         hero,
         "cracked-orb-of-forbidden-power"
       );
+      context.io.sendGlobalNotification({
+        message: `A blinding light flashes from above the mountain, ${hero.name} has been cursed`,
+        type: "quest",
+      });
     }
   }
 
