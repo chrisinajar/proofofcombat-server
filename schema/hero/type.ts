@@ -20,6 +20,9 @@ export default gql`
     # settings
     changeMinimumStat(name: String!, value: Int!): LevelUpResponse! @auth
     changeAutoDust(value: Int!): LevelUpResponse! @auth
+
+    changeActiveSkill(skill: HeroSkill!): LevelUpResponse! @auth
+    changeSkillPercent(percent: Int!): LevelUpResponse! @auth
   }
 
   type Hero implements BaseModel {

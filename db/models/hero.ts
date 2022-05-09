@@ -11,6 +11,7 @@ import {
 import { startingLevelCap } from "../../schema/quests/rebirth";
 import { hasQuestItem, takeQuestItem } from "../../schema/quests/helpers";
 import { BaseItems } from "../../schema/items/base-items";
+import { BaseContext } from "../../schema/context";
 import { LocationData } from "../../constants";
 
 import DatabaseInterface from "../interface";
@@ -125,9 +126,10 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
   recalculateStats(hero: Hero): Hero {
     const healthPercentBefore = hero.combat.health / hero.combat.maxHealth;
-    hero.combat.maxHealth =
+    hero.combat.maxHealth = Math.round(
       (hero.stats.constitution * 10 + hero.level * 10) *
-      Math.pow(1.05, hero.skills.vitality);
+        Math.pow(1.05, hero.skills.vitality)
+    );
     hero.combat.health = Math.round(
       Math.min(
         hero.combat.maxHealth,
@@ -165,7 +167,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     );
   }
 
-  addExperience(hero: Hero, experience: number): Hero {
+  addExperience(context: BaseContext, hero: Hero, experience: number): Hero {
     // skills: =MIN(1, (B$1/POW(1.8, $A2)))
     // happy mothers day
 
@@ -177,10 +179,28 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       // level up skills
 
       const currentSkillLevel = hero.skills[hero.activeSkill];
-      const odds = Math.min(
-        1,
-        hero.skillPercent / Math.pow(1.8, currentSkillLevel)
-      );
+      if (currentSkillLevel < 50) {
+        const odds = Math.min(
+          1,
+          hero.skillPercent / Math.pow(1.8, currentSkillLevel)
+        );
+        // odds are between 0-1, where 1 is 100%
+        if (Math.random() < odds) {
+          console.log(
+            hero.name,
+            "Skill leveled up!!",
+            currentSkillLevel,
+            odds * 100
+          );
+          hero.skills[hero.activeSkill] += 1;
+          context.io.sendNotification(hero.id, {
+            message: `Your skill ${hero.activeSkill} has increased to level ${
+              hero.skills[hero.activeSkill]
+            }`,
+            type: "quest",
+          });
+        }
+      }
     }
     experience = Math.floor(experience);
     if (experience <= 0) {

@@ -52,6 +52,38 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
+    async changeActiveSkill(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      let hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      if (isNaN(hero.skills[args.skill])) {
+        throw new UserInputError("Unknown skill");
+      }
+
+      hero.activeSkill = args.skill;
+      await context.db.hero.put(hero);
+
+      return { hero, account };
+    },
+    async changeSkillPercent(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      let hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      const percent = Math.min(100, Math.max(0, args.percent));
+
+      hero.skillPercent = percent;
+      await context.db.hero.put(hero);
+
+      return { hero, account };
+    },
     async attackHero(parent, args, context): Promise<HeroFightResult> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");

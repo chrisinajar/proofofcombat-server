@@ -204,7 +204,7 @@ const resolvers: Resolvers = {
 
         await checkAberrationDrop(context, hero, monster.monster.id);
 
-        context.db.hero.addExperience(hero, experienceRewards);
+        context.db.hero.addExperience(context, hero, experienceRewards);
         hero.gold = hero.gold + goldReward;
 
         // drop chances!!
