@@ -51,6 +51,16 @@ export default gql`
     incomingTrades: [TradeOffer!]!
     outgoingTrades: [TradeOffer!]!
     settings: HeroSettings!
+
+    skills: HeroSkills!
+    skillPercent: Int!
+  }
+
+  type HeroSkills {
+    attackingAccuracy: Int!
+    castingAccuracy: Int!
+    attackingDamage: Int!
+    castingDamage: Int!
   }
 
   type PublicHero {
@@ -156,6 +166,8 @@ export default gql`
     headArmor: InventoryItem
     footArmor: InventoryItem
     accessories: [InventoryItem!]!
+
+    artifact: ArtifactItem
   }
 
   type HeroCombatStats implements ComatStats {

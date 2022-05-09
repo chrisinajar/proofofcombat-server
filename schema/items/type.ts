@@ -43,6 +43,42 @@ export default gql`
     enchantment: EnchantmentType
   }
 
+  # artifacts are uniquely different than other items
+  # you only get to use 1 at a time ever (for now but probably forever)
+  # there have a series of random attributes assigned to them
+  # each attribute has a magnitude
+  # while these items are purely passive, they will have a big impact
+  type ArtifactItem implements BaseModel {
+    id: ID! # unique id
+    owner: ID! # owner id
+    # "base item level"
+    # can level up
+    level: Int!
+
+    attributes: ArtifactAttributes!
+  }
+
+  type ArtifactAttributes {
+    namePrefix: ArtifactAttribute!
+    namePostfix: ArtifactAttribute!
+    titlePrefix: ArtifactAttribute
+    titlePostfix: ArtifactAttribute
+
+    intrinsic: ArtifactAttribute
+    bonus: ArtifactAttribute
+  }
+
+  type ArtifactAttribute {
+    type: ArtifactAttributeType!
+    magnitude: Float!
+  }
+
+  enum ArtifactAttributeType {
+    BonusHealth
+    ReducedDelay
+    BonusExperience
+  }
+
   enum EnchantmentType {
     # Droppable enchantments
     # base stats

@@ -37,6 +37,8 @@ type PartialHero = Optional<
   | "incomingTrades"
   | "outgoingTrades"
   | "settings"
+  | "skills"
+  | "skillPercent"
 >;
 
 const inMemoryLeaderboardLength = 50;
@@ -160,6 +162,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   addExperience(hero: Hero, experience: number): Hero {
+    // skills: =MIN(1, (B$1/POW(1.8, $A2)))
+    // happy mothers day
     const { level } = hero;
     const startingExperience = hero.experience;
     let newExperience = hero.experience + experience;
@@ -312,7 +316,23 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.gold = data.gold ?? 0;
     data.level = data.level ?? 1;
     data.experience = data.experience ?? 0;
-    data.settings = data.settings || {
+
+    data.skillPercent = data.skillPercent ?? 0;
+    data.skills = data.skills ?? {
+      attackingAccuracy: 0,
+      castingAccuracy: 0,
+      attackingDamage: 0,
+      castingDamage: 0,
+    };
+
+    // all skills all default to 0
+    // can easily add more here as new skills are introduces and we good
+    data.skills.attackingAccuracy = data.skills.attackingAccuracy ?? 0;
+    data.skills.castingAccuracy = data.skills.castingAccuracy ?? 0;
+    data.skills.attackingDamage = data.skills.attackingDamage ?? 0;
+    data.skills.castingDamage = data.skills.castingDamage ?? 0;
+
+    data.settings = data.settings ?? {
       autoDust: -1,
       minimumStats: {
         strength: 10,
@@ -324,6 +344,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
         luck: 10,
       },
     };
+
     if (!data.combat) {
       data.combat = {
         health: 13,

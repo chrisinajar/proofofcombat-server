@@ -8,6 +8,7 @@ import {
   InventoryItemType,
   EnchantmentType,
   HeroClasses,
+  HeroSkills,
 } from "types/graphql";
 
 export type Attribute = keyof HeroStats;
@@ -19,6 +20,7 @@ export type Combatant = {
   class: HeroClasses;
   equipment: CombatantGear;
   attributes: HeroStats;
+  skills?: HeroSkills;
   damageReduction: number;
   health: number;
   maxHealth: number;

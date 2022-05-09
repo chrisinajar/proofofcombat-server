@@ -3,7 +3,7 @@ import { EnchantmentType, HeroClasses, AttackType } from "types/graphql";
 import { BaseItems } from "../schema/items/base-items";
 
 import { Combatant, EnchantedCombatant, Attribute } from "./types";
-import { createLuck } from "./helpers";
+import { createLuck, attributesForAttack } from "./helpers";
 import {
   EnchantmentActivationOrder,
   EnchantmentCounterSpellOrder,
@@ -73,12 +73,26 @@ export function getAllGearEnchantments(
   );
 }
 
+// ordering matters here since it's a mix of % and flat values
+// basically pvp is FUCKED until this is refactored
+// we need to calculate all the bonuses and all the minuses for one player
+// then calculate the same for the other
+// then apply the buffs to both, then the debuffs to both
+// right now we apply buffs to plater 1, debuffs to 2, buffs to 2, debuffs to 1
+// player 1 has a HUGE HUGE advantage
+
 export function getEnchantedAttributes(
   attackerInput: Combatant,
   victimInput: Combatant
 ): { attacker: EnchantedCombatant; victim: EnchantedCombatant } {
-  let attacker: EnchantedCombatant = { ...attackerInput } as EnchantedCombatant;
-  let victim: EnchantedCombatant = { ...victimInput } as EnchantedCombatant;
+  let attacker: EnchantedCombatant = {
+    ...attackerInput,
+    attributes: { ...attackerInput.attributes },
+  } as EnchantedCombatant;
+  let victim: EnchantedCombatant = {
+    ...victimInput,
+    attributes: { ...victimInput.attributes },
+  } as EnchantedCombatant;
   if (!attacker.enchanted) {
     enchantAttacker(attacker, victim);
   }
@@ -581,6 +595,58 @@ export function enchantAttacker(
     case HeroClasses.BloodMage:
       attacker.attributes.constitution *= 1.2;
       break;
+  }
+
+  /// skillz
+  // i don't know why i wrote it that why and im sorry
+
+  const attackAttributes = attributesForAttack(attacker.attackType);
+  // toHit: Attribute;
+  // damage: Attribute;
+  // dodge: Attribute;
+  // damageReduction: Attribute;
+  /*
+    MELEE
+    RANGED
+    CAST
+    SMITE
+    BLOOD
+  */
+  if (attacker.skills) {
+    if (
+      attacker.attackType === AttackType.Melee ||
+      attacker.attackType === AttackType.Ranged ||
+      (attacker.attackType === AttackType.Cast &&
+        (attacker.class === HeroClasses.BattleMage ||
+          attacker.class === HeroClasses.DemonHunter))
+    ) {
+      attacker.attributes[attackAttributes.toHit] *= Math.pow(
+        1.05,
+        attacker.skills.attackingAccuracy
+      );
+      attacker.attributes[attackAttributes.damage] *= Math.pow(
+        1.05,
+        attacker.skills.attackingDamage
+      );
+    }
+
+    if (
+      attacker.attackType === AttackType.Cast ||
+      attacker.attackType === AttackType.Smite ||
+      attacker.attackType === AttackType.Blood ||
+      (attacker.attackType === AttackType.Melee &&
+        (attacker.class === HeroClasses.BattleMage ||
+          attacker.class === HeroClasses.DemonHunter))
+    ) {
+      attacker.attributes[attackAttributes.toHit] *= Math.pow(
+        1.05,
+        attacker.skills.castingAccuracy
+      );
+      attacker.attributes[attackAttributes.damage] *= Math.pow(
+        1.05,
+        attacker.skills.castingDamage
+      );
+    }
   }
 
   return { attacker, victim };
