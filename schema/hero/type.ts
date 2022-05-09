@@ -54,13 +54,22 @@ export default gql`
 
     skills: HeroSkills!
     skillPercent: Int!
+    activeSkill: HeroSkill!
   }
 
+  enum HeroSkill {
+    attackingAccuracy
+    castingAccuracy
+    attackingDamage
+    castingDamage
+    vitality
+  }
   type HeroSkills {
     attackingAccuracy: Int!
     castingAccuracy: Int!
     attackingDamage: Int!
     castingDamage: Int!
+    vitality: Int!
   }
 
   type PublicHero {

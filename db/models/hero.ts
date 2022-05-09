@@ -6,6 +6,7 @@ import {
   PublicHero,
   Location,
   Quest,
+  HeroSkill,
 } from "types/graphql";
 import { startingLevelCap } from "../../schema/quests/rebirth";
 import { hasQuestItem, takeQuestItem } from "../../schema/quests/helpers";
@@ -39,6 +40,7 @@ type PartialHero = Optional<
   | "settings"
   | "skills"
   | "skillPercent"
+  | "activeSkill"
 >;
 
 const inMemoryLeaderboardLength = 50;
@@ -123,7 +125,9 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
   recalculateStats(hero: Hero): Hero {
     const healthPercentBefore = hero.combat.health / hero.combat.maxHealth;
-    hero.combat.maxHealth = hero.stats.constitution * 10 + hero.level * 10;
+    hero.combat.maxHealth =
+      (hero.stats.constitution * 10 + hero.level * 10) *
+      Math.pow(1.05, hero.skills.vitality);
     hero.combat.health = Math.round(
       Math.min(
         hero.combat.maxHealth,
@@ -164,6 +168,25 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   addExperience(hero: Hero, experience: number): Hero {
     // skills: =MIN(1, (B$1/POW(1.8, $A2)))
     // happy mothers day
+
+    experience =
+      experience -
+      Math.min(1, Math.max(0, hero.skillPercent / 100)) * experience;
+
+    if (hero.skillPercent > 0) {
+      // level up skills
+
+      const currentSkillLevel = hero.skills[hero.activeSkill];
+      const odds = Math.min(
+        1,
+        hero.skillPercent / Math.pow(1.8, currentSkillLevel)
+      );
+    }
+    experience = Math.floor(experience);
+    if (experience <= 0) {
+      return hero;
+    }
+
     const { level } = hero;
     const startingExperience = hero.experience;
     let newExperience = hero.experience + experience;
@@ -323,7 +346,10 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       castingAccuracy: 0,
       attackingDamage: 0,
       castingDamage: 0,
+      vitality: 0,
     };
+
+    data.activeSkill = data.activeSkill ?? HeroSkill.Vitality;
 
     // all skills all default to 0
     // can easily add more here as new skills are introduces and we good
@@ -331,6 +357,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.skills.castingAccuracy = data.skills.castingAccuracy ?? 0;
     data.skills.attackingDamage = data.skills.attackingDamage ?? 0;
     data.skills.castingDamage = data.skills.castingDamage ?? 0;
+    data.skills.vitality = data.skills.vitality ?? 0;
 
     data.settings = data.settings ?? {
       autoDust: -1,
