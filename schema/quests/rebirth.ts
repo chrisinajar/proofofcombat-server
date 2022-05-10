@@ -91,6 +91,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     return hero;
   }
 
+  // amixea can help, grants void travel
   // if (
   //   hasQuestItem(hero, "cracked-orb-of-forbidden-power") &&
   //   // heroLocationName(hero) === "Altar of Transcendence"

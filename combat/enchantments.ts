@@ -16,6 +16,7 @@ export function countCounterSpells(attacker: Combatant): number {
     (ench) => ench === EnchantmentType.CounterSpell
   ).length;
 }
+
 export function getCounteredGearEnchantments(
   attacker: Combatant,
   victim: Combatant
@@ -23,13 +24,9 @@ export function getCounteredGearEnchantments(
   const attackerCounterSpells = countCounterSpells(attacker);
   const victimCounterSpells = countCounterSpells(victim);
 
-  console.log(attacker.name, {
-    attackerCounterSpells,
-    victimCounterSpells,
-  });
-
   return getAllGearEnchantments(attacker, victimCounterSpells);
 }
+
 export function getAllGearEnchantments(
   attacker: Combatant,
   counterSpells: number = 0
@@ -58,7 +55,6 @@ export function getAllGearEnchantments(
   enchantments = expandEnchantmentList(enchantments);
 
   if (counterSpells > 0) {
-    console.log(attacker.name, "is being countered", counterSpells, "->");
     EnchantmentCounterSpellOrder.reverse();
     enchantments = enchantments.sort(
       (a, b) =>
@@ -66,10 +62,8 @@ export function getAllGearEnchantments(
         EnchantmentCounterSpellOrder.indexOf(a)
     );
     EnchantmentCounterSpellOrder.reverse();
-    console.log(enchantments);
 
     enchantments = enchantments.slice(counterSpells);
-    console.log(enchantments);
   }
 
   return enchantments.sort(
@@ -146,14 +140,8 @@ export function enchantAttacker(
   let victim = victimInput as EnchantedCombatant;
 
   if (attacker.enchanted) {
-    console.log(
-      "not enchanting",
-      attacker.name,
-      "because theyre already enchanted"
-    );
     return { attacker, victim };
   }
-  console.log("enchanting", attacker.name);
   attacker.enchanted = true;
 
   const { attackType } = attacker;

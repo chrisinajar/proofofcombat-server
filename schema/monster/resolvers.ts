@@ -130,7 +130,7 @@ const resolvers: Resolvers = {
 
         if (isVoid) {
           // send them back to the mortal plane
-          // hero.location = { x: 64, y: 44, map: "default" };
+          hero.location = { x: 64, y: 44, map: "default" };
         }
       }
 

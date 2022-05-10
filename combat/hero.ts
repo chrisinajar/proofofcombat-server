@@ -135,6 +135,7 @@ export function createHeroCombatant(
     damageReduction: hero.level,
     attributes: hero.stats,
     luck: createLuck(hero.stats.luck),
+    skills: hero.skills,
   };
 
   if (hero.equipment.leftHand) {
