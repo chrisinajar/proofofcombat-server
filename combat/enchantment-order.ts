@@ -123,6 +123,9 @@ export const EnchantmentCounterSpellOrder = [
   EnchantmentType.LifeDamage,
   EnchantmentType.WisDexWill,
 
+  EnchantmentType.DoubleAccuracy,
+  EnchantmentType.DoubleDodge,
+
   // steals
   EnchantmentType.StrengthSteal,
   EnchantmentType.DexteritySteal,

@@ -48,5 +48,12 @@ export const questEvents = {
     "Your orb... it's cracked...",
   ],
 
+  amixeaCanHelp: [
+    '"My my, it seems you\'ve made yourself some enemies," Amixea gestures towards your broken orb',
+    '"It\'s marked by the creature you faced. You must defeat it before I can help you."',
+    '"Go to the Altar of Transcendence, bring this with you."',
+    '"Know that where you are going, death is not like it is here."',
+  ],
+
   ascendedRebirth: ["You are reborn once again."],
 };

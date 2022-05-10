@@ -762,6 +762,14 @@ export function getQuestRewards() {
         EnchantmentType.IncreasedGoldCap, // 2 of these total
       ],
     },
+    "void-vessel": {
+      id: "void-vessel",
+      name: "Void Vessel",
+      type: InventoryItemType.Quest,
+      level: 3,
+      canBuy: false,
+      passiveEnchantments: [EnchantmentType.VoidTravel],
+    },
 
     // settlement management upgrades
     "governors-title": {

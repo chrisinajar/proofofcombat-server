@@ -91,12 +91,17 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     return hero;
   }
 
-  if (
-    hasQuestItem(hero, "cracked-orb-of-forbidden-power") &&
-    heroLocationName(hero) === "Altar of Transcendence"
-  ) {
-    // console.log("At the altar with the broken orb");
-  }
+  // if (
+  //   hasQuestItem(hero, "cracked-orb-of-forbidden-power") &&
+  //   // heroLocationName(hero) === "Altar of Transcendence"
+  //   !hasQuestItem(hero, "void-vessel") &&
+  //   heroLocationName(hero) === "Amixea's Hut"
+  // ) {
+  //   hero = rebirthMessage(hero, "amixeaCanHelp", questEvents.amixeaCanHelp);
+  //   giveQuestItemNotification(context, hero, "void-vessel");
+
+  //   return hero;
+  // }
 
   if (hero.levelCap === thirdLevelCap && hero.level === thirdLevelCap) {
     if (
@@ -120,6 +125,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
         message: `A blinding light flashes from above the mountain, ${hero.name} has been cursed`,
         type: "quest",
       });
+      return hero;
     }
   }
 

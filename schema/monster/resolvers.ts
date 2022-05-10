@@ -29,6 +29,7 @@ import { checkAberrationDrop } from "./aberration-drops";
 import {
   getMonster,
   LAND_MONSTERS,
+  VOID_MONSTERS,
   WATER_MONSTERS,
   FORBIDDEN_MONSTERS,
 } from "./monster-lists";
@@ -120,10 +121,17 @@ const resolvers: Resolvers = {
       let heroDeathHeal = 0;
       if (hero.combat.health === 0) {
         console.log(monster.monster.name, "killed", hero.name);
+        const isVoid = hero.location.map === "void";
+        const heroDeathHealPercent = isVoid ? 1 : 0.1;
         heroDeathHeal = Math.max(
-          monster.monster.combat.maxHealth * 0.1,
+          monster.monster.combat.maxHealth * heroDeathHealPercent,
           hero.combat.maxHealth
         );
+
+        if (isVoid) {
+          // send them back to the mortal plane
+          // hero.location = { x: 64, y: 44, map: "default" };
+        }
       }
 
       monster.monster.combat.health = Math.round(
@@ -320,6 +328,13 @@ const resolvers: Resolvers = {
 
       let equipment: MonsterEquipment | undefined = undefined;
 
+      if (location.terrain === "void") {
+        equipment = VOID_MONSTERS.find(
+          ({ monster }) => monster.id === monster.id
+        )?.equipment;
+        console.log("void equipment", equipment);
+      }
+
       if (currentTavern) {
         if (currentTavern.name === "The Hidden Stump Inn") {
           monster = { ...monster, level: monster.level + 1 };
@@ -467,11 +482,17 @@ const resolvers: Resolvers = {
       if (location.terrain === "water") {
         return WATER_MONSTERS;
       }
+      if (location.terrain === "land") {
+        return LAND_MONSTERS;
+      }
       if (location.terrain === "forbidden") {
         return FORBIDDEN_MONSTERS;
       }
+      if (location.terrain === "void") {
+        return VOID_MONSTERS.map(({ monster }) => monster);
+      }
 
-      return LAND_MONSTERS;
+      return [];
     },
   },
 };

@@ -1,4 +1,10 @@
-import { Monster, AttackType, HeroClasses } from "types/graphql";
+import {
+  Monster,
+  AttackType,
+  HeroClasses,
+  EnchantmentType,
+  MonsterEquipment,
+} from "types/graphql";
 
 const MONSTERS: { [x in string]: Monster } = {};
 
@@ -154,10 +160,41 @@ export const FORBIDDEN_MONSTERS: Monster[] = [
   { name: "Shai'taan", attackType: AttackType.Cast },
 ].map(makeMonster(1.6, 4096, "forbidden", 1.5));
 
+type MonsterGearSlot = { level: number; enchantment?: EnchantmentType };
+
+export const VOID_MONSTERS: {
+  monster: Monster;
+  equipment: MonsterEquipment;
+}[] = [
+  {
+    monster: {
+      id: "Void Monster",
+      name: "Void Monster",
+      level: 45,
+      attackType: AttackType.Cast,
+      combat: {
+        health: 2000000000,
+        maxHealth: 2000000000,
+      },
+      terrain: "void",
+    },
+    equipment: {
+      bodyArmor: { level: 45, enchantment: EnchantmentType.SuperCounterSpell },
+      handArmor: { level: 45, enchantment: EnchantmentType.SuperDexterity },
+      legArmor: { level: 45, enchantment: EnchantmentType.SuperWisdom },
+      headArmor: { level: 45, enchantment: EnchantmentType.SuperSorcVamp },
+      footArmor: { level: 45 },
+
+      leftHand: { level: 45 },
+      rightHand: { level: 45 },
+    },
+  },
+];
+
 export async function getMonster(id: string): Promise<Monster | undefined> {
   const monster = MONSTERS[id];
   if (!monster) {
-    return monster;
+    return VOID_MONSTERS.find(({ monster }) => monster.id === id)?.monster;
   }
   return { ...monster, combat: { ...monster.combat } };
 }

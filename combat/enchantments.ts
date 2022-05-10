@@ -22,12 +22,13 @@ export function getCounteredGearEnchantments(
 ): EnchantmentType[] {
   const attackerCounterSpells = countCounterSpells(attacker);
   const victimCounterSpells = countCounterSpells(victim);
-  const victimCounteredCounterSpells = Math.max(
-    0,
-    victimCounterSpells - attackerCounterSpells
-  );
 
-  return getAllGearEnchantments(attacker, victimCounteredCounterSpells);
+  console.log(attacker.name, {
+    attackerCounterSpells,
+    victimCounterSpells,
+  });
+
+  return getAllGearEnchantments(attacker, victimCounterSpells);
 }
 export function getAllGearEnchantments(
   attacker: Combatant,
@@ -54,17 +55,22 @@ export function getAllGearEnchantments(
     }
   });
 
-  if (counterSpells > 0) {
-    enchantments = enchantments
-      .sort(
-        (a, b) =>
-          EnchantmentCounterSpellOrder.indexOf(a) -
-          EnchantmentCounterSpellOrder.indexOf(b)
-      )
-      .slice(counterSpells);
-  }
-
   enchantments = expandEnchantmentList(enchantments);
+
+  if (counterSpells > 0) {
+    console.log(attacker.name, "is being countered", counterSpells, "->");
+    EnchantmentCounterSpellOrder.reverse();
+    enchantments = enchantments.sort(
+      (a, b) =>
+        EnchantmentCounterSpellOrder.indexOf(b) -
+        EnchantmentCounterSpellOrder.indexOf(a)
+    );
+    EnchantmentCounterSpellOrder.reverse();
+    console.log(enchantments);
+
+    enchantments = enchantments.slice(counterSpells);
+    console.log(enchantments);
+  }
 
   return enchantments.sort(
     (a, b) =>
@@ -94,10 +100,10 @@ export function getEnchantedAttributes(
     attributes: { ...victimInput.attributes },
   } as EnchantedCombatant;
   if (!attacker.enchanted) {
-    enchantAttacker(attacker, victim);
+    attacker = enchantAttacker(attacker, victim).attacker;
   }
   if (!victim.enchanted) {
-    enchantVictim(attacker, victim);
+    victim = enchantVictim(attacker, victim).victim;
   }
 
   attacker.luck = createLuck(attacker.attributes.luck);
@@ -136,12 +142,19 @@ export function enchantAttacker(
   attackerInput: Combatant,
   victimInput: Combatant
 ): { attacker: EnchantedCombatant; victim: EnchantedCombatant } {
-  let attacker = attackerInput as EnchantedCombatant;
+  let attacker = { ...attackerInput } as EnchantedCombatant;
   let victim = victimInput as EnchantedCombatant;
 
   if (attacker.enchanted) {
+    console.log(
+      "not enchanting",
+      attacker.name,
+      "because theyre already enchanted"
+    );
     return { attacker, victim };
   }
+  console.log("enchanting", attacker.name);
+  attacker.enchanted = true;
 
   const { attackType } = attacker;
 
@@ -150,7 +163,6 @@ export function enchantAttacker(
   attacker.percentageDamageReduction = attacker.percentageDamageReduction ?? 1;
   attacker.percentageEnchantmentDamageReduction =
     attacker.percentageEnchantmentDamageReduction ?? 1;
-  attacker.enchanted = true;
   attacker.bonusDodge = attacker.bonusDodge ?? 1;
   attacker.bonusAccuracy = attacker.bonusAccuracy ?? 1;
   attacker.bonusWeaponTiers = attacker.bonusWeaponTiers ?? 0;

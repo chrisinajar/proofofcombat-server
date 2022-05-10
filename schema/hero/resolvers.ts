@@ -454,6 +454,7 @@ const resolvers: Resolvers = {
           ultraModifier: 0.01,
         },
       };
+
       const enchantedStats = getEnchantedAttributes(attacker, victim);
 
       function cleanStats(stats: HeroStats) {

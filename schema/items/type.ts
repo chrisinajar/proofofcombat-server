@@ -211,6 +211,7 @@ export default gql`
     AncientKey
     CanTravelOnWater
     CanTravelOnForbidden
+    VoidTravel
     # settlements
     UpgradedSettlement
     # End quest reward enchantments

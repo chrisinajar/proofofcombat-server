@@ -579,7 +579,7 @@ const resolvers: Resolvers = {
       const targetLocation = {
         x: Math.min(127, Math.max(0, args.x)),
         y: Math.min(95, Math.max(0, args.y)),
-        map: "default",
+        map: hero.location.map,
       };
 
       const cost = Math.round(
@@ -607,6 +607,41 @@ const resolvers: Resolvers = {
         monsters: [],
       };
     },
+    async voidTravel(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      if (hero.combat.health <= 0) {
+        throw new UserInputError("You cannot move while dead!");
+      }
+
+      if (countEnchantments(hero, EnchantmentType.VoidTravel) === 0) {
+        throw new UserInputError(
+          "You do not have the ability to travel in the void!"
+        );
+      }
+
+      if (hero.location.map === "void") {
+        hero.location = { x: 64, y: 44, map: "default" };
+      } else {
+        hero.location = {
+          x: Math.floor(Math.random() * 128),
+          y: Math.floor(Math.random() * 96),
+          map: "void",
+        };
+      }
+
+      await context.db.hero.put(hero);
+
+      return {
+        hero,
+        account,
+        monsters: [],
+      };
+    },
     async move(parent, args, context: BaseContext): Promise<MoveResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -623,38 +658,42 @@ const resolvers: Resolvers = {
           hero.location.y
         ];
 
+      const heroLocation = { ...hero.location };
+
       switch (args.direction) {
         case MoveDirection.North:
-          hero.location.y = hero.location.y - 1;
+          heroLocation.y = heroLocation.y - 1;
           console.log(hero.name, "moving", args.direction);
           break;
         case MoveDirection.South:
-          hero.location.y = hero.location.y + 1;
+          heroLocation.y = heroLocation.y + 1;
           console.log(hero.name, "moving", args.direction);
           break;
         case MoveDirection.East:
-          hero.location.x = hero.location.x + 1;
+          heroLocation.x = heroLocation.x + 1;
           console.log(hero.name, "moving", args.direction);
           break;
         case MoveDirection.West:
-          hero.location.x = hero.location.x - 1;
+          heroLocation.x = heroLocation.x - 1;
           console.log(hero.name, "moving", args.direction);
           break;
       }
 
-      hero.location.y = Math.min(95, Math.max(0, hero.location.y));
-      hero.location.x = Math.min(127, Math.max(0, hero.location.x));
+      heroLocation.y = Math.min(95, Math.max(0, heroLocation.y));
+      heroLocation.x = Math.min(127, Math.max(0, heroLocation.x));
 
       const destination =
-        LocationData[hero.location.map as MapNames]?.locations[hero.location.x][
-          hero.location.y
+        LocationData[heroLocation.map as MapNames]?.locations[heroLocation.x][
+          heroLocation.y
         ];
 
-      if (!isAllowedThere(hero, hero.location)) {
+      if (!isAllowedThere(hero, heroLocation)) {
         throw new UserInputError(
           "You do not have the quest items needed to move there!"
         );
       }
+
+      hero.location = heroLocation;
 
       await context.db.hero.put(hero);
 
@@ -776,6 +815,18 @@ const resolvers: Resolvers = {
       const [location] = parent.specialLocations;
 
       return getShopData(context, hero, location);
+    },
+    async voidTravel(parent, args, context): Promise<boolean> {
+      if (!parent.specialLocations || !parent.specialLocations.length) {
+        return false;
+      }
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      const [location] = parent.specialLocations;
+
+      // more later probably
+      return location.name === "Altar of Transcendence";
     },
     async players(parent, args, context): Promise<PublicHero[]> {
       const heroList = await context.db.hero.getHeroesInLocation(

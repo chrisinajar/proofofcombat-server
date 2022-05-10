@@ -13,6 +13,8 @@ export default gql`
     move(direction: MoveDirection!): MoveResponse! @auth @delay(delay: 500)
     npcTrade(trade: ID!): NpcShopTradeResponse! @auth @delay(delay: 2000)
 
+    voidTravel: MoveResponse! @auth @delay(delay: 5000)
+
     # camps
     settleCamp: ExtendedCampResponse! @auth @delay(delay: 10000)
     buyResource(resource: String!, amount: Int!): LevelUpResponse!
@@ -123,6 +125,8 @@ export default gql`
     shop: NpcShop
     players: [PublicHero!]
     playerLocations: [PlayerLocation!]
+
+    voidTravel: Boolean
   }
   type SpecialLocation {
     location: Location!

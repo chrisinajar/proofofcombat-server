@@ -1,8 +1,10 @@
 import DefaultLocations from "./maps/default-locations.json";
 import DefaultTerrain from "./maps/default-terrain.json";
+import VoidLocations from "./maps/void-locations.json";
+import VoidTerrain from "./maps/void-terrain.json";
 
-export type TerrainType = "land" | "water" | "forbidden";
-export type MapNames = "default";
+export type TerrainType = "land" | "water" | "forbidden" | "void";
+export type MapNames = "default" | "void";
 export type SpecialLocationType =
   | "dock"
   | "quest"
@@ -34,5 +36,9 @@ export const LocationData: LocationDataType = {
   default: {
     locations: DefaultTerrain as LocationData[][],
     specialLocations: DefaultLocations as SpecialLocation[],
+  },
+  void: {
+    locations: VoidTerrain as LocationData[][],
+    specialLocations: VoidLocations as SpecialLocation[],
   },
 };
