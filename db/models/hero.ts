@@ -202,7 +202,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
           );
           hero.skills[hero.activeSkill] += 1;
           context.io.sendNotification(hero.id, {
-            message: `Your skill ${
+            message: `Your skills in ${
               SkillDisplayNames[hero.activeSkill]
             } has increased to level ${hero.skills[hero.activeSkill]}`,
             type: "quest",
