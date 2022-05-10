@@ -22,6 +22,8 @@ const SkillDisplayNames: { [x in HeroSkill]: string } = {
   castingAccuracy: "Casting Accuracy",
   castingDamage: "Casting Damage",
   vitality: "Vitality",
+  resilience: "Resilience",
+  regeneration: "Regeneration",
 };
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
@@ -375,6 +377,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       attackingDamage: 0,
       castingDamage: 0,
       vitality: 0,
+      resilience: 0,
+      regeneration: 0,
     };
 
     data.activeSkill = data.activeSkill ?? HeroSkill.Vitality;
@@ -386,6 +390,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.skills.attackingDamage = data.skills.attackingDamage ?? 0;
     data.skills.castingDamage = data.skills.castingDamage ?? 0;
     data.skills.vitality = data.skills.vitality ?? 0;
+    data.skills.resilience = data.skills.resilience ?? 0;
+    data.skills.regeneration = data.skills.regeneration ?? 0;
 
     data.settings = data.settings ?? {
       autoDust: -1,

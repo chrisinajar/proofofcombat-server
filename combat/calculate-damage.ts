@@ -81,6 +81,10 @@ export function calculateDamage(
     baseDamageDecrease *= 0.5;
   }
 
+  if (victim.skills) {
+    baseDamageDecrease *= Math.pow(0.99, victim.skills.resilience);
+  }
+
   const weapon =
     isSecondAttack && attacker.attackType !== AttackType.Ranged
       ? attacker.equipment.weapons[1]

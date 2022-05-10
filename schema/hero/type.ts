@@ -66,6 +66,8 @@ export default gql`
     attackingDamage
     castingDamage
     vitality
+    resilience
+    regeneration
   }
   type HeroSkills {
     attackingAccuracy: Int!
@@ -73,6 +75,9 @@ export default gql`
     attackingDamage: Int!
     castingDamage: Int!
     vitality: Int!
+
+    resilience: Int!
+    regeneration: Int!
   }
 
   type PublicHero {

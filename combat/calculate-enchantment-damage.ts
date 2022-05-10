@@ -128,6 +128,15 @@ export function calculateEnchantmentDamage(
     (ench) => ench === EnchantmentType.CanOnlyTakeOneDamage
   );
 
+  if (attacker.skills) {
+    attackerHeal +=
+      attacker.maxHealth * (1 - Math.pow(0.99, attacker.skills.regeneration));
+  }
+  if (victim.skills) {
+    victimHeal +=
+      victim.maxHealth * (1 - Math.pow(0.99, victim.skills.regeneration));
+  }
+
   if (victimCanOnlyTakeOneDamage) {
     victimDamage = Math.min(1, victimDamage);
   }
