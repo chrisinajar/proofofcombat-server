@@ -16,6 +16,14 @@ import { LocationData } from "../../constants";
 
 import DatabaseInterface from "../interface";
 
+const SkillDisplayNames: { [x in HeroSkill]: string } = {
+  attackingAccuracy: "Attacking Accuracy",
+  attackingDamage: "Attacking Damage",
+  castingAccuracy: "Casting Accuracy",
+  castingDamage: "Casting Damage",
+  vitality: "Vitality",
+};
+
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
 type PartialHero = Optional<
@@ -194,9 +202,9 @@ export default class HeroModel extends DatabaseInterface<Hero> {
           );
           hero.skills[hero.activeSkill] += 1;
           context.io.sendNotification(hero.id, {
-            message: `Your skill ${hero.activeSkill} has increased to level ${
-              hero.skills[hero.activeSkill]
-            }`,
+            message: `Your skill ${
+              SkillDisplayNames[hero.activeSkill]
+            } has increased to level ${hero.skills[hero.activeSkill]}`,
             type: "quest",
           });
         }
