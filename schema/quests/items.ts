@@ -780,6 +780,27 @@ export function getQuestRewards() {
       canBuy: false,
       passiveEnchantments: [EnchantmentType.UpgradedSettlement],
     },
+
+    "circle-of-protection": {
+      id: "circle-of-protection",
+      name: "Circle of Protection",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [EnchantmentType.CounterSpell],
+    },
+    "circle-of-hexing": {
+      id: "circle-of-hexing",
+      name: "Circle of Hexing",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.CounterSpell,
+        EnchantmentType.CounterSpell,
+        EnchantmentType.CounterSpell,
+      ],
+    },
   };
 }
 

@@ -193,6 +193,32 @@ async function executeAmixeaTrade(
   hero: Hero,
   tradeId: string
 ): Promise<NpcTradeResult> {
+  if (tradeId === "amixea-circle-upgrade") {
+    if (
+      !hasQuestItem(hero, "circle-of-protection") ||
+      hasQuestItem(hero, "circle-of-hexing")
+    ) {
+      return { success: false, message: "You do not have the required items" };
+    }
+    if (hero.enchantingDust < 10000) {
+      return { success: false, message: "You do not have enough dust" };
+    }
+
+    hero.enchantingDust -= 10000;
+    takeQuestItem(hero, "circle-of-protection");
+
+    giveQuestItemNotification(context, hero, "circle-of-hexing");
+
+    context.io.sendNotification(hero.id, {
+      message: `Amixea's witchforge roars with energy as she captures some of that energy in your Circle`,
+      type: "quest",
+    });
+    await context.db.hero.put(hero);
+    return {
+      success: true,
+      message: "Your Circle of Protection has been upgraded",
+    };
+  }
   if (tradeId === "amixea-heroes-guidance") {
     if (
       !hero.questLog.minorClassUpgrades ||
@@ -208,7 +234,7 @@ async function executeAmixeaTrade(
     }
 
     if (hero.enchantingDust < 500) {
-      return { success: false, message: "You do not have the required items" };
+      return { success: false, message: "You do not have enough dust" };
     }
 
     hero.enchantingDust -= 500;
@@ -220,7 +246,7 @@ async function executeAmixeaTrade(
     takeQuestItem(hero, "vampires-darkness");
 
     context.io.sendNotification(hero.id, {
-      message: `Amixea takes the 5 items and places them upon her might witchforge`,
+      message: `Amixea takes the 5 items and places them upon her mighty witchforge`,
       type: "quest",
     });
 
@@ -348,6 +374,23 @@ function getAmixeaTrades(context: BaseContext, hero: Hero): NpcShop | null {
       offer: {
         questItems: [questItems["orb-of-forbidden-power"].name],
         description: "fobidden power",
+      },
+    });
+  }
+  if (
+    hasQuestItem(hero, "circle-of-protection") &&
+    !hasQuestItem(hero, "circle-of-hexing")
+  ) {
+    shop.trades.push({
+      id: "amixea-circle-upgrade",
+      price: {
+        dust: 10000,
+        description: "some fuel for the witchforge",
+        questItems: [questItems["circle-of-protection"].name],
+      },
+      offer: {
+        questItems: [questItems["circle-of-hexing"].name],
+        description: "an upgrade to your circle",
       },
     });
   }
@@ -760,6 +803,7 @@ function getUnupgradedItems(hero: Hero): InventoryItem[] {
 }
 
 const NaxxremisClassUpgradeCost = 5000;
+const NaxxremisCircleCost = 50000000000;
 function getNaxxremisTrades(context: BaseContext, hero: Hero): NpcShop {
   const unupgradedItems = getUnupgradedItems(hero);
 
@@ -783,6 +827,25 @@ function getNaxxremisTrades(context: BaseContext, hero: Hero): NpcShop {
     });
   }
 
+  if (
+    !hasQuestItem(hero, "circle-of-protection") &&
+    !hasQuestItem(hero, "circle-of-hexing")
+  ) {
+    const questItems = getQuestRewards();
+
+    shop.trades.push({
+      id: "naxxremis-circle",
+      price: {
+        gold: NaxxremisCircleCost,
+        description: "some gold",
+      },
+      offer: {
+        questItems: [questItems["circle-of-protection"].name],
+        description: "something to protect you",
+      },
+    });
+  }
+
   return shop;
 }
 async function executeNaxxremisTrade(
@@ -790,6 +853,30 @@ async function executeNaxxremisTrade(
   hero: Hero,
   tradeId: string
 ): Promise<NpcTradeResult> {
+  if (tradeId === "naxxremis-circle") {
+    if (hero.gold < NaxxremisCircleCost) {
+      return {
+        success: false,
+        message: "You cannot afford this item.",
+      };
+    }
+    if (
+      hasQuestItem(hero, "circle-of-protection") ||
+      hasQuestItem(hero, "circle-of-hexing")
+    ) {
+      return {
+        success: false,
+        message: "You may only have one Circle.",
+      };
+    }
+    hero = giveQuestItemNotification(context, hero, "circle-of-protection");
+    hero.gold -= NaxxremisCircleCost;
+
+    return {
+      success: true,
+      message: "He draws a circle around you. You feel safer.",
+    };
+  }
   if (tradeId === "naxxremis-class-upgrade") {
     if (hero.enchantingDust < NaxxremisClassUpgradeCost) {
       return {
