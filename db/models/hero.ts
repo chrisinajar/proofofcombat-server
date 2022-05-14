@@ -137,7 +137,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   recalculateStats(hero: Hero): Hero {
     const healthPercentBefore = hero.combat.health / hero.combat.maxHealth;
     hero.combat.maxHealth = Math.round(
-      (hero.stats.constitution * 10 + hero.level * 10) *
+      (hero.stats.constitution * 15 + hero.level * 10) *
         Math.pow(1.05, hero.skills.vitality)
     );
     hero.combat.health = Math.round(

@@ -600,7 +600,6 @@ export function enchantAttacker(
   /// skillz
   // i don't know why i wrote it that why and im sorry
 
-  const attackAttributes = attributesForAttack(attacker.attackType);
   // toHit: Attribute;
   // damage: Attribute;
   // dodge: Attribute;
@@ -613,6 +612,14 @@ export function enchantAttacker(
     BLOOD
   */
   if (attacker.skills) {
+    const attackAttributes = attributesForAttack(attacker.attackType);
+    const victimAttributes = attributesForAttack(victim.attackType);
+
+    attacker.attributes[victimAttributes.damageReduction] *= Math.pow(
+      1.05,
+      attacker.skills.resilience
+    );
+
     if (
       attacker.attackType === AttackType.Melee ||
       attacker.attackType === AttackType.Ranged ||

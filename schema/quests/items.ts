@@ -801,6 +801,47 @@ export function getQuestRewards() {
         EnchantmentType.CounterSpell,
       ],
     },
+    "ashen-circle-of-hexing": {
+      id: "ashen-circle-of-hexing",
+      name: "Ashen Circle of Hexing",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.CounterSpell,
+        EnchantmentType.CounterSpell,
+        EnchantmentType.CounterSpell,
+        EnchantmentType.BonusWeaponTier,
+      ],
+    },
+    "shadow-circle-of-hexing": {
+      id: "shadow-circle-of-hexing",
+      name: "Shadow Circle of Hexing",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.CounterSpell,
+        EnchantmentType.CounterSpell,
+        EnchantmentType.CounterSpell,
+        EnchantmentType.CounterSpell,
+        EnchantmentType.CounterSpell,
+        EnchantmentType.CounterSpell,
+      ],
+    },
+    "thorny-circle-of-hexing": {
+      id: "thorny-circle-of-hexing",
+      name: "Thorny Circle of Hexing",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [
+        EnchantmentType.CounterSpell,
+        EnchantmentType.CounterSpell,
+        EnchantmentType.CounterSpell,
+        EnchantmentType.BonusArmorTier,
+      ],
+    },
   };
 }
 

@@ -183,10 +183,10 @@ export const VOID_MONSTERS: {
       handArmor: { level: 45, enchantment: EnchantmentType.SuperDexterity },
       legArmor: { level: 45, enchantment: EnchantmentType.SuperWisdom },
       headArmor: { level: 45, enchantment: EnchantmentType.SuperSorcVamp },
-      footArmor: { level: 45 },
+      footArmor: { level: 45, enchantment: EnchantmentType.BonusArmor },
 
-      leftHand: { level: 45 },
-      rightHand: { level: 45 },
+      leftHand: { level: 34 },
+      rightHand: { level: 34 },
     },
   },
 ];

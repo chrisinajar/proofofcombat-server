@@ -342,6 +342,14 @@ const resolvers: Resolvers = {
       const hero = await context.db.hero.get(context.auth.id);
 
       hero.combat.health = hero.combat.maxHealth;
+
+      const isVoid = hero.location.map === "void";
+
+      if (isVoid) {
+        // send them back to the mortal plane
+        hero.location = { x: 64, y: 44, map: "default" };
+      }
+
       await context.db.hero.put(hero);
 
       return {
@@ -513,6 +521,7 @@ const resolvers: Resolvers = {
       }
 
       return {
+        id: parent.id,
         leftHand: findItem(hero, hero.equipment.leftHand),
         rightHand: findItem(hero, hero.equipment.rightHand),
         bodyArmor: findItem(hero, hero.equipment.bodyArmor),

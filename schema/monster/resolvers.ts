@@ -127,11 +127,6 @@ const resolvers: Resolvers = {
           monster.monster.combat.maxHealth * heroDeathHealPercent,
           hero.combat.maxHealth
         );
-
-        if (isVoid) {
-          // send them back to the mortal plane
-          hero.location = { x: 64, y: 44, map: "default" };
-        }
       }
 
       monster.monster.combat.health = Math.round(

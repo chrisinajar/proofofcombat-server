@@ -14,6 +14,8 @@ export default gql`
     ): BaseAccount! @auth @admin
 
     giveGold(id: ID!, amount: Float!): BaseAccount! @auth @admin
+    setSkill(id: ID!, skill: HeroSkill!, level: Int!): BaseAccount! @auth @admin
+    addLevels(id: ID!, levels: Int!): BaseAccount! @auth @admin
   }
 
   type AccountListResponse {

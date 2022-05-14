@@ -802,10 +802,31 @@ function getUnupgradedItems(hero: Hero): InventoryItem[] {
   );
 }
 
+function getCurrentCircle(hero: Hero): string | false {
+  let circle: string | false = false;
+
+  if (hasQuestItem(hero, "circle-of-hexing")) {
+    circle = "circle-of-hexing";
+  }
+  if (hasQuestItem(hero, "ashen-circle-of-hexing")) {
+    circle = "ashen-circle-of-hexing";
+  }
+  if (hasQuestItem(hero, "shadow-circle-of-hexing")) {
+    circle = "shadow-circle-of-hexing";
+  }
+  if (hasQuestItem(hero, "thorny-circle-of-hexing")) {
+    circle = "thorny-circle-of-hexing";
+  }
+
+  return circle;
+}
+
+const NaxxremisCircleInfuseCost = 5000;
 const NaxxremisClassUpgradeCost = 5000;
 const NaxxremisCircleCost = 50000000000;
 function getNaxxremisTrades(context: BaseContext, hero: Hero): NpcShop {
   const unupgradedItems = getUnupgradedItems(hero);
+  const questItems = getQuestRewards();
 
   const shop: NpcShop = {
     name: "Naxxremis the Crafter",
@@ -827,12 +848,13 @@ function getNaxxremisTrades(context: BaseContext, hero: Hero): NpcShop {
     });
   }
 
+  const currentCircle = getCurrentCircle(hero);
+
   if (
     !hasQuestItem(hero, "circle-of-protection") &&
-    !hasQuestItem(hero, "circle-of-hexing")
+    !hasQuestItem(hero, "circle-of-hexing") &&
+    !currentCircle
   ) {
-    const questItems = getQuestRewards();
-
     shop.trades.push({
       id: "naxxremis-circle",
       price: {
@@ -846,6 +868,58 @@ function getNaxxremisTrades(context: BaseContext, hero: Hero): NpcShop {
     });
   }
 
+  // essence-of-ash
+  // essence-of-thorns
+  // essence-of-darkness
+
+  if (currentCircle) {
+    // essence-of-ash
+    if (currentCircle !== "ashen-circle-of-hexing") {
+      shop.trades.push({
+        id: "naxxremis-ashen-circle",
+        price: {
+          dust: NaxxremisCircleInfuseCost,
+          questItems: [questItems["essence-of-ash"].name],
+          description: "an essence and some dust",
+        },
+        offer: {
+          questItems: [questItems["ashen-circle-of-hexing"].name],
+          description: "an ashen circle",
+        },
+      });
+    }
+    // essence-of-thorns
+    if (currentCircle !== "thorny-circle-of-hexing") {
+      shop.trades.push({
+        id: "naxxremis-thorny-circle",
+        price: {
+          dust: NaxxremisCircleInfuseCost,
+          questItems: [questItems["essence-of-thorns"].name],
+          description: "an essence and some dust",
+        },
+        offer: {
+          questItems: [questItems["thorny-circle-of-hexing"].name],
+          description: "a thorny circle",
+        },
+      });
+    }
+    // essence-of-darkness
+    if (currentCircle !== "shadow-circle-of-hexing") {
+      shop.trades.push({
+        id: "naxxremis-shadow-circle",
+        price: {
+          dust: NaxxremisCircleInfuseCost,
+          questItems: [questItems["essence-of-darkness"].name],
+          description: "an essence and some dust",
+        },
+        offer: {
+          questItems: [questItems["shadow-circle-of-hexing"].name],
+          description: "a shadow circle",
+        },
+      });
+    }
+  }
+
   return shop;
 }
 async function executeNaxxremisTrade(
@@ -853,6 +927,76 @@ async function executeNaxxremisTrade(
   hero: Hero,
   tradeId: string
 ): Promise<NpcTradeResult> {
+  if (tradeId === "naxxremis-ashen-circle") {
+    const currentCircle = getCurrentCircle(hero);
+    if (!currentCircle) {
+      return {
+        success: false,
+        message: "You do not have the required items",
+      };
+    }
+    if (hero.enchantingDust < NaxxremisCircleInfuseCost) {
+      return {
+        success: false,
+        message: "You lack the enchanting power",
+      };
+    }
+    hero = takeQuestItem(hero, currentCircle);
+    hero = giveQuestItemNotification(context, hero, "ashen-circle-of-hexing");
+    hero.enchantingDust -= NaxxremisCircleInfuseCost;
+    await context.db.hero.put(hero);
+    return {
+      success: true,
+      message: "Your circle of hexing has been infused with the essence",
+    };
+  }
+  if (tradeId === "naxxremis-thorny-circle") {
+    const currentCircle = getCurrentCircle(hero);
+    if (!currentCircle) {
+      return {
+        success: false,
+        message: "You do not have the required items",
+      };
+    }
+    if (hero.enchantingDust < NaxxremisCircleInfuseCost) {
+      return {
+        success: false,
+        message: "You lack the enchanting power",
+      };
+    }
+    hero = takeQuestItem(hero, currentCircle);
+    hero = giveQuestItemNotification(context, hero, "thorny-circle-of-hexing");
+    hero.enchantingDust -= NaxxremisCircleInfuseCost;
+    await context.db.hero.put(hero);
+    return {
+      success: true,
+      message: "Your circle of hexing has been infused with the essence",
+    };
+  }
+  if (tradeId === "naxxremis-shadow-circle") {
+    const currentCircle = getCurrentCircle(hero);
+    if (!currentCircle) {
+      return {
+        success: false,
+        message: "You do not have the required items",
+      };
+    }
+    if (hero.enchantingDust < NaxxremisCircleInfuseCost) {
+      return {
+        success: false,
+        message: "You lack the enchanting power",
+      };
+    }
+    hero = takeQuestItem(hero, currentCircle);
+    hero = giveQuestItemNotification(context, hero, "shadow-circle-of-hexing");
+    hero.enchantingDust -= NaxxremisCircleInfuseCost;
+    await context.db.hero.put(hero);
+    return {
+      success: true,
+      message: "Your circle of hexing has been infused with the essence",
+    };
+  }
+
   if (tradeId === "naxxremis-circle") {
     if (hero.gold < NaxxremisCircleCost) {
       return {

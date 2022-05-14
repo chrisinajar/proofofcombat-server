@@ -22,6 +22,36 @@ const resolvers: Resolvers = {
   },
 
   Mutation: {
+    async addLevels(parent, args, context): Promise<BaseAccount> {
+      let hero = await context.db.hero.get(args.id);
+
+      if (isNaN(args.levels) || !Number.isFinite(args.levels)) {
+        throw new UserInputError("Bad level");
+      }
+
+      for (let i = 0; i < args.levels; ++i) {
+        hero = context.db.hero.levelUp(hero);
+      }
+
+      await context.db.hero.put(hero);
+
+      return context.db.account.get(args.id);
+    },
+    async setSkill(parent, args, context): Promise<BaseAccount> {
+      const hero = await context.db.hero.get(args.id);
+
+      if (isNaN(args.level) || !Number.isFinite(args.level)) {
+        throw new UserInputError("Bad level");
+      }
+      if (!(args.skill in hero.skills)) {
+        throw new UserInputError("Bad skill");
+      }
+      hero.skills[args.skill] = args.level;
+
+      await context.db.hero.put(hero);
+
+      return context.db.account.get(args.id);
+    },
     async giveGold(parent, args, context): Promise<BaseAccount> {
       const hero = await context.db.hero.get(args.id);
 
