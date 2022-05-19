@@ -16,6 +16,7 @@ import { BaseItems } from "../items/base-items";
 import { checkHero as checkHeroForWashedUp } from "./washed-up";
 import { checkHero as checkHeroForRebirth } from "./rebirth";
 import { checkHero as checkHeroForCrafting } from "./crafting";
+import { checkHero as checkHeroForMeetTheQueen } from "./meet-the-queen";
 import { checkHeroDrop as checkHeroDropForClasses } from "./classes";
 import {
   checkHeroDrop as checkHeroDropForClockwork,
@@ -65,6 +66,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   hero = checkHeroForAquaLung(context, hero);
   hero = checkHeroForNagaScale(context, hero);
   hero = checkHeroForClockwork(context, hero);
+  hero = checkHeroForMeetTheQueen(context, hero);
 
   return hero;
 }

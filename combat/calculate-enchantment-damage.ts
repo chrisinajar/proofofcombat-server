@@ -69,7 +69,7 @@ export function calculateEnchantmentDamage(
         break;
 
       case EnchantmentType.SuperVampStats:
-        total.leech += Math.round(attacker.attributes.constitution * 0.5);
+        total.leech += Math.round(attacker.attributes.constitution * 0.4);
         break;
     }
     return total;
@@ -115,11 +115,17 @@ export function calculateEnchantmentDamage(
     attacker.level * attacker.percentageEnchantmentDamageReduction
   );
 
+  attackerLeech = Math.min(1000000000, attackerLeech);
+  victimLeech = Math.min(1000000000, victimLeech);
+
   attackerHeal += attackerLeech;
   victimDamage += attackerLeech;
 
   victimHeal += victimLeech;
   attackerDamage += victimLeech;
+
+  attackerDamage = Math.min(1000000000, attackerDamage);
+  victimDamage = Math.min(1000000000, victimDamage);
 
   const victimCanOnlyTakeOneDamage = getAllGearEnchantments(victim).find(
     (ench) => ench === EnchantmentType.CanOnlyTakeOneDamage

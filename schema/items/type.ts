@@ -52,7 +52,7 @@ export default gql`
     id: ID! # unique id
     owner: ID! # owner id
     # "base item level"
-    # can level up
+    # can level up?
     level: Int!
 
     attributes: ArtifactAttributes!
@@ -77,6 +77,7 @@ export default gql`
     BonusHealth
     ReducedDelay
     BonusExperience
+    BonusSkillChance
   }
 
   enum EnchantmentType {

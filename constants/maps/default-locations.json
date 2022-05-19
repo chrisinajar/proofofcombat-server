@@ -122,5 +122,12 @@
     "description": [
       "The runestones are confusing, but the power they possess is clear."
     ]
+  },
+  {
+    "x": 90,
+    "y": 45,
+    "name": "Palace of Rotherham",
+    "type": "fortress",
+    "description": ["A grand building with armored guards and busy nobles"]
   }
 ]

@@ -429,7 +429,7 @@ export function enchantAttacker(
         break;
       case EnchantmentType.SuperVampStats:
         stealStat(attacker, victim, "constitution", 0.8);
-        victim.percentageEnchantmentDamageReduction *= 0.8;
+        // victim.percentageEnchantmentDamageReduction *= 0.8;
 
         break;
       case EnchantmentType.SuperMeleeStats:

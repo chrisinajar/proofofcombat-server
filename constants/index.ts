@@ -11,7 +11,8 @@ export type SpecialLocationType =
   | "city"
   | "bridge"
   | "tavern"
-  | "hermit";
+  | "hermit"
+  | "fortress";
 
 export type LocationData = {
   terrain: TerrainType;

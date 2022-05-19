@@ -19,6 +19,7 @@ export default gql`
     TavernChampion # beat all the big bois
     MinorClassUpgrades # 3 tier system with 5 tracks, ezpz basically free
     Settlements # governor's title and it's upgrades
+    MeetTheQueen # queen stuff
   }
 
   type QuestLog {
@@ -32,6 +33,7 @@ export default gql`
     tavernChampion: QuestProgress
     minorClassUpgrades: QuestProgress
     settlements: QuestProgress
+    meetTheQueen: QuestProgress
   }
 
   type QuestEvent {
