@@ -842,6 +842,21 @@ export function getQuestRewards() {
         EnchantmentType.BonusArmorTier,
       ],
     },
+
+    "clean-rag": {
+      id: "clean-rag",
+      name: '"Clean" Rag',
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
+    "bloody-rag": {
+      id: "bloody-rag",
+      name: "Bloody Rag",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
   };
 }
 

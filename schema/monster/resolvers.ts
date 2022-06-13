@@ -19,7 +19,7 @@ import {
   createItemInstance,
   enchantItem,
 } from "../items/helpers";
-import { checkHeroDrop, hasQuestItem } from "../quests/helpers";
+import { checkHeroDrop, hasQuestItem, checkSkipDrop } from "../quests/helpers";
 import { createMonsterEquipment } from "../../combat/monster";
 import { fightMonster } from "../../combat/fight-monster";
 import { LocationData, MapNames } from "../../constants";
@@ -222,40 +222,44 @@ const resolvers: Resolvers = {
             dropOdds: Math.round(dropOdds * 1000) / 1000,
           });
 
-          if (monster.monster.level > hero.settings.autoDust) {
-            const monsterLevel = monster.monster.level;
+          if (await checkSkipDrop(context, hero, monster)) {
+            if (monster.monster.level > hero.settings.autoDust) {
+              const monsterLevel = monster.monster.level;
 
-            const baseItem = randomBaseItem(monsterLevel);
-            // max mob tier enchantments is 3
-            // max normal overworld mobs is 32
-            // lets give just a 10% chance of tier 3 enchantments (they fat)
-            // so max value should be 3.33.. at 32, so that there's a 10% chance it remains above 3.0
-            // (32 / (3 / 0.9)) = 9.6!
-            const enchantment = randomEnchantment(
-              Math.floor(
-                bonusEnchantmentDropRate * Math.random() * (monsterLevel / 9.6)
-              )
-            );
-            const itemInstance = enchantItem(
-              createItemInstance(baseItem, hero),
-              enchantment
-            );
-
-            droppedItem = itemInstance;
-            hero.inventory.push(itemInstance);
-          } else {
-            hero.enchantingDust =
-              hero.enchantingDust +
-              1 +
-              context.db.hero.countEnchantments(
-                hero,
-                EnchantmentType.BonusDust
+              const baseItem = randomBaseItem(monsterLevel);
+              // max mob tier enchantments is 3
+              // max normal overworld mobs is 32
+              // lets give just a 10% chance of tier 3 enchantments (they fat)
+              // so max value should be 3.33.. at 32, so that there's a 10% chance it remains above 3.0
+              // (32 / (3 / 0.9)) = 9.6!
+              const enchantment = randomEnchantment(
+                Math.floor(
+                  bonusEnchantmentDropRate *
+                    Math.random() *
+                    (monsterLevel / 9.6)
+                )
+              );
+              const itemInstance = enchantItem(
+                createItemInstance(baseItem, hero),
+                enchantment
               );
 
-            context.io.sendNotification(hero.id, {
-              type: "drop",
-              message: `The enchanted item falling from ${monster.monster.name} turns to dust`,
-            });
+              droppedItem = itemInstance;
+              hero.inventory.push(itemInstance);
+            } else {
+              hero.enchantingDust =
+                hero.enchantingDust +
+                1 +
+                context.db.hero.countEnchantments(
+                  hero,
+                  EnchantmentType.BonusDust
+                );
+
+              context.io.sendNotification(hero.id, {
+                type: "drop",
+                message: `The enchanted item falling from ${monster.monster.name} turns to dust`,
+              });
+            }
           }
         }
 

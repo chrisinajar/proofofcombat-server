@@ -16,7 +16,10 @@ import { BaseItems } from "../items/base-items";
 import { checkHero as checkHeroForWashedUp } from "./washed-up";
 import { checkHero as checkHeroForRebirth } from "./rebirth";
 import { checkHero as checkHeroForCrafting } from "./crafting";
-import { checkHero as checkHeroForMeetTheQueen } from "./meet-the-queen";
+import {
+  checkHero as checkHeroForMeetTheQueen,
+  checkSkipDrop as checkSkipDropForMeetTheQueen,
+} from "./meet-the-queen";
 import { checkHeroDrop as checkHeroDropForClasses } from "./classes";
 import {
   checkHeroDrop as checkHeroDropForClockwork,
@@ -34,6 +37,18 @@ import { checkHeroDrop as checkHeroDropForDroop } from "./droop";
 import { checkHeroDrop as checkHeroDropForTavernChamp } from "./tavern-champion";
 import { checkHeroDrop as checkHeroDropForMinorClasses } from "./minor-class-upgrades";
 import { checkCapital as checkCapitalForSettlements } from "./settlements";
+
+export async function checkSkipDrop(
+  context: BaseContext,
+  hero: Hero,
+  monster: MonsterInstance
+): Promise<boolean> {
+  if (!(await checkSkipDropForMeetTheQueen(context, hero, monster))) {
+    return false;
+  }
+
+  return true;
+}
 
 export async function checkCapital(
   context: BaseContext,
@@ -79,25 +94,64 @@ export function takeQuestItem(hero: Hero, baseItemName: string): Hero {
   return hero;
 }
 
+export function takeOneQuestItem(hero: Hero, baseItemName: string): Hero {
+  let hasTaken = false;
+  hero.inventory = hero.inventory.filter((item) => {
+    if (!hasTaken && item.baseItem === baseItemName) {
+      hasTaken = true;
+      return false;
+    }
+    return true;
+  });
+
+  return hero;
+}
+
 export function hasQuestItem(hero: Hero, baseItemName: string): boolean {
   return !!hero.inventory.find((item) => item.baseItem === baseItemName);
 }
+
+export function countQuestItem(hero: Hero, baseItemName: string): number {
+  return hero.inventory.filter((item) => item.baseItem === baseItemName).length;
+}
+
 export function giveQuestItemNotification(
   context: BaseContext,
   hero: Hero,
   baseItemName: string
 ): Hero {
-  if (hasQuestItem(hero, baseItemName)) {
+  return giveQuestItemQuantityNotification(context, hero, baseItemName, 1);
+}
+
+export function giveQuestItemQuantityNotification(
+  context: BaseContext,
+  hero: Hero,
+  baseItemName: string,
+  quantity: number
+): Hero {
+  const existingCount = countQuestItem(hero, baseItemName);
+  if (existingCount >= quantity) {
     return hero;
   }
 
+  hero = giveQuestItemQuantity(hero, baseItemName, quantity);
   const item = getOrCreateQuestItem(hero, baseItemName);
 
-  context.io.sendNotification(hero.id, {
-    message: "You have received {{item}}",
-    type: "quest",
-    item,
-  });
+  if (quantity - existingCount > 1) {
+    context.io.sendNotification(hero.id, {
+      message: `You have received ${(
+        quantity - existingCount
+      ).toLocaleString()}x {{item}}`,
+      type: "quest",
+      item,
+    });
+  } else {
+    context.io.sendNotification(hero.id, {
+      message: "You have received {{item}}",
+      type: "quest",
+      item,
+    });
+  }
 
   return hero;
 }
@@ -106,6 +160,28 @@ export function giveQuestItem(hero: Hero, baseItemName: string): Hero {
 
   return hero;
 }
+
+export function giveQuestItemQuantity(
+  hero: Hero,
+  baseItemName: string,
+  quantity: number
+): Hero {
+  const existingCount = countQuestItem(hero, baseItemName);
+  if (existingCount >= quantity) {
+    return hero;
+  }
+
+  quantity -= existingCount;
+  const baseItem = BaseItems[baseItemName];
+
+  for (let i = 0; i < quantity; ++i) {
+    const item = createItemInstance(baseItem, hero);
+    hero.inventory.push(item);
+  }
+
+  return hero;
+}
+
 export function getOrCreateQuestItem(
   hero: Hero,
   baseItemName: string

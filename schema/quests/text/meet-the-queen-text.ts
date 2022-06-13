@@ -35,6 +35,7 @@ export const questEvents = {
     '"The royal kitchen is able to keep a steady supply of smoked meats, but they refuse to help with the rags."',
     '"Take these,"',
     "Brewconia hands you a fist full of heavily stained, but clean, rags.",
-    "\"Go soak up some tasty things for my Droop and I'll be sure you're rewarded\"",
+    "\"Go soak up some tasty things for my Droop, bring them back here, and I'll be sure you're rewarded\"",
+    "Her servants look annoyed.",
   ],
 };
