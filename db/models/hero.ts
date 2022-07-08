@@ -1,4 +1,6 @@
 import {
+  ArtifactAttribute,
+  ArtifactAttributeType,
   Hero,
   BaseAccount,
   InventoryItemType,
@@ -136,9 +138,32 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
   recalculateStats(hero: Hero): Hero {
     const healthPercentBefore = hero.combat.health / hero.combat.maxHealth;
+    let bonusHealth = Math.pow(1.08, hero.skills.vitality);
+
+    if (hero.equipment.artifact) {
+      const { artifact } = hero.equipment;
+
+      const artifactBuffs: ArtifactAttribute[] =
+        artifact.attributes.bonusAffixes;
+      artifactBuffs.push(artifact.attributes.namePrefix);
+      artifactBuffs.push(artifact.attributes.namePostfix);
+
+      if (artifact.attributes.titlePrefix) {
+        artifactBuffs.push(artifact.attributes.titlePrefix);
+      }
+      if (artifact.attributes.titlePostfix) {
+        artifactBuffs.push(artifact.attributes.titlePostfix);
+      }
+
+      artifactBuffs.forEach((buff) => {
+        if (buff.type === ArtifactAttributeType.BonusHealth) {
+          bonusHealth *= buff.magnitude;
+        }
+      });
+    }
+
     hero.combat.maxHealth = Math.round(
-      (hero.stats.constitution * 20 + hero.level * 20) *
-        Math.pow(1.08, hero.skills.vitality)
+      (hero.stats.constitution * 20 + hero.level * 20) * bonusHealth
     );
     hero.combat.health = Math.round(
       Math.min(

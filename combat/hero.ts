@@ -131,6 +131,7 @@ export function createHeroCombatant(
       armor: [],
       weapons: [],
       quests: hero.inventory.filter((i) => i.type === InventoryItemType.Quest),
+      artifact: hero.equipment.artifact ?? undefined,
     },
     damageReduction: hero.level,
     attributes: hero.stats,

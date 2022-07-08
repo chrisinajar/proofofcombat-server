@@ -9,6 +9,7 @@ import {
   EnchantmentCounterSpellOrder,
 } from "./enchantment-order";
 import { expandEnchantmentList } from "./enchantment-groups";
+import { getArtifactBuffs } from "./artifacts";
 
 export function countCounterSpells(attacker: Combatant): number {
   // eventually other sources of counter spell maybe?
@@ -158,6 +159,7 @@ export function enchantAttacker(
   attacker.bonusShieldTiers = attacker.bonusShieldTiers ?? 0;
   attacker.mesmerizeChance = attacker.mesmerizeChance ?? 1;
   attacker.focusChance = attacker.focusChance ?? 1;
+  attacker.lifesteal = attacker.lifesteal ?? 0;
 
   victim.attributes = { ...victim.attributes };
   victim.percentageDamageIncrease = victim.percentageDamageIncrease ?? 1;
@@ -172,6 +174,7 @@ export function enchantAttacker(
   victim.bonusShieldTiers = victim.bonusShieldTiers ?? 0;
   victim.mesmerizeChance = victim.mesmerizeChance ?? 1;
   victim.focusChance = victim.focusChance ?? 1;
+  victim.lifesteal = victim.lifesteal ?? 0;
 
   if (attacker.attackType === AttackType.Ranged) {
     attacker.bonusWeaponTiers += 1;
@@ -655,6 +658,9 @@ export function enchantAttacker(
       );
     }
   }
+
+  attacker = getArtifactBuffs(attacker);
+  victim = getArtifactBuffs(victim);
 
   return { attacker, victim };
 }

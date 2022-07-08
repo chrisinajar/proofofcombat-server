@@ -51,6 +51,7 @@ export default gql`
   type ArtifactItem implements BaseModel {
     id: ID! # unique id
     owner: ID! # owner id
+    name: String!
     # "base item level"
     # can level up?
     level: Int!
@@ -64,8 +65,7 @@ export default gql`
     titlePrefix: ArtifactAttribute
     titlePostfix: ArtifactAttribute
 
-    intrinsic: ArtifactAttribute
-    bonus: ArtifactAttribute
+    bonusAffixes: [ArtifactAttribute!]!
   }
 
   type ArtifactAttribute {
@@ -74,10 +74,29 @@ export default gql`
   }
 
   enum ArtifactAttributeType {
+    # combat stats
+    BonusStrength
+    BonusDexterity
+    BonusConstitution
+    BonusIntelligence
+    BonusWisdom
+    BonusWillpower
+    BonusLuck
+
+    # normy stuff
+    DamageReduction
+    EnhancedDamage
     BonusHealth
+
+    # global stuff that's hard to get
     ReducedDelay
     BonusExperience
     BonusSkillChance
+    Lifesteal
+
+    # stun / stun dodge
+    Mesmerize
+    Focus
   }
 
   enum EnchantmentType {

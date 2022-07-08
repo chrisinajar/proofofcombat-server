@@ -50,6 +50,13 @@ export async function checkSkipDrop(
   return false;
 }
 
+/*
+finishedRagsBad
+finishedRagsGood
+finishedRagsPerfect
+finishedRagsLegendary
+*/
+
 export function checkHero(context: BaseContext, hero: Hero): Hero {
   if (hero.currentQuest || hero.questLog.meetTheQueen?.finished) {
     return hero;
@@ -128,8 +135,85 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     return hero;
   }
 
+  // everything 10+ is at the palace
+  if (heroLocationName(hero) !== "Palace of Rotherham") {
+    return hero;
+  }
+
   // we have the quest! at least the first one...
   // use drops to saturate the rags, return them to the palace once we have zero
+
+  // we're curently at the palace
+
+  // if we have any clean rags left, don't continue
+  if (hasQuestItem(hero, "clean-rag")) {
+    return hero;
+  }
+
+  // make sure we also have bloody rags
+  if (!hasQuestItem(hero, "bloody-rag")) {
+    return hero;
+  }
+
+  const rags = hero.inventory.filter((item) => item.baseItem === "bloody-rag");
+  const totalLevels = rags.reduce((memo, item) => memo + item.level, 0);
+
+  if (totalLevels < 1) {
+    // how did this happen?
+    return hero;
+  }
+  return hero;
+
+  const bloodQuality = totalLevels / rags.length;
+
+  console.log(hero.name, "turning in droop blood", bloodQuality);
+
+  // aberrations = lvl 30-40
+  // demilichs = lvl 39
+  // void boss = lvl 45
+  // Shai'taan = 60
+
+  if (bloodQuality >= 45) {
+    // legendary, near impossible to get
+    hero = setQuestEvent(
+      hero,
+      Quest.MeetTheQueen,
+      "finishedRagsLegendary",
+      questEvents.finishedRagsLegendary
+    );
+  } else if (bloodQuality >= 39) {
+    // perfect, at least lich+
+    hero = setQuestEvent(
+      hero,
+      Quest.MeetTheQueen,
+      "finishedRagsPerfect",
+      questEvents.finishedRagsPerfect
+    );
+  } else if (bloodQuality >= 30) {
+    // good enough
+    hero = setQuestEvent(
+      hero,
+      Quest.MeetTheQueen,
+      "finishedRagsGood",
+      questEvents.finishedRagsGood
+    );
+  } else {
+    // literally bad
+    hero = setQuestEvent(
+      hero,
+      Quest.MeetTheQueen,
+      "finishedRagsBad",
+      questEvents.finishedRagsBad
+    );
+  }
+
+  const artifactReward = context.db.artifact.rollArtifact(bloodQuality, hero);
+
+  context.db.artifact.put(artifactReward);
+
+  console.log(artifactReward);
+
+  hero.equipment.artifact = artifactReward;
 
   return hero;
 }

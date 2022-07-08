@@ -9,6 +9,7 @@ import {
   EnchantmentType,
   HeroClasses,
   HeroSkills,
+  ArtifactItem,
 } from "types/graphql";
 
 export type Attribute = keyof HeroStats;
@@ -41,6 +42,7 @@ export type EnchantedCombatant = Combatant & {
   bonusWeaponTiers: number;
   bonusShieldTiers: number;
   bonusArmorTiers: number;
+  lifesteal: number;
   // inverse for MATHS
   mesmerizeChance: number;
   focusChance: number;
@@ -82,4 +84,5 @@ export type CombatantGear = {
   armor: CombatGear[];
   weapons: CombatGear[];
   quests: QuestItem[];
+  artifact?: ArtifactItem;
 };

@@ -2,7 +2,7 @@ export const questEvents = {
   intro: [
     '"Ahem,"',
     "A well dressed individual stands before you, he retrieves a concealed envelope from his person.",
-    '"Her majesty has taken notice to your accomplishments and has requested your pressence"',
+    '"Her majesty has taken notice to your accomplishments and has requested your presence"',
     "You reluctantly accept the sealed parchment, its wax embossment shines with wealth.",
     '"The queen is hardly known for her patience, and be sure to bring an offering for her pet"',
     'Before you have time to ask what this "pet" is, the dapper courier is gone.',
@@ -37,5 +37,29 @@ export const questEvents = {
     "Brewconia hands you a fist full of heavily stained, but clean, rags.",
     "\"Go soak up some tasty things for my Droop, bring them back here, and I'll be sure you're rewarded\"",
     "Her servants look annoyed.",
+  ],
+
+  finishedRagsBad: [
+    "You delivery the bloody rags to Brewconia...",
+    '"Hmmmm, well I guess he wont starve, but I was really expecting some better quality samples from you."',
+    "\"I'm going to drink some wine, I'll have one of my servants bring you one of my many treasures.\"",
+  ],
+  finishedRagsGood: [
+    "You delivery the bloody rags to Brewconia...",
+    '"Ah yes, these will do. I knew I could rely on you."',
+    '"Join me for a drink, one of my servants will fetch an artifact from my adventuering days."',
+  ],
+  finishedRagsPerfect: [
+    "You delivery the bloody rags to Brewconia...",
+    '"Oh, these are perfect, my Droop will absolutely love these!"',
+    '"Lets crack into the good stuff, I\'d like to tell you the story of how I found this fine artifact..."',
+    "Brewconia drinks with you and tells a fantastical story.",
+  ],
+  finishedRagsLegendary: [
+    "You delivery the bloody rags to Brewconia...",
+    '"Wow. If you can get me more of these, we can be very good friends."',
+    "Brewconia pulls a flask from an inside pocket, takes a swig, and hands it over to you.",
+    '"Follow me, I\'m going to hand pick your reward here."',
+    "Brewconia brings you to a great treasure room, you have never seen anything like it.",
   ],
 };

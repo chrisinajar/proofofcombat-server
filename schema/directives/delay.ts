@@ -52,7 +52,12 @@ export function delayDirectiveTransformer(
                 remaining: Number(account.nextAllowedAction) - now,
               });
             } else {
-              account.nextAllowedAction = `${now + delayDirective["delay"]}`;
+              const hero = await context.db.hero.get(account.id);
+              let delay = delayDirective["delay"];
+              if (hero?.equipment?.artifact) {
+                console.log(hero.equipment.artifact);
+              }
+              account.nextAllowedAction = `${now + delay}`;
               await context.db.account.put(account);
             }
           }
