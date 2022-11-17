@@ -219,7 +219,8 @@ export function setQuestLogProgress(
   hero: Hero,
   quest: Quest,
   entryName: keyof Hero["questLog"],
-  progress: number
+  progress: number,
+  finished: boolean = false
 ): Hero {
   if (entryName === "id") {
     return hero;
@@ -229,7 +230,7 @@ export function setQuestLogProgress(
   hero.questLog[entryName] = {
     id: `${quest}-${hero.id}`,
     started: true,
-    finished: false,
+    finished,
     progress: progress | (hero.questLog[entryName]?.progress ?? 0),
     lastEvent,
   };

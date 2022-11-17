@@ -11,9 +11,11 @@ export function getArtifactBuffs(
 
   const { artifact } = enchantedHero.equipment;
 
-  const artifactBuffs: ArtifactAttribute[] = artifact.attributes.bonusAffixes;
-  artifactBuffs.push(artifact.attributes.namePrefix);
-  artifactBuffs.push(artifact.attributes.namePostfix);
+  const artifactBuffs: ArtifactAttribute[] = [
+    artifact.attributes.namePrefix,
+    artifact.attributes.namePostfix,
+    ...artifact.attributes.bonusAffixes,
+  ];
 
   if (artifact.attributes.titlePrefix) {
     artifactBuffs.push(artifact.attributes.titlePrefix);
@@ -77,18 +79,23 @@ export function getArtifactBuffs(
 
       case ArtifactAttributeType.BonusHealth:
         // implemented in hero model health calculations //
+        // done
         break;
 
       case ArtifactAttributeType.ReducedDelay:
         // implemented at gql security layer //
+        // done
         break;
 
       case ArtifactAttributeType.BonusExperience:
         // implemented in hero model //
+        // done
         break;
 
       case ArtifactAttributeType.BonusSkillChance:
         // implement in skills chance system //
+        // lol where the fuck is that?
+        // done
         break;
 
       case ArtifactAttributeType.Lifesteal:

@@ -12,7 +12,39 @@ import DatabaseInterface from "../interface";
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 type PartialArtifactItem = ArtifactItem; // Optional<ArtifactItem, "banned" | "nextAllowedAction">;
 
+export function getArtifactModifier(
+  artifact: ArtifactItem,
+  type: ArtifactAttributeType
+): ArtifactAttribute | undefined {
+  const modifiers = modifiersForArtifact(artifact);
+  const modifier = modifiers.find((mod) => mod.type === type);
+  return modifier;
+}
+
+export function modifiersForArtifact(
+  artifact: ArtifactItem
+): ArtifactAttribute[] {
+  const artifactBuffs: ArtifactAttribute[] = [
+    artifact.attributes.namePrefix,
+    artifact.attributes.namePostfix,
+    ...artifact.attributes.bonusAffixes,
+  ];
+
+  if (artifact.attributes.titlePrefix) {
+    artifactBuffs.push(artifact.attributes.titlePrefix);
+  }
+
+  if (artifact.attributes.titlePostfix) {
+    artifactBuffs.push(artifact.attributes.titlePostfix);
+  }
+
+  return artifactBuffs;
+}
+
 export default class ArtifactItemModel extends DatabaseInterface<ArtifactItem> {
+  getArtifactModifier = getArtifactModifier;
+  modifiersForArtifact = modifiersForArtifact;
+
   constructor() {
     super("artifact");
   }
@@ -75,6 +107,8 @@ export default class ArtifactItemModel extends DatabaseInterface<ArtifactItem> {
         (1 / affix.step),
     }));
 
+    console.log(artifactAttributes);
+
     const namePrefix = artifactAttributes.shift();
     const namePostfix = artifactAttributes.shift();
 
@@ -97,8 +131,6 @@ export default class ArtifactItemModel extends DatabaseInterface<ArtifactItem> {
         bonusAffixes: artifactAttributes,
       },
     };
-
-    console.log(artifact);
 
     return artifact;
   }
@@ -452,6 +484,26 @@ const ArtifactAffixes: ArtifactAffix[] = [
 
   // # global stuff that's hard to get
   // ReducedDelay
+  {
+    namePrefix: "Impatient",
+    namePostfix: "stopwatch",
+    titlePrefix: "Clockwerk",
+    titlePostfix: "Cogg",
+    levelRequirement: 10,
+    attributeType: ArtifactAttributeType.ReducedDelay,
+    magnitude: [1.01, 1.1],
+    step: 0.01,
+  },
+  {
+    namePrefix: "Restless",
+    namePostfix: "hourglass",
+    titlePrefix: "Mysterical",
+    titlePostfix: "Gearbox",
+    levelRequirement: 30,
+    attributeType: ArtifactAttributeType.ReducedDelay,
+    magnitude: [1.1, 1.2],
+    step: 0.01,
+  },
   // BonusExperience
   {
     namePrefix: "Saavy",

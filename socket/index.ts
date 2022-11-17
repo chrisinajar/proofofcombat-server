@@ -2,7 +2,7 @@ import { Server, Socket } from "socket.io";
 import { createServer, Server as HttpServer } from "http";
 
 import Database from "../db";
-import { InventoryItem } from "../types/graphql";
+import { InventoryItem, ArtifactItem } from "../types/graphql";
 import { ChatMessage, SystemMessage } from "../db/models/system";
 import { confirm, ChatTokenData } from "../security";
 
@@ -14,9 +14,10 @@ type ExtendedSocket = Socket & {
 };
 
 type Notification = {
-  type: "drop" | "quest";
+  type: "drop" | "quest" | "artifact";
   message: string;
   item?: InventoryItem;
+  artifactItem?: ArtifactItem;
 };
 
 type PrivateMessage = ChatMessage & {

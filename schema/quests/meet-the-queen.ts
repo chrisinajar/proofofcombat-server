@@ -61,6 +61,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   if (hero.currentQuest || hero.questLog.meetTheQueen?.finished) {
     return hero;
   }
+
   if (!hero.questLog.meetTheQueen?.started) {
     if (hero.gold > 10000000000) {
       hero = setQuestEvent(
@@ -162,7 +163,6 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     // how did this happen?
     return hero;
   }
-  return hero;
 
   const bloodQuality = totalLevels / rags.length;
 
@@ -211,9 +211,22 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
 
   context.db.artifact.put(artifactReward);
 
-  console.log(artifactReward);
-
   hero.equipment.artifact = artifactReward;
+
+  context.io.sendNotification(hero.id, {
+    type: "artifact",
+    artifactItem: artifactReward,
+    message: `You leave the palace with ${artifactReward.name} in hand.`,
+  });
+
+  hero = takeQuestItem(hero, "bloody-rag");
+  hero = setQuestLogProgress(
+    hero,
+    Quest.MeetTheQueen,
+    "meetTheQueen",
+    20,
+    true
+  );
 
   return hero;
 }

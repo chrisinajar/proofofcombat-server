@@ -4,6 +4,7 @@ import { mapSchema, getDirective, MapperKind } from "@graphql-tools/utils";
 import { defaultFieldResolver, GraphQLSchema } from "graphql";
 import type { BaseContext } from "schema/context";
 
+import { ArtifactAttributeType } from "types/graphql";
 import { runAberrationCheck } from "../aberration";
 
 export function delayDirectiveTransformer(
@@ -55,8 +56,15 @@ export function delayDirectiveTransformer(
               const hero = await context.db.hero.get(account.id);
               let delay = delayDirective["delay"];
               if (hero?.equipment?.artifact) {
-                console.log(hero.equipment.artifact);
+                const reducedDelay = context.db.artifact.getArtifactModifier(
+                  hero.equipment.artifact,
+                  ArtifactAttributeType.ReducedDelay
+                );
+                if (reducedDelay) {
+                  delay = delay * (1 / reducedDelay.magnitude);
+                }
               }
+              delay = Math.round(delay);
               account.nextAllowedAction = `${now + delay}`;
               await context.db.account.put(account);
             }

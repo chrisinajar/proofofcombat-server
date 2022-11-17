@@ -18,6 +18,8 @@ import { LocationData } from "../../constants";
 
 import DatabaseInterface from "../interface";
 
+import { getArtifactModifier } from "./artifact";
+
 const SkillDisplayNames: { [x in HeroSkill]: string } = {
   attackingAccuracy: "Attacking Accuracy",
   attackingDamage: "Attacking Damage",
@@ -143,10 +145,11 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     if (hero.equipment.artifact) {
       const { artifact } = hero.equipment;
 
-      const artifactBuffs: ArtifactAttribute[] =
-        artifact.attributes.bonusAffixes;
-      artifactBuffs.push(artifact.attributes.namePrefix);
-      artifactBuffs.push(artifact.attributes.namePostfix);
+      const artifactBuffs: ArtifactAttribute[] = [
+        artifact.attributes.namePrefix,
+        artifact.attributes.namePostfix,
+        ...artifact.attributes.bonusAffixes,
+      ];
 
       if (artifact.attributes.titlePrefix) {
         artifactBuffs.push(artifact.attributes.titlePrefix);
@@ -203,8 +206,15 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   addExperience(context: BaseContext, hero: Hero, experience: number): Hero {
-    // skills: =MIN(1, (B$1/POW(1.8, $A2)))
-    // happy mothers day
+    if (hero.equipment.artifact) {
+      const modifier = getArtifactModifier(
+        hero.equipment.artifact,
+        ArtifactAttributeType.BonusExperience
+      );
+      if (modifier) {
+        experience *= modifier.magnitude;
+      }
+    }
 
     experience =
       experience -
@@ -215,10 +225,20 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
       const currentSkillLevel = hero.skills[hero.activeSkill];
       if (currentSkillLevel < 50) {
-        const odds = Math.min(
+        let odds = Math.min(
           1,
           hero.skillPercent / Math.pow(1.8, currentSkillLevel)
         );
+
+        if (hero.equipment.artifact) {
+          const modifier = getArtifactModifier(
+            hero.equipment.artifact,
+            ArtifactAttributeType.BonusSkillChance
+          );
+          if (modifier) {
+            odds *= modifier.magnitude;
+          }
+        }
         // odds are between 0-1, where 1 is 100%
         if (Math.random() < odds) {
           console.log(
