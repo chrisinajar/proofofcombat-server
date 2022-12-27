@@ -15,6 +15,7 @@ import { hasQuestItem, takeQuestItem } from "../../schema/quests/helpers";
 import { BaseItems } from "../../schema/items/base-items";
 import { BaseContext } from "../../schema/context";
 import { LocationData } from "../../constants";
+import { Hero as HeroUnit } from "../../calculations/units/hero";
 
 import DatabaseInterface from "../interface";
 
@@ -66,6 +67,23 @@ import { getClass } from "./hero/classes";
 export default class HeroModel extends DatabaseInterface<Hero> {
   constructor() {
     super("hero");
+  }
+
+  getUnit(hero: Hero) {
+    const heroUnit = new HeroUnit();
+    // assign values from hero to heroUnit.baseValues
+    // get health as combat.maxHealth, get everything from hero.stats
+    heroUnit.baseValues = {
+      ...heroUnit.baseValues,
+      ...hero.stats,
+      ...hero.skills,
+      health: hero.combat.maxHealth,
+      level: hero.level,
+    };
+
+    console.log(heroUnit.baseValues);
+
+    return heroUnit;
   }
 
   countEnchantments(hero: Hero, enchantment: EnchantmentType): number {

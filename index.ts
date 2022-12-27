@@ -14,7 +14,7 @@ import type { BaseContext } from "./schema/context";
 import db from "./db";
 import { confirm } from "./security";
 
-import { addSocketToServer } from "./socket";
+import { addSocketToServer, loadChatCache } from "./socket";
 
 const port = process.env.HTTP_PORT ?? 8880;
 const httpsPort = process.env.HTTPS_PORT ?? 8443;
@@ -83,10 +83,6 @@ app.get("/external-api/github-ui-release", (req, res) => {
   }
 
   res.sendStatus(200);
-});
-
-socketioHttpsServer.listen(socketIoPort, () => {
-  console.log(`🚀  Socket ready on ${socketIoPort}`);
 });
 
 async function startApolloServer() {
@@ -164,13 +160,21 @@ async function startApolloServer() {
     cors: corsOptions,
   });
 
-  httpServer.listen(port, () => {
-    console.log(`🚀  Apollo Server ready on ${port}`);
-  });
+  if (require.main === module) {
+    httpServer.listen(port, () => {
+      console.log(`🚀  Apollo Server ready on ${port}`);
+    });
 
-  httpsServer.listen(httpsPort, () => {
-    console.log(`🚀  Apollo Server SSL ready on ${httpsPort}`);
-  });
+    httpsServer.listen(httpsPort, () => {
+      console.log(`🚀  Apollo Server SSL ready on ${httpsPort}`);
+    });
+  }
 }
 
-startApolloServer();
+if (require.main === module) {
+  loadChatCache();
+  socketioHttpsServer.listen(socketIoPort, () => {
+    console.log(`🚀  Socket ready on ${socketIoPort}`);
+  });
+  startApolloServer();
+}

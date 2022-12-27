@@ -7,6 +7,7 @@ import { ChatMessage, SystemMessage } from "../db/models/system";
 import { confirm, ChatTokenData } from "../security";
 
 import { getChatCache, addChatMessage } from "./cache";
+export { loadChatCache } from "./cache";
 
 type ExtendedSocket = Socket & {
   name?: string;

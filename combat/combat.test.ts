@@ -42,13 +42,7 @@ function getAverageDamage(
 ) {
   let totalDamage = 0;
   for (let i = 0; i < 1000; ++i) {
-    totalDamage += calculateDamage(
-      heroA,
-      attackType,
-      heroB,
-      false,
-      debug
-    ).damage;
+    totalDamage += calculateDamage(heroA, heroB, false, debug).damage;
   }
 
   return Math.round(totalDamage / 1000);
@@ -62,7 +56,7 @@ function getHitOdds(
 ) {
   let didHit = 0;
   for (let i = 0; i < 10000; ++i) {
-    if (calculateHit(heroA, attackType, heroB)) {
+    if (calculateHit(heroA, heroB, false)) {
       didHit += 1;
     }
   }
@@ -107,7 +101,7 @@ function levelUpHero(
     hero.stats.luck += levels;
   } else {
     orderedStats.forEach((stat) => {
-      if (stat && stats[stat]) {
+      if (stat && stats && stats[stat]) {
         const rawValue = stats[stat] * singleWeight;
         const toAdd = Math.floor(rawValue);
         hero.stats[stat] += toAdd;
@@ -327,10 +321,10 @@ describe("builds", () => {
           heroAverageDamage,
           monsterHitOdds,
           monsterAverageDamage,
-        } = simulateMonsterCombat(heroCombatant, 5, attackType);
+        } = simulateMonsterCombat(heroCombatant, 6, attackType);
 
-        expect(heroHitOdds).toBeGreaterThan(0.5);
-        expect(heroAverageDamage).toBeLessThan(30);
+        console.log({ heroHitOdds, heroAverageDamage });
+        expect(heroHitOdds * heroAverageDamage).toBeLessThan(30);
       });
     });
 

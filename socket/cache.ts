@@ -4,7 +4,7 @@ import { serverBootMessages } from "./motd";
 
 let chatIdNumber = 0;
 
-async function loadCacheCache() {
+export async function loadChatCache() {
   console.log("Loading chat cache...");
   const systemData = await Databases.system.getSystemSettings();
 
@@ -65,5 +65,3 @@ export function getChatCache(): ChatMessage[] {
 
   return result.reverse();
 }
-
-loadCacheCache();

@@ -104,6 +104,7 @@ export function getCurrentOdds() {
     return 0;
   }
   const ellapsedTime = now - nextMinSpawnTime;
+  // console.log({ now, ellapsedTime });
   if (ellapsedTime >= maxSpawnTime) {
     return 1;
   }
