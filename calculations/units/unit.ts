@@ -1,3 +1,5 @@
+import { AttackType } from "types/graphql";
+
 import "../modifiers/basic-hero-modifier";
 import "../modifiers/basic-unit-modifier";
 
@@ -36,6 +38,7 @@ type PotentialGetter =
 export class Unit {
   modifiers: Modifier[] = [];
   baseValues: BaseValues = {};
+  attackType: AttackType = AttackType.Melee;
 
   constructor() {
     this.baseValues = {
@@ -92,7 +95,7 @@ export class Unit {
           delete getter.reentrancy[propName];
         }
       } else {
-        console.error("Skipping getter for reentrancy", methodName);
+        console.error("Skipping getter for reentrancy", methodName, propName);
       }
 
       return memo;

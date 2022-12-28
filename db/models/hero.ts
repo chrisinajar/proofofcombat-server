@@ -70,18 +70,9 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   getUnit(hero: Hero) {
-    const heroUnit = new HeroUnit();
-    // assign values from hero to heroUnit.baseValues
-    // get health as combat.maxHealth, get everything from hero.stats
-    heroUnit.baseValues = {
-      ...heroUnit.baseValues,
-      ...hero.stats,
-      ...hero.skills,
-      health: hero.combat.maxHealth,
-      level: hero.level,
-    };
-
-    console.log(heroUnit.baseValues);
+    const heroUnit = new HeroUnit(hero);
+    // console.log(heroUnit.baseValues);
+    // console.log(heroUnit.stats.health);
 
     return heroUnit;
   }
@@ -196,6 +187,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       hero.level === hero.levelCap
         ? 1
         : this.experienceNeededForLevel(hero.level);
+
+    this.getUnit(hero);
 
     return hero;
   }
