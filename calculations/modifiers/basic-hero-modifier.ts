@@ -19,6 +19,7 @@ class BasicHeroModifier extends Modifier {
   getBonus(prop: string): number | void {
     return;
   }
+
   getMultiplier(prop: string): number | void {
     // vitality: 0,
     switch (prop) {
@@ -27,11 +28,265 @@ class BasicHeroModifier extends Modifier {
           return;
         }
         return Math.pow(1.08, this.parent.stats.vitality);
-      case "health":
-        if (!this.parent.stats.vitality) {
-          return;
+    }
+
+    switch (this.parent.hero.class) {
+      case HeroClasses.Adventurer:
+        break;
+      case HeroClasses.JackOfAllTrades:
+        if (prop === "strength") {
+          return 1.5;
         }
-        return Math.pow(1.08, this.parent.stats.vitality);
+        if (prop === "dexterity") {
+          return 1.5;
+        }
+        if (prop === "constitution") {
+          return 1.5;
+        }
+        if (prop === "intelligence") {
+          return 1.5;
+        }
+        if (prop === "wisdom") {
+          return 1.5;
+        }
+        if (prop === "willpower") {
+          return 1.5;
+        }
+        break;
+
+      case HeroClasses.Daredevil:
+        if (prop === "strength") {
+          return 1.1 + Math.random();
+        }
+        if (prop === "dexterity") {
+          return 1.2 + Math.random();
+        }
+        if (prop === "constitution") {
+          return 1.1 + Math.random();
+        }
+        if (prop === "intelligence") {
+          return 1.1 + Math.random();
+        }
+        if (prop === "wisdom") {
+          return 1.2 + Math.random();
+        }
+        if (prop === "willpower") {
+          return 1.1 + Math.random();
+        }
+        if (prop === "luck") {
+          return 1.2 + Math.random();
+        }
+        if (prop === "bonusAccuracy") {
+          return 2;
+        }
+        break;
+
+      case HeroClasses.Gambler:
+        if (prop === "strength") {
+          return 1.1;
+        }
+        if (prop === "dexterity") {
+          return 1.2;
+        }
+        if (prop === "constitution") {
+          return 1.1;
+        }
+        if (prop === "intelligence") {
+          return 1.1;
+        }
+        if (prop === "wisdom") {
+          return 1.2;
+        }
+        if (prop === "willpower") {
+          return 1.1;
+        }
+        if (prop === "luck") {
+          return 1.2;
+        }
+        break;
+
+      // melee
+      case HeroClasses.EnragedBerserker:
+        if (prop === "strength") {
+          return 2 * 2;
+        }
+        if (prop === "dexterity") {
+          return 2 * 1.3;
+        }
+        if (prop === "bonusAccuracy") {
+          return 2;
+        }
+        break;
+
+      case HeroClasses.Berserker:
+        if (prop === "strength") {
+          return 2;
+        }
+        if (prop === "dexterity") {
+          return 1.3;
+        }
+        break;
+
+      case HeroClasses.Gladiator:
+        if (prop === "strength") {
+          return 2 * 1.5;
+        }
+        if (prop === "dexterity") {
+          return 2 * 1.3;
+        }
+        if (prop === "willpower") {
+          return 1.2;
+        }
+        if (prop === "bonusAccuracy") {
+          return 2;
+        }
+        break;
+
+      case HeroClasses.Fighter:
+        if (prop === "strength") {
+          return 1.5;
+        }
+        if (prop === "dexterity") {
+          return 1.3;
+        }
+        if (prop === "willpower") {
+          return 1.2;
+        }
+        break;
+
+      // casters
+      case HeroClasses.MasterWizard:
+        if (prop === "intelligence") {
+          return 2 * 2;
+        }
+        if (prop === "wisdom") {
+          return 2 * 1.3;
+        }
+        if (prop === "bonusAccuracy") {
+          return 2;
+        }
+        break;
+
+      case HeroClasses.Wizard:
+        if (prop === "intelligence") {
+          return 2;
+        }
+        if (prop === "wisdom") {
+          return 1.3;
+        }
+        break;
+
+      case HeroClasses.MasterWarlock:
+        if (prop === "intelligence") {
+          return 2 * 1.5;
+        }
+        if (prop === "wisdom") {
+          return 2 * 1.3;
+        }
+        if (prop === "willpower") {
+          return 1.2;
+        }
+        if (prop === "bonusAccuracy") {
+          return 2;
+        }
+        break;
+
+      case HeroClasses.Warlock:
+        if (prop === "intelligence") {
+          return 1.5;
+        }
+        if (prop === "wisdom") {
+          return 1.3;
+        }
+        if (prop === "willpower") {
+          return 1.2;
+        }
+        break;
+
+      // mixed
+      case HeroClasses.DemonHunter:
+        if (prop === "strength") {
+          return 3 * 2;
+        }
+        if (prop === "dexterity") {
+          return 1.3 * 1.3;
+        }
+        if (prop === "intelligence") {
+          return 3 * 2;
+        }
+        if (prop === "wisdom") {
+          return 1.3 * 1.3;
+        }
+        if (prop === "willpower") {
+          return 1.2 * 1.2;
+        }
+        if (prop === "bonusAccuracy") {
+          return 2;
+        }
+        break;
+
+      case HeroClasses.BattleMage:
+        if (prop === "strength") {
+          return 2;
+        }
+        if (prop === "dexterity") {
+          return 1.3;
+        }
+        if (prop === "intelligence") {
+          return 2;
+        }
+        if (prop === "wisdom") {
+          return 1.3;
+        }
+        if (prop === "willpower") {
+          return 1.2;
+        }
+        break;
+
+      case HeroClasses.Zealot:
+        if (prop === "willpower") {
+          return 1.3 * 1.3;
+        }
+        if (prop === "wisdom") {
+          return 2;
+        }
+        if (prop === "bonusAccuracy") {
+          return 2;
+        }
+        break;
+
+      case HeroClasses.Paladin:
+        if (prop === "willpower") {
+          return 1.3;
+        }
+        break;
+
+      case HeroClasses.Archer:
+        if (prop === "dexterity") {
+          return 4 * 2;
+        }
+        break;
+
+      case HeroClasses.Ranger:
+        if (prop === "dexterity") {
+          return 2;
+        }
+        break;
+
+      case HeroClasses.Vampire:
+        if (prop === "constitution") {
+          return 1.5 * 1.2;
+        }
+        if (prop === "willpower") {
+          return 1.5;
+        }
+        break;
+
+      case HeroClasses.BloodMage:
+        if (prop === "constitution") {
+          return 1.2;
+        }
+        break;
     }
 
     const attackAttributes = attributesForAttack(this.parent.attackType);
