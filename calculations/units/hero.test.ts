@@ -7,8 +7,8 @@ import {
   HeroClasses,
 } from "types/graphql";
 
-import { Hero as HeroUnit } from "./hero";
 import Databases from "../../db";
+import { Hero as HeroUnit } from "./hero";
 
 function generateHero(): Hero {
   const hero = Databases.hero.upgrade({

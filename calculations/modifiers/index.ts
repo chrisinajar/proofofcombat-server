@@ -1,4 +1,4 @@
-import { Modifier, ModifierOptions } from "./modifier";
+import type { Modifier, ModifierOptions } from "./modifier";
 
 type ModifierClass = new (o: ModifierOptions) => Modifier;
 

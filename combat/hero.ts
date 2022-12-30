@@ -8,6 +8,8 @@ import {
 import { Combatant } from "./types";
 import { createLuck } from "./helpers";
 
+import { Hero as HeroUnit } from "../calculations/units/hero";
+
 export function addItemToCombatant(
   combatant: Combatant,
   item: InventoryItem
@@ -120,13 +122,16 @@ export function createHeroCombatant(
   hero: Hero,
   attackType: AttackType
 ): Combatant {
+  const heroUnit = new HeroUnit(hero);
+  heroUnit.attackType = attackType;
+
   const heroCombatant: Combatant = {
     class: hero.class,
     attackType,
     level: hero.level,
     name: hero.name,
     health: hero.combat.health,
-    maxHealth: hero.combat.maxHealth,
+    maxHealth: heroUnit.stats.health,
     equipment: {
       armor: [],
       weapons: [],
@@ -134,9 +139,18 @@ export function createHeroCombatant(
       artifact: hero.equipment.artifact ?? undefined,
     },
     damageReduction: hero.level,
-    attributes: hero.stats,
-    luck: createLuck(hero.stats.luck),
+    attributes: {
+      strength: heroUnit.stats.strength,
+      dexterity: heroUnit.stats.dexterity,
+      constitution: heroUnit.stats.constitution,
+      intelligence: heroUnit.stats.intelligence,
+      wisdom: heroUnit.stats.wisdom,
+      willpower: heroUnit.stats.willpower,
+      luck: heroUnit.stats.luck,
+    },
+    luck: createLuck(heroUnit.stats.luck),
     skills: hero.skills,
+    unit: heroUnit,
   };
 
   if (hero.equipment.leftHand) {

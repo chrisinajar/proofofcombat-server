@@ -11,20 +11,6 @@ describe("calculations unit base class", () => {
     expect(unit.stats.level).toBe(1);
   });
 
-  it("should calculate max health", () => {
-    const unitA = new Unit();
-    const unitB = new Unit();
-
-    unitA.baseValues.constitution = 1;
-    expect(unitA.stats.health).toBeGreaterThan(0);
-
-    unitB.baseValues.constitution = 10;
-    expect(unitB.stats.health).toBeGreaterThan(20);
-
-    unitB.baseValues.constitution = 2;
-    expect(unitB.stats.health).toBeGreaterThan(unitA.stats.health);
-  });
-
   it("should default values to 0", () => {
     const unit = new Unit();
 

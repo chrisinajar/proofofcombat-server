@@ -12,6 +12,8 @@ import {
   ArtifactItem,
 } from "types/graphql";
 
+import type { Unit } from "../calculations/units/unit";
+
 export type Attribute = keyof HeroStats;
 
 export type Combatant = {
@@ -30,6 +32,7 @@ export type Combatant = {
     largeModifier: number;
     ultraModifier: number;
   };
+  unit: Unit;
 };
 
 export type EnchantedCombatant = Combatant & {

@@ -32,6 +32,7 @@ import { checkHero } from "../quests/helpers";
 import { createHeroCombatant } from "../../combat/hero";
 import { getEnchantedAttributes } from "../../combat/enchantments";
 import { fightHero } from "../../combat/fight-hero";
+import { Mob } from "../../calculations/units/mob";
 
 const resolvers: Resolvers = {
   Query: {
@@ -463,7 +464,10 @@ const resolvers: Resolvers = {
         },
       };
 
-      const enchantedStats = getEnchantedAttributes(attacker, victim);
+      const enchantedStats = getEnchantedAttributes(attacker, {
+        ...victim,
+        unit: new Mob(victim),
+      });
 
       function cleanStats(stats: HeroStats) {
         stats.strength = Math.round(stats.strength);

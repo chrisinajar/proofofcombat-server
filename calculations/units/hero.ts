@@ -1,5 +1,8 @@
 import { Hero as HeroData, HeroClasses, AttackType } from "types/graphql";
 
+import "../modifiers/basic-hero-modifier";
+import "../modifiers/hero-class-modifier";
+
 import { Unit } from "./unit";
 
 export class Hero extends Unit {
@@ -17,6 +20,7 @@ export class Hero extends Unit {
     };
 
     this.hero = hero;
+    this.class = hero.class;
 
     switch (hero.class) {
       case HeroClasses.Zealot:
@@ -57,6 +61,7 @@ export class Hero extends Unit {
     }
 
     this.applyModifier("BasicHeroModifier");
+    this.applyModifier("HeroClassModifier");
 
     // console.log("hero creator!", this.hero.class, this.attackType);
   }

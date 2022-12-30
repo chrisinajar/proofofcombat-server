@@ -8,8 +8,10 @@ import {
   InventoryItemType,
   CombatEntry,
 } from "types/graphql";
-import { CombatantGear } from "./types";
+import { CombatantGear, Combatant } from "./types";
 import { createLuck, attributesForAttack } from "./helpers";
+
+import { Mob } from "../calculations/units/mob";
 
 function createMonsterStatsByLevel(level: number): HeroStats {
   return {
@@ -110,10 +112,10 @@ export function createMonsterCombatant(
     attackType: AttackType;
   },
   equipment?: MonsterEquipment | null
-) {
+): Combatant {
   const monsterAttributes = createMonsterStatsByLevel(monster.level);
 
-  return {
+  const combatData = {
     class: HeroClasses.Monster,
     attackType: monster.attackType,
     level: monster.level,
@@ -126,5 +128,11 @@ export function createMonsterCombatant(
     luck: createLuck(monsterAttributes.luck),
     health: monster.combat.health,
     maxHealth: monster.combat.maxHealth,
+  };
+
+  const unit = new Mob(combatData);
+  return {
+    ...combatData,
+    unit,
   };
 }

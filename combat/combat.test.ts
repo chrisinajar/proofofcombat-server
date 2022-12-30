@@ -311,8 +311,7 @@ describe("builds", () => {
       });
       it("can't' kill level 5 mobs without gear", () => {
         const hero = generateHero();
-        // level 10 attempts mob #5...
-        levelUpHero(hero, 10, stats);
+        levelUpHero(hero, 3, stats);
         const heroCombatant = createHeroCombatant(hero, attackType);
         heroCombatant.equipment = trashGear();
         heroCombatant.class = heroClass;
@@ -324,7 +323,7 @@ describe("builds", () => {
         } = simulateMonsterCombat(heroCombatant, 6, attackType);
 
         console.log({ heroHitOdds, heroAverageDamage });
-        expect(heroHitOdds * heroAverageDamage).toBeLessThan(30);
+        expect(heroHitOdds * heroAverageDamage).toBeLessThan(100);
       });
     });
 
@@ -332,7 +331,7 @@ describe("builds", () => {
       it("can kill level 5 mobs", () => {
         const hero = generateHero();
         // level 10 attempts mob #5...
-        levelUpHero(hero, 9, stats);
+        levelUpHero(hero, 3, stats);
         const heroCombatant = createHeroCombatant(hero, attackType);
         heroCombatant.equipment = normalGear();
         heroCombatant.class = heroClass;

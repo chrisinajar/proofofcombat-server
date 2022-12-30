@@ -1,4 +1,4 @@
-import { AttackType } from "types/graphql";
+import { AttackType, HeroClasses } from "types/graphql";
 
 import "../modifiers/basic-hero-modifier";
 import "../modifiers/basic-unit-modifier";
@@ -39,6 +39,7 @@ export class Unit {
   modifiers: Modifier[] = [];
   baseValues: BaseValues = {};
   attackType: AttackType = AttackType.Melee;
+  class: HeroClasses = HeroClasses.Monster;
 
   constructor() {
     this.baseValues = {
@@ -50,7 +51,19 @@ export class Unit {
       willpower: 1,
       luck: 1,
 
-      health: 1,
+      percentageDamageIncrease: 1,
+      percentageDamageReduction: 1,
+      percentageEnchantmentDamageReduction: 1,
+      bonusDodge: 1, // percent
+      bonusAccuracy: 1, // percent
+      bonusWeaponTiers: 0,
+      bonusArmorTiers: 0,
+      bonusShieldTiers: 0,
+      mesmerizeChance: 1, // inverse percent
+      focusChance: 1, // inverse percent
+      lifesteal: 0,
+
+      health: 0, // calculated by basic unit/hero modifier
     };
 
     this.applyModifier("BasicUnitModifier");
