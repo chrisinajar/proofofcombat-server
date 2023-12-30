@@ -1,12 +1,14 @@
 import type { Modifier, ModifierOptions } from "./modifier";
 
-type ModifierClass = new (o: ModifierOptions) => Modifier;
+export type ModifierClass<T> = new (o: ModifierOptions<T>) => Modifier<T>;
 
-const ModifierMap: { [x in string]?: ModifierClass } = {};
+const ModifierMap: { [x in string]?: ModifierClass<any> } = {};
 
-export function registerModifier(name: string, type: ModifierClass) {
+export function registerModifier<T>(name: string, type: ModifierClass<T>) {
   ModifierMap[name] = type;
 }
-export function getModifierByName(name: string): ModifierClass | undefined {
+export function getModifierByName<T>(
+  name: string
+): ModifierClass<T> | undefined {
   return ModifierMap[name];
 }

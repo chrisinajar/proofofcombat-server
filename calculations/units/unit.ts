@@ -1,11 +1,10 @@
 import { AttackType, HeroClasses } from "types/graphql";
 
-import "../modifiers/basic-hero-modifier";
-import "../modifiers/basic-unit-modifier";
+import { BasicUnitModifier } from "../modifiers/basic-unit-modifier";
 
-import { getModifierByName } from "../modifiers";
+import { getModifierByName, ModifierClass } from "../modifiers";
 
-import type { Modifier } from "../modifiers/modifier";
+import type { Modifier, ModifierOptions } from "../modifiers/modifier";
 
 declare global {
   interface ProxyConstructor {
@@ -25,6 +24,9 @@ declare global {
 type BaseValues = {
   [x in string]: number;
 };
+type PrecisionMap = {
+  [x in string]: number;
+};
 
 type PotentialGetter =
   | undefined
@@ -36,10 +38,17 @@ type PotentialGetter =
     };
 
 export class Unit {
-  modifiers: Modifier[] = [];
+  // list of currently applied modifiers
+  modifiers: Modifier<any>[] = [];
+  // unmodified "base" values
   baseValues: BaseValues = {};
+  // all units attack, so all units have an attack type
   attackType: AttackType = AttackType.Melee;
+  // class of the unit, anything that isn't a hero is a "monster"
+  // though in the future i may make aberations their own class as well
   class: HeroClasses = HeroClasses.Monster;
+  // a map of rounding precisions for any values
+  precisions: PrecisionMap = {};
 
   constructor() {
     this.baseValues = {
@@ -66,19 +75,40 @@ export class Unit {
       health: 0, // calculated by basic unit/hero modifier
     };
 
-    this.applyModifier("BasicUnitModifier");
+    this.precisions = {
+      strength: 1,
+      dexterity: 1,
+      constitution: 1,
+      intelligence: 1,
+      wisdom: 1,
+      willpower: 1,
+      luck: 1,
+
+      health: 1, // calculated by basic unit/hero modifier
+    };
+
+    this.applyModifier(BasicUnitModifier, undefined);
   }
 
-  applyModifier(name: string, source?: Unit) {
+  applyModifier<T extends Modifier<O>, O>(
+    ModifierType: new (o: ModifierOptions<O>) => T,
+    options: O,
+    source?: Unit
+  ) {
     if (!source) {
       source = this;
     }
-    const ModifierType = getModifierByName(name);
     if (!ModifierType) {
       console.error("Tried to apply undefined modifier", name);
       return;
     }
-    const modifier = new ModifierType({ parent: this, source, options: {} });
+    const modifier = new ModifierType({ parent: this, source, options });
+    // this.modifiers.push(modifier);
+    // not needed because modifier constructor calls `this.attachToUnit(options.parent);`
+  }
+
+  removeModifier<T extends Modifier<O>, O>(modifier: T) {
+    this.modifiers = this.modifiers.filter((m) => m !== modifier);
   }
 
   reduceModifiers(
@@ -162,7 +192,12 @@ export class Unit {
     const bonusValue = this.getBonusValue(name);
     const amplitude = this.getMultiplierValue(name);
 
-    const subValue = baseValue * amplitude + bonusValue;
+    let subValue = baseValue * amplitude + bonusValue;
+
+    if (this.precisions[name]) {
+      subValue =
+        Math.round(subValue / this.precisions[name]) * this.precisions[name];
+    }
 
     return subValue;
   }

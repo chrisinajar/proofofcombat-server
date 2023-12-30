@@ -7,20 +7,42 @@ import { attributesForAttack } from "../../combat/constants";
 
 import type { Hero } from "../units/hero";
 
-class HeroClassModifier extends Modifier {
+export class HeroClassModifier extends Modifier<undefined> {
   parent: Hero;
 
-  constructor(options: ModifierOptions) {
+  constructor(options: ModifierOptions<undefined>) {
     super(options);
 
     this.parent = options.parent as Hero;
   }
 
   getBonus(prop: string): number | void {
-    return;
+    if (prop === "bonusWeaponTiers") {
+      switch (this.parent.class) {
+        case HeroClasses.Daredevil:
+          return Math.round(Math.random() * 3);
+
+        case HeroClasses.EnragedBerserker:
+        case HeroClasses.MasterWarlock:
+        case HeroClasses.Gladiator:
+        case HeroClasses.DemonHunter:
+        case HeroClasses.MasterWizard:
+        case HeroClasses.Zealot:
+        case HeroClasses.Ranger:
+          return 1;
+
+        case HeroClasses.Archer:
+          return 2;
+
+        // everyone else
+        default:
+          break;
+      }
+      return;
+    }
   }
   getMultiplier(prop: string): number | void {
-    switch (this.parent.hero.class) {
+    switch (this.parent.class) {
       case HeroClasses.Adventurer:
         break;
       case HeroClasses.JackOfAllTrades:
@@ -285,8 +307,8 @@ class HeroClassModifier extends Modifier {
       this.parent.attackType === AttackType.Melee ||
       this.parent.attackType === AttackType.Ranged ||
       (this.parent.attackType === AttackType.Cast &&
-        (this.parent.hero.class === HeroClasses.BattleMage ||
-          this.parent.hero.class === HeroClasses.DemonHunter))
+        (this.parent.class === HeroClasses.BattleMage ||
+          this.parent.class === HeroClasses.DemonHunter))
     ) {
       if (
         prop === attackAttributes.toHit &&
@@ -307,8 +329,8 @@ class HeroClassModifier extends Modifier {
       this.parent.attackType === AttackType.Smite ||
       this.parent.attackType === AttackType.Blood ||
       (this.parent.attackType === AttackType.Melee &&
-        (this.parent.hero.class === HeroClasses.BattleMage ||
-          this.parent.hero.class === HeroClasses.DemonHunter))
+        (this.parent.class === HeroClasses.BattleMage ||
+          this.parent.class === HeroClasses.DemonHunter))
     ) {
       if (
         prop === attackAttributes.toHit &&

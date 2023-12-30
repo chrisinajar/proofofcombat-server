@@ -26,7 +26,7 @@ function generateHero(): Hero {
   return hero;
 }
 
-describe("calculations unit base class", () => {
+describe("calculations hero base class", () => {
   it("should return values correctly", () => {
     const unit = new HeroUnit(generateHero());
     unit.baseValues.constitution = 1;

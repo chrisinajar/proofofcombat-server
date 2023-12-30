@@ -1,16 +1,16 @@
 import type { Unit } from "../units/unit";
 
-export type ModifierOptions = {
+export type ModifierOptions<T> = {
   parent: Unit;
   source: Unit;
-  options: any;
+  options: T;
 };
 
-export abstract class Modifier {
+export abstract class Modifier<T> {
   parent: Unit;
   source: Unit;
 
-  constructor(options: ModifierOptions) {
+  constructor(options: ModifierOptions<T>) {
     this.getBonus = this.getBonus.bind(this);
     this.getMultiplier = this.getMultiplier.bind(this);
     this.getExtraBonus = this.getExtraBonus.bind(this);
@@ -34,10 +34,7 @@ export abstract class Modifier {
         this.onUpdated();
         return;
       }
-      this.parent.modifiers = this.parent.modifiers.filter(
-        (modifier) => modifier !== this
-      );
-      this.onRemoved();
+      this.remove();
     }
     this.parent = unit;
     if (this.parent.modifiers.find((modifier) => modifier === this)) {
@@ -46,6 +43,11 @@ export abstract class Modifier {
       this.parent.modifiers.push(this);
       this.onAttached();
     }
+  }
+
+  remove() {
+    this.parent.removeModifier(this);
+    this.onRemoved();
   }
 
   onUpdated() {}

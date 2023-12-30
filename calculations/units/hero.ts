@@ -1,7 +1,8 @@
 import { Hero as HeroData, HeroClasses, AttackType } from "types/graphql";
 
-import "../modifiers/basic-hero-modifier";
-import "../modifiers/hero-class-modifier";
+import { BasicHeroModifier } from "../modifiers/basic-hero-modifier";
+import { HeroClassModifier } from "../modifiers/hero-class-modifier";
+import { GenericArmorModifier } from "../modifiers/generic-armor-modifier";
 
 import { Unit } from "./unit";
 
@@ -11,13 +12,10 @@ export class Hero extends Unit {
   constructor(hero: HeroData) {
     super();
 
-    this.baseValues = {
-      ...this.baseValues,
-      ...hero.stats,
-      ...hero.skills,
+    Object.assign(this.baseValues, hero.stats, hero.skills, {
       health: hero.combat.maxHealth,
       level: hero.level,
-    };
+    });
 
     this.hero = hero;
     this.class = hero.class;
@@ -60,9 +58,13 @@ export class Hero extends Unit {
         break;
     }
 
-    this.applyModifier("BasicHeroModifier");
-    this.applyModifier("HeroClassModifier");
+    this.applyModifier(BasicHeroModifier, undefined);
+    this.applyModifier(HeroClassModifier, undefined);
 
-    // console.log("hero creator!", this.hero.class, this.attackType);
+    // this.applyModifier(GenericArmorModifier, { tier: 3 });
+    ///@TODO iterate over equipment and quest items to apply appropriate modifiers, apply class based modifiers to change all their things
+
+    console.log("hero creator!", this.hero.class, this.attackType);
+    console.log(this.hero.equipment);
   }
 }

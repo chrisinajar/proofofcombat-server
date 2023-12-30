@@ -1,7 +1,7 @@
 import { Modifier } from "./modifier";
 import { registerModifier } from "./index";
 
-class BasicUnitModifier extends Modifier {
+export class BasicUnitModifier extends Modifier<undefined> {
   getBonus(prop: string): number | void {
     return;
   }

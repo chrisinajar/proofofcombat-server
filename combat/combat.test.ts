@@ -330,7 +330,6 @@ describe("builds", () => {
     describe("normal items", () => {
       it("can kill level 5 mobs", () => {
         const hero = generateHero();
-        // level 10 attempts mob #5...
         levelUpHero(hero, 3, stats);
         const heroCombatant = createHeroCombatant(hero, attackType);
         heroCombatant.equipment = normalGear();
@@ -347,7 +346,7 @@ describe("builds", () => {
       });
       it("can kill level 10 mobs with enough stats", () => {
         const hero = generateHero();
-        // level 10 attempts mob #5...
+        // level 100 attempts mob #5...
         levelUpHero(hero, 100, stats);
         const heroCombatant = createHeroCombatant(hero, attackType);
         heroCombatant.equipment = normalGear();
