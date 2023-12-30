@@ -4,6 +4,7 @@ import type { Config } from "@jest/types";
 const config: Config.InitialOptions = {
   verbose: true,
   modulePaths: ["<rootDir>"],
+  testPathIgnorePatterns: ["node_modules", "dist"],
 };
 
 export default config;

@@ -180,15 +180,13 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     hero.combat.health = Math.round(
       Math.min(
         hero.combat.maxHealth,
-        healthPercentBefore * hero.combat.maxHealth
-      )
+        healthPercentBefore * hero.combat.maxHealth,
+      ),
     );
     hero.needed =
       hero.level === hero.levelCap
         ? 1
         : this.experienceNeededForLevel(hero.level);
-
-    console.log(hero.combat.maxHealth, heroUnit.stats.health);
 
     return hero;
   }
@@ -211,8 +209,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       Math.min(
         max,
         Math.round(Math.random() * (2 * this.smallLuck(luck)) * (max - min)) +
-          min
-      )
+          min,
+      ),
     );
   }
 
@@ -220,7 +218,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     if (hero.equipment.artifact) {
       const modifier = getArtifactModifier(
         hero.equipment.artifact,
-        ArtifactAttributeType.BonusExperience
+        ArtifactAttributeType.BonusExperience,
       );
       if (modifier) {
         experience *= modifier.magnitude;
@@ -238,13 +236,13 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       if (currentSkillLevel < 50) {
         let odds = Math.min(
           1,
-          hero.skillPercent / Math.pow(1.8, currentSkillLevel)
+          hero.skillPercent / Math.pow(1.8, currentSkillLevel),
         );
 
         if (hero.equipment.artifact) {
           const modifier = getArtifactModifier(
             hero.equipment.artifact,
-            ArtifactAttributeType.BonusSkillChance
+            ArtifactAttributeType.BonusSkillChance,
           );
           if (modifier) {
             odds *= modifier.magnitude;
@@ -256,7 +254,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
             hero.name,
             "Skill leveled up!!",
             currentSkillLevel,
-            odds * 100
+            odds * 100,
           );
           hero.skills[hero.activeSkill] += 1;
           context.io.sendNotification(hero.id, {
@@ -281,7 +279,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     if (newExperience >= experienceNeeded || hero.level === hero.levelCap) {
       const levelingDoublers = this.countEnchantments(
         hero,
-        EnchantmentType.DoubleLeveling
+        EnchantmentType.DoubleLeveling,
       );
       for (let i = 0, l = Math.pow(2, levelingDoublers); i < l; ++i) {
         hero = this.levelUp(hero);
@@ -320,35 +318,36 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       const extraStats =
         Math.max(
           0,
-          hero.stats.strength - Math.max(1, hero.settings.minimumStats.strength)
+          hero.stats.strength -
+            Math.max(1, hero.settings.minimumStats.strength),
         ) +
         Math.max(
           0,
           hero.stats.dexterity -
-            Math.max(1, hero.settings.minimumStats.dexterity)
+            Math.max(1, hero.settings.minimumStats.dexterity),
         ) +
         Math.max(
           0,
           hero.stats.constitution -
-            Math.max(1, hero.settings.minimumStats.constitution)
+            Math.max(1, hero.settings.minimumStats.constitution),
         ) +
         Math.max(
           0,
           hero.stats.intelligence -
-            Math.max(1, hero.settings.minimumStats.intelligence)
+            Math.max(1, hero.settings.minimumStats.intelligence),
         ) +
         Math.max(
           0,
-          hero.stats.wisdom - Math.max(1, hero.settings.minimumStats.wisdom)
+          hero.stats.wisdom - Math.max(1, hero.settings.minimumStats.wisdom),
         ) +
         Math.max(
           0,
           hero.stats.willpower -
-            Math.max(1, hero.settings.minimumStats.willpower)
+            Math.max(1, hero.settings.minimumStats.willpower),
         ) +
         Math.max(
           0,
-          hero.stats.luck - Math.max(1, hero.settings.minimumStats.luck)
+          hero.stats.luck - Math.max(1, hero.settings.minimumStats.luck),
         );
 
       // make sure we have 7 stats to spend
@@ -356,7 +355,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
         const removableStats = stats
           .filter(
             (statName) =>
-              hero.stats[statName] > hero.settings.minimumStats[statName]
+              hero.stats[statName] > hero.settings.minimumStats[statName],
           )
           .sort((a, b) => hero.stats[a] - hero.stats[b]);
 
@@ -387,7 +386,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
   randomStartingLocation(): Location {
     const options = LocationData.default.specialLocations.filter(
-      (loc) => loc.type === "dock"
+      (loc) => loc.type === "dock",
     );
 
     const choice = options[Math.floor(Math.random() * options.length)];
@@ -555,7 +554,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
     if (data.inventory) {
       data.inventory = data.inventory.filter(
-        (item) => !(item.type === InventoryItemType.Quest && item.enchantment)
+        (item) => !(item.type === InventoryItemType.Quest && item.enchantment),
       );
     }
 
@@ -597,7 +596,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
         level: 1,
         experience: 0,
-      })
+      }),
     );
   }
 }

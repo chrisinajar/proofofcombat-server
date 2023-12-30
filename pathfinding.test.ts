@@ -45,7 +45,7 @@ function hash(node: Node): string {
 }
 
 describe("pathfinding", () => {
-  it("can find paths", () => {
+  it("can find paths", async () => {
     const pf = new Pathfinder<Node>({
       distance,
       cost,
@@ -53,9 +53,11 @@ describe("pathfinding", () => {
       hash,
     });
 
-    expect(pf.findPath({ x: 1, y: 1 }, { x: 10, y: 1 }).path.length).toBe(10);
+    expect(
+      (await pf.findPath({ x: 1, y: 1 }, { x: 10, y: 1 })).path.length,
+    ).toBe(10);
   });
-  it("can find long paths", () => {
+  it("can find long paths", async () => {
     const pf = new Pathfinder<Node>({
       distance,
       cost,
@@ -63,9 +65,11 @@ describe("pathfinding", () => {
       hash,
     });
 
-    expect(pf.findPath({ x: 1, y: 50 }, { x: 22, y: 13 }).path.length).toBe(71);
+    expect(
+      (await pf.findPath({ x: 1, y: 50 }, { x: 22, y: 13 })).path.length,
+    ).toBe(71);
   });
-  it("can find paths around walls", () => {
+  it("can find paths around walls", async () => {
     const pf = new Pathfinder<Node>({
       distance,
       cost,
@@ -74,6 +78,8 @@ describe("pathfinding", () => {
       hash,
     });
 
-    expect(pf.findPath({ x: 1, y: 1 }, { x: 5, y: 5 }).path.length).toBe(23);
+    expect(
+      (await pf.findPath({ x: 1, y: 1 }, { x: 5, y: 5 })).path.length,
+    ).toBe(23);
   });
 });

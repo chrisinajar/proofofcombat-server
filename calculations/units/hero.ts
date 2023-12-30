@@ -64,7 +64,7 @@ export class Hero extends Unit {
     // this.applyModifier(GenericArmorModifier, { tier: 3 });
     ///@TODO iterate over equipment and quest items to apply appropriate modifiers, apply class based modifiers to change all their things
 
-    console.log("hero creator!", this.hero.class, this.attackType);
-    console.log(this.hero.equipment);
+    // console.log("hero creator!", this.hero.class, this.attackType);
+    // console.log(this.hero.equipment);
   }
 }

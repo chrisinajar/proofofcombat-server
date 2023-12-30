@@ -62,11 +62,11 @@ export async function spawnRandomAberration(context: BaseContext) {
 
   location[0] = Math.min(
     127,
-    Math.max(0, location[0] + (Math.floor(Math.random() * 3) - 1))
+    Math.max(0, location[0] + (Math.floor(Math.random() * 3) - 1)),
   );
   location[1] = Math.min(
     95,
-    Math.max(0, location[1] + (Math.floor(Math.random() * 3) - 1))
+    Math.max(0, location[1] + (Math.floor(Math.random() * 3) - 1)),
   );
 
   // Aberrations
@@ -128,8 +128,10 @@ export async function save() {
   await Databases.system.put(settings);
 }
 
-setNextMinTime();
-setTimeout(init, minSpawnTime / 3);
+export function startAberrations() {
+  setNextMinTime();
+  setTimeout(init, minSpawnTime / 3);
+}
 
 const Aberrations = [
   {
