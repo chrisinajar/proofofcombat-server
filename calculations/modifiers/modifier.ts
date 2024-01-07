@@ -1,14 +1,15 @@
 import type { Unit } from "../units/unit";
+import type { Item } from "../items/item";
 
 export type ModifierOptions<T> = {
   parent: Unit;
-  source: Unit;
+  source: Unit | Item;
   options: T;
 };
 
 export abstract class Modifier<T> {
   parent: Unit;
-  source: Unit;
+  source: Unit | Item;
 
   constructor(options: ModifierOptions<T>) {
     this.getBonus = this.getBonus.bind(this);

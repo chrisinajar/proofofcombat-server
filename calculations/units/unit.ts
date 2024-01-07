@@ -5,12 +5,13 @@ import { BasicUnitModifier } from "../modifiers/basic-unit-modifier";
 import { getModifierByName, ModifierClass } from "../modifiers";
 
 import type { Modifier, ModifierOptions } from "../modifiers/modifier";
+import type { Item } from "../items/item";
 
 declare global {
   interface ProxyConstructor {
     new <TSource extends object, TTarget extends object>(
       target: TSource,
-      handler: ProxyHandler<TSource>
+      handler: ProxyHandler<TSource>,
     ): TTarget;
   }
 }
@@ -93,18 +94,18 @@ export class Unit {
   applyModifier<T extends Modifier<O>, O>(
     ModifierType: new (o: ModifierOptions<O>) => T,
     options: O,
-    source?: Unit
-  ) {
+    source?: Unit | Item,
+  ): T {
     if (!source) {
       source = this;
     }
     if (!ModifierType) {
-      console.error("Tried to apply undefined modifier", name);
-      return;
+      throw new Error("Tried to apply undefined modifier");
     }
     const modifier = new ModifierType({ parent: this, source, options });
     // this.modifiers.push(modifier);
     // not needed because modifier constructor calls `this.attachToUnit(options.parent);`
+    return modifier;
   }
 
   removeModifier<T extends Modifier<O>, O>(modifier: T) {
@@ -115,7 +116,7 @@ export class Unit {
     methodName: "getBonus" | "getMultiplier" | "getExtraBonus",
     propName: string,
     startingValue: number,
-    combiner: (memo: number, val: number) => number
+    combiner: (memo: number, val: number) => number,
   ): number {
     return this.modifiers.reduce<number>((memo, val) => {
       const getter = val[methodName] as PotentialGetter;
@@ -148,26 +149,26 @@ export class Unit {
   reduceModifiersAdditively(
     methodName: "getBonus" | "getMultiplier" | "getExtraBonus",
     propName: string,
-    startingValue: number
+    startingValue: number,
   ): number {
     return this.reduceModifiers(
       methodName,
       propName,
       startingValue,
-      (memo, val) => memo + val
+      (memo, val) => memo + val,
     );
   }
 
   reduceModifiersMultiplicatively(
     methodName: "getBonus" | "getMultiplier" | "getExtraBonus",
     propName: string,
-    startingValue: number
+    startingValue: number,
   ): number {
     return this.reduceModifiers(
       methodName,
       propName,
       startingValue,
-      (memo, val) => memo * val
+      (memo, val) => memo * val,
     );
   }
 
@@ -175,7 +176,7 @@ export class Unit {
     return this.reduceModifiersAdditively(
       "getBonus",
       name,
-      this.baseValues[name] || 0
+      this.baseValues[name] || 0,
     );
   }
 
