@@ -598,7 +598,6 @@ export function modifierForEnchantment(
         type: GenericStatsModifier,
         options: {
           // stealStat(attacker, victim, "constitution", 0.8);
-          // victim.percentageEnchantmentDamageReduction: 0.8,
         },
       };
       break;
