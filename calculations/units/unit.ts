@@ -2,7 +2,7 @@ import { AttackType, HeroClasses } from "types/graphql";
 
 import { BasicUnitModifier } from "../modifiers/basic-unit-modifier";
 
-import { getModifierByName, ModifierClass } from "../modifiers";
+import { ModifierClass } from "../modifiers";
 
 import type { Modifier, ModifierOptions } from "../modifiers/modifier";
 import type { Item } from "../items/item";

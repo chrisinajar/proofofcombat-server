@@ -1,5 +1,4 @@
 import { Modifier } from "./modifier";
-import { registerModifier } from "./index";
 
 export class BasicUnitModifier extends Modifier<undefined> {
   getBonus(prop: string): number | void {
@@ -12,5 +11,3 @@ export class BasicUnitModifier extends Modifier<undefined> {
     return;
   }
 }
-
-registerModifier("BasicUnitModifier", BasicUnitModifier);

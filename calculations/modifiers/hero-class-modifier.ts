@@ -1,7 +1,6 @@
 import { HeroClasses, AttackType } from "types/graphql";
 
 import { Modifier, ModifierOptions } from "./modifier";
-import { registerModifier } from "./index";
 
 import { attributesForAttack } from "../../combat/constants";
 
@@ -350,4 +349,3 @@ export class HeroClassModifier extends Modifier<undefined> {
   }
 }
 
-registerModifier("HeroClassModifier", HeroClassModifier);
