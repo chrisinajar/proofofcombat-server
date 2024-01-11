@@ -151,15 +151,15 @@ function checkDock(context: BaseContext, hero: Hero): Hero {
   if (questLogEntry.progress < 1) {
     // has no "fetch quest" yet
     if (isAtNextDock) {
-      // at the first fetch quest destination, make them go somewhere else
-      if (questLogEntry.progress === 0) {
+      if (questLogEntry.lastEvent.message !== questEvents.startingDock) {
+        // at the first fetch quest destination, make them go somewhere else
         hero.currentQuest = {
           id: `WashedUp-${hero.id}-dock0`,
           message: questEvents.startingDock,
           quest: Quest.WashedUp,
         };
+        questLogEntry.lastEvent = hero.currentQuest;
       }
-      questLogEntry.progress = 0.5;
     } else {
       // at any dock, send off on first fetch quest
       // give old boot

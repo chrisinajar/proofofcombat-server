@@ -564,6 +564,12 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.incomingTrades = [];
     data.outgoingTrades = [];
 
+    if (data.questLog.washedUp) {
+      data.questLog.washedUp.progress = Math.floor(
+        data.questLog.washedUp.progress,
+      );
+    }
+
     // recalculate stats and turn it into a real hero object
     let hero = this.recalculateStats(data as Hero);
     hero.gold = Math.min(this.maxGold(hero), Math.round(hero.gold));
