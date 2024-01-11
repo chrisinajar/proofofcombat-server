@@ -6,9 +6,158 @@ export type ModifierDefition<T, O> = {
   type: ModifierClass<T, O>;
   options: O;
 };
-export function modifierForEnchantment(
+export function modifiersForEnchantment(
   enchantment: EnchantmentType,
 ): ModifierDefition<unknown>[] {
+  const genericStats = genericStatsModifierForEnchantment(enchantment);
+
+  return [genericStats];
+}
+
+export function attackModifiersForEnchantment(
+  enchantment: EnchantmentType,
+): ModifierDefition<unknown>[] {
+  // const genericStats = genericStatsModifierForEnchantment(enchantment);
+
+  return [];
+}
+
+export function genericStatsAttackModifierForEnchantment(
+  enchantment: EnchantmentType,
+): ModifierDefition<GenericStatsModifier> {
+  switch (enchantment) {
+    case EnchantmentType.MinusEnemyArmor:
+      return {
+        type: GenericStatsModifier,
+        options: {
+          multiplier: {
+            percentageDamageReduction: 0.5,
+          },
+        },
+      };
+      break;
+
+    case EnchantmentType.MinusEnemyStrength:
+      return {
+        type: GenericStatsModifier,
+        options: {
+          multiplier: {
+            strength: 0.8,
+          },
+        },
+      };
+      break;
+
+    case EnchantmentType.MinusEnemyDexterity:
+      return {
+        type: GenericStatsModifier,
+        options: {
+          multiplier: {
+            dexterity: 0.8,
+          },
+        },
+      };
+      break;
+
+    case EnchantmentType.MinusEnemyConstitution:
+      return {
+        type: GenericStatsModifier,
+        options: {
+          multiplier: {
+            constitution: 0.8,
+          },
+        },
+      };
+      break;
+
+    case EnchantmentType.MinusEnemyIntelligence:
+      return {
+        type: GenericStatsModifier,
+        options: {
+          multiplier: {
+            intelligence: 0.8,
+          },
+        },
+      };
+      break;
+
+    case EnchantmentType.MinusEnemyWisdom:
+      return {
+        type: GenericStatsModifier,
+        options: {
+          multiplier: {
+            wisdom: 0.8,
+          },
+        },
+      };
+      break;
+
+    case EnchantmentType.MinusEnemyWillpower:
+      return {
+        type: GenericStatsModifier,
+        options: {
+          multiplier: {
+            willpower: 0.8,
+          },
+        },
+      };
+      break;
+    case EnchantmentType.MinusEnemyPhysical:
+      return {
+        type: GenericStatsModifier,
+        options: {
+          multiplier: {
+            strength: 0.9,
+            dexterity: 0.9,
+            constitution: 0.9,
+          },
+        },
+      };
+      break;
+    case EnchantmentType.MinusEnemyMental:
+      return {
+        type: GenericStatsModifier,
+        options: {
+          multiplier: {
+            intelligence: 0.9,
+            wisdom: 0.9,
+            willpower: 0.9,
+          },
+        },
+      };
+      break;
+    case EnchantmentType.MinusEnemyAllStats:
+      return {
+        type: GenericStatsModifier,
+        options: {
+          multiplier: {
+            strength: 0.9,
+            dexterity: 0.9,
+            constitution: 0.9,
+            intelligence: 0.9,
+            wisdom: 0.9,
+            willpower: 0.9,
+          },
+        },
+      };
+      break;
+
+    case EnchantmentType.Vampirism:
+      return {
+        type: GenericStatsModifier,
+        options: {
+          multiplier: {
+            percentageEnchantmentDamageReduction: 0.95,
+          },
+        },
+      };
+      break;
+  }
+}
+
+export function genericStatsModifierForEnchantment(
+  enchantment: EnchantmentType,
+): ModifierDefition<GenericStatsModifier> {
   switch (enchantment) {
     case EnchantmentType.BonusStrength:
       return {
@@ -118,100 +267,13 @@ export function modifierForEnchantment(
       };
       break;
 
-    case EnchantmentType.MinusEnemyArmor:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // victim.percentageDamageReduction: 0.5,
-        },
-      };
-      break;
     case EnchantmentType.BonusArmor:
       return {
         type: GenericStatsModifier,
         options: {
-          // attacker.percentageDamageReduction: 2,
-        },
-      };
-      break;
-    case EnchantmentType.MinusEnemyStrength:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // victim.attributes.strength: 0.8,
-        },
-      };
-      break;
-    case EnchantmentType.MinusEnemyDexterity:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // victim.attributes.dexterity: 0.8,
-        },
-      };
-      break;
-    case EnchantmentType.MinusEnemyConstitution:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // victim.attributes.constitution: 0.8,
-        },
-      };
-      break;
-    case EnchantmentType.MinusEnemyIntelligence:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // victim.attributes.intelligence: 0.8,
-        },
-      };
-      break;
-    case EnchantmentType.MinusEnemyWisdom:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // victim.attributes.wisdom: 0.8,
-        },
-      };
-      break;
-    case EnchantmentType.MinusEnemyWillpower:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // victim.attributes.willpower: 0.8,
-        },
-      };
-      break;
-    case EnchantmentType.MinusEnemyPhysical:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // victim.attributes.strength: 0.9,
-          // victim.attributes.dexterity: 0.9,
-          // victim.attributes.constitution: 0.9,
-        },
-      };
-      break;
-    case EnchantmentType.MinusEnemyMental:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // victim.attributes.intelligence: 0.9,
-          // victim.attributes.wisdom: 0.9,
-          // victim.attributes.willpower: 0.9,
-        },
-      };
-      break;
-    case EnchantmentType.MinusEnemyAllStats:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // victim.attributes.strength: 0.9,
-          // victim.attributes.dexterity: 0.9,
-          // victim.attributes.constitution: 0.9,
-          // victim.attributes.intelligence: 0.9,
-          // victim.attributes.wisdom: 0.9,
-          // victim.attributes.willpower: 0.9,
+          multiplier: {
+            percentageDamageReduction: 2,
+          },
         },
       };
       break;
@@ -276,7 +338,6 @@ export function modifierForEnchantment(
         type: GenericStatsModifier,
         options: {
           // stealStat(attacker, victim, "constitution", 0.3);
-          // victim.percentageEnchantmentDamageReduction: 0.95,
         },
       };
       break;
@@ -333,7 +394,9 @@ export function modifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          // attacker.mesmerizeChance: 0.5,
+          multiplier: {
+            mesmerizeChance: 0.5,
+          },
         },
       };
       break;
@@ -341,7 +404,9 @@ export function modifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          // attacker.focusChance: 0.5,
+          multiplier: {
+            focusChance: 0.5,
+          },
         },
       };
       break;
@@ -422,7 +487,9 @@ export function modifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          // attacker.bonusAccuracy: 2,
+          multiplier: {
+            bonusAccuracy: 2,
+          },
         },
       };
       break;
@@ -430,7 +497,9 @@ export function modifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          // attacker.bonusDodge: 2,
+          multiplier: {
+            bonusDodge: 2,
+          },
         },
       };
       break;
@@ -454,7 +523,9 @@ export function modifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          // attacker.bonusWeaponTiers += 1;
+          bonus: {
+            weaponTier: 1,
+          },
         },
       };
       break;
@@ -462,7 +533,9 @@ export function modifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          // attacker.bonusArmorTiers += 1;
+          bonus: {
+            armorTier: 1,
+          },
         },
       };
       break;
@@ -501,7 +574,9 @@ export function modifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          // attacker.bonusShieldTiers += 1;
+          bonus: {
+            shieldTiers: 1,
+          },
         },
       };
       break;
