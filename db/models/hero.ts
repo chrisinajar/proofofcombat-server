@@ -564,7 +564,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.incomingTrades = [];
     data.outgoingTrades = [];
 
-    if (data.questLog.washedUp) {
+    if (data.questLog?.washedUp) {
       data.questLog.washedUp.progress = Math.floor(
         data.questLog.washedUp.progress,
       );
