@@ -90,7 +90,7 @@ function checkPub(context: BaseContext, hero: Hero): Hero {
   const locations: SpecialLocation[] = specialLocations(
     hero.location.x,
     hero.location.y,
-    hero.location.map as MapNames
+    hero.location.map as MapNames,
   ).filter((loc) => loc.name === "The Hidden Stump Inn");
 
   if (!locations.length) {
@@ -130,7 +130,7 @@ function checkDock(context: BaseContext, hero: Hero): Hero {
   }
   const questLogEntry = hero.questLog.washedUp;
 
-  const nextDock = docks[hero.questLog.washedUp.progress];
+  const nextDock = docks[Math.floor(hero.questLog.washedUp.progress)];
   if (!nextDock) {
     // quest is passed the docks part now
     return hero;
@@ -139,7 +139,7 @@ function checkDock(context: BaseContext, hero: Hero): Hero {
   const locations: SpecialLocation[] = specialLocations(
     hero.location.x,
     hero.location.y,
-    hero.location.map as MapNames
+    hero.location.map as MapNames,
   ).filter((loc) => loc.type === "dock");
 
   const isAtNextDock = locations.find((loc) => loc.name === nextDock.name);
@@ -148,15 +148,18 @@ function checkDock(context: BaseContext, hero: Hero): Hero {
     return hero;
   }
 
-  if (questLogEntry.progress === 0) {
+  if (questLogEntry.progress < 1) {
     // has no "fetch quest" yet
     if (isAtNextDock) {
       // at the first fetch quest destination, make them go somewhere else
-      hero.currentQuest = {
-        id: `WashedUp-${hero.id}-dock0`,
-        message: questEvents.startingDock,
-        quest: Quest.WashedUp,
-      };
+      if (questLogEntry.progress === 0) {
+        hero.currentQuest = {
+          id: `WashedUp-${hero.id}-dock0`,
+          message: questEvents.startingDock,
+          quest: Quest.WashedUp,
+        };
+      }
+      questLogEntry.progress = 0.5;
     } else {
       // at any dock, send off on first fetch quest
       // give old boot
@@ -198,7 +201,7 @@ function checkDock(context: BaseContext, hero: Hero): Hero {
   if (questLogEntry.progress > 0) {
     if (questItems[questLogEntry.progress - 1]) {
       hero.inventory = hero.inventory.filter(
-        (item) => item.baseItem !== questItems[questLogEntry.progress - 1]
+        (item) => item.baseItem !== questItems[questLogEntry.progress - 1],
       );
     }
     // add pocket watch
@@ -206,7 +209,7 @@ function checkDock(context: BaseContext, hero: Hero): Hero {
       hero = giveQuestItemNotification(
         context,
         hero,
-        questItems[questLogEntry.progress]
+        questItems[questLogEntry.progress],
       );
     }
   }
@@ -248,7 +251,7 @@ function checkInitialWashedUp(context: BaseContext, hero: Hero): Hero {
       hero.location.y,
       "land",
       1,
-      1
+      1,
     );
 
     hero.location.x = newX;
@@ -284,7 +287,7 @@ function checkInitialWashedUp(context: BaseContext, hero: Hero): Hero {
 function getNewAward(context: BaseContext, hero: Hero): Hero {
   const options = WashedUpRewards.filter((questItem) => {
     const existingItem = hero.inventory.find(
-      (inventoryItem) => inventoryItem.baseItem === questItem
+      (inventoryItem) => inventoryItem.baseItem === questItem,
     );
 
     return !existingItem;
@@ -294,7 +297,7 @@ function getNewAward(context: BaseContext, hero: Hero): Hero {
     hero = giveQuestItemNotification(
       context,
       hero,
-      options[Math.floor(options.length * Math.random())]
+      options[Math.floor(options.length * Math.random())],
     );
   }
 
