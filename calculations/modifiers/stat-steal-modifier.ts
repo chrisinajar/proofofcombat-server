@@ -4,40 +4,31 @@ import { Unit } from "../units/unit";
 export function createStatStealModifiers(
   attacker: Unit,
   victim: Unit,
-  attribute: string,
-  percent: number,
 ): {
-  attackerModifier: {
-    type: StatStealAttackerModifier;
-    options: StatStealAttackerModifierOptions;
-  };
-  victimModifier: {
-    type: StatStealVictimModifier;
-    options: StatStealVictimModifierOptions;
-  };
+  attackerModifier: StatStealAttackerModifier;
+  victimModifier: StatStealVictimModifier;
 } {
-  const attackerModifier = new StatStealAttackerModifier();
-  const victimModifier = new StatStealVictimModifier();
+  const victimModifier = victim.applyModifier(
+    StatStealVictimModifier,
+    {},
+    attacker,
+  );
+  const attackerModifier = attacker.applyModifier(
+    StatStealAttackerModifier,
+    { victimModifier },
+    attacker,
+  );
 
   return {
-    attackerModifier: {
-      type: StatStealAttackerModifier,
-      options: {
-        attribute,
-        percent,
-      },
-    },
-    victimModifier: {
-      type: StatStealVictimModifier,
-      options: {
-        attribute,
-        percent,
-      },
-    },
+    attackerModifier,
+    victimModifier,
   };
 }
 
-export type StatStealVictimModifierOptions = {};
+export type StatStealVictimModifierOptions = {
+  attribute: string;
+  percent: number;
+};
 
 export class StatStealVictimModifier extends Modifier<StatStealVictimModifierOptions> {
   options: StatStealVictimModifierOptions;
@@ -45,14 +36,95 @@ export class StatStealVictimModifier extends Modifier<StatStealVictimModifierOpt
   constructor(options: ModifierOptions<StatStealVictimModifierOptions>) {
     super(options);
 
-    this.options = options;
+    this.options = options.options;
+  }
+
+  getBonus(prop: string): number | void {
+    return;
+  }
+  getMultiplier(prop: string): number | void {
+    return;
+  }
+  getExtraBonus(prop: string): number | void {
+    if (prop.endsWith("Steal")) {
+      return;
+    }
+    const stealName = `${prop}Steal`;
+    const stolenAmount = this.source.getModifiedValue(stealName);
+    if (!stolenAmount || stolenAmount === 1) {
+      return;
+    }
+
+    const multipliedValue = this.parent.getMultiplierValue(prop);
+    return 0 - multipliedValue * (1 - stolenAmount);
+    return;
   }
 }
 
-export type StatStealAttackerModifierOptions = {};
+export type StatStealAttackerModifierOptions = {
+  victimModifier: StatStealVictimModifier;
+};
 
 export class StatStealAttackerModifier extends Modifier<StatStealAttackerModifierOptions> {
+  options: StatStealAttackerModifierOptions;
+
   constructor(options: ModifierOptions<StatStealAttackerModifierOptions>) {
     super(options);
+
+    this.options = options.options;
+  }
+
+  getBonus(prop: string): number | void {
+    return;
+  }
+  getMultiplier(prop: string): number | void {
+    return;
+  }
+  getExtraBonus(prop: string): number | void {
+    if (prop.endsWith("Steal")) {
+      return;
+    }
+    const victimStolenAmount = this.options.victimModifier.getExtraBonus(prop);
+    if (victimStolenAmount && victimStolenAmount < 0) {
+      return 0 - victimStolenAmount;
+    }
+    return;
+  }
+}
+
+export type StatStealModifierOptions = {
+  [x in string]: number;
+};
+
+export class StatStealModifier extends Modifier<StatStealModifierOptions> {
+  options: StatStealModifierOptions;
+
+  constructor(options: ModifierOptions<StatStealModifierOptions>) {
+    super(options);
+
+    this.options = options.options;
+    Object.keys(this.options).forEach((prop) => {
+      const stealName = `${prop}Steal`;
+      if (!this.parent.baseValues[stealName]) {
+        this.parent.baseValues[stealName] = 1;
+      }
+    });
+  }
+
+  getBonus(prop: string): number | void {
+    return;
+  }
+  getMultiplier(prop: string): number | void {
+    if (!prop.endsWith("Steal")) {
+      return;
+    }
+    const withoutSteal = prop.substr(0, prop.length - 5);
+    if (this.options[withoutSteal]) {
+      return 1 - this.options[withoutSteal];
+    }
+    return;
+  }
+  getExtraBonus(prop: string): number | void {
+    return;
   }
 }
