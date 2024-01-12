@@ -173,34 +173,50 @@ export class Unit {
   }
 
   getBaseValue(name: string): number {
-    return this.reduceModifiersAdditively(
-      "getBonus",
-      name,
-      this.baseValues[name] || 0,
-    );
-  }
-
-  getMultiplierValue(name: string): number {
-    return this.reduceModifiersMultiplicatively("getMultiplier", name, 1);
+    return this.baseValues[name] || 0;
   }
 
   getBonusValue(name: string): number {
+    return this.reduceModifiersAdditively(
+      "getBonus",
+      name,
+      this.getBaseValue(name),
+    );
+  }
+
+  getMultiplierModifier(name: string): number {
+    return this.reduceModifiersMultiplicatively("getMultiplier", name, 1);
+  }
+
+  getBonusModifier(name: string): number {
     return this.reduceModifiersAdditively("getExtraBonus", name, 0);
   }
 
+  getMultiplierValue(name: string): number {
+    const baseValue = this.getBonusValue(name);
+    const amplitude = this.getMultiplierModifier(name);
+
+    let subValue = baseValue * amplitude;
+
+    return this.roundModifiedValue(name, subValue);
+  }
+
   getModifiedValue(name: string): number {
-    const baseValue = this.getBaseValue(name);
-    const bonusValue = this.getBonusValue(name);
-    const amplitude = this.getMultiplierValue(name);
+    const baseValue = this.getBonusValue(name);
+    const amplitude = this.getMultiplierModifier(name);
+    const bonusValue = this.getBonusModifier(name);
 
     let subValue = baseValue * amplitude + bonusValue;
 
+    return this.roundModifiedValue(name, subValue);
+  }
+
+  roundModifiedValue(name: string, value: number): number {
     if (this.precisions[name]) {
-      subValue =
-        Math.round(subValue / this.precisions[name]) * this.precisions[name];
+      value = Math.round(value / this.precisions[name]) * this.precisions[name];
     }
 
-    return subValue;
+    return value;
   }
 
   get stats() {

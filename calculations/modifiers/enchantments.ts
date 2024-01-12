@@ -1,6 +1,8 @@
 import { EnchantmentType } from "types/graphql";
 import { GenericStatsModifier } from "./generic-stats-modifier";
 import { ModifierClass } from "./index";
+import { createStatStealModifiers } from "./stat-steal-modifiers";
+import { Unit } from "../units/unit";
 
 export type ModifierDefition<T, O> = {
   type: ModifierClass<T, O>;
@@ -13,17 +15,125 @@ export function modifiersForEnchantment(
 
   return [genericStats];
 }
-
+type AttackerModifierDefinition<T> = {
+  attacker: ModifierDefition<T>[];
+  victim: ModifierDefition<T>[];
+};
 export function attackModifiersForEnchantment(
   enchantment: EnchantmentType,
-): ModifierDefition<unknown>[] {
-  // const genericStats = genericStatsModifierForEnchantment(enchantment);
+  attacker: Unit,
+  victim: Unit,
+): AttackerModifierDefinition<unknown> {
+  const genericStats = genericStatsAttackModifierForEnchantment(
+    enchantment,
+    attacker,
+    victim,
+  );
 
-  return [];
+  const statStealModifiers = genericStatsAttackModifierForEnchantment(
+    enchantment,
+    attacker,
+    victim,
+  );
+
+  return {
+    attacker: [...statStealModifiers.attacker],
+    victim: [genericStats, ...statStealModifiers.victim],
+  };
 }
 
 export function genericStatsAttackModifierForEnchantment(
   enchantment: EnchantmentType,
+  attacker: Unit,
+  victim: Unit,
+): AttackerModifierDefinition<GenericStatsModifier> {
+  const result = { attacker: [], victim: [] };
+  function stealStats(attribute: string, percent: number) {
+    const { attackerModifier, victimModifier } = createStatStealModifiers(
+      attacker,
+      victim,
+      attribute,
+      percent,
+    );
+  }
+
+  switch (enchantment) {
+    case EnchantmentType.StrengthSteal:
+      // stealStat("strength", 0.3);
+      break;
+    case EnchantmentType.DexteritySteal:
+      // stealStat("dexterity", 0.3);
+      break;
+    case EnchantmentType.ConstitutionSteal:
+      // stealStat("constitution", 0.3);
+      break;
+    case EnchantmentType.IntelligenceSteal:
+      // stealStat("intelligence", 0.3);
+      break;
+    case EnchantmentType.WisdomSteal:
+      // stealStat("wisdom", 0.3);
+      break;
+    case EnchantmentType.WillpowerSteal:
+      // stealStat("willpower", 0.3);
+      break;
+    case EnchantmentType.LuckSteal:
+      // stealStat("luck", 0.3);
+      break;
+    case EnchantmentType.Vampirism:
+      // stealStat("constitution", 0.3);
+      break;
+    case EnchantmentType.AllStatsSteal:
+      // stealStat("strength", 0.3);
+      // stealStat("dexterity", 0.3);
+      // stealStat("constitution", 0.3);
+      // stealStat("intelligence", 0.3);
+      // stealStat("wisdom", 0.3);
+      // stealStat("willpower", 0.3);
+      // stealStat("luck", 0.3);
+      break;
+
+    case EnchantmentType.BigMelee:
+      // stealStat("dexterity", 0.4);
+      break;
+    case EnchantmentType.BigCaster:
+      // stealStat("wisdom", 0.4);
+      break;
+    case EnchantmentType.SuperVampStats:
+      // stealStat("constitution", 0.8);
+      break;
+    case EnchantmentType.SuperMeleeStats:
+      // stealStat("dexterity", 0.8);
+      break;
+    case EnchantmentType.SuperCasterStats:
+      // stealStat("wisdom", 0.8);
+      break;
+    case EnchantmentType.SuperVampMeleeStats:
+      // stealStat("constitution", 0.6);
+      // stealStat("dexterity", 0.6);
+      break;
+    case EnchantmentType.SuperVampSorcStats:
+      // stealStat("constitution", 0.6);
+      // stealStat("wisdom", 0.6);
+      break;
+    case EnchantmentType.SuperMeleeVampStats:
+      // stealStat("constitution", 0.5);
+      // stealStat("dexterity", 0.5);
+      break;
+    case EnchantmentType.SuperSorcVampStats:
+      // stealStat("constitution", 0.5);
+      // stealStat("wisdom", 0.5);
+      break;
+    case EnchantmentType.SuperBattleMageStats:
+      // stealStat("dexterity", 0.6);
+      // stealStat("wisdom", 0.6);
+      break;
+  }
+}
+
+export function genericStatsAttackModifierForEnchantment(
+  enchantment: EnchantmentType,
+  attacker: Unit,
+  victim: Unit,
 ): ModifierDefition<GenericStatsModifier> {
   switch (enchantment) {
     case EnchantmentType.MinusEnemyArmor:
@@ -277,85 +387,6 @@ export function genericStatsModifierForEnchantment(
         },
       };
       break;
-    case EnchantmentType.StrengthSteal:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // stealStat(attacker, victim, "strength", 0.3);
-        },
-      };
-      break;
-    case EnchantmentType.DexteritySteal:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // stealStat(attacker, victim, "dexterity", 0.3);
-        },
-      };
-      break;
-    case EnchantmentType.ConstitutionSteal:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // stealStat(attacker, victim, "constitution", 0.3);
-        },
-      };
-      break;
-    case EnchantmentType.IntelligenceSteal:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // stealStat(attacker, victim, "intelligence", 0.3);
-        },
-      };
-      break;
-    case EnchantmentType.WisdomSteal:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // stealStat(attacker, victim, "wisdom", 0.3);
-        },
-      };
-      break;
-    case EnchantmentType.WillpowerSteal:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // stealStat(attacker, victim, "willpower", 0.3);
-        },
-      };
-      break;
-    case EnchantmentType.LuckSteal:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // stealStat(attacker, victim, "luck", 0.3);
-        },
-      };
-      break;
-    case EnchantmentType.Vampirism:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // stealStat(attacker, victim, "constitution", 0.3);
-        },
-      };
-      break;
-    case EnchantmentType.AllStatsSteal:
-      return {
-        type: GenericStatsModifier,
-        options: {
-          // stealStat(attacker, victim, "strength", 0.3);
-          // stealStat(attacker, victim, "dexterity", 0.3);
-          // stealStat(attacker, victim, "constitution", 0.3);
-          // stealStat(attacker, victim, "intelligence", 0.3);
-          // stealStat(attacker, victim, "wisdom", 0.3);
-          // stealStat(attacker, victim, "willpower", 0.3);
-          // stealStat(attacker, victim, "luck", 0.3);
-        },
-      };
-      break;
-
     case EnchantmentType.BigMelee:
       return {
         type: GenericStatsModifier,
