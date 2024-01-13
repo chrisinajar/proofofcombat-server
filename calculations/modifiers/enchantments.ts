@@ -1,7 +1,7 @@
 import { EnchantmentType } from "types/graphql";
 import { GenericStatsModifier } from "./generic-stats-modifier";
 import { ModifierClass } from "./index";
-import { createStatStealModifiers } from "./stat-steal-modifiers";
+import { createStatStealModifiers } from "./stat-steal-modifier";
 import { Unit } from "../units/unit";
 
 export type ModifierDefition<T, O> = {
@@ -13,7 +13,10 @@ export function modifiersForEnchantment(
 ): ModifierDefition<unknown>[] {
   const genericStats = genericStatsModifierForEnchantment(enchantment);
 
-  return [genericStats];
+  if (genericStats) {
+    return [genericStats];
+  }
+  return [];
 }
 type AttackerModifierDefinition<T> = {
   attacker: ModifierDefition<T>[];
@@ -420,7 +423,7 @@ export function genericStatsAttackModifierForEnchantment(
 
 export function genericStatsModifierForEnchantment(
   enchantment: EnchantmentType,
-): ModifierDefition<GenericStatsModifier> {
+): ModifierDefition<GenericStatsModifier> | void {
   switch (enchantment) {
     case EnchantmentType.BonusStrength:
       return {

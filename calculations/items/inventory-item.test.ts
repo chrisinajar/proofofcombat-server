@@ -14,6 +14,5 @@ describe("legacy inventory item", () => {
     });
 
     expect(baseUnit.modifiers.length).toBeGreaterThan(before);
-    console.log(baseUnit.modifiers);
   });
 });

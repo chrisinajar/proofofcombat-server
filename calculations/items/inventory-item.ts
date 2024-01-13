@@ -2,6 +2,7 @@ import { InventoryItemType, EnchantmentType } from "types/graphql";
 
 import { Item, ItemOptions } from "./item";
 import { GenericArmorModifier } from "../modifiers/generic-armor-modifier";
+import { modifiersForEnchantment } from "../modifiers/enchantments";
 
 export type InventoryItemOptions = ItemOptions & {
   type: InventoryItemType;
@@ -34,5 +35,10 @@ export class InventoryItem extends Item {
         shield: this.type === InventoryItemType.Shield,
       });
     }
+
+    const modifiers = modifiersForEnchantment(this.enchantment);
+    modifiers.forEach((modifier) => {
+      this.registerModifier(modifier.type, modifier.options);
+    });
   }
 }

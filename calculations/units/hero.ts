@@ -3,6 +3,7 @@ import { Hero as HeroData, HeroClasses, AttackType } from "types/graphql";
 import { BasicHeroModifier } from "../modifiers/basic-hero-modifier";
 import { HeroClassModifier } from "../modifiers/hero-class-modifier";
 import { GenericArmorModifier } from "../modifiers/generic-armor-modifier";
+import { InventoryItem } from "../items/inventory-item";
 
 import { Unit } from "./unit";
 
@@ -61,10 +62,35 @@ export class Hero extends Unit {
     this.applyModifier(BasicHeroModifier, undefined);
     this.applyModifier(HeroClassModifier, undefined);
 
+    this.hero.equipment;
+
     // this.applyModifier(GenericArmorModifier, { tier: 3 });
     ///@TODO iterate over equipment and quest items to apply appropriate modifiers, apply class based modifiers to change all their things
 
     // console.log("hero creator!", this.hero.class, this.attackType);
-    // console.log(this.hero.equipment);
+
+    this.equipItem(this.hero.equipment.leftHand);
+    this.equipItem(this.hero.equipment.rightHand);
+    this.equipItem(this.hero.equipment.bodyArmor);
+    this.equipItem(this.hero.equipment.handArmor);
+    this.equipItem(this.hero.equipment.legArmor);
+    this.equipItem(this.hero.equipment.headArmor);
+    this.equipItem(this.hero.equipment.footArmor);
+    this.hero.equipment.accessories.forEach((item) => this.equipItem(item));
+  }
+
+  equipItem(item: InventoryItem | undefined) {
+    if (!item) {
+      return;
+    }
+
+    const itemInstance = new InventoryItem({
+      level: item.level,
+      baseItem: item.baseItem,
+      enchantment: item.enchantment,
+
+      name: item.name,
+      baseItem: item.baseItem,
+    });
   }
 }
