@@ -20,7 +20,7 @@ export const questEvents = {
     "The glowing being appears again, this time a bit more clearly.",
     '"Ah, yes, you\'re much stronger this time... but it is not enough."',
     '"You grow too slowly for this world, you are no match for even its natural inhabitants..."',
-    '"... let along the unnatural ones."',
+    '"... let alone the unnatural ones."',
     "The Totem in your hands begins to transform.",
     '"You will wake with a greater understanding of this world."',
   ],
