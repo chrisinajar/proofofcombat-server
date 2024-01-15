@@ -1,4 +1,9 @@
-import { Hero as HeroData, HeroClasses, AttackType } from "types/graphql";
+import {
+  Hero as HeroData,
+  HeroClasses,
+  AttackType,
+  InventoryItem as InventoryItemData,
+} from "types/graphql";
 
 import { BasicHeroModifier } from "../modifiers/basic-hero-modifier";
 import { HeroClassModifier } from "../modifiers/hero-class-modifier";
@@ -79,7 +84,7 @@ export class Hero extends Unit {
     this.hero.equipment.accessories.forEach((item) => this.equipItem(item));
   }
 
-  equipItem(item: InventoryItem | undefined) {
+  equipItem(item: InventoryItemData | null | undefined) {
     if (!item) {
       return;
     }
@@ -88,9 +93,9 @@ export class Hero extends Unit {
       level: item.level,
       baseItem: item.baseItem,
       enchantment: item.enchantment,
-
+      type: item.type,
       name: item.name,
-      baseItem: item.baseItem,
+      unit: this,
     });
   }
 }

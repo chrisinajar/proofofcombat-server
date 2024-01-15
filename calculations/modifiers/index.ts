@@ -1,3 +1,5 @@
-import type { Modifier } from "./modifier";
+import type { Modifier, ModifierOptions } from "./modifier";
 
-export type ModifierClass<T extends Modifier, O> = new (o: O) => T<O>;
+export type ModifierClass<T extends Modifier, O> = new (
+  o: ModifierOptions<O>,
+) => T;

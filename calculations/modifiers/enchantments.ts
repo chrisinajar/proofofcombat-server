@@ -1,7 +1,14 @@
-import { EnchantmentType } from "types/graphql";
-import { GenericStatsModifier } from "./generic-stats-modifier";
+import { EnchantmentType, AttackType } from "types/graphql";
+import {
+  GenericStatsModifier,
+  GenericStatsModifierOptions,
+} from "./generic-stats-modifier";
 import { ModifierClass } from "./index";
-import { createStatStealModifiers } from "./stat-steal-modifier";
+import {
+  createStatStealModifiers,
+  StatStealModifier,
+  StatStealModifierOptions,
+} from "./stat-steal-modifier";
 import { Unit } from "../units/unit";
 
 export type ModifierDefition<T, O> = {
@@ -10,7 +17,7 @@ export type ModifierDefition<T, O> = {
 };
 export function modifiersForEnchantment(
   enchantment: EnchantmentType,
-): ModifierDefition<unknown>[] {
+): ModifierDefition<any, any>[] {
   const genericStats = genericStatsModifierForEnchantment(enchantment);
 
   if (genericStats) {
@@ -19,14 +26,14 @@ export function modifiersForEnchantment(
   return [];
 }
 type AttackerModifierDefinition<T> = {
-  attacker: ModifierDefition<T>[];
-  victim: ModifierDefition<T>[];
+  attacker: ModifierDefition<T, any>[];
+  victim: ModifierDefition<T, any>[];
 };
 export function attackModifiersForEnchantment(
   enchantment: EnchantmentType,
   attacker: Unit,
   victim: Unit,
-): AttackerModifierDefinition<unknown> {
+): AttackerModifierDefinition<any> {
   const genericStats = genericStatsAttackModifierForEnchantment(
     enchantment,
     attacker,
@@ -39,16 +46,9 @@ export function attackModifiersForEnchantment(
     victim,
   );
 
-  const { attackerModifier, victimModifier } = createStatStealModifiers(
-    attacker,
-    victim,
-    attribute,
-    percent,
-  );
-
   return {
-    attacker: [statStealModifiers],
-    victim: [genericStats],
+    attacker: statStealModifiers ? [statStealModifiers] : [],
+    victim: genericStats ? [genericStats] : [],
   };
 }
 
@@ -56,13 +56,15 @@ export function statStealAttackModifierForEnchantment(
   enchantment: EnchantmentType,
   attacker: Unit,
   victim: Unit,
-): ModifierDefition<StatStealModifier> {
+): ModifierDefition<GenericStatsModifier, GenericStatsModifierOptions> | void {
   switch (enchantment) {
     case EnchantmentType.StrengthSteal:
       return {
         type: GenericStatsModifier,
         options: {
-          strength: 0.3,
+          multiplier: {
+            strength: 0.3,
+          },
         },
       };
       break;
@@ -70,7 +72,9 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          dexterity: 0.3,
+          multiplier: {
+            dexterity: 0.3,
+          },
         },
       };
       break;
@@ -78,7 +82,9 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          constitution: 0.3,
+          multiplier: {
+            constitution: 0.3,
+          },
         },
       };
       break;
@@ -86,7 +92,9 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          intelligence: 0.3,
+          multiplier: {
+            intelligence: 0.3,
+          },
         },
       };
       break;
@@ -94,7 +102,9 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          wisdom: 0.3,
+          multiplier: {
+            wisdom: 0.3,
+          },
         },
       };
       break;
@@ -102,7 +112,9 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          willpower: 0.3,
+          multiplier: {
+            willpower: 0.3,
+          },
         },
       };
       break;
@@ -110,7 +122,9 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          luck: 0.3,
+          multiplier: {
+            luck: 0.3,
+          },
         },
       };
       break;
@@ -118,7 +132,9 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          constitution: 0.3,
+          multiplier: {
+            constitution: 0.3,
+          },
         },
       };
       break;
@@ -126,13 +142,15 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          strength: 0.3,
-          dexterity: 0.3,
-          constitution: 0.3,
-          intelligence: 0.3,
-          wisdom: 0.3,
-          willpower: 0.3,
-          luck: 0.3,
+          multiplier: {
+            strength: 0.3,
+            dexterity: 0.3,
+            constitution: 0.3,
+            intelligence: 0.3,
+            wisdom: 0.3,
+            willpower: 0.3,
+            luck: 0.3,
+          },
         },
       };
       break;
@@ -141,7 +159,9 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          dexterity: 0.4,
+          multiplier: {
+            dexterity: 0.4,
+          },
         },
       };
       break;
@@ -149,7 +169,9 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          wisdom: 0.4,
+          multiplier: {
+            wisdom: 0.4,
+          },
         },
       };
       break;
@@ -157,7 +179,9 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          constitution: 0.8,
+          multiplier: {
+            constitution: 0.8,
+          },
         },
       };
       break;
@@ -165,7 +189,9 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          dexterity: 0.8,
+          multiplier: {
+            dexterity: 0.8,
+          },
         },
       };
       break;
@@ -173,7 +199,9 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          wisdom: 0.8,
+          multiplier: {
+            wisdom: 0.8,
+          },
         },
       };
       break;
@@ -181,8 +209,10 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          constitution: 0.6,
-          dexterity: 0.6,
+          multiplier: {
+            constitution: 0.6,
+            dexterity: 0.6,
+          },
         },
       };
       break;
@@ -190,8 +220,10 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          constitution: 0.6,
-          wisdom: 0.6,
+          multiplier: {
+            constitution: 0.6,
+            wisdom: 0.6,
+          },
         },
       };
       break;
@@ -199,8 +231,10 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          constitution: 0.5,
-          dexterity: 0.5,
+          multiplier: {
+            constitution: 0.5,
+            dexterity: 0.5,
+          },
         },
       };
       break;
@@ -208,8 +242,10 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          constitution: 0.5,
-          wisdom: 0.5,
+          multiplier: {
+            constitution: 0.5,
+            wisdom: 0.5,
+          },
         },
       };
       break;
@@ -217,8 +253,10 @@ export function statStealAttackModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          dexterity: 0.6,
-          wisdom: 0.6,
+          multiplier: {
+            dexterity: 0.6,
+            wisdom: 0.6,
+          },
         },
       };
       break;
@@ -229,7 +267,7 @@ export function genericStatsAttackModifierForEnchantment(
   enchantment: EnchantmentType,
   attacker: Unit,
   victim: Unit,
-): ModifierDefition<GenericStatsModifier> {
+): ModifierDefition<GenericStatsModifier, GenericStatsModifierOptions> | void {
   switch (enchantment) {
     case EnchantmentType.MinusEnemyArmor:
       return {
@@ -359,7 +397,7 @@ export function genericStatsAttackModifierForEnchantment(
       break;
 
     case EnchantmentType.RangedArmorPiercing:
-      if (attackType === AttackType.Ranged) {
+      if (attacker.attackType === AttackType.Ranged) {
         return {
           type: GenericStatsModifier,
           options: {
@@ -371,7 +409,7 @@ export function genericStatsAttackModifierForEnchantment(
       }
       break;
     case EnchantmentType.MeleeArmorPiercing:
-      if (attackType === AttackType.Melee) {
+      if (attacker.attackType === AttackType.Melee) {
         return {
           type: GenericStatsModifier,
           options: {
@@ -383,7 +421,7 @@ export function genericStatsAttackModifierForEnchantment(
       }
       break;
     case EnchantmentType.CasterArmorPiercing:
-      if (attackType === AttackType.Cast) {
+      if (attacker.attackType === AttackType.Cast) {
         return {
           type: GenericStatsModifier,
           options: {
@@ -395,7 +433,7 @@ export function genericStatsAttackModifierForEnchantment(
       }
       break;
     case EnchantmentType.SmiteArmorPiercing:
-      if (attackType === AttackType.Smite) {
+      if (attacker.attackType === AttackType.Smite) {
         return {
           type: GenericStatsModifier,
           options: {
@@ -407,7 +445,7 @@ export function genericStatsAttackModifierForEnchantment(
       }
       break;
     case EnchantmentType.VampireArmorPiercing:
-      if (attackType === AttackType.Blood) {
+      if (attacker.attackType === AttackType.Blood) {
         return {
           type: GenericStatsModifier,
           options: {
@@ -423,7 +461,7 @@ export function genericStatsAttackModifierForEnchantment(
 
 export function genericStatsModifierForEnchantment(
   enchantment: EnchantmentType,
-): ModifierDefition<GenericStatsModifier> | void {
+): ModifierDefition<GenericStatsModifier, GenericStatsModifierOptions> | void {
   switch (enchantment) {
     case EnchantmentType.BonusStrength:
       return {
@@ -479,7 +517,9 @@ export function genericStatsModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          willpower: 1.3,
+          multiplier: {
+            willpower: 1.3,
+          },
         },
       };
       break;
@@ -739,7 +779,7 @@ export function genericStatsModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          // if (attackType === AttackType.Melee) {
+          // if (attacker.attackType === AttackType.Melee) {
           // attacker.bonusWeaponTiers += 1;
           // }
         },
@@ -749,7 +789,7 @@ export function genericStatsModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          // if (attackType === AttackType.Cast) {
+          // if (attacker.attackType === AttackType.Cast) {
           //   attacker.bonusWeaponTiers += 1;
           // }
         },
@@ -759,7 +799,7 @@ export function genericStatsModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         options: {
-          // if (attackType === AttackType.Ranged) {
+          // if (attacker.attackType === AttackType.Ranged) {
           //   attacker.bonusWeaponTiers += 1;
           // }
         },

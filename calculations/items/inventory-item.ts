@@ -7,13 +7,13 @@ import { modifiersForEnchantment } from "../modifiers/enchantments";
 export type InventoryItemOptions = ItemOptions & {
   type: InventoryItemType;
   baseItem: string;
-  enchantment?: EnchantmentType;
+  enchantment?: EnchantmentType | null;
 };
 
 export class InventoryItem extends Item {
   type: InventoryItemType;
   baseItem: string;
-  enchantment?: EnchantmentType;
+  enchantment?: EnchantmentType | null;
 
   constructor(options: InventoryItemOptions) {
     super(options);
@@ -36,9 +36,11 @@ export class InventoryItem extends Item {
       });
     }
 
-    const modifiers = modifiersForEnchantment(this.enchantment);
-    modifiers.forEach((modifier) => {
-      this.registerModifier(modifier.type, modifier.options);
-    });
+    if (this.enchantment) {
+      const modifiers = modifiersForEnchantment(this.enchantment);
+      modifiers.forEach((modifier) => {
+        this.registerModifier(modifier.type, modifier.options);
+      });
+    }
   }
 }
