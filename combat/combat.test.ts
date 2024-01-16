@@ -367,7 +367,6 @@ describe("builds", () => {
           monsterAverageDamage,
         } = simulateMonsterCombat(heroCombatant, 6, attackType);
 
-        console.log({ heroHitOdds, heroAverageDamage });
         expect(heroHitOdds * heroAverageDamage).toBeLessThan(100);
       });
     });
