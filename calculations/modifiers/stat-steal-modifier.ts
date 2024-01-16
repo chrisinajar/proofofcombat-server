@@ -66,12 +66,12 @@ export class StatStealVictimModifier extends Modifier<StatStealVictimModifierOpt
       return;
     }
     const stolenAmount = attacker.getModifiedValue(stealName);
-    if (!stolenAmount || stolenAmount === 1) {
+    if (!stolenAmount || stolenAmount <= 1) {
       return;
     }
 
     const multipliedValue = attacker.getMultiplierValue(prop);
-    return 0 - multipliedValue * (1 - stolenAmount);
+    return 0 - multipliedValue * (stolenAmount - 1);
     return;
   }
 }
@@ -135,7 +135,7 @@ export class StatStealModifier extends Modifier<StatStealModifierOptions> {
     }
     const withoutSteal = prop.substr(0, prop.length - 5);
     if (this.options[withoutSteal]) {
-      return 1 - this.options[withoutSteal];
+      return 1 + this.options[withoutSteal];
     }
     return;
   }

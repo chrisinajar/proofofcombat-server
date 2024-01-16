@@ -266,8 +266,11 @@ describe("builds", () => {
       it("can kill level 1 mobs", () => {
         const hero = generateHero();
         hero.equipment = trashGear();
+        hero.class = heroClass;
+        console.log(hero);
+
         const heroCombatant = createHeroCombatant(hero, attackType);
-        heroCombatant.class = heroClass;
+
         const {
           heroHitOdds,
           heroAverageDamage,
@@ -283,8 +286,9 @@ describe("builds", () => {
         // level 3 attempts mob #2...
         levelUpHero(hero, 2, stats);
         hero.equipment = trashGear();
+        hero.class = heroClass;
         const heroCombatant = createHeroCombatant(hero, attackType);
-        heroCombatant.class = heroClass;
+
         const {
           heroHitOdds,
           heroAverageDamage,
@@ -300,8 +304,9 @@ describe("builds", () => {
         // level 4 attempts mob #3...
         levelUpHero(hero, 3, stats);
         hero.equipment = trashGear();
+        hero.class = heroClass;
         const heroCombatant = createHeroCombatant(hero, attackType);
-        heroCombatant.class = heroClass;
+
         const {
           heroHitOdds,
           heroAverageDamage,
@@ -316,8 +321,9 @@ describe("builds", () => {
         const hero = generateHero();
         levelUpHero(hero, 3, stats);
         hero.equipment = trashGear();
+        hero.class = heroClass;
         const heroCombatant = createHeroCombatant(hero, attackType);
-        heroCombatant.class = heroClass;
+
         const {
           heroHitOdds,
           heroAverageDamage,
@@ -335,8 +341,9 @@ describe("builds", () => {
         const hero = generateHero();
         levelUpHero(hero, 3, stats);
         hero.equipment = normalGear();
+        hero.class = heroClass;
         const heroCombatant = createHeroCombatant(hero, attackType);
-        heroCombatant.class = heroClass;
+
         const {
           heroHitOdds,
           heroAverageDamage,
@@ -352,8 +359,9 @@ describe("builds", () => {
         // level 100 attempts mob #5...
         levelUpHero(hero, 100, stats);
         hero.equipment = normalGear();
+        hero.class = heroClass;
         const heroCombatant = createHeroCombatant(hero, attackType);
-        heroCombatant.class = heroClass;
+
         const {
           heroHitOdds,
           heroAverageDamage,
@@ -370,8 +378,9 @@ describe("builds", () => {
         const hero = generateHero();
         levelUpHero(hero, 5000, stats);
         hero.equipment = greatGear();
+        hero.class = heroClass;
         const heroCombatant = createHeroCombatant(hero, attackType);
-        heroCombatant.class = heroClass;
+
         const {
           heroHitOdds,
           heroAverageDamage,
@@ -386,8 +395,9 @@ describe("builds", () => {
         const hero = generateHero();
         levelUpHero(hero, 5000, stats);
         hero.equipment = greatGear();
+        hero.class = heroClass;
         const heroCombatant = createHeroCombatant(hero, attackType);
-        heroCombatant.class = heroClass;
+
         const {
           heroHitOdds,
           heroAverageDamage,
@@ -405,8 +415,9 @@ describe("builds", () => {
         // level 10 attempts mob #5...
         levelUpHero(hero, 5000, stats);
         hero.equipment = uberGear();
+        hero.class = heroClass;
         const heroCombatant = createHeroCombatant(hero, attackType);
-        heroCombatant.class = heroClass;
+
         const {
           heroHitOdds,
           heroAverageDamage,

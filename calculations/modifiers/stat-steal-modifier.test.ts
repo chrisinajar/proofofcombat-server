@@ -62,8 +62,9 @@ describe("createStatStealModifiers", () => {
       victim.getModifiedValue("strength"),
     );
 
-    expect(attacker.getModifiedValue("strength")).toEqual(1280);
-    expect(victim.getModifiedValue("strength")).toEqual(720);
+    const stealAmount = 320;
+    expect(attacker.getModifiedValue("strength")).toEqual(1000 + stealAmount);
+    expect(victim.getModifiedValue("strength")).toEqual(1000 - stealAmount);
   });
 });
 
