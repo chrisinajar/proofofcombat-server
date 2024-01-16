@@ -42,7 +42,7 @@ function getHttpsServer(app?: express.Application): http.Server {
           key: privateKey,
           cert: certificate,
         },
-        app
+        app,
       );
     } else {
       return https.createServer({
@@ -88,6 +88,7 @@ app.get("/external-api/github-ui-release", (req, res) => {
 async function startApolloServer() {
   // The ApolloServer constructor requires two parameters: your schema
   // definition and your set of resolvers.
+  db.start();
   const server = new ApolloServer({
     schema,
     plugins: [

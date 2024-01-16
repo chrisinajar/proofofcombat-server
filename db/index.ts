@@ -16,6 +16,9 @@ const databases = {
   system: new SystemModel(),
   trades: new TradeOfferModel(),
   playerLocation: new PlayerLocationModel(),
+  start() {
+    setInterval(() => (this.playerLocation.upkeepReentrancy = false), 30000);
+  },
 };
 
 export default databases;

@@ -33,8 +33,6 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
   constructor() {
     super("playerLocation");
-
-    setInterval(() => (this.upkeepReentrancy = false), 30000);
   }
 
   range(capital: PlayerLocation): number {
@@ -60,7 +58,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         type: PlayerLocationType.Camp,
         owner: hero.id,
         location: hero.location,
-      })
+      }),
     );
   }
 
@@ -88,7 +86,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
     const checkLocation = async (
       check: Location,
-      limit: number
+      limit: number,
     ): Promise<void> => {
       const locId = this.locationId(check);
       if ((checkedLocations[locId] ?? 0) >= limit) {
@@ -111,7 +109,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     };
     const checkNeighbors = async (
       check: PlayerLocation,
-      limit: number
+      limit: number,
     ): Promise<void> => {
       const loc = { ...check.location };
 
@@ -122,7 +120,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             y: loc.y,
             map: loc.map,
           },
-          limit
+          limit,
         ),
         checkLocation(
           {
@@ -130,7 +128,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             y: loc.y,
             map: loc.map,
           },
-          limit
+          limit,
         ),
         checkLocation(
           {
@@ -138,7 +136,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             y: loc.y + 1,
             map: loc.map,
           },
-          limit
+          limit,
         ),
         checkLocation(
           {
@@ -146,7 +144,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             y: loc.y - 1,
             map: loc.map,
           },
-          limit
+          limit,
         ),
       ]);
     };
@@ -161,7 +159,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       if (resource.name === name) {
         resource.value = Math.min(
           this.resourceStorage(location, name),
-          resource.value + value
+          resource.value + value,
         );
       }
     });
@@ -181,7 +179,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
   hasUpgrade(
     location: PlayerLocation,
-    upgrade: PlayerLocationUpgrades
+    upgrade: PlayerLocationUpgrades,
   ): boolean {
     return !!location.upgrades.find((up) => up === upgrade);
   }
@@ -191,7 +189,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       (up) =>
         up === PlayerLocationUpgrades.ImprovedCamp ||
         up === PlayerLocationUpgrades.Settlement ||
-        up === PlayerLocationUpgrades.StorageCache
+        up === PlayerLocationUpgrades.StorageCache,
     ).length;
 
     let populationUpgrades = 0;
@@ -285,7 +283,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
   async pathLengthToCapital(
     location: PlayerLocation,
-    capital: PlayerLocation
+    capital: PlayerLocation,
   ): Promise<number | false> {
     function fasterHash(loc: Location): string {
       return `${loc.x}-${loc.y}`;
@@ -300,7 +298,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         const results: Location[] = [];
         try {
           const otherLoc = await this.get(
-            this.locationId({ ...a, x: a.x + 1 })
+            this.locationId({ ...a, x: a.x + 1 }),
           );
           if (otherLoc.owner === location.owner) {
             results.push(otherLoc.location);
@@ -308,7 +306,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         } catch (e) {}
         try {
           const otherLoc = await this.get(
-            this.locationId({ ...a, x: a.x - 1 })
+            this.locationId({ ...a, x: a.x - 1 }),
           );
           if (otherLoc.owner === location.owner) {
             results.push(otherLoc.location);
@@ -316,7 +314,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         } catch (e) {}
         try {
           const otherLoc = await this.get(
-            this.locationId({ ...a, y: a.y + 1 })
+            this.locationId({ ...a, y: a.y + 1 }),
           );
           if (otherLoc.owner === location.owner) {
             results.push(otherLoc.location);
@@ -324,7 +322,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         } catch (e) {}
         try {
           const otherLoc = await this.get(
-            this.locationId({ ...a, y: a.y - 1 })
+            this.locationId({ ...a, y: a.y - 1 }),
           );
           if (otherLoc.owner === location.owner) {
             results.push(otherLoc.location);
@@ -351,12 +349,12 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
     const hasRainCollection = this.hasUpgrade(
       location,
-      PlayerLocationUpgrades.RainCollectionUnit
+      PlayerLocationUpgrades.RainCollectionUnit,
     );
     const hasGarden = this.hasUpgrade(location, PlayerLocationUpgrades.Garden);
     const hasHelper = this.hasUpgrade(
       location,
-      PlayerLocationUpgrades.HiredHelp
+      PlayerLocationUpgrades.HiredHelp,
     );
 
     const startingCattle =
@@ -368,7 +366,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
     const upkeeps = Math.min(
       24,
-      Math.max(0, Math.floor((now - lastUpkeep) / upkeepInterval))
+      Math.max(0, Math.floor((now - lastUpkeep) / upkeepInterval)),
     );
 
     if (upkeeps < 1) {
@@ -416,7 +414,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
           resource.value += Math.floor(population / 6);
           resource.value += Math.floor(
-            resource.value * 0.005 * (population / (population + 500))
+            resource.value * 0.005 * (population / (population + 500)),
           );
         } else if (resource.name === "bees") {
           resource.value += Math.floor(Math.random() * 1.1);
@@ -426,14 +424,14 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
               Math.random() *
               Math.random() *
               Math.random() *
-              Math.log2(bees)
+              Math.log2(bees),
           );
         } else if (resource.name === "cattle") {
           // random between 1-3 per cattle
           foodProduction += Math.ceil(resource.value * 3 * Math.random());
           resource.value += Math.round(
             Math.random() * Math.random() * Math.log2(resource.value) +
-              (Math.random() * Math.random() * resource.value) / 100
+              (Math.random() * Math.random() * resource.value) / 100,
           );
         } else if (resource.name === "food") {
           if (hasGarden) {
@@ -444,14 +442,14 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
               (1 +
                 Math.pow(
                   1.3,
-                  1 - Math.log(population / 1000) / Math.log(16)
+                  1 - Math.log(population / 1000) / Math.log(16),
                 ))) *
-              (5000 * (population / (population + 10000)))
+              (5000 * (population / (population + 10000))),
           );
         } else if (resource.name === "population") {
           const populationGrowth = Math.max(
             1,
-            (2 * Math.log(resource.value)) / Math.log(1.4)
+            (2 * Math.log(resource.value)) / Math.log(1.4),
           );
           if (food < resource.value) {
             // food is low but people are fed
@@ -461,14 +459,14 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             }
           } else if (food > upkeepCosts.food * 100) {
             resource.value += Math.floor(
-              (Math.random() * 0.4 + 0.8) * populationGrowth
+              (Math.random() * 0.4 + 0.8) * populationGrowth,
             );
           } else if (food < upkeepCosts.food) {
             // people are starving
             resource.value = Math.floor(resource.value * 0.8);
           } else {
             resource.value += Math.floor(
-              (Math.random() * Math.random() * 0.6 + 0.5) * populationGrowth
+              (Math.random() * Math.random() * 0.6 + 0.5) * populationGrowth,
             );
           }
         } else if (resource.name === "wood" || resource.name === "stone") {
@@ -498,8 +496,8 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           0,
           Math.min(
             this.resourceStorage(location, resource.name),
-            resource.value
-          )
+            resource.value,
+          ),
         );
       });
     }
@@ -565,7 +563,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
               if (food) {
                 food.value = Math.min(
                   this.resourceStorage(capital, "food"),
-                  Math.round(food.value + foodProduction)
+                  Math.round(food.value + foodProduction),
                 );
                 await this.put(capital);
               }
@@ -672,7 +670,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     if (!data.version) {
       data.version = 1;
       const population = data.resources.find(
-        (res) => res.name === "population"
+        (res) => res.name === "population",
       );
       if (population) {
         population.value = 2;
