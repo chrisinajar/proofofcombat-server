@@ -3,6 +3,7 @@ import {
   HeroClasses,
   AttackType,
   InventoryItem as InventoryItemData,
+  InventoryItemType,
 } from "types/graphql";
 
 import { BasicHeroModifier } from "../modifiers/basic-hero-modifier";
@@ -67,8 +68,6 @@ export class Hero extends Unit {
     this.applyModifier(BasicHeroModifier, undefined);
     this.applyModifier(HeroClassModifier, undefined);
 
-    this.hero.equipment;
-
     // this.applyModifier(GenericArmorModifier, { tier: 3 });
     ///@TODO iterate over equipment and quest items to apply appropriate modifiers, apply class based modifiers to change all their things
 
@@ -82,20 +81,20 @@ export class Hero extends Unit {
     this.equipItem(this.hero.equipment.headArmor);
     this.equipItem(this.hero.equipment.footArmor);
     this.hero.equipment.accessories.forEach((item) => this.equipItem(item));
+
+    this.hero.inventory
+      .filter((i) => i.type === InventoryItemType.Quest)
+      .forEach((questItem) => {
+        this.equipItem(questItem);
+      });
   }
 
-  equipItem(item: InventoryItemData | null | undefined) {
-    if (!item) {
-      return;
-    }
+  isHero(): boolean {
+    return true;
+  }
 
-    const itemInstance = new InventoryItem({
-      level: item.level,
-      baseItem: item.baseItem,
-      enchantment: item.enchantment,
-      type: item.type,
-      name: item.name,
-      unit: this,
-    });
+  static isHero(unit: Unit): unit is Hero {
+    const hero = unit as Hero;
+    return !!(hero.isHero && hero.isHero());
   }
 }

@@ -12,7 +12,7 @@ import { Hero as HeroUnit } from "../calculations/units/hero";
 
 export function addItemToCombatant(
   combatant: Combatant,
-  item: InventoryItem
+  item: InventoryItem,
 ): Combatant {
   const { attackType } = combatant;
   let itemLevel = item.level;
@@ -72,7 +72,7 @@ export function addItemToCombatant(
 
 export function doesWeaponAffectAttack(
   weapon: InventoryItem,
-  attackType: AttackType
+  attackType: AttackType,
 ): boolean {
   switch (attackType) {
     case AttackType.Blood:
@@ -120,7 +120,7 @@ export function doesWeaponAffectAttack(
 
 export function createHeroCombatant(
   hero: Hero,
-  attackType: AttackType
+  attackType: AttackType,
 ): Combatant {
   const heroUnit = new HeroUnit(hero);
   heroUnit.attackType = attackType;
@@ -140,15 +140,15 @@ export function createHeroCombatant(
     },
     damageReduction: hero.level,
     attributes: {
-      strength: heroUnit.stats.strength,
-      dexterity: heroUnit.stats.dexterity,
-      constitution: heroUnit.stats.constitution,
-      intelligence: heroUnit.stats.intelligence,
-      wisdom: heroUnit.stats.wisdom,
-      willpower: heroUnit.stats.willpower,
-      luck: heroUnit.stats.luck,
+      strength: heroUnit.baseValues.strength,
+      dexterity: heroUnit.baseValues.dexterity,
+      constitution: heroUnit.baseValues.constitution,
+      intelligence: heroUnit.baseValues.intelligence,
+      wisdom: heroUnit.baseValues.wisdom,
+      willpower: heroUnit.baseValues.willpower,
+      luck: heroUnit.baseValues.luck,
     },
-    luck: createLuck(heroUnit.stats.luck),
+    luck: createLuck(heroUnit.baseValues.luck),
     skills: hero.skills,
     unit: heroUnit,
   };
@@ -176,7 +176,7 @@ export function createHeroCombatant(
   }
 
   heroCombatant.equipment.weapons = heroCombatant.equipment.weapons.sort(
-    (a, b) => b.level - a.level
+    (a, b) => b.level - a.level,
   );
 
   return heroCombatant;

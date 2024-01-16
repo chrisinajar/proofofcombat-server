@@ -6,14 +6,14 @@ import { getEnchantedAttributes } from "./enchantments";
 export function calculateHit(
   attackerInput: Combatant,
   victimInput: Combatant,
-  isSecondAttack: boolean
+  isSecondAttack: boolean,
 ): boolean {
   const { attackType } = attackerInput;
   const attackAttributes = attributesForAttack(attackType);
 
   const { attacker, victim } = getEnchantedAttributes(
     attackerInput,
-    victimInput
+    victimInput,
   );
 
   let attackerAccStat = attacker.attributes[attackAttributes.toHit];
@@ -94,7 +94,6 @@ export function calculateHit(
   // "how many times bigger is attack than dodge"
   const baseChange = attackerAccStat / victimDodgeStat;
   const oddBase = baseChange / (baseChange + 1);
-  // console.log({ baseChange, oddBase, attackerAccStat, victimDodgeStat });
 
   return Math.random() < oddBase;
 }

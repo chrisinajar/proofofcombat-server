@@ -10,17 +10,22 @@ import {
 } from "./enchantment-order";
 import { expandEnchantmentList } from "./enchantment-groups";
 import { getArtifactBuffs } from "./artifacts";
+import {
+  createStatStealModifiers,
+  StatStealVictimModifier,
+  StatStealAttackerModifier,
+} from "../calculations/modifiers/stat-steal-modifier";
 
 export function countCounterSpells(attacker: Combatant): number {
   // eventually other sources of counter spell maybe?
   return getAllGearEnchantments(attacker).filter(
-    (ench) => ench === EnchantmentType.CounterSpell
+    (ench) => ench === EnchantmentType.CounterSpell,
   ).length;
 }
 
 export function getCounteredGearEnchantments(
   attacker: Combatant,
-  victim: Combatant
+  victim: Combatant,
 ): EnchantmentType[] {
   const attackerCounterSpells = countCounterSpells(attacker);
   const victimCounterSpells = countCounterSpells(victim);
@@ -30,7 +35,7 @@ export function getCounteredGearEnchantments(
 
 export function getAllGearEnchantments(
   attacker: Combatant,
-  counterSpells: number = 0
+  counterSpells: number = 0,
 ): EnchantmentType[] {
   let enchantments: EnchantmentType[] = [];
 
@@ -60,7 +65,7 @@ export function getAllGearEnchantments(
     enchantments = enchantments.sort(
       (a, b) =>
         EnchantmentCounterSpellOrder.indexOf(b) -
-        EnchantmentCounterSpellOrder.indexOf(a)
+        EnchantmentCounterSpellOrder.indexOf(a),
     );
     EnchantmentCounterSpellOrder.reverse();
 
@@ -70,7 +75,7 @@ export function getAllGearEnchantments(
   return enchantments.sort(
     (a, b) =>
       EnchantmentActivationOrder.indexOf(a) -
-      EnchantmentActivationOrder.indexOf(b)
+      EnchantmentActivationOrder.indexOf(b),
   );
 }
 
@@ -84,7 +89,7 @@ export function getAllGearEnchantments(
 
 export function getEnchantedAttributes(
   attackerInput: Combatant,
-  victimInput: Combatant
+  victimInput: Combatant,
 ): { attacker: EnchantedCombatant; victim: EnchantedCombatant } {
   let attacker: EnchantedCombatant = {
     ...attackerInput,
@@ -100,6 +105,7 @@ export function getEnchantedAttributes(
   if (!victim.enchanted) {
     victim = enchantVictim(attacker, victim).victim;
   }
+  createStatStealModifiers(attacker.unit, victim.unit);
 
   attacker.luck = createLuck(attacker.attributes.luck);
   victim.luck = createLuck(victim.attributes.luck);
@@ -109,7 +115,7 @@ export function getEnchantedAttributes(
 
 function enchantVictim(
   attackerInput: Combatant,
-  victimInput: Combatant
+  victimInput: Combatant,
 ): { attacker: EnchantedCombatant; victim: EnchantedCombatant } {
   let attacker = attackerInput as EnchantedCombatant;
   let victim = victimInput as EnchantedCombatant;
@@ -121,12 +127,12 @@ export function stealStat(
   attacker: EnchantedCombatant,
   victim: EnchantedCombatant,
   attribute: Attribute,
-  percent: number
+  percent: number,
 ): { attacker: EnchantedCombatant; victim: EnchantedCombatant } {
   const statGain = attacker.attributes[attribute] * percent;
   victim.attributes[attribute] = Math.max(
     1,
-    victim.attributes[attribute] - statGain
+    victim.attributes[attribute] - statGain,
   );
   attacker.attributes[attribute] += statGain;
 
@@ -135,7 +141,7 @@ export function stealStat(
 
 export function enchantAttacker(
   attackerInput: Combatant,
-  victimInput: Combatant
+  victimInput: Combatant,
 ): { attacker: EnchantedCombatant; victim: EnchantedCombatant } {
   let attacker = { ...attackerInput } as EnchantedCombatant;
   let victim = victimInput as EnchantedCombatant;
@@ -620,7 +626,7 @@ export function enchantAttacker(
 
     attacker.attributes[victimAttributes.damageReduction] *= Math.pow(
       1.05,
-      attacker.skills.resilience
+      attacker.skills.resilience,
     );
 
     if (
@@ -632,11 +638,11 @@ export function enchantAttacker(
     ) {
       attacker.attributes[attackAttributes.toHit] *= Math.pow(
         1.05,
-        attacker.skills.attackingAccuracy
+        attacker.skills.attackingAccuracy,
       );
       attacker.attributes[attackAttributes.damage] *= Math.pow(
         1.05,
-        attacker.skills.attackingDamage
+        attacker.skills.attackingDamage,
       );
     }
 
@@ -650,11 +656,11 @@ export function enchantAttacker(
     ) {
       attacker.attributes[attackAttributes.toHit] *= Math.pow(
         1.05,
-        attacker.skills.castingAccuracy
+        attacker.skills.castingAccuracy,
       );
       attacker.attributes[attackAttributes.damage] *= Math.pow(
         1.05,
-        attacker.skills.castingDamage
+        attacker.skills.castingDamage,
       );
     }
   }

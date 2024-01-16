@@ -4,7 +4,7 @@ import { Modifier, ModifierOptions } from "./modifier";
 
 import { attributesForAttack } from "../../combat/constants";
 
-import type { Hero } from "../units/hero";
+import { Hero } from "../units/hero";
 
 export class HeroClassModifier extends Modifier<undefined> {
   parent: Hero;
@@ -12,7 +12,14 @@ export class HeroClassModifier extends Modifier<undefined> {
   constructor(options: ModifierOptions<undefined>) {
     super(options);
 
-    this.parent = options.parent as Hero;
+    const { parent } = options;
+
+    if (!Hero.isHero(parent)) {
+      throw new Error(
+        `Hero class modifier applied to non-hero unit: ${parent.toString()}`,
+      );
+    }
+    this.parent = parent;
   }
 
   getBonus(prop: string): number | void {
@@ -348,4 +355,3 @@ export class HeroClassModifier extends Modifier<undefined> {
     return;
   }
 }
-

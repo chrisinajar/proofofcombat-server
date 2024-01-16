@@ -1,4 +1,8 @@
-import { AttackType, HeroClasses } from "types/graphql";
+import {
+  AttackType,
+  HeroClasses,
+  InventoryItem as InventoryItemData,
+} from "types/graphql";
 
 import { BasicUnitModifier } from "../modifiers/basic-unit-modifier";
 
@@ -6,6 +10,7 @@ import { ModifierClass } from "../modifiers";
 
 import type { Modifier, ModifierOptions } from "../modifiers/modifier";
 import type { Item } from "../items/item";
+import { InventoryItem } from "../items/inventory-item";
 
 declare global {
   interface ProxyConstructor {
@@ -27,6 +32,9 @@ type BaseValues = {
 };
 type PrecisionMap = {
   [x in string]: number;
+};
+type ClampsMap = {
+  [x in string]: [number, number];
 };
 
 type PotentialGetter =
@@ -50,6 +58,7 @@ export class Unit {
   class: HeroClasses = HeroClasses.Monster;
   // a map of rounding precisions for any values
   precisions: PrecisionMap = {};
+  clamps: ClampsMap = {};
 
   constructor() {
     this.baseValues = {
@@ -60,6 +69,14 @@ export class Unit {
       wisdom: 1,
       willpower: 1,
       luck: 1,
+
+      strengthSteal: 1,
+      dexteritySteal: 1,
+      constitutionSteal: 1,
+      intelligenceSteal: 1,
+      wisdomSteal: 1,
+      willpowerSteal: 1,
+      luckSteal: 1,
 
       percentageDamageIncrease: 1,
       percentageDamageReduction: 1,
@@ -88,7 +105,41 @@ export class Unit {
       health: 1, // calculated by basic unit/hero modifier
     };
 
+    this.clamps = {
+      strength: [1, Infinity],
+      dexterity: [1, Infinity],
+      constitution: [1, Infinity],
+      intelligence: [1, Infinity],
+      wisdom: [1, Infinity],
+      willpower: [1, Infinity],
+      luck: [1, Infinity],
+      health: [1, Infinity],
+    };
+
     this.applyModifier(BasicUnitModifier, undefined);
+  }
+
+  equipItem(
+    item:
+      | Pick<
+          InventoryItemData,
+          "level" | "baseItem" | "enchantment" | "type" | "name"
+        >
+      | null
+      | undefined,
+  ) {
+    if (!item) {
+      return;
+    }
+
+    const itemInstance = new InventoryItem({
+      level: item.level,
+      baseItem: item.baseItem,
+      enchantment: item.enchantment,
+      type: item.type,
+      name: item.name,
+      unit: this,
+    });
   }
 
   applyModifier<T extends Modifier<O>, O>(
@@ -216,6 +267,12 @@ export class Unit {
       value = Math.round(value / this.precisions[name]) * this.precisions[name];
     }
 
+    if (this.clamps[name]) {
+      return Math.min(
+        this.clamps[name][1],
+        Math.max(this.clamps[name][0], value),
+      );
+    }
     return value;
   }
 

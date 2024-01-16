@@ -38,7 +38,7 @@ function hasTwoAttacks(combatant: Combatant): boolean {
 
   if (combatant.attackType === AttackType.Ranged) {
     const secondAttackChances = getAllGearEnchantments(combatant).filter(
-      (ench) => ench === EnchantmentType.RangedSecondAttackChance
+      (ench) => ench === EnchantmentType.RangedSecondAttackChance,
     ).length;
     // 0 = 1, goes *DOWN* from there
     hasTwoAttacks = Math.random() > Math.pow(0.5, secondAttackChances);
@@ -49,13 +49,13 @@ function hasTwoAttacks(combatant: Combatant): boolean {
 
 export async function executeFight(
   attackerCombatant: Combatant,
-  victimCombatant: Combatant
+  victimCombatant: Combatant,
 ): Promise<CombatResult> {
   let battleResults: CombatEntry[] = [];
 
   const enchantmentBattle = calculateEnchantmentDamage(
     attackerCombatant,
-    victimCombatant
+    victimCombatant,
   );
   let attackerDamage = 0;
 
@@ -191,7 +191,7 @@ export async function executeFight(
     const secondAttackerAttack = attackCombatant(
       attackerCombatant,
       victimCombatant,
-      true
+      true,
     );
     attackerDamage += secondAttackerAttack.damage;
     battleResults = battleResults.concat(secondAttackerAttack.combatLog);
@@ -208,7 +208,7 @@ export async function executeFight(
     const secondVictimAttack = attackCombatant(
       victimCombatant,
       attackerCombatant,
-      true
+      true,
     );
     victimDamage += secondVictimAttack.damage;
     battleResults = battleResults.concat(secondVictimAttack.combatLog);
@@ -217,11 +217,11 @@ export async function executeFight(
   // do not allow overhealing
   victimDamage = Math.max(
     victimDamage,
-    attackerCombatant.health - attackerCombatant.maxHealth
+    attackerCombatant.health - attackerCombatant.maxHealth,
   );
   attackerDamage = Math.max(
     attackerDamage,
-    victimCombatant.health - victimCombatant.maxHealth
+    victimCombatant.health - victimCombatant.maxHealth,
   );
 
   const totalDamageAgainstHero =
@@ -250,7 +250,7 @@ export async function executeFight(
 export function attackCombatant(
   attacker: Combatant,
   victim: Combatant,
-  isSecondAttack: boolean = false
+  isSecondAttack: boolean = false,
 ): {
   hit: boolean;
   damage: number;

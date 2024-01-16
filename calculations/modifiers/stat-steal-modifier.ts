@@ -8,6 +8,20 @@ export function createStatStealModifiers(
   attackerModifier: StatStealAttackerModifier;
   victimModifier: StatStealVictimModifier;
 } {
+  const existingAttackerMod = attacker.modifiers.find(
+    (mod) => mod instanceof StatStealAttackerModifier,
+  );
+  const existingVictimMod = victim.modifiers.find(
+    (mod) => mod instanceof StatStealVictimModifier,
+  );
+
+  if (existingAttackerMod) {
+    existingAttackerMod.remove();
+  }
+  if (existingVictimMod) {
+    existingVictimMod.remove();
+  }
+
   const victimModifier = victim.applyModifier(
     StatStealVictimModifier,
     {},
@@ -25,10 +39,7 @@ export function createStatStealModifiers(
   };
 }
 
-export type StatStealVictimModifierOptions = {
-  attribute: string;
-  percent: number;
-};
+export type StatStealVictimModifierOptions = {};
 
 export class StatStealVictimModifier extends Modifier<StatStealVictimModifierOptions> {
   options: StatStealVictimModifierOptions;
@@ -50,12 +61,16 @@ export class StatStealVictimModifier extends Modifier<StatStealVictimModifierOpt
       return;
     }
     const stealName = `${prop}Steal`;
-    const stolenAmount = this.source.getModifiedValue(stealName);
+    const attacker = this.source;
+    if (!("getModifiedValue" in attacker)) {
+      return;
+    }
+    const stolenAmount = attacker.getModifiedValue(stealName);
     if (!stolenAmount || stolenAmount === 1) {
       return;
     }
 
-    const multipliedValue = this.parent.getMultiplierValue(prop);
+    const multipliedValue = attacker.getMultiplierValue(prop);
     return 0 - multipliedValue * (1 - stolenAmount);
     return;
   }

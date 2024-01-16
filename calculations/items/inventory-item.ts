@@ -1,5 +1,7 @@
 import { InventoryItemType, EnchantmentType } from "types/graphql";
 
+import { BaseItems } from "../../schema/items/base-items";
+
 import { Item, ItemOptions } from "./item";
 import { GenericArmorModifier } from "../modifiers/generic-armor-modifier";
 import { modifiersForEnchantment } from "../modifiers/enchantments";
@@ -40,6 +42,17 @@ export class InventoryItem extends Item {
       const modifiers = modifiersForEnchantment(this.enchantment);
       modifiers.forEach((modifier) => {
         this.registerModifier(modifier.type, modifier.options);
+      });
+    }
+
+    const baseItem = BaseItems[this.baseItem];
+
+    if (baseItem && baseItem.passiveEnchantments) {
+      baseItem.passiveEnchantments.forEach((enchantment) => {
+        const modifiers = modifiersForEnchantment(enchantment);
+        modifiers.forEach((modifier) => {
+          this.registerModifier(modifier.type, modifier.options);
+        });
       });
     }
   }

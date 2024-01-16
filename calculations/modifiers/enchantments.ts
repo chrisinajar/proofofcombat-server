@@ -19,11 +19,18 @@ export function modifiersForEnchantment(
   enchantment: EnchantmentType,
 ): ModifierDefition<any, any>[] {
   const genericStats = genericStatsModifierForEnchantment(enchantment);
+  const statStealModifiers = statStealAttackModifierForEnchantment(enchantment);
+
+  const result = [];
 
   if (genericStats) {
-    return [genericStats];
+    result.push(genericStats);
   }
-  return [];
+  if (statStealModifiers) {
+    result.push(statStealModifiers);
+  }
+
+  return result;
 }
 type AttackerModifierDefinition<T> = {
   attacker: ModifierDefition<T, any>[];
@@ -40,223 +47,177 @@ export function attackModifiersForEnchantment(
     victim,
   );
 
-  const statStealModifiers = statStealAttackModifierForEnchantment(
-    enchantment,
-    attacker,
-    victim,
-  );
-
   return {
-    attacker: statStealModifiers ? [statStealModifiers] : [],
+    attacker: [],
     victim: genericStats ? [genericStats] : [],
   };
 }
 
 export function statStealAttackModifierForEnchantment(
   enchantment: EnchantmentType,
-  attacker: Unit,
-  victim: Unit,
-): ModifierDefition<GenericStatsModifier, GenericStatsModifierOptions> | void {
+): ModifierDefition<StatStealModifier, StatStealModifierOptions> | void {
   switch (enchantment) {
     case EnchantmentType.StrengthSteal:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            strength: 0.3,
-          },
+          strength: 0.3,
         },
       };
       break;
     case EnchantmentType.DexteritySteal:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            dexterity: 0.3,
-          },
+          dexterity: 0.3,
         },
       };
       break;
     case EnchantmentType.ConstitutionSteal:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            constitution: 0.3,
-          },
+          constitution: 0.3,
         },
       };
       break;
     case EnchantmentType.IntelligenceSteal:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            intelligence: 0.3,
-          },
+          intelligence: 0.3,
         },
       };
       break;
     case EnchantmentType.WisdomSteal:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            wisdom: 0.3,
-          },
+          wisdom: 0.3,
         },
       };
       break;
     case EnchantmentType.WillpowerSteal:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            willpower: 0.3,
-          },
+          willpower: 0.3,
         },
       };
       break;
     case EnchantmentType.LuckSteal:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            luck: 0.3,
-          },
+          luck: 0.3,
         },
       };
       break;
     case EnchantmentType.Vampirism:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            constitution: 0.3,
-          },
+          constitution: 0.3,
         },
       };
       break;
     case EnchantmentType.AllStatsSteal:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            strength: 0.3,
-            dexterity: 0.3,
-            constitution: 0.3,
-            intelligence: 0.3,
-            wisdom: 0.3,
-            willpower: 0.3,
-            luck: 0.3,
-          },
+          strength: 0.3,
+          dexterity: 0.3,
+          constitution: 0.3,
+          intelligence: 0.3,
+          wisdom: 0.3,
+          willpower: 0.3,
+          luck: 0.3,
         },
       };
       break;
 
     case EnchantmentType.BigMelee:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            dexterity: 0.4,
-          },
+          dexterity: 0.4,
         },
       };
       break;
     case EnchantmentType.BigCaster:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            wisdom: 0.4,
-          },
+          wisdom: 0.4,
         },
       };
       break;
     case EnchantmentType.SuperVampStats:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            constitution: 0.8,
-          },
+          constitution: 0.8,
         },
       };
       break;
     case EnchantmentType.SuperMeleeStats:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            dexterity: 0.8,
-          },
+          dexterity: 0.8,
         },
       };
       break;
     case EnchantmentType.SuperCasterStats:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            wisdom: 0.8,
-          },
+          wisdom: 0.8,
         },
       };
       break;
     case EnchantmentType.SuperVampMeleeStats:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            constitution: 0.6,
-            dexterity: 0.6,
-          },
+          constitution: 0.6,
+          dexterity: 0.6,
         },
       };
       break;
     case EnchantmentType.SuperVampSorcStats:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            constitution: 0.6,
-            wisdom: 0.6,
-          },
+          constitution: 0.6,
+          wisdom: 0.6,
         },
       };
       break;
     case EnchantmentType.SuperMeleeVampStats:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            constitution: 0.5,
-            dexterity: 0.5,
-          },
+          constitution: 0.5,
+          dexterity: 0.5,
         },
       };
       break;
     case EnchantmentType.SuperSorcVampStats:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            constitution: 0.5,
-            wisdom: 0.5,
-          },
+          constitution: 0.5,
+          wisdom: 0.5,
         },
       };
       break;
     case EnchantmentType.SuperBattleMageStats:
       return {
-        type: GenericStatsModifier,
+        type: StatStealModifier,
         options: {
-          multiplier: {
-            dexterity: 0.6,
-            wisdom: 0.6,
-          },
+          dexterity: 0.6,
+          wisdom: 0.6,
         },
       };
       break;
