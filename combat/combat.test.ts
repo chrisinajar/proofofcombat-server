@@ -591,6 +591,9 @@ describe("builds", () => {
       });
     });
   }
+  // end test generator function
+
+  // start builds
   describe("archer", () => {
     const trashGear = () => ({
       // leftHand: InventoryItem
@@ -727,11 +730,11 @@ describe("builds", () => {
       normalGear,
       greatGear,
       uberGear,
-      { dexterity: 1 },
+      { dexterity: 0.8, luck: 0.2 },
     );
   });
 
-  describe("archer", () => {
+  describe("melee", () => {
     const trashGear = () => ({
       leftHand: { level: 1, type: InventoryItemType.MeleeWeapon },
       bodyArmor: { level: 1, type: InventoryItemType.BodyArmor },
@@ -849,5 +852,16 @@ describe("builds", () => {
         { name: "fisherman's dex", baseItem: "fishermans-dexterity" },
       ],
     });
+
+    testBuilds(
+      "melee",
+      AttackType.Melee,
+      HeroClasses.Fighter,
+      trashGear,
+      normalGear,
+      greatGear,
+      uberGear,
+      { strength: 0.6, dexterity: 0.3, luck: 0.1 },
+    );
   });
 });
