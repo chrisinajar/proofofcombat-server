@@ -880,5 +880,15 @@ export function genericStatsModifierForEnchantment(
         },
       };
       break;
+    case EnchantmentType.CounterSpell:
+      return {
+        type: GenericStatsModifier,
+        options: {
+          bonus: {
+            counterSpell: 1,
+          },
+        },
+      };
+      break;
   }
 }

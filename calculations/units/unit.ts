@@ -91,6 +91,8 @@ export class Unit {
       lifesteal: 0,
 
       health: 0, // calculated by basic unit/hero modifier
+
+      counterSpell: 0,
     };
 
     this.precisions = {

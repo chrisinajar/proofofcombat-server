@@ -155,6 +155,13 @@ function simulateMonsterCombat(
   };
 }
 
+function snapshotUnitAttributes(attributes: { [x in string]: number }) {
+  Object.keys(attributes).forEach((key) => {
+    attributes[key] = Math.round(attributes[key]);
+  });
+  expect(attributes).toMatchSnapshot();
+}
+
 describe("combat", () => {
   const combatTypes: { attackType: AttackType }[] = [
     { attackType: AttackType.Melee },
@@ -267,9 +274,9 @@ describe("builds", () => {
         const hero = generateHero();
         hero.equipment = trashGear();
         hero.class = heroClass;
-        console.log(hero);
 
         const heroCombatant = createHeroCombatant(hero, attackType);
+        heroCombatant.equipment.quests = hero.equipment.accessories;
 
         const {
           heroHitOdds,
@@ -280,6 +287,29 @@ describe("builds", () => {
 
         expect(heroHitOdds).toBeGreaterThan(0.5);
         expect(heroAverageDamage).toBeGreaterThan(10);
+
+        const { attacker, victim } = getEnchantedAttributes(
+          heroCombatant,
+          createMonsterCombatant({
+            level: 32,
+            name: `Level ${32} Mob`,
+            attackType: AttackType.Melee,
+            combat: {
+              health: Math.round(Math.pow(1.4, 32) * 8),
+              maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+            },
+          }),
+        );
+
+        snapshotUnitAttributes({
+          strength: attacker.unit.stats.strength,
+          dexterity: attacker.unit.stats.dexterity,
+          constitution: attacker.unit.stats.constitution,
+          intelligence: attacker.unit.stats.intelligence,
+          wisdom: attacker.unit.stats.wisdom,
+          willpower: attacker.unit.stats.willpower,
+          luck: attacker.unit.stats.luck,
+        });
       });
       it("can kill level 2 mobs", () => {
         const hero = generateHero();
@@ -287,7 +317,9 @@ describe("builds", () => {
         levelUpHero(hero, 2, stats);
         hero.equipment = trashGear();
         hero.class = heroClass;
+
         const heroCombatant = createHeroCombatant(hero, attackType);
+        heroCombatant.equipment.quests = hero.equipment.accessories;
 
         const {
           heroHitOdds,
@@ -305,7 +337,9 @@ describe("builds", () => {
         levelUpHero(hero, 3, stats);
         hero.equipment = trashGear();
         hero.class = heroClass;
+
         const heroCombatant = createHeroCombatant(hero, attackType);
+        heroCombatant.equipment.quests = hero.equipment.accessories;
 
         const {
           heroHitOdds,
@@ -322,7 +356,9 @@ describe("builds", () => {
         levelUpHero(hero, 3, stats);
         hero.equipment = trashGear();
         hero.class = heroClass;
+
         const heroCombatant = createHeroCombatant(hero, attackType);
+        heroCombatant.equipment.quests = hero.equipment.accessories;
 
         const {
           heroHitOdds,
@@ -342,7 +378,9 @@ describe("builds", () => {
         levelUpHero(hero, 3, stats);
         hero.equipment = normalGear();
         hero.class = heroClass;
+
         const heroCombatant = createHeroCombatant(hero, attackType);
+        heroCombatant.equipment.quests = hero.equipment.accessories;
 
         const {
           heroHitOdds,
@@ -353,6 +391,29 @@ describe("builds", () => {
 
         expect(heroHitOdds).toBeGreaterThan(0.5);
         expect(heroAverageDamage).toBeGreaterThan(100);
+
+        const { attacker, victim } = getEnchantedAttributes(
+          heroCombatant,
+          createMonsterCombatant({
+            level: 32,
+            name: `Level ${32} Mob`,
+            attackType: AttackType.Melee,
+            combat: {
+              health: Math.round(Math.pow(1.4, 32) * 8),
+              maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+            },
+          }),
+        );
+
+        snapshotUnitAttributes({
+          strength: attacker.unit.stats.strength,
+          dexterity: attacker.unit.stats.dexterity,
+          constitution: attacker.unit.stats.constitution,
+          intelligence: attacker.unit.stats.intelligence,
+          wisdom: attacker.unit.stats.wisdom,
+          willpower: attacker.unit.stats.willpower,
+          luck: attacker.unit.stats.luck,
+        });
       });
       it("can kill level 10 mobs with enough stats", () => {
         const hero = generateHero();
@@ -360,7 +421,9 @@ describe("builds", () => {
         levelUpHero(hero, 100, stats);
         hero.equipment = normalGear();
         hero.class = heroClass;
+
         const heroCombatant = createHeroCombatant(hero, attackType);
+        heroCombatant.equipment.quests = hero.equipment.accessories;
 
         const {
           heroHitOdds,
@@ -379,7 +442,9 @@ describe("builds", () => {
         levelUpHero(hero, 5000, stats);
         hero.equipment = greatGear();
         hero.class = heroClass;
+
         const heroCombatant = createHeroCombatant(hero, attackType);
+        heroCombatant.equipment.quests = hero.equipment.accessories;
 
         const {
           heroHitOdds,
@@ -390,13 +455,38 @@ describe("builds", () => {
 
         expect(heroHitOdds).toBeGreaterThan(0.8);
         expect(heroAverageDamage).toBeGreaterThan(5000);
+
+        const { attacker, victim } = getEnchantedAttributes(
+          heroCombatant,
+          createMonsterCombatant({
+            level: 32,
+            name: `Level ${32} Mob`,
+            attackType: AttackType.Melee,
+            combat: {
+              health: Math.round(Math.pow(1.4, 32) * 8),
+              maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+            },
+          }),
+        );
+
+        snapshotUnitAttributes({
+          strength: attacker.unit.stats.strength,
+          dexterity: attacker.unit.stats.dexterity,
+          constitution: attacker.unit.stats.constitution,
+          intelligence: attacker.unit.stats.intelligence,
+          wisdom: attacker.unit.stats.wisdom,
+          willpower: attacker.unit.stats.willpower,
+          luck: attacker.unit.stats.luck,
+        });
       });
       it("can farm level 32s at max level", () => {
         const hero = generateHero();
         levelUpHero(hero, 5000, stats);
         hero.equipment = greatGear();
         hero.class = heroClass;
+
         const heroCombatant = createHeroCombatant(hero, attackType);
+        heroCombatant.equipment.quests = hero.equipment.accessories;
 
         const {
           heroHitOdds,
@@ -416,7 +506,9 @@ describe("builds", () => {
         levelUpHero(hero, 5000, stats);
         hero.equipment = uberGear();
         hero.class = heroClass;
+
         const heroCombatant = createHeroCombatant(hero, attackType);
+        heroCombatant.equipment.quests = hero.equipment.accessories;
 
         const {
           heroHitOdds,
@@ -441,54 +533,61 @@ describe("builds", () => {
           }),
         );
 
-        console.log(hero.equipment);
-        console.log(attacker.unit);
+        snapshotUnitAttributes({
+          strength: attacker.unit.stats.strength,
+          dexterity: attacker.unit.stats.dexterity,
+          constitution: attacker.unit.stats.constitution,
+          intelligence: attacker.unit.stats.intelligence,
+          wisdom: attacker.unit.stats.wisdom,
+          willpower: attacker.unit.stats.willpower,
+          luck: attacker.unit.stats.luck,
+        });
 
-        console.log(
-          attacker.attributes,
-          {
-            strength: attacker.unit.stats.strength,
-            dexterity: attacker.unit.stats.dexterity,
-            constitution: attacker.unit.stats.constitution,
-            intelligence: attacker.unit.stats.intelligence,
-            wisdom: attacker.unit.stats.wisdom,
-            willpower: attacker.unit.stats.willpower,
-            luck: attacker.unit.stats.luck,
-          },
-          {
-            strengthSteal: attacker.unit.stats.strengthSteal,
-            dexteritySteal: attacker.unit.stats.dexteritySteal,
-            constitutionSteal: attacker.unit.stats.constitutionSteal,
-            intelligenceSteal: attacker.unit.stats.intelligenceSteal,
-            wisdomSteal: attacker.unit.stats.wisdomSteal,
-            willpowerSteal: attacker.unit.stats.willpowerSteal,
-            luckSteal: attacker.unit.stats.luckSteal,
-          },
-        );
+        // console.log(
+        //   attacker.attributes,
+        //   {
+        //     strength: attacker.unit.stats.strength,
+        //     dexterity: attacker.unit.stats.dexterity,
+        //     constitution: attacker.unit.stats.constitution,
+        //     intelligence: attacker.unit.stats.intelligence,
+        //     wisdom: attacker.unit.stats.wisdom,
+        //     willpower: attacker.unit.stats.willpower,
+        //     luck: attacker.unit.stats.luck,
+        //   },
+        //   {
+        //     strengthSteal: attacker.unit.stats.strengthSteal,
+        //     dexteritySteal: attacker.unit.stats.dexteritySteal,
+        //     constitutionSteal: attacker.unit.stats.constitutionSteal,
+        //     intelligenceSteal: attacker.unit.stats.intelligenceSteal,
+        //     wisdomSteal: attacker.unit.stats.wisdomSteal,
+        //     willpowerSteal: attacker.unit.stats.willpowerSteal,
+        //     luckSteal: attacker.unit.stats.luckSteal,
+        //   },
+        // );
 
-        console.log(victim.unit);
+        // console.log(victim.unit);
 
-        console.log(
-          victim.attributes,
-          {
-            strength: victim.unit.stats.strength,
-            dexterity: victim.unit.stats.dexterity,
-            constitution: victim.unit.stats.constitution,
-            intelligence: victim.unit.stats.intelligence,
-            wisdom: victim.unit.stats.wisdom,
-            willpower: victim.unit.stats.willpower,
-            luck: victim.unit.stats.luck,
-          },
-          {
-            strengthSteal: victim.unit.stats.strengthSteal,
-            dexteritySteal: victim.unit.stats.dexteritySteal,
-            constitutionSteal: victim.unit.stats.constitutionSteal,
-            intelligenceSteal: victim.unit.stats.intelligenceSteal,
-            wisdomSteal: victim.unit.stats.wisdomSteal,
-            willpowerSteal: victim.unit.stats.willpowerSteal,
-            luckSteal: victim.unit.stats.luckSteal,
-          },
-        );
+        // console.log(
+        //   victim.attributes,
+        //   {
+        //     strength: victim.unit.stats.strength,
+        //     dexterity: victim.unit.stats.dexterity,
+        //     constitution: victim.unit.stats.constitution,
+        //     intelligence: victim.unit.stats.intelligence,
+        //     wisdom: victim.unit.stats.wisdom,
+        //     willpower: victim.unit.stats.willpower,
+        //     luck: victim.unit.stats.luck,
+        //   },
+        //   {
+        //     strengthSteal: victim.unit.stats.strengthSteal,
+        //     dexteritySteal: victim.unit.stats.dexteritySteal,
+        //     constitutionSteal: victim.unit.stats.constitutionSteal,
+        //     intelligenceSteal: victim.unit.stats.intelligenceSteal,
+        //     wisdomSteal: victim.unit.stats.wisdomSteal,
+        //     willpowerSteal: victim.unit.stats.willpowerSteal,
+        //     luckSteal: victim.unit.stats.luckSteal,
+        //   },
+        // );
       });
     });
   }
