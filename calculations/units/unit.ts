@@ -114,6 +114,14 @@ export class Unit {
       willpower: [1, Infinity],
       luck: [1, Infinity],
       health: [1, Infinity],
+
+      strengthSteal: [1, Infinity],
+      dexteritySteal: [1, Infinity],
+      constitutionSteal: [1, Infinity],
+      intelligenceSteal: [1, Infinity],
+      wisdomSteal: [1, Infinity],
+      willpowerSteal: [1, Infinity],
+      luckSteal: [1, Infinity],
     };
 
     this.applyModifier(BasicUnitModifier, undefined);
