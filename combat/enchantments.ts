@@ -140,8 +140,8 @@ function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
   result
     .sort(
       (a, b) =>
-        EnchantmentCounterSpellOrder.indexOf(a.enchantment as EnchantmentType) -
-        EnchantmentCounterSpellOrder.indexOf(b.enchantment as EnchantmentType),
+        EnchantmentCounterSpellOrder.indexOf(b.enchantment as EnchantmentType) -
+        EnchantmentCounterSpellOrder.indexOf(a.enchantment as EnchantmentType),
     )
     .slice(0, counterCount)
     .forEach((modifier) => modifier.remove());

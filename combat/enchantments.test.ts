@@ -261,6 +261,11 @@ describe("getEnchantedAttributes", () => {
       type: InventoryItemType.MeleeWeapon,
       enchantment: EnchantmentType.DoubleAllStats,
     };
+    monsterEquipment.bodyArmor = {
+      level: 1,
+      type: InventoryItemType.BodyArmor,
+      enchantment: EnchantmentType.DoubleAllStats,
+    };
 
     enchantResult = getEnchantedAttributes(
       createHeroCombatant(hero, AttackType.Melee),
@@ -278,9 +283,9 @@ describe("getEnchantedAttributes", () => {
       ),
     ).not.toBeTruthy();
     expect(
-      enchantResult.victim.unit.modifiers.find(
+      enchantResult.victim.unit.modifiers.filter(
         (modifier) => modifier.enchantment === EnchantmentType.DoubleAllStats,
-      ),
-    ).toBeTruthy();
+      ).length,
+    ).toBe(2);
   });
 });
