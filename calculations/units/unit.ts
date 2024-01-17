@@ -2,6 +2,7 @@ import {
   AttackType,
   HeroClasses,
   InventoryItem as InventoryItemData,
+  EnchantmentType,
 } from "types/graphql";
 
 import { BasicUnitModifier } from "../modifiers/basic-unit-modifier";
@@ -9,6 +10,7 @@ import { BasicUnitModifier } from "../modifiers/basic-unit-modifier";
 import { ModifierClass } from "../modifiers";
 
 import type { Modifier, ModifierOptions } from "../modifiers/modifier";
+import type { ModifierDefition } from "../modifiers/enchantments";
 import type { Item } from "../items/item";
 import { InventoryItem } from "../items/inventory-item";
 
@@ -153,20 +155,58 @@ export class Unit {
   }
 
   applyModifier<T extends Modifier<O>, O>(
+    modifierDefinition: ModifierDefition<T, O>,
+    source?: Unit | Item,
+    _unused?: void,
+    _unused2?: void,
+  ): T;
+  applyModifier<T extends Modifier<O>, O>(
     ModifierType: new (o: ModifierOptions<O>) => T,
     options: O,
     source?: Unit | Item,
+    enchantment?: EnchantmentType,
+  ): T;
+
+  applyModifier<T extends Modifier<O>, O>(
+    definitionOrClass: unknown,
+    sourceOrOptions: unknown,
+    voidOrSource: unknown,
+    voidOrEnchantment: unknown,
   ): T {
-    if (!source) {
-      source = this;
+    if (typeof definitionOrClass === "function") {
+      const ModifierType = definitionOrClass as new (
+        o: ModifierOptions<O>,
+      ) => T;
+      const options = sourceOrOptions as O;
+      let source = voidOrSource as Unit | Item | undefined;
+      const enchantment = voidOrEnchantment as EnchantmentType | undefined;
+
+      if (!source) {
+        source = this;
+      }
+      if (!ModifierType) {
+        throw new Error("Tried to apply undefined modifier");
+      }
+      const modifier = new ModifierType({
+        parent: this,
+        source,
+        options,
+        enchantment,
+      });
+      // this.modifiers.push(modifier);
+      // not needed because modifier constructor calls `this.attachToUnit(options.parent);`
+      return modifier;
     }
-    if (!ModifierType) {
-      throw new Error("Tried to apply undefined modifier");
-    }
-    const modifier = new ModifierType({ parent: this, source, options });
-    // this.modifiers.push(modifier);
-    // not needed because modifier constructor calls `this.attachToUnit(options.parent);`
-    return modifier;
+
+    const modifierDefinition = definitionOrClass as ModifierDefition<T, O>;
+    const source = sourceOrOptions as Unit | Item | undefined;
+
+    return this.applyModifier(
+      modifierDefinition.type,
+      modifierDefinition.options,
+      source,
+      modifierDefinition.enchantment,
+    );
   }
 
   removeModifier<T extends Modifier<O>, O>(modifier: T) {

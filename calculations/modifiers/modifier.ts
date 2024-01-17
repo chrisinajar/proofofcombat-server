@@ -1,3 +1,5 @@
+import { EnchantmentType } from "types/graphql";
+
 import type { Unit } from "../units/unit";
 import type { Item } from "../items/item";
 
@@ -5,11 +7,13 @@ export type ModifierOptions<T> = {
   parent: Unit;
   source: Unit | Item;
   options: T;
+  enchantment?: EnchantmentType;
 };
 
 export abstract class Modifier<T> {
   parent: Unit;
   source: Unit | Item;
+  enchantment?: EnchantmentType;
 
   constructor(options: ModifierOptions<T>) {
     this.getBonus = this.getBonus.bind(this);
@@ -17,6 +21,7 @@ export abstract class Modifier<T> {
     this.getExtraBonus = this.getExtraBonus.bind(this);
 
     this.source = options.source;
+    this.enchantment = options.enchantment;
     this.attachToUnit(options.parent);
     // just makes ts happy, attachToUnit already does this
     this.parent = options.parent;

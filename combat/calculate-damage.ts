@@ -9,12 +9,12 @@ import { Combatant } from "./types";
 import { attributesForAttack, getItemPassiveUpgradeTier } from "./helpers";
 import { getEnchantedAttributes, getAllGearEnchantments } from "./enchantments";
 
-export function calculateDamage(
+export function calculateDamageValues(
   attackerInput: Combatant,
   victimInput: Combatant,
   isSecondAttack: boolean = false,
-  debug: boolean = false
-): { damage: number; critical: boolean; doubleCritical: boolean } {
+  debug: boolean = false,
+) {
   const { attackType } = attackerInput;
   let damage = 0;
   let critical = false;
@@ -22,7 +22,7 @@ export function calculateDamage(
 
   const { attacker, victim } = getEnchantedAttributes(
     attackerInput,
-    victimInput
+    victimInput,
   );
 
   const attributeTypes = attributesForAttack(attackType);
@@ -32,19 +32,19 @@ export function calculateDamage(
   let totalArmor = 0;
   let totalArmorDamageReduction = 1;
   let baseDamageDecrease = 1;
-  let attackerDamageStat = attacker.attributes[attributeTypes.damage];
+  const attackerDamageStat = attacker.attributes[attributeTypes.damage];
   let victimReductionStat = victim.attributes[attributeTypes.damageReduction];
 
   victim.equipment.armor.forEach((armor) => {
     if (armor.type === InventoryItemType.Shield) {
       totalArmorDamageReduction *= Math.pow(
         0.98,
-        armor.level + victim.bonusShieldTiers + victim.bonusArmorTiers
+        armor.level + victim.bonusShieldTiers + victim.bonusArmorTiers,
       );
     } else {
       totalArmorDamageReduction *= Math.pow(
         0.99,
-        armor.level + victim.bonusArmorTiers
+        armor.level + victim.bonusArmorTiers,
       );
     }
     totalArmor += Math.pow(1.3, armor.level + victim.bonusArmorTiers);
@@ -61,11 +61,11 @@ export function calculateDamage(
     if (armor.type === InventoryItemType.Shield) {
       totalArmorDamageReduction *= Math.pow(
         0.98,
-        armor.level + victim.bonusShieldTiers + victim.bonusArmorTiers
+        armor.level + victim.bonusShieldTiers + victim.bonusArmorTiers,
       );
       totalArmor += Math.pow(
         1.3,
-        armor.level + victim.bonusShieldTiers + victim.bonusArmorTiers
+        armor.level + victim.bonusShieldTiers + victim.bonusArmorTiers,
       );
 
       if (getItemPassiveUpgradeTier(armor) > 0) {
@@ -100,7 +100,7 @@ export function calculateDamage(
   const baseDamage = Math.max(
     1,
     (Math.pow(1.4, weaponLevel) + weaponLevel * 15 - totalArmor) *
-      baseDamageDecrease
+      baseDamageDecrease,
   );
   // const baseDamage = Math.pow(1.4, weaponLevel) + weaponLevel * 15;
 
@@ -120,25 +120,20 @@ export function calculateDamage(
   // damage spread based on small luck factor
   damage = baseDamage - variation * Math.random();
 
+  let criticalChance = 0;
+  let doubleCriticalChance = 0;
+  let trippleCriticalChance = 0;
+
   if (attackType !== AttackType.Blood) {
     // crits
-    critical = Math.random() < attacker.luck.largeModifier;
-    if (critical) {
-      damage = damage * 3;
-      doubleCritical = Math.random() < attacker.luck.ultraModifier;
-      if (doubleCritical) {
-        damage = damage * 3;
-      }
+    criticalChance = attacker.luck.largeModifier;
+    doubleCriticalChance = attacker.luck.ultraModifier;
 
-      if (
-        attacker.class === HeroClasses.Gambler ||
-        attacker.class === HeroClasses.Daredevil
-      ) {
-        const trippleCritical = Math.random() < attacker.luck.ultraModifier / 2;
-        if (trippleCritical) {
-          damage = damage * 3;
-        }
-      }
+    if (
+      attacker.class === HeroClasses.Gambler ||
+      attacker.class === HeroClasses.Daredevil
+    ) {
+      trippleCriticalChance = attacker.luck.ultraModifier / 2;
     }
   }
 
@@ -153,25 +148,73 @@ export function calculateDamage(
     });
   }
 
+  const canOnlyTakeOneDamage = getAllGearEnchantments(victim).find(
+    (ench) => ench === EnchantmentType.CanOnlyTakeOneDamage,
+  );
+
+  let multiplier = 1;
+
   // apply contested stats rolls
-  damage *= attackerDamageStat / (victimReductionStat / 2);
+  multiplier *= attackerDamageStat / (victimReductionStat / 2);
 
   // amp damage from weapon
-  damage *= percentageDamageIncrease;
+  multiplier *= percentageDamageIncrease;
   // reduce / increase armor from enchantments
   // const drFromArmor = Math.pow(0.95, totalArmor);
-  // damage *= drFromArmor;
-  damage *= totalArmorDamageReduction;
+  // multiplier *= drFromArmor;
+  multiplier *= totalArmorDamageReduction;
+
+  return {
+    baseDamage,
+    variation,
+    criticalChance,
+    doubleCriticalChance,
+    trippleCriticalChance,
+    canOnlyTakeOneDamage,
+    multiplier,
+  };
+}
+
+export function calculateDamage(
+  attackerInput: Combatant,
+  victimInput: Combatant,
+  isSecondAttack: boolean = false,
+  debug: boolean = false,
+): { damage: number; critical: boolean; doubleCritical: boolean } {
+  const {
+    baseDamage,
+    variation,
+    criticalChance,
+    doubleCriticalChance,
+    trippleCriticalChance,
+    canOnlyTakeOneDamage,
+    multiplier,
+  } = calculateDamageValues(attackerInput, victimInput, isSecondAttack, debug);
+  let damage = baseDamage - variation * Math.random();
+
+  let critical = false;
+  let doubleCritical = false;
+  let trippleCritical = false;
+
+  if (Math.random() < criticalChance) {
+    critical = true;
+    damage = damage * 3;
+    if (Math.random() < doubleCriticalChance) {
+      doubleCritical = true;
+      damage = damage * 3;
+      if (Math.random() < trippleCriticalChance) {
+        trippleCritical = true;
+        damage = damage * 3;
+      }
+    }
+  }
 
   if (debug) {
     console.log("final damage", damage);
   }
-
+  damage *= multiplier;
   damage = Math.round(Math.max(1, Math.min(1000000000, damage)));
 
-  const canOnlyTakeOneDamage = getAllGearEnchantments(victim).find(
-    (ench) => ench === EnchantmentType.CanOnlyTakeOneDamage
-  );
   if (canOnlyTakeOneDamage) {
     damage = 1;
   }

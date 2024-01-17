@@ -32,6 +32,39 @@ export class BasicHeroModifier extends Modifier<undefined> {
   }
 
   getMultiplier(prop: string): number | void {
+    const attackAttributes = attributesForAttack(this.parent.attackType);
+
+    if (
+      this.parent.attackType === AttackType.Melee ||
+      this.parent.attackType === AttackType.Ranged ||
+      (this.parent.attackType === AttackType.Cast &&
+        (this.parent.class === HeroClasses.BattleMage ||
+          this.parent.class === HeroClasses.DemonHunter))
+    ) {
+      if (prop === attackAttributes.toHit) {
+        return Math.pow(1.05, this.parent.hero.skills.attackingAccuracy);
+      }
+      if (prop === attackAttributes.damage) {
+        return Math.pow(1.05, this.parent.hero.skills.attackingDamage);
+      }
+    }
+
+    if (
+      this.parent.attackType === AttackType.Cast ||
+      this.parent.attackType === AttackType.Smite ||
+      this.parent.attackType === AttackType.Blood ||
+      (this.parent.attackType === AttackType.Melee &&
+        (this.parent.class === HeroClasses.BattleMage ||
+          this.parent.class === HeroClasses.DemonHunter))
+    ) {
+      if (prop === attackAttributes.toHit) {
+        return Math.pow(1.05, this.parent.hero.skills.castingAccuracy);
+      }
+      if (prop === attackAttributes.damage) {
+        return Math.pow(1.05, this.parent.hero.skills.castingDamage);
+      }
+    }
+
     // vitality: 0,
     switch (prop) {
       case "health":

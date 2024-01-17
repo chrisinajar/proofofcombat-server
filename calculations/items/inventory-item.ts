@@ -41,7 +41,7 @@ export class InventoryItem extends Item {
     if (this.enchantment) {
       const modifiers = modifiersForEnchantment(this.enchantment);
       modifiers.forEach((modifier) => {
-        this.registerModifier(modifier.type, modifier.options);
+        this.registerModifier(modifier);
       });
     }
 
@@ -51,7 +51,7 @@ export class InventoryItem extends Item {
       baseItem.passiveEnchantments.forEach((enchantment) => {
         const modifiers = modifiersForEnchantment(enchantment);
         modifiers.forEach((modifier) => {
-          this.registerModifier(modifier.type, modifier.options);
+          this.registerModifier(modifier);
         });
       });
     }

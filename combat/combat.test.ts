@@ -9,12 +9,13 @@ import {
   InventoryItemType,
 } from "types/graphql";
 import {
+  calculateOdds,
   calculateHit,
   createHeroCombatant,
   createMonsterCombatant,
   Combatant,
   attributesForAttack,
-  calculateDamage,
+  calculateDamageValues,
   CombatantGear,
 } from "./";
 import Databases from "../db";
@@ -33,6 +34,7 @@ function generateHero(): Hero {
     },
   });
   hero.combat.health = hero.combat.maxHealth;
+  hero.attributes = { ...hero.attributes };
 
   return hero;
 }
@@ -43,12 +45,22 @@ function getAverageDamage(
   heroB: Combatant,
   debug: boolean = false,
 ) {
-  let totalDamage = 0;
-  for (let i = 0; i < 1000; ++i) {
-    totalDamage += calculateDamage(heroA, heroB, false, debug).damage;
-  }
+  const {
+    baseDamage,
+    variation,
+    criticalChance,
+    doubleCriticalChance,
+    trippleCriticalChance,
+    multiplier,
+  } = calculateDamageValues(heroA, heroB, false, debug);
 
-  return Math.round(totalDamage / 1000);
+  return (
+    (baseDamage + variation / 2) *
+    ((1 + criticalChance * 3) *
+      (1 + criticalChance * doubleCriticalChance * 3) *
+      (1 + criticalChance * doubleCriticalChance * trippleCriticalChance * 3)) *
+    multiplier
+  );
 }
 
 function getHitOdds(
@@ -57,14 +69,7 @@ function getHitOdds(
   heroB: Combatant,
   debug: boolean = false,
 ) {
-  let didHit = 0;
-  for (let i = 0; i < 10000; ++i) {
-    if (calculateHit(heroA, heroB, false)) {
-      didHit += 1;
-    }
-  }
-
-  return Math.round(didHit / 100) / 100;
+  return calculateOdds(heroA, heroB, false);
 }
 
 type StatDistribution = { [x in Attribute]?: number };
@@ -164,30 +169,44 @@ function snapshotUnitAttributes(attributes: { [x in string]: number }) {
 
 describe("combat", () => {
   const combatTypes: { attackType: AttackType }[] = [
-    { attackType: AttackType.Melee },
-    { attackType: AttackType.Ranged },
-    { attackType: AttackType.Blood },
-    { attackType: AttackType.Cast },
-    { attackType: AttackType.Smite },
+    {
+      attackType: AttackType.Melee,
+      weapons: [InventoryItemType.MeleeWeapon],
+    },
+    {
+      attackType: AttackType.Ranged,
+      weapons: [InventoryItemType.RangedWeapon],
+    },
+    {
+      attackType: AttackType.Blood,
+      weapons: [InventoryItemType.Shield],
+    },
+    {
+      attackType: AttackType.Cast,
+      weapons: [InventoryItemType.SpellFocus],
+    },
+    {
+      attackType: AttackType.Smite,
+      weapons: [InventoryItemType.Shield],
+    },
   ];
   combatTypes.forEach((entry) => {
     const stats = attributesForAttack(entry.attackType);
     describe(`attacking with ${entry.attackType}`, () => {
       it(`increasing ${stats.toHit} makes it easier to hit`, () => {
         const hero = generateHero();
-        const heroCombatant = createHeroCombatant(hero, entry.attackType);
         const hero2 = generateHero();
         const hero2Combatant = createHeroCombatant(hero2, entry.attackType);
         const oddsBefore = getHitOdds(
-          heroCombatant,
+          createHeroCombatant(hero, entry.attackType),
           entry.attackType,
           hero2Combatant,
         );
 
-        heroCombatant.attributes[stats.toHit] *= 1.5;
+        hero.stats[stats.toHit] *= 1.5;
 
         const oddsAfter = getHitOdds(
-          heroCombatant,
+          createHeroCombatant(hero, entry.attackType),
           entry.attackType,
           hero2Combatant,
         );
@@ -195,19 +214,18 @@ describe("combat", () => {
       });
       it(`increasing ${stats.damage} makes you do more damage`, () => {
         const hero = generateHero();
-        const heroCombatant = createHeroCombatant(hero, entry.attackType);
         const hero2 = generateHero();
         const hero2Combatant = createHeroCombatant(hero2, entry.attackType);
         const damageBefore = getAverageDamage(
-          heroCombatant,
+          createHeroCombatant(hero, entry.attackType),
           entry.attackType,
           hero2Combatant,
         );
 
-        heroCombatant.attributes[stats.damage] *= 1.5;
+        hero.stats[stats.damage] *= 1.5;
 
         const damageAfter = getAverageDamage(
-          heroCombatant,
+          createHeroCombatant(hero, entry.attackType),
           entry.attackType,
           hero2Combatant,
         );
@@ -215,20 +233,22 @@ describe("combat", () => {
       });
       it(`increasing ${stats.damage} a little makes you do more damage even with big weapons`, () => {
         const hero = generateHero();
-        const heroCombatant = createHeroCombatant(hero, entry.attackType);
         const hero2 = generateHero();
         const hero2Combatant = createHeroCombatant(hero2, entry.attackType);
-        heroCombatant.equipment.weapons.push({ level: 32 });
+        hero.equipment.leftHand = { level: 32, type: entry.weapons[0] };
+        if (entry.weapons[1]) {
+          hero.equipment.rightHand = { level: 32, type: entry.weapons[1] };
+        }
         const damageBefore = getAverageDamage(
-          heroCombatant,
+          createHeroCombatant(hero, entry.attackType),
           entry.attackType,
           hero2Combatant,
         );
 
-        heroCombatant.attributes[stats.damage] *= 1.1;
+        hero.stats[stats.damage] *= 1.1;
 
         const damageAfter = getAverageDamage(
-          heroCombatant,
+          createHeroCombatant(hero, entry.attackType),
           entry.attackType,
           hero2Combatant,
         );
@@ -236,19 +256,18 @@ describe("combat", () => {
       });
       it(`having a ton of ${stats.damage} makes you do way more damage`, () => {
         const hero = generateHero();
-        const heroCombatant = createHeroCombatant(hero, entry.attackType);
         const hero2 = generateHero();
         const hero2Combatant = createHeroCombatant(hero2, entry.attackType);
         const damageBefore = getAverageDamage(
-          heroCombatant,
+          createHeroCombatant(hero, entry.attackType),
           entry.attackType,
           hero2Combatant,
         );
 
-        heroCombatant.attributes[stats.damage] *= 100;
+        hero.stats[stats.damage] *= 100;
 
         const damageAfter = getAverageDamage(
-          heroCombatant,
+          createHeroCombatant(hero, entry.attackType),
           entry.attackType,
           hero2Combatant,
         );
@@ -532,7 +551,7 @@ describe("builds", () => {
           }),
         );
 
-        snapshotUnitAttributes({
+        snapshotUnitAttributes(attacker.attributes, {
           strength: attacker.unit.stats.strength,
           dexterity: attacker.unit.stats.dexterity,
           constitution: attacker.unit.stats.constitution,

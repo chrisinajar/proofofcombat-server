@@ -3,11 +3,11 @@ import { Combatant } from "./types";
 import { attributesForAttack, getItemPassiveUpgradeTier } from "./helpers";
 import { getEnchantedAttributes } from "./enchantments";
 
-export function calculateHit(
+export function calculateOdds(
   attackerInput: Combatant,
   victimInput: Combatant,
   isSecondAttack: boolean,
-): boolean {
+): number {
   const { attackType } = attackerInput;
   const attackAttributes = attributesForAttack(attackType);
 
@@ -18,6 +18,22 @@ export function calculateHit(
 
   let attackerAccStat = attacker.attributes[attackAttributes.toHit];
   let victimDodgeStat = victim.attributes[attackAttributes.dodge];
+
+  let inputAttackerAccStat = attackerInput.attributes[attackAttributes.toHit];
+  let inputVictimDodgeStat = victimInput.attributes[attackAttributes.dodge];
+
+  if (
+    attackerAccStat === victimDodgeStat &&
+    inputAttackerAccStat !== inputVictimDodgeStat
+  ) {
+    console.log(" * * * * * * * ");
+    console.log(" * * * * * * * ");
+    console.log(victimInput, victim);
+    console.log(" * * * * * * * ");
+    console.log(attackerInput, attacker);
+    console.log(" * * * * * * * ");
+    console.log(" * * * * * * * ");
+  }
 
   if (
     attacker.class === HeroClasses.DemonHunter ||
@@ -95,5 +111,15 @@ export function calculateHit(
   const baseChange = attackerAccStat / victimDodgeStat;
   const oddBase = baseChange / (baseChange + 1);
 
-  return Math.random() < oddBase;
+  return oddBase;
+}
+
+export function calculateHit(
+  attackerInput: Combatant,
+  victimInput: Combatant,
+  isSecondAttack: boolean,
+): boolean {
+  return (
+    Math.random() < calculateOdds(attackerInput, victimInput, isSecondAttack)
+  );
 }
