@@ -199,8 +199,8 @@ export function getBaseClass(hero: Hero): HeroClasses {
   if (
     (leftWeaponType === InventoryItemType.SpellFocus &&
       rightWeaponType === InventoryItemType.MeleeWeapon) ||
-    (leftWeaponType === InventoryItemType.SpellFocus &&
-      rightWeaponType === InventoryItemType.MeleeWeapon)
+    (rightWeaponType === InventoryItemType.SpellFocus &&
+      leftWeaponType === InventoryItemType.MeleeWeapon)
   ) {
     return HeroClasses.BattleMage;
   }
