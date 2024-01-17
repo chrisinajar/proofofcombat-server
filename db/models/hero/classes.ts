@@ -36,19 +36,19 @@ export function getClass(hero: Hero): HeroClasses {
   const upgradedArcher = countEnchantments(hero, EnchantmentType.ArcherUpgrade);
   const upgradedVampire = countEnchantments(
     hero,
-    EnchantmentType.VampireUpgrade
+    EnchantmentType.VampireUpgrade,
   );
   const upgradedGambler = countEnchantments(
     hero,
-    EnchantmentType.GamblerUpgrade
+    EnchantmentType.GamblerUpgrade,
   );
   const upgradedBattleMage = countEnchantments(
     hero,
-    EnchantmentType.BattleMageUpgrade
+    EnchantmentType.BattleMageUpgrade,
   );
   const upgradedPaladin = countEnchantments(
     hero,
-    EnchantmentType.SmiterUpgrade
+    EnchantmentType.SmiterUpgrade,
   );
 
   // console.log({
@@ -124,7 +124,7 @@ export function getBaseClass(hero: Hero): HeroClasses {
       }
       return high;
     },
-    stats[0]
+    stats[0],
   );
 
   const leftWeaponType = hero.equipment.leftHand?.type;
@@ -197,9 +197,9 @@ export function getBaseClass(hero: Hero): HeroClasses {
   }
 
   if (
-    (leftWeaponType === InventoryItemType.SpellFocus ||
-      rightWeaponType === InventoryItemType.MeleeWeapon) &&
-    (leftWeaponType === InventoryItemType.SpellFocus ||
+    (leftWeaponType === InventoryItemType.SpellFocus &&
+      rightWeaponType === InventoryItemType.MeleeWeapon) ||
+    (leftWeaponType === InventoryItemType.SpellFocus &&
       rightWeaponType === InventoryItemType.MeleeWeapon)
   ) {
     return HeroClasses.BattleMage;

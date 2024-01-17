@@ -52,4 +52,20 @@ describe("getEnchantedAttributes", () => {
     expect(heroCombatant.attributes).toEqual(attacker.attributes);
     expect(monster.attributes).toEqual(victim.attributes);
   });
+  it("applies debuffs symmetrically", () => {
+    const hero = generateHero();
+    hero.equipment.leftHand = {
+      level: 1,
+      type: InventoryItemType.MeleeWeapon,
+      enchantment: EnchantmentType.MinusEnemyDexterity,
+    };
+    const heroCombatant = createHeroCombatant(hero, AttackType.Melee);
+    const monster = generateMonster(5);
+
+    const { attacker, victim } = getEnchantedAttributes(heroCombatant, monster);
+
+    expect(monster.attributes.dexterity).toBeGreaterThan(
+      victim.attributes.dexterity,
+    );
+  });
 });

@@ -2,6 +2,9 @@ import { EnchantmentType } from "types/graphql";
 
 import type { Unit } from "../units/unit";
 import type { Item } from "../items/item";
+import type { ModifierDefition } from "./enchantments";
+
+type ModifierSubtype<T extends Modifier<O>, O> = T;
 
 export type ModifierOptions<T> = {
   parent: Unit;
@@ -14,6 +17,7 @@ export abstract class Modifier<T> {
   parent: Unit;
   source: Unit | Item;
   enchantment?: EnchantmentType;
+  children: Modifier<any>[] = [];
 
   constructor(options: ModifierOptions<T>) {
     this.getBonus = this.getBonus.bind(this);
@@ -51,7 +55,21 @@ export abstract class Modifier<T> {
     }
   }
 
+  createChildren(modifiers: ModifierDefition<any, any>[]) {
+    modifiers.forEach((modifierDefinition) => {
+      const modifier = this.parent.applyModifier(
+        modifierDefinition,
+        this.source,
+      );
+      this.children.push(modifier);
+    });
+  }
+
   remove() {
+    const { children } = this;
+    this.children = [];
+    children.forEach((modifier) => modifier.remove());
+
     this.parent.removeModifier(this);
     this.onRemoved();
   }

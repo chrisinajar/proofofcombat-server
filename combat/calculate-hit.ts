@@ -23,19 +23,6 @@ export function calculateOdds(
   let inputVictimDodgeStat = victimInput.attributes[attackAttributes.dodge];
 
   if (
-    attackerAccStat === victimDodgeStat &&
-    inputAttackerAccStat !== inputVictimDodgeStat
-  ) {
-    console.log(" * * * * * * * ");
-    console.log(" * * * * * * * ");
-    console.log(victimInput, victim);
-    console.log(" * * * * * * * ");
-    console.log(attackerInput, attacker);
-    console.log(" * * * * * * * ");
-    console.log(" * * * * * * * ");
-  }
-
-  if (
     attacker.class === HeroClasses.DemonHunter ||
     attacker.class === HeroClasses.BattleMage
   ) {
