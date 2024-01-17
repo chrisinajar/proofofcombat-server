@@ -4,7 +4,11 @@ import { BaseItems } from "../../schema/items/base-items";
 
 import { Item, ItemOptions } from "./item";
 import { GenericArmorModifier } from "../modifiers/generic-armor-modifier";
-import { modifiersForEnchantment } from "../modifiers/enchantments";
+import {
+  modifiersForEnchantment,
+  ModifierDefinition,
+} from "../modifiers/enchantments";
+import { Modifier } from "../modifiers/modifier";
 
 export type InventoryItemOptions = ItemOptions & {
   type: InventoryItemType;
@@ -16,6 +20,7 @@ export class InventoryItem extends Item {
   type: InventoryItemType;
   baseItem: string;
   enchantment?: EnchantmentType | null;
+  victimModifiers: ModifierDefinition<Modifier<any>, any>[] = [];
 
   constructor(options: InventoryItemOptions) {
     super(options);
@@ -39,8 +44,12 @@ export class InventoryItem extends Item {
     }
 
     if (this.enchantment) {
-      const modifiers = modifiersForEnchantment(this.enchantment);
-      modifiers.forEach((modifier) => {
+      const modifiers = modifiersForEnchantment(
+        this.enchantment,
+        this.unit.attackType,
+      );
+      this.victimModifiers = this.victimModifiers.concat(modifiers.victim);
+      modifiers.attacker.forEach((modifier) => {
         this.registerModifier(modifier);
       });
     }
@@ -49,8 +58,12 @@ export class InventoryItem extends Item {
 
     if (baseItem && baseItem.passiveEnchantments) {
       baseItem.passiveEnchantments.forEach((enchantment) => {
-        const modifiers = modifiersForEnchantment(enchantment);
-        modifiers.forEach((modifier) => {
+        const modifiers = modifiersForEnchantment(
+          enchantment,
+          this.unit.attackType,
+        );
+        this.victimModifiers = this.victimModifiers.concat(modifiers.victim);
+        modifiers.attacker.forEach((modifier) => {
           this.registerModifier(modifier);
         });
       });

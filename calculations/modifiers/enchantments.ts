@@ -4,6 +4,7 @@ import {
   GenericStatsModifierOptions,
 } from "./generic-stats-modifier";
 import { ModifierClass } from "./index";
+import { Modifier } from "./modifier";
 import {
   createStatStealModifiers,
   StatStealModifier,
@@ -11,57 +12,54 @@ import {
 } from "./stat-steal-modifier";
 import { Unit } from "../units/unit";
 
-export type ModifierDefition<T, O> = {
+export type ModifierDefinition<T, O> = {
   type: ModifierClass<T, O>;
-  enchantment: EnchantmentType;
+  enchantment?: EnchantmentType;
   options: O;
+};
+type AttackerModifierDefinition<T> = {
+  attacker: ModifierDefinition<T, any>[];
+  victim: ModifierDefinition<T, any>[];
 };
 export function modifiersForEnchantment(
   enchantment: EnchantmentType,
-): ModifierDefition<any, any>[] {
-  const genericStats = genericStatsModifierForEnchantment(enchantment);
-  const statStealModifiers = statStealAttackModifierForEnchantment(enchantment);
+  attackType: AttackType,
+): AttackerModifierDefinition<Modifier<any>> {
+  const genericStats = genericStatsModifierForEnchantment(
+    enchantment,
+    attackType,
+  );
+  const statStealModifiers = statStealAttackModifierForEnchantment(
+    enchantment,
+    attackType,
+  );
 
-  const result = [];
+  const attacker = [];
+  const victim = [];
 
   if (genericStats) {
-    result.push(genericStats);
+    attacker.push(genericStats);
   }
   if (statStealModifiers) {
-    result.push(statStealModifiers);
+    attacker.push(statStealModifiers);
   }
 
-  return result;
-}
-type AttackerModifierDefinition<T> = {
-  attacker: ModifierDefition<T, any>[];
-  victim: ModifierDefition<T, any>[];
-};
-export function attackModifiersForEnchantment(
-  enchantment: EnchantmentType,
-  attacker: Unit,
-  victim: Unit,
-): AttackerModifierDefinition<any> {
   const genericVictimStats = genericStatsAttackModifierForEnchantment(
     enchantment,
-    attacker,
-    victim,
-  );
-  const genericAttackerStats = attackerAttackModifierForEnchantment(
-    enchantment,
-    attacker,
-    victim,
+    attackType,
   );
 
-  return {
-    attacker: genericAttackerStats ? [genericAttackerStats] : [],
-    victim: genericVictimStats ? [genericVictimStats] : [],
-  };
+  if (genericVictimStats) {
+    victim.push(genericVictimStats);
+  }
+
+  return { attacker, victim };
 }
 
 export function statStealAttackModifierForEnchantment(
   enchantment: EnchantmentType,
-): ModifierDefition<StatStealModifier, StatStealModifierOptions> | void {
+  attackType: AttackType,
+): ModifierDefinition<StatStealModifier, StatStealModifierOptions> | void {
   switch (enchantment) {
     case EnchantmentType.StrengthSteal:
       return {
@@ -249,53 +247,13 @@ export function statStealAttackModifierForEnchantment(
   }
 }
 
-export function attackerAttackModifierForEnchantment(
-  enchantment: EnchantmentType,
-  attacker: Unit,
-  victim: Unit,
-): ModifierDefition<GenericStatsModifier, GenericStatsModifierOptions> | void {
-  switch (enchantment) {
-    case EnchantmentType.BonusMeleeWeaponTier:
-      if (attacker.attackType === AttackType.Melee) {
-        return {
-          type: GenericStatsModifier,
-          enchantment: EnchantmentType.BonusMeleeWeaponTier,
-          options: {
-            bonus: { bonusWeaponTiers: 1 },
-          },
-        };
-      }
-      break;
-    case EnchantmentType.BonusCasterWeaponTier:
-      if (attacker.attackType === AttackType.Cast) {
-        return {
-          type: GenericStatsModifier,
-          enchantment: EnchantmentType.BonusCasterWeaponTier,
-          options: {
-            bonus: { bonusWeaponTiers: 1 },
-          },
-        };
-      }
-      break;
-    case EnchantmentType.BonusRangedWeaponTier:
-      if (attacker.attackType === AttackType.Ranged) {
-        return {
-          type: GenericStatsModifier,
-          enchantment: EnchantmentType.BonusRangedWeaponTier,
-          options: {
-            bonus: { bonusWeaponTiers: 1 },
-          },
-        };
-      }
-      break;
-  }
-}
-
 export function genericStatsAttackModifierForEnchantment(
   enchantment: EnchantmentType,
-  attacker: Unit,
-  victim: Unit,
-): ModifierDefition<GenericStatsModifier, GenericStatsModifierOptions> | void {
+  attackType: AttackType,
+): ModifierDefinition<
+  GenericStatsModifier,
+  GenericStatsModifierOptions
+> | void {
   switch (enchantment) {
     case EnchantmentType.MinusEnemyArmor:
       return {
@@ -436,7 +394,7 @@ export function genericStatsAttackModifierForEnchantment(
       break;
 
     case EnchantmentType.RangedArmorPiercing:
-      if (attacker.attackType === AttackType.Ranged) {
+      if (attackType === AttackType.Ranged) {
         return {
           type: GenericStatsModifier,
           enchantment: EnchantmentType.RangedArmorPiercing,
@@ -449,7 +407,7 @@ export function genericStatsAttackModifierForEnchantment(
       }
       break;
     case EnchantmentType.MeleeArmorPiercing:
-      if (attacker.attackType === AttackType.Melee) {
+      if (attackType === AttackType.Melee) {
         return {
           type: GenericStatsModifier,
           enchantment: EnchantmentType.MeleeArmorPiercing,
@@ -462,7 +420,7 @@ export function genericStatsAttackModifierForEnchantment(
       }
       break;
     case EnchantmentType.CasterArmorPiercing:
-      if (attacker.attackType === AttackType.Cast) {
+      if (attackType === AttackType.Cast) {
         return {
           type: GenericStatsModifier,
           enchantment: EnchantmentType.CasterArmorPiercing,
@@ -475,7 +433,7 @@ export function genericStatsAttackModifierForEnchantment(
       }
       break;
     case EnchantmentType.SmiteArmorPiercing:
-      if (attacker.attackType === AttackType.Smite) {
+      if (attackType === AttackType.Smite) {
         return {
           type: GenericStatsModifier,
           enchantment: EnchantmentType.SmiteArmorPiercing,
@@ -488,7 +446,7 @@ export function genericStatsAttackModifierForEnchantment(
       }
       break;
     case EnchantmentType.VampireArmorPiercing:
-      if (attacker.attackType === AttackType.Blood) {
+      if (attackType === AttackType.Blood) {
         return {
           type: GenericStatsModifier,
           enchantment: EnchantmentType.VampireArmorPiercing,
@@ -505,7 +463,11 @@ export function genericStatsAttackModifierForEnchantment(
 
 export function genericStatsModifierForEnchantment(
   enchantment: EnchantmentType,
-): ModifierDefition<GenericStatsModifier, GenericStatsModifierOptions> | void {
+  attackType: AttackType,
+): ModifierDefinition<
+  GenericStatsModifier,
+  GenericStatsModifierOptions
+> | void {
   switch (enchantment) {
     case EnchantmentType.BonusStrength:
       return {
@@ -982,6 +944,39 @@ export function genericStatsModifierForEnchantment(
           },
         },
       };
+      break;
+    case EnchantmentType.BonusMeleeWeaponTier:
+      if (attackType === AttackType.Melee) {
+        return {
+          type: GenericStatsModifier,
+          enchantment: EnchantmentType.BonusMeleeWeaponTier,
+          options: {
+            bonus: { bonusWeaponTiers: 1 },
+          },
+        };
+      }
+      break;
+    case EnchantmentType.BonusCasterWeaponTier:
+      if (attackType === AttackType.Cast) {
+        return {
+          type: GenericStatsModifier,
+          enchantment: EnchantmentType.BonusCasterWeaponTier,
+          options: {
+            bonus: { bonusWeaponTiers: 1 },
+          },
+        };
+      }
+      break;
+    case EnchantmentType.BonusRangedWeaponTier:
+      if (attackType === AttackType.Ranged) {
+        return {
+          type: GenericStatsModifier,
+          enchantment: EnchantmentType.BonusRangedWeaponTier,
+          options: {
+            bonus: { bonusWeaponTiers: 1 },
+          },
+        };
+      }
       break;
   }
 }

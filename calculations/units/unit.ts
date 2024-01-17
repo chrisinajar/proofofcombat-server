@@ -10,7 +10,7 @@ import { BasicUnitModifier } from "../modifiers/basic-unit-modifier";
 import { ModifierClass } from "../modifiers";
 
 import type { Modifier, ModifierOptions } from "../modifiers/modifier";
-import type { ModifierDefition } from "../modifiers/enchantments";
+import type { ModifierDefinition } from "../modifiers/enchantments";
 import type { Item } from "../items/item";
 import { InventoryItem } from "../items/inventory-item";
 
@@ -61,6 +61,7 @@ export class Unit {
   // a map of rounding precisions for any values
   precisions: PrecisionMap = {};
   clamps: ClampsMap = {};
+  equipment: Item[] = [];
 
   constructor() {
     this.baseValues = {
@@ -152,10 +153,12 @@ export class Unit {
       name: item.name,
       unit: this,
     });
+
+    this.equipment.push(itemInstance);
   }
 
   applyModifier<T extends Modifier<O>, O>(
-    modifierDefinition: ModifierDefition<T, O>,
+    modifierDefinition: ModifierDefinition<T, O>,
     source?: Unit | Item,
     _unused?: void,
     _unused2?: void,
@@ -198,7 +201,7 @@ export class Unit {
       return modifier;
     }
 
-    const modifierDefinition = definitionOrClass as ModifierDefition<T, O>;
+    const modifierDefinition = definitionOrClass as ModifierDefinition<T, O>;
     const source = sourceOrOptions as Unit | Item | undefined;
 
     return this.applyModifier(

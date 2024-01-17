@@ -59,13 +59,28 @@ describe("getEnchantedAttributes", () => {
       type: InventoryItemType.MeleeWeapon,
       enchantment: EnchantmentType.MinusEnemyDexterity,
     };
-    const heroCombatant = createHeroCombatant(hero, AttackType.Melee);
     const monster = generateMonster(5);
+    const preReduction = monster.attributes.dexterity;
 
-    const { attacker, victim } = getEnchantedAttributes(heroCombatant, monster);
-
-    expect(monster.attributes.dexterity).toBeGreaterThan(
-      victim.attributes.dexterity,
+    let { attacker, victim } = getEnchantedAttributes(
+      createHeroCombatant(hero, AttackType.Melee),
+      monster,
     );
+
+    expect(preReduction).toBeGreaterThan(victim.attributes.dexterity);
+    const onceReducedValue = victim.attributes.dexterity;
+
+    hero.equipment.rightHand = {
+      level: 1,
+      type: InventoryItemType.MeleeWeapon,
+      enchantment: EnchantmentType.MinusEnemyDexterity,
+    };
+
+    victim = getEnchantedAttributes(
+      createHeroCombatant(hero, AttackType.Melee),
+      monster,
+    ).victim;
+
+    expect(onceReducedValue).toBeGreaterThan(victim.attributes.dexterity);
   });
 });

@@ -10,11 +10,12 @@ import {
 } from "./enchantment-order";
 import { expandEnchantmentList } from "./enchantment-groups";
 import { getArtifactBuffs } from "./artifacts";
-import {
-  createStatStealModifiers,
-  StatStealVictimModifier,
-  StatStealAttackerModifier,
-} from "../calculations/modifiers/stat-steal-modifier";
+import { createStatStealModifiers } from "../calculations/modifiers/stat-steal-modifier";
+import { ParentModifier } from "../calculations/modifiers/parent-modifier";
+import { Modifier } from "../calculations/modifiers/modifier";
+import { ModifierDefinition } from "../calculations/modifiers/enchantments";
+import { InventoryItem } from "../calculations/items/inventory-item";
+import { Unit } from "../calculations/units/unit";
 
 export function countCounterSpells(attacker: Combatant): number {
   // eventually other sources of counter spell maybe?
@@ -79,13 +80,36 @@ export function getAllGearEnchantments(
   );
 }
 
-// ordering matters here since it's a mix of % and flat values
-// basically pvp is FUCKED until this is refactored
-// we need to calculate all the bonuses and all the minuses for one player
-// then calculate the same for the other
-// then apply the buffs to both, then the debuffs to both
-// right now we apply buffs to plater 1, debuffs to 2, buffs to 2, debuffs to 1
-// player 1 has a HUGE HUGE advantage
+type ModifierDefinitionList = ModifierDefinition<Modifier<any>, any>[];
+
+function applyAttackModifiers(attackerUnit: Unit, victimUnit: Unit) {
+  victimUnit.modifiers.forEach((modifier) => {
+    if (modifier instanceof ParentModifier) {
+      if (modifier.id === "applyAttackModifiers") {
+        modifier.remove();
+      }
+    }
+  });
+  const modifierList = attackerUnit.equipment.reduce<ModifierDefinitionList>(
+    (memo, item) => {
+      if (item instanceof InventoryItem) {
+        if (item.victimModifiers && item.victimModifiers.length) {
+          return memo.concat(item.victimModifiers);
+        }
+      }
+      return memo;
+    },
+    [] as ModifierDefinitionList,
+  );
+
+  victimUnit.applyModifier({
+    type: ParentModifier,
+    options: {
+      modifiers: modifierList,
+      id: "applyAttackModifiers",
+    },
+  });
+}
 
 export function getEnchantedAttributes(
   attackerInput: Combatant,
@@ -102,6 +126,9 @@ export function getEnchantedAttributes(
 
   createStatStealModifiers(attacker.unit, victim.unit);
   createStatStealModifiers(victim.unit, attacker.unit);
+
+  applyAttackModifiers(attacker.unit, victim.unit);
+  applyAttackModifiers(victim.unit, attacker.unit);
 
   const result = enchantCombatants(attacker, victim);
   attacker = result.attacker;

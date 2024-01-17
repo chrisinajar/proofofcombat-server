@@ -2,7 +2,7 @@ import { EnchantmentType } from "types/graphql";
 
 import type { Unit } from "../units/unit";
 import type { Item } from "../items/item";
-import type { ModifierDefition } from "./enchantments";
+import type { ModifierDefinition } from "./enchantments";
 
 type ModifierSubtype<T extends Modifier<O>, O> = T;
 
@@ -55,7 +55,7 @@ export abstract class Modifier<T> {
     }
   }
 
-  createChildren(modifiers: ModifierDefition<any, any>[]) {
+  createChildren(modifiers: ModifierDefinition<Modifier<any>, any>[]) {
     modifiers.forEach((modifierDefinition) => {
       const modifier = this.parent.applyModifier(
         modifierDefinition,

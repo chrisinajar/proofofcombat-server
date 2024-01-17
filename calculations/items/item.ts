@@ -1,6 +1,6 @@
 import type { Unit } from "../units/unit";
 import type { Modifier, ModifierOptions } from "../modifiers/modifier";
-import type { ModifierDefition } from "../modifiers/enchantments";
+import type { ModifierDefinition } from "../modifiers/enchantments";
 
 export type ItemOptions = {
   level: number;
@@ -20,7 +20,7 @@ export class Item {
   }
 
   registerModifier<T extends Modifier<O>, O>(
-    modifierDefinition: ModifierDefition<T, O>,
+    modifierDefinition: ModifierDefinition<T, O>,
     _unused?: void,
   ): T;
   registerModifier<T extends Modifier<O>, O>(
@@ -39,7 +39,7 @@ export class Item {
       const options = sourceOrOptions as O;
       return this.unit.applyModifier(ModifierType, options, this);
     }
-    const modifierDefinition = definitionOrClass as ModifierDefition<T, O>;
+    const modifierDefinition = definitionOrClass as ModifierDefinition<T, O>;
     return this.unit.applyModifier(modifierDefinition, this);
   }
 
