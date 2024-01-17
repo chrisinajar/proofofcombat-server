@@ -31,16 +31,19 @@ function generateHero(): Hero {
   return hero;
 }
 
-function generateMonster(level: number) {
-  return createMonsterCombatant({
-    level,
-    name: `Level ${level} Mob`,
-    attackType: AttackType.Melee,
-    combat: {
-      health: Math.round(Math.pow(1.4, level) * 8),
-      maxHealth: Math.round(Math.pow(1.4, level) * 8),
+function generateMonster(level: number, equipment) {
+  return createMonsterCombatant(
+    {
+      level,
+      name: `Level ${level} Mob`,
+      attackType: AttackType.Melee,
+      combat: {
+        health: Math.round(Math.pow(1.4, level) * 8),
+        maxHealth: Math.round(Math.pow(1.4, level) * 8),
+      },
     },
-  });
+    equipment,
+  );
 }
 
 describe("getEnchantedAttributes", () => {
@@ -108,5 +111,176 @@ describe("getEnchantedAttributes", () => {
     });
 
     expect(debuff.length).toBe(1);
+  });
+  it("only applies buffs when an item is equipped", () => {
+    const hero = generateHero();
+    let enchantResult = {};
+
+    const monsterEquipment = {
+      bodyArmor: { level: 1 },
+      handArmor: { level: 1 },
+      legArmor: { level: 1 },
+      headArmor: { level: 1 },
+      footArmor: { level: 1 },
+      leftHand: { level: 1 },
+      rightHand: { level: 1 },
+    };
+
+    enchantResult = getEnchantedAttributes(
+      createHeroCombatant(hero, AttackType.Melee),
+      generateMonster(5, monsterEquipment),
+    );
+
+    expect(
+      enchantResult.attacker.unit.modifiers.find(
+        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+      ),
+    ).not.toBeTruthy();
+    expect(
+      enchantResult.victim.unit.modifiers.find(
+        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+      ),
+    ).not.toBeTruthy();
+
+    hero.equipment.leftHand = {
+      level: 1,
+      type: InventoryItemType.MeleeWeapon,
+      enchantment: EnchantmentType.BonusDexterity,
+    };
+    monsterEquipment.leftHand = {
+      level: 1,
+      type: InventoryItemType.MeleeWeapon,
+      enchantment: EnchantmentType.BonusDexterity,
+    };
+    enchantResult = getEnchantedAttributes(
+      createHeroCombatant(hero, AttackType.Melee),
+      generateMonster(5, monsterEquipment),
+    );
+
+    expect(
+      enchantResult.attacker.unit.modifiers.find(
+        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+      ),
+    ).toBeTruthy();
+    expect(
+      enchantResult.victim.unit.modifiers.find(
+        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+      ),
+    ).toBeTruthy();
+  });
+  it("applies counter spells", () => {
+    const hero = generateHero();
+    let enchantResult = {};
+
+    const monsterEquipment = {
+      bodyArmor: { level: 1 },
+      handArmor: { level: 1 },
+      legArmor: { level: 1 },
+      headArmor: { level: 1 },
+      footArmor: { level: 1 },
+      leftHand: { level: 1 },
+      rightHand: { level: 1 },
+    };
+
+    hero.equipment.leftHand = {
+      level: 1,
+      type: InventoryItemType.MeleeWeapon,
+      enchantment: EnchantmentType.BonusDexterity,
+    };
+    monsterEquipment.leftHand = {
+      level: 1,
+      type: InventoryItemType.MeleeWeapon,
+      enchantment: EnchantmentType.BonusDexterity,
+    };
+
+    enchantResult = getEnchantedAttributes(
+      createHeroCombatant(hero, AttackType.Melee),
+      generateMonster(5, monsterEquipment),
+    );
+
+    expect(
+      enchantResult.attacker.unit.modifiers.find(
+        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+      ),
+    ).toBeTruthy();
+    expect(
+      enchantResult.victim.unit.modifiers.find(
+        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+      ),
+    ).toBeTruthy();
+
+    hero.equipment.rightHand = {
+      level: 1,
+      type: InventoryItemType.MeleeWeapon,
+      enchantment: EnchantmentType.CounterSpell,
+    };
+
+    enchantResult = getEnchantedAttributes(
+      createHeroCombatant(hero, AttackType.Melee),
+      generateMonster(5, monsterEquipment),
+    );
+
+    expect(
+      enchantResult.attacker.unit.modifiers.find(
+        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+      ),
+    ).toBeTruthy();
+    expect(
+      enchantResult.victim.unit.modifiers.find(
+        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+      ),
+    ).not.toBeTruthy();
+
+    hero.equipment.bodyArmor = {
+      level: 1,
+      type: InventoryItemType.BodyArmor,
+      enchantment: EnchantmentType.CounterSpell,
+    };
+
+    enchantResult = getEnchantedAttributes(
+      createHeroCombatant(hero, AttackType.Melee),
+      generateMonster(5, monsterEquipment),
+    );
+
+    expect(
+      enchantResult.attacker.unit.modifiers.find(
+        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+      ),
+    ).toBeTruthy();
+    expect(
+      enchantResult.victim.unit.modifiers.find(
+        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+      ),
+    ).not.toBeTruthy();
+
+    hero.equipment.bodyArmor = {
+      level: 1,
+    };
+    monsterEquipment.rightHand = {
+      level: 1,
+      type: InventoryItemType.MeleeWeapon,
+      enchantment: EnchantmentType.DoubleAllStats,
+    };
+
+    enchantResult = getEnchantedAttributes(
+      createHeroCombatant(hero, AttackType.Melee),
+      generateMonster(5, monsterEquipment),
+    );
+
+    expect(
+      enchantResult.attacker.unit.modifiers.find(
+        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+      ),
+    ).toBeTruthy();
+    expect(
+      enchantResult.victim.unit.modifiers.find(
+        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+      ),
+    ).not.toBeTruthy();
+    expect(
+      enchantResult.victim.unit.modifiers.find(
+        (modifier) => modifier.enchantment === EnchantmentType.DoubleAllStats,
+      ),
+    ).toBeTruthy();
   });
 });

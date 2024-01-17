@@ -113,7 +113,38 @@ function applyAttackModifiers(attackerUnit: Unit, victimUnit: Unit) {
 }
 
 function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
-  // console.log(attackerUnit.stats.counterSpell, victimUnit.stats.counterSpell);
+  const attackerCounters = attackerUnit.stats.counterSpell;
+  const victimCounters = victimUnit.stats.counterSpell;
+  // counter spells cancel each other out, so if they're equal (including both 0) we skip
+  if (attackerCounters === victimCounters) {
+    return;
+  }
+
+  const counterVictim =
+    attackerCounters > victimCounters ? victimUnit : attackerUnit;
+  const counterCount = Math.abs(attackerCounters - victimCounters);
+
+  let result = counterVictim.modifiers.filter(
+    (modifier) =>
+      !modifier.isDebuff() &&
+      modifier.enchantment &&
+      modifier.enchantment !== EnchantmentType.CounterSpell,
+  );
+
+  // if everything is going to be countered then short circuit
+  if (result.length <= counterCount) {
+    result.forEach((modifier) => modifier.remove());
+    return;
+  }
+
+  result
+    .sort(
+      (a, b) =>
+        EnchantmentCounterSpellOrder.indexOf(a.enchantment as EnchantmentType) -
+        EnchantmentCounterSpellOrder.indexOf(b.enchantment as EnchantmentType),
+    )
+    .slice(0, counterCount)
+    .forEach((modifier) => modifier.remove());
 }
 
 export function getEnchantedAttributes(
