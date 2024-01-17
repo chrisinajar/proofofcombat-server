@@ -260,6 +260,7 @@ export function genericStatsAttackModifierForEnchantment(
         type: GenericStatsModifier,
         enchantment: EnchantmentType.MinusEnemyArmor,
         options: {
+          isDebuff: true,
           multiplier: {
             percentageDamageReduction: 0.5,
           },
@@ -272,6 +273,7 @@ export function genericStatsAttackModifierForEnchantment(
         type: GenericStatsModifier,
         enchantment: EnchantmentType.MinusEnemyStrength,
         options: {
+          isDebuff: true,
           multiplier: {
             strength: 0.8,
           },
@@ -284,6 +286,7 @@ export function genericStatsAttackModifierForEnchantment(
         type: GenericStatsModifier,
         enchantment: EnchantmentType.MinusEnemyDexterity,
         options: {
+          isDebuff: true,
           multiplier: {
             dexterity: 0.8,
           },
@@ -296,6 +299,7 @@ export function genericStatsAttackModifierForEnchantment(
         type: GenericStatsModifier,
         enchantment: EnchantmentType.MinusEnemyConstitution,
         options: {
+          isDebuff: true,
           multiplier: {
             constitution: 0.8,
           },
@@ -308,6 +312,7 @@ export function genericStatsAttackModifierForEnchantment(
         type: GenericStatsModifier,
         enchantment: EnchantmentType.MinusEnemyIntelligence,
         options: {
+          isDebuff: true,
           multiplier: {
             intelligence: 0.8,
           },
@@ -320,6 +325,7 @@ export function genericStatsAttackModifierForEnchantment(
         type: GenericStatsModifier,
         enchantment: EnchantmentType.MinusEnemyWisdom,
         options: {
+          isDebuff: true,
           multiplier: {
             wisdom: 0.8,
           },
@@ -332,6 +338,7 @@ export function genericStatsAttackModifierForEnchantment(
         type: GenericStatsModifier,
         enchantment: EnchantmentType.MinusEnemyWillpower,
         options: {
+          isDebuff: true,
           multiplier: {
             willpower: 0.8,
           },
@@ -343,6 +350,7 @@ export function genericStatsAttackModifierForEnchantment(
         type: GenericStatsModifier,
         enchantment: EnchantmentType.MinusEnemyPhysical,
         options: {
+          isDebuff: true,
           multiplier: {
             strength: 0.9,
             dexterity: 0.9,
@@ -356,6 +364,7 @@ export function genericStatsAttackModifierForEnchantment(
         type: GenericStatsModifier,
         enchantment: EnchantmentType.MinusEnemyMental,
         options: {
+          isDebuff: true,
           multiplier: {
             intelligence: 0.9,
             wisdom: 0.9,
@@ -369,6 +378,7 @@ export function genericStatsAttackModifierForEnchantment(
         type: GenericStatsModifier,
         enchantment: EnchantmentType.MinusEnemyAllStats,
         options: {
+          isDebuff: true,
           multiplier: {
             strength: 0.9,
             dexterity: 0.9,
@@ -386,6 +396,7 @@ export function genericStatsAttackModifierForEnchantment(
         type: GenericStatsModifier,
         enchantment: EnchantmentType.Vampirism,
         options: {
+          isDebuff: true,
           multiplier: {
             percentageEnchantmentDamageReduction: 0.95,
           },
@@ -399,6 +410,7 @@ export function genericStatsAttackModifierForEnchantment(
           type: GenericStatsModifier,
           enchantment: EnchantmentType.RangedArmorPiercing,
           options: {
+            isDebuff: true,
             multiplier: {
               percentageDamageReduction: 0.5,
             },
@@ -412,6 +424,7 @@ export function genericStatsAttackModifierForEnchantment(
           type: GenericStatsModifier,
           enchantment: EnchantmentType.MeleeArmorPiercing,
           options: {
+            isDebuff: true,
             multiplier: {
               percentageDamageReduction: 0.5,
             },
@@ -425,6 +438,7 @@ export function genericStatsAttackModifierForEnchantment(
           type: GenericStatsModifier,
           enchantment: EnchantmentType.CasterArmorPiercing,
           options: {
+            isDebuff: true,
             multiplier: {
               percentageDamageReduction: 0.5,
             },
@@ -438,6 +452,7 @@ export function genericStatsAttackModifierForEnchantment(
           type: GenericStatsModifier,
           enchantment: EnchantmentType.SmiteArmorPiercing,
           options: {
+            isDebuff: true,
             multiplier: {
               percentageDamageReduction: 0.5,
             },
@@ -451,6 +466,7 @@ export function genericStatsAttackModifierForEnchantment(
           type: GenericStatsModifier,
           enchantment: EnchantmentType.VampireArmorPiercing,
           options: {
+            isDebuff: true,
             multiplier: {
               percentageEnchantmentDamageReduction: 0.5,
             },

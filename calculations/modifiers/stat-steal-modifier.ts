@@ -24,7 +24,7 @@ export function createStatStealModifiers(
 
   const victimModifier = victim.applyModifier(
     StatStealVictimModifier,
-    {},
+    { isDebuff: true },
     attacker,
   );
   const attackerModifier = attacker.applyModifier(

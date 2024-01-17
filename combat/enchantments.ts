@@ -10,6 +10,7 @@ import {
 } from "./enchantment-order";
 import { expandEnchantmentList } from "./enchantment-groups";
 import { getArtifactBuffs } from "./artifacts";
+
 import { createStatStealModifiers } from "../calculations/modifiers/stat-steal-modifier";
 import { ParentModifier } from "../calculations/modifiers/parent-modifier";
 import { Modifier } from "../calculations/modifiers/modifier";
@@ -111,6 +112,10 @@ function applyAttackModifiers(attackerUnit: Unit, victimUnit: Unit) {
   });
 }
 
+function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
+  // console.log(attackerUnit.stats.counterSpell, victimUnit.stats.counterSpell);
+}
+
 export function getEnchantedAttributes(
   attackerInput: Combatant,
   victimInput: Combatant,
@@ -129,6 +134,8 @@ export function getEnchantedAttributes(
 
   applyAttackModifiers(attacker.unit, victim.unit);
   applyAttackModifiers(victim.unit, attacker.unit);
+
+  applyCounterSpells(attacker.unit, victim.unit);
 
   const result = enchantCombatants(attacker, victim);
   attacker = result.attacker;

@@ -13,6 +13,7 @@ import Databases from "../db";
 import { getEnchantedAttributes } from "./enchantments";
 
 import { createHeroCombatant, createMonsterCombatant } from "./";
+import { GenericStatsModifier } from "../calculations/modifiers/generic-stats-modifier";
 
 function generateHero(): Hero {
   const hero = Databases.hero.upgrade({
@@ -52,6 +53,7 @@ describe("getEnchantedAttributes", () => {
     expect(heroCombatant.attributes).toEqual(attacker.attributes);
     expect(monster.attributes).toEqual(victim.attributes);
   });
+
   it("applies debuffs symmetrically", () => {
     const hero = generateHero();
     hero.equipment.leftHand = {
@@ -82,5 +84,29 @@ describe("getEnchantedAttributes", () => {
     ).victim;
 
     expect(onceReducedValue).toBeGreaterThan(victim.attributes.dexterity);
+  });
+
+  it("sets isDebuff correctly on debuff modifiers", () => {
+    const hero = generateHero();
+    hero.equipment.leftHand = {
+      level: 1,
+      type: InventoryItemType.MeleeWeapon,
+      enchantment: EnchantmentType.MinusEnemyDexterity,
+    };
+    const monster = generateMonster(5);
+    const preReduction = monster.attributes.dexterity;
+
+    let { attacker, victim } = getEnchantedAttributes(
+      createHeroCombatant(hero, AttackType.Melee),
+      monster,
+    );
+    const debuff = victim.unit.modifiers.filter((modifier) => {
+      if (!modifier.isDebuff()) {
+        return false;
+      }
+      return modifier instanceof GenericStatsModifier;
+    });
+
+    expect(debuff.length).toBe(1);
   });
 });

@@ -18,6 +18,7 @@ export abstract class Modifier<T> {
   source: Unit | Item;
   enchantment?: EnchantmentType;
   children: Modifier<any>[] = [];
+  _isDebuff: boolean = false;
 
   constructor(options: ModifierOptions<T>) {
     this.getBonus = this.getBonus.bind(this);
@@ -29,6 +30,15 @@ export abstract class Modifier<T> {
     this.attachToUnit(options.parent);
     // just makes ts happy, attachToUnit already does this
     this.parent = options.parent;
+
+    if (
+      options.options &&
+      typeof options.options === "object" &&
+      "isDebuff" in options.options &&
+      typeof options.options.isDebuff === "boolean"
+    ) {
+      this._isDebuff = options.options.isDebuff;
+    }
   }
 
   abstract getBonus(prop: string): number | void;
@@ -77,4 +87,8 @@ export abstract class Modifier<T> {
   onUpdated() {}
   onAttached() {}
   onRemoved() {}
+
+  isDebuff(): boolean {
+    return this._isDebuff;
+  }
 }

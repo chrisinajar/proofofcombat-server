@@ -180,7 +180,7 @@ export class Unit {
       const ModifierType = definitionOrClass as new (
         o: ModifierOptions<O>,
       ) => T;
-      const options = sourceOrOptions as O;
+      const options = sourceOrOptions as O & { isDebuff?: boolean };
       let source = voidOrSource as Unit | Item | undefined;
       const enchantment = voidOrEnchantment as EnchantmentType | undefined;
 

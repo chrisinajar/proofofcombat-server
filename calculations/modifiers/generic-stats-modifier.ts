@@ -8,6 +8,7 @@ export type GenericStatsModifierOptions = {
   multiplier?: StatsEntry;
   bonus?: StatsEntry;
   extraBonus?: StatsEntry;
+  isDebuff?: boolean;
 };
 
 export class GenericStatsModifier extends Modifier<GenericStatsModifierOptions> {
