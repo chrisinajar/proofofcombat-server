@@ -318,15 +318,15 @@ export class HeroClassModifier extends Modifier<undefined> {
     ) {
       if (
         prop === attackAttributes.toHit &&
-        this.parent.stats.attackingAccuracy
+        this.parent.hero.skills.attackingAccuracy
       ) {
-        return Math.pow(1.05, this.parent.stats.attackingAccuracy);
+        return Math.pow(1.05, this.parent.hero.skills.attackingAccuracy);
       }
       if (
         prop === attackAttributes.damage &&
-        this.parent.stats.attackingDamage
+        this.parent.hero.skills.attackingDamage
       ) {
-        return Math.pow(1.05, this.parent.stats.attackingDamage);
+        return Math.pow(1.05, this.parent.hero.skills.attackingDamage);
       }
     }
 
@@ -340,12 +340,15 @@ export class HeroClassModifier extends Modifier<undefined> {
     ) {
       if (
         prop === attackAttributes.toHit &&
-        this.parent.stats.castingAccuracy
+        this.parent.hero.skills.castingAccuracy
       ) {
-        return Math.pow(1.05, this.parent.stats.castingAccuracy);
+        return Math.pow(1.05, this.parent.hero.skills.castingAccuracy);
       }
-      if (prop === attackAttributes.damage && this.parent.stats.castingDamage) {
-        return Math.pow(1.05, this.parent.stats.castingDamage);
+      if (
+        prop === attackAttributes.damage &&
+        this.parent.hero.skills.castingDamage
+      ) {
+        return Math.pow(1.05, this.parent.hero.skills.castingDamage);
       }
     }
 
