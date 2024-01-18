@@ -87,6 +87,8 @@ export class Hero extends Unit {
       .forEach((questItem) => {
         this.equipItem(questItem);
       });
+
+    this.equipArtifact(this.hero.equipment.artifact);
   }
 
   isHero(): boolean {

@@ -20,6 +20,7 @@ import {
 } from "./";
 import Databases from "../db";
 import { getEnchantedAttributes } from "./enchantments";
+import { calculateEnchantmentDamage } from "./calculate-enchantment-damage";
 
 type Attribute = keyof HeroStats;
 
@@ -273,6 +274,29 @@ describe("combat", () => {
         );
         expect(damageBefore * 50).toBeLessThan(damageAfter);
       });
+    });
+  });
+  describe("blood combat", () => {
+    it("should reduce enemy enchantment resistance", () => {
+      const hero = generateHero();
+      const hero2 = generateHero();
+
+      let heroCombatant = createHeroCombatant(hero, AttackType.Melee);
+      let hero2Combatant = createHeroCombatant(hero2, AttackType.Melee);
+
+      let result = getEnchantedAttributes(heroCombatant, hero2Combatant);
+      calculateEnchantmentDamage(result.attacker, result.victim);
+
+      const percentBefore = result.victim.percentageEnchantmentDamageReduction;
+
+      expect(percentBefore).toBe(1);
+
+      heroCombatant = createHeroCombatant(hero, AttackType.Blood);
+
+      result = getEnchantedAttributes(heroCombatant, hero2Combatant);
+      calculateEnchantmentDamage(result.attacker, result.victim);
+
+      expect(result.victim.percentageEnchantmentDamageReduction).toBe(0.75);
     });
   });
 });
@@ -881,5 +905,75 @@ describe("builds", () => {
       uberGear,
       { strength: 0.6, dexterity: 0.3, luck: 0.1 },
     );
+  });
+});
+
+describe("calculateEnchantmentDamage", () => {
+  it("should calculate damage correctly", () => {
+    const hero = levelUpHero(generateHero(), 1000, { constitution: 1 });
+    const hero2 = levelUpHero(generateHero(), 1000, { constitution: 1 });
+    let result = calculateEnchantmentDamage(
+      createHeroCombatant(hero, AttackType.Melee),
+      createHeroCombatant(hero2, AttackType.Melee),
+    );
+    expect(result).toEqual({
+      attackerDamage: 0,
+      victimDamage: 0,
+      attackerHeal: 0,
+      victimHeal: 0,
+    });
+
+    hero.equipment.leftHand = {
+      level: 1,
+      type: InventoryItemType.MeleeWeapon,
+      enchantment: EnchantmentType.SuperVampStats,
+    };
+    // hero.equipment.rightHand = {
+    //   level: 1,
+    //   type: InventoryItemType.MeleeWeapon,
+    //   enchantment: EnchantmentType.SuperVampStats,
+    // };
+
+    result = calculateEnchantmentDamage(
+      createHeroCombatant(hero, AttackType.Melee),
+      createHeroCombatant(hero2, AttackType.Melee),
+    );
+
+    expect(result).toEqual({
+      attackerDamage: 0,
+      victimDamage: 6,
+      attackerHeal: 6,
+      victimHeal: 0,
+    });
+
+    hero.equipment.rightHand = {
+      level: 1,
+      type: InventoryItemType.MeleeWeapon,
+      enchantment: EnchantmentType.SuperVampStats,
+    };
+
+    result = calculateEnchantmentDamage(
+      createHeroCombatant(hero, AttackType.Melee),
+      createHeroCombatant(hero2, AttackType.Melee),
+    );
+
+    expect(result).toEqual({
+      attackerDamage: 0,
+      victimDamage: 21,
+      attackerHeal: 21,
+      victimHeal: 0,
+    });
+
+    result = calculateEnchantmentDamage(
+      createHeroCombatant(hero, AttackType.Blood),
+      createHeroCombatant(hero2, AttackType.Melee),
+    );
+
+    expect(result).toEqual({
+      attackerDamage: 0,
+      victimDamage: 28,
+      attackerHeal: 28,
+      victimHeal: 0,
+    });
   });
 });

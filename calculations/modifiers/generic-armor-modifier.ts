@@ -4,6 +4,7 @@ export type GenericArmorModifierOptions = {
   // ? i dunno something like this
   tier: number;
   shield?: boolean;
+  isDebuff?: boolean;
 };
 
 export class GenericArmorModifier extends Modifier<GenericArmorModifierOptions> {

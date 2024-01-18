@@ -27,6 +27,10 @@ export class BasicHeroModifier extends Modifier<undefined> {
           this.parent.baseValues.health
         );
       // Math.pow(1.08, this.parent.stats.vitality)
+      case "regeneration":
+        // asympotically approach 0.0 -> 1.0
+        return 1 - Math.pow(0.99, this.parent.hero.skills.regeneration);
+        break;
     }
     return;
   }

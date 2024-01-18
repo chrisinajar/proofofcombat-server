@@ -942,7 +942,11 @@ export function genericStatsModifierForEnchantment(
       return {
         type: GenericStatsModifier,
         enchantment: EnchantmentType.SuperVampStats,
-        options: {},
+        options: {
+          bonus: {
+            enchantmentLeech: 0.4,
+          },
+        },
       };
       break;
     case EnchantmentType.SuperMeleeStats:
@@ -1066,6 +1070,84 @@ export function genericStatsModifierForEnchantment(
           },
         };
       }
+      break;
+
+    case EnchantmentType.LifeHeal:
+      return {
+        type: GenericStatsModifier,
+        enchantment: EnchantmentType.LifeHeal,
+        options: {
+          bonus: {
+            enchantmentHeal: 0.1,
+          },
+        },
+      };
+      break;
+    case EnchantmentType.LifeDamage:
+      return {
+        type: GenericStatsModifier,
+        enchantment: EnchantmentType.LifeDamage,
+        options: {
+          bonus: {
+            enchantmentDamage: 0.1,
+          },
+        },
+      };
+      break;
+    case EnchantmentType.LifeSteal:
+      return {
+        type: GenericStatsModifier,
+        enchantment: EnchantmentType.LifeSteal,
+        options: {
+          bonus: {
+            enchantmentLeech: 0.1,
+          },
+        },
+      };
+      break;
+    case EnchantmentType.Vampirism:
+      return {
+        type: GenericStatsModifier,
+        enchantment: EnchantmentType.Vampirism,
+        options: {
+          bonus: {
+            enchantmentLeech: 0.2,
+          },
+        },
+      };
+      break;
+    case EnchantmentType.TwentyLifeSteal:
+      return {
+        type: GenericStatsModifier,
+        enchantment: EnchantmentType.TwentyLifeSteal,
+        options: {
+          bonus: {
+            enchantmentLeech: 0.2,
+          },
+        },
+      };
+      break;
+    case EnchantmentType.ThirtyLifeSteal:
+      return {
+        type: GenericStatsModifier,
+        enchantment: EnchantmentType.ThirtyLifeSteal,
+        options: {
+          bonus: {
+            enchantmentLeech: 0.3,
+          },
+        },
+      };
+      break;
+    case EnchantmentType.CanOnlyTakeOneDamage:
+      return {
+        type: GenericStatsModifier,
+        enchantment: EnchantmentType.CanOnlyTakeOneDamage,
+        options: {
+          bonus: {
+            canOnlyTakeOneDamage: 1,
+          },
+        },
+      };
       break;
   }
 }
