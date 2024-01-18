@@ -133,12 +133,16 @@ describe("getEnchantedAttributes", () => {
 
     expect(
       enchantResult.attacker.unit.modifiers.find(
-        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+        (modifier) =>
+          !modifier.isDisabled() &&
+          modifier.enchantment === EnchantmentType.BonusDexterity,
       ),
     ).not.toBeTruthy();
     expect(
       enchantResult.victim.unit.modifiers.find(
-        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+        (modifier) =>
+          !modifier.isDisabled() &&
+          modifier.enchantment === EnchantmentType.BonusDexterity,
       ),
     ).not.toBeTruthy();
 
@@ -159,12 +163,16 @@ describe("getEnchantedAttributes", () => {
 
     expect(
       enchantResult.attacker.unit.modifiers.find(
-        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+        (modifier) =>
+          !modifier.isDisabled() &&
+          modifier.enchantment === EnchantmentType.BonusDexterity,
       ),
     ).toBeTruthy();
     expect(
       enchantResult.victim.unit.modifiers.find(
-        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+        (modifier) =>
+          !modifier.isDisabled() &&
+          modifier.enchantment === EnchantmentType.BonusDexterity,
       ),
     ).toBeTruthy();
   });
@@ -200,12 +208,16 @@ describe("getEnchantedAttributes", () => {
 
     expect(
       enchantResult.attacker.unit.modifiers.find(
-        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+        (modifier) =>
+          !modifier.isDisabled() &&
+          modifier.enchantment === EnchantmentType.BonusDexterity,
       ),
     ).toBeTruthy();
     expect(
       enchantResult.victim.unit.modifiers.find(
-        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+        (modifier) =>
+          !modifier.isDisabled() &&
+          modifier.enchantment === EnchantmentType.BonusDexterity,
       ),
     ).toBeTruthy();
 
@@ -222,12 +234,16 @@ describe("getEnchantedAttributes", () => {
 
     expect(
       enchantResult.attacker.unit.modifiers.find(
-        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+        (modifier) =>
+          !modifier.isDisabled() &&
+          modifier.enchantment === EnchantmentType.BonusDexterity,
       ),
     ).toBeTruthy();
     expect(
       enchantResult.victim.unit.modifiers.find(
-        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+        (modifier) =>
+          !modifier.isDisabled() &&
+          modifier.enchantment === EnchantmentType.BonusDexterity,
       ),
     ).not.toBeTruthy();
 
@@ -244,12 +260,16 @@ describe("getEnchantedAttributes", () => {
 
     expect(
       enchantResult.attacker.unit.modifiers.find(
-        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+        (modifier) =>
+          !modifier.isDisabled() &&
+          modifier.enchantment === EnchantmentType.BonusDexterity,
       ),
     ).toBeTruthy();
     expect(
       enchantResult.victim.unit.modifiers.find(
-        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+        (modifier) =>
+          !modifier.isDisabled() &&
+          modifier.enchantment === EnchantmentType.BonusDexterity,
       ),
     ).not.toBeTruthy();
 
@@ -274,17 +294,23 @@ describe("getEnchantedAttributes", () => {
 
     expect(
       enchantResult.attacker.unit.modifiers.find(
-        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+        (modifier) =>
+          !modifier.isDisabled() &&
+          modifier.enchantment === EnchantmentType.BonusDexterity,
       ),
     ).toBeTruthy();
     expect(
       enchantResult.victim.unit.modifiers.find(
-        (modifier) => modifier.enchantment === EnchantmentType.BonusDexterity,
+        (modifier) =>
+          !modifier.isDisabled() &&
+          modifier.enchantment === EnchantmentType.BonusDexterity,
       ),
     ).not.toBeTruthy();
     expect(
       enchantResult.victim.unit.modifiers.filter(
-        (modifier) => modifier.enchantment === EnchantmentType.DoubleAllStats,
+        (modifier) =>
+          !modifier.isDisabled() &&
+          modifier.enchantment === EnchantmentType.DoubleAllStats,
       ).length,
     ).toBe(2);
   });

@@ -124,6 +124,8 @@ function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
     attackerCounters > victimCounters ? victimUnit : attackerUnit;
   const counterCount = Math.abs(attackerCounters - victimCounters);
 
+  counterVictim.modifiers.forEach((modifier) => modifier.enable());
+
   let result = counterVictim.modifiers.filter(
     (modifier) =>
       !modifier.isDebuff() &&
@@ -133,7 +135,7 @@ function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
 
   // if everything is going to be countered then short circuit
   if (result.length <= counterCount) {
-    result.forEach((modifier) => modifier.remove());
+    result.forEach((modifier) => modifier.disable());
     return;
   }
 
@@ -144,7 +146,7 @@ function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
         EnchantmentCounterSpellOrder.indexOf(a.enchantment as EnchantmentType),
     )
     .slice(0, counterCount)
-    .forEach((modifier) => modifier.remove());
+    .forEach((modifier) => modifier.disable());
 }
 
 export function getEnchantedAttributes(

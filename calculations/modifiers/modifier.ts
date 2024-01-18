@@ -19,6 +19,7 @@ export abstract class Modifier<T> {
   enchantment?: EnchantmentType;
   children: Modifier<any>[] = [];
   _isDebuff: boolean = false;
+  _isDisabled: boolean = false;
 
   constructor(options: ModifierOptions<T>) {
     this.getBonus = this.getBonus.bind(this);
@@ -90,5 +91,15 @@ export abstract class Modifier<T> {
 
   isDebuff(): boolean {
     return this._isDebuff;
+  }
+  isDisabled(): boolean {
+    return this._isDisabled;
+  }
+
+  disable() {
+    this._isDisabled = true;
+  }
+  enable() {
+    this._isDisabled = false;
   }
 }

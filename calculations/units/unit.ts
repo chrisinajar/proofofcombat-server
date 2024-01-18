@@ -180,7 +180,7 @@ export class Unit {
       const ModifierType = definitionOrClass as new (
         o: ModifierOptions<O>,
       ) => T;
-      const options = sourceOrOptions as O & { isDebuff?: boolean };
+      const options = sourceOrOptions as O;
       let source = voidOrSource as Unit | Item | undefined;
       const enchantment = voidOrEnchantment as EnchantmentType | undefined;
 
@@ -222,32 +222,34 @@ export class Unit {
     startingValue: number,
     combiner: (memo: number, val: number) => number,
   ): number {
-    return this.modifiers.reduce<number>((memo, val) => {
-      const getter = val[methodName] as PotentialGetter;
-      if (!getter) {
-        return memo;
-      }
-      if (!getter.reentrancy || !getter.reentrancy[propName]) {
-        getter.reentrancy = getter.reentrancy || {};
-        getter.reentrancy[propName] = true;
-        try {
-          const result = Number(getter(propName));
-          delete getter.reentrancy[propName];
-          if (Number.isFinite(result) && !Number.isNaN(result)) {
-            return combiner(memo, result);
-          }
-          // console.error("Reducing method", methodName, "failed!", result);
-        } catch (e) {
-          console.error("Reducing method", methodName, "failed!", e);
-        } finally {
-          delete getter.reentrancy[propName];
+    return this.modifiers
+      .filter((modifier) => !modifier.isDisabled())
+      .reduce<number>((memo, val) => {
+        const getter = val[methodName] as PotentialGetter;
+        if (!getter) {
+          return memo;
         }
-      } else {
-        console.error("Skipping getter for reentrancy", methodName, propName);
-      }
+        if (!getter.reentrancy || !getter.reentrancy[propName]) {
+          getter.reentrancy = getter.reentrancy || {};
+          getter.reentrancy[propName] = true;
+          try {
+            const result = Number(getter(propName));
+            delete getter.reentrancy[propName];
+            if (Number.isFinite(result) && !Number.isNaN(result)) {
+              return combiner(memo, result);
+            }
+            // console.error("Reducing method", methodName, "failed!", result);
+          } catch (e) {
+            console.error("Reducing method", methodName, "failed!", e);
+          } finally {
+            delete getter.reentrancy[propName];
+          }
+        } else {
+          console.error("Skipping getter for reentrancy", methodName, propName);
+        }
 
-      return memo;
-    }, startingValue);
+        return memo;
+      }, startingValue);
   }
 
   reduceModifiersAdditively(
