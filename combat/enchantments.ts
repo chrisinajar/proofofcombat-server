@@ -9,7 +9,6 @@ import {
   EnchantmentCounterSpellOrder,
 } from "./enchantment-order";
 import { expandEnchantmentList } from "./enchantment-groups";
-import { getArtifactBuffs } from "./artifacts";
 
 import { createStatStealModifiers } from "../calculations/modifiers/stat-steal-modifier";
 import { Modifier } from "../calculations/modifiers/modifier";
@@ -159,9 +158,6 @@ export function enchantCombatants(
   victim.mesmerizeChance = victim.unit.stats.mesmerizeChance;
   victim.focusChance = victim.unit.stats.focusChance;
   victim.lifesteal = victim.unit.stats.lifesteal;
-
-  attacker = getArtifactBuffs(attacker);
-  victim = getArtifactBuffs(victim);
 
   return { attacker, victim };
 }

@@ -2,6 +2,7 @@ import {
   AttackType,
   HeroClasses,
   InventoryItem as InventoryItemData,
+  ArtifactItem as ArtifactItemType,
   EnchantmentType,
 } from "types/graphql";
 
@@ -15,6 +16,7 @@ import {
 import { createStatStealModifiers } from "../modifiers/stat-steal-modifier";
 
 import { InventoryItem } from "../items/inventory-item";
+import { ArtifactItem } from "../items/artifact-item";
 
 import type { Item } from "../items/item";
 import type { Modifier, ModifierOptions } from "../modifiers/modifier";
@@ -149,6 +151,18 @@ export class Unit {
     applyAttackModifiers(victim, this);
 
     applyCounterSpells(this, victim);
+  }
+
+  equipArtifact(artifact: ArtifactItemType | null | undefined) {
+    if (!artifact) {
+      return;
+    }
+    const itemInstance = new ArtifactItem({
+      level: artifact.level,
+      name: artifact.name,
+      unit: this,
+      attributes: artifact.attributes,
+    });
   }
 
   equipItem(
