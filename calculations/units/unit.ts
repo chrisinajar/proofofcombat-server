@@ -6,13 +6,18 @@ import {
 } from "types/graphql";
 
 import { BasicUnitModifier } from "../modifiers/basic-unit-modifier";
-
 import { ModifierClass } from "../modifiers";
+import {
+  ModifierDefinition,
+  applyAttackModifiers,
+  applyCounterSpells,
+} from "../modifiers/enchantments";
+import { createStatStealModifiers } from "../modifiers/stat-steal-modifier";
 
-import type { Modifier, ModifierOptions } from "../modifiers/modifier";
-import type { ModifierDefinition } from "../modifiers/enchantments";
-import type { Item } from "../items/item";
 import { InventoryItem } from "../items/inventory-item";
+
+import type { Item } from "../items/item";
+import type { Modifier, ModifierOptions } from "../modifiers/modifier";
 
 declare global {
   interface ProxyConstructor {
@@ -62,6 +67,7 @@ export class Unit {
   precisions: PrecisionMap = {};
   clamps: ClampsMap = {};
   equipment: Item[] = [];
+  opponent?: Unit;
 
   constructor() {
     this.baseValues = {
@@ -130,6 +136,19 @@ export class Unit {
     };
 
     this.applyModifier(BasicUnitModifier, undefined);
+  }
+
+  enterCombat(victim: Unit) {
+    this.opponent = victim;
+    victim.opponent = this;
+
+    createStatStealModifiers(this, victim);
+    createStatStealModifiers(victim, this);
+
+    applyAttackModifiers(this, victim);
+    applyAttackModifiers(victim, this);
+
+    applyCounterSpells(this, victim);
   }
 
   equipItem(

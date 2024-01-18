@@ -67,12 +67,20 @@ describe("getEnchantedAttributes", () => {
     const monster = generateMonster(5);
     const preReduction = monster.attributes.dexterity;
 
-    let { attacker, victim } = getEnchantedAttributes(
-      createHeroCombatant(hero, AttackType.Melee),
+    let victim = getEnchantedAttributes(
       monster,
-    );
+      createHeroCombatant(hero, AttackType.Melee),
+    ).attacker;
 
     expect(preReduction).toBeGreaterThan(victim.attributes.dexterity);
+
+    victim = getEnchantedAttributes(
+      createHeroCombatant(hero, AttackType.Melee),
+      monster,
+    ).victim;
+
+    expect(preReduction).toBeGreaterThan(victim.attributes.dexterity);
+
     const onceReducedValue = victim.attributes.dexterity;
 
     hero.equipment.rightHand = {
@@ -85,6 +93,13 @@ describe("getEnchantedAttributes", () => {
       createHeroCombatant(hero, AttackType.Melee),
       monster,
     ).victim;
+
+    expect(onceReducedValue).toBeGreaterThan(victim.attributes.dexterity);
+
+    victim = getEnchantedAttributes(
+      monster,
+      createHeroCombatant(hero, AttackType.Melee),
+    ).attacker;
 
     expect(onceReducedValue).toBeGreaterThan(victim.attributes.dexterity);
   });
@@ -176,6 +191,7 @@ describe("getEnchantedAttributes", () => {
       ),
     ).toBeTruthy();
   });
+
   it("applies counter spells", () => {
     const hero = generateHero();
     let enchantResult = {};

@@ -12,10 +12,8 @@ import { expandEnchantmentList } from "./enchantment-groups";
 import { getArtifactBuffs } from "./artifacts";
 
 import { createStatStealModifiers } from "../calculations/modifiers/stat-steal-modifier";
-import { ParentModifier } from "../calculations/modifiers/parent-modifier";
 import { Modifier } from "../calculations/modifiers/modifier";
 import { ModifierDefinition } from "../calculations/modifiers/enchantments";
-import { InventoryItem } from "../calculations/items/inventory-item";
 import { Unit } from "../calculations/units/unit";
 
 export function countCounterSpells(attacker: Combatant): number {
@@ -81,74 +79,6 @@ export function getAllGearEnchantments(
   );
 }
 
-type ModifierDefinitionList = ModifierDefinition<Modifier<any>, any>[];
-
-function applyAttackModifiers(attackerUnit: Unit, victimUnit: Unit) {
-  victimUnit.modifiers.forEach((modifier) => {
-    if (modifier instanceof ParentModifier) {
-      if (modifier.id === "applyAttackModifiers") {
-        modifier.remove();
-      }
-    }
-  });
-  const modifierList = attackerUnit.equipment.reduce<ModifierDefinitionList>(
-    (memo, item) => {
-      if (item instanceof InventoryItem) {
-        if (item.victimModifiers && item.victimModifiers.length) {
-          return memo.concat(item.victimModifiers);
-        }
-      }
-      return memo;
-    },
-    [] as ModifierDefinitionList,
-  );
-
-  victimUnit.applyModifier({
-    type: ParentModifier,
-    options: {
-      modifiers: modifierList,
-      id: "applyAttackModifiers",
-    },
-  });
-}
-
-function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
-  const attackerCounters = attackerUnit.stats.counterSpell;
-  const victimCounters = victimUnit.stats.counterSpell;
-  // counter spells cancel each other out, so if they're equal (including both 0) we skip
-  if (attackerCounters === victimCounters) {
-    return;
-  }
-
-  const counterVictim =
-    attackerCounters > victimCounters ? victimUnit : attackerUnit;
-  const counterCount = Math.abs(attackerCounters - victimCounters);
-
-  counterVictim.modifiers.forEach((modifier) => modifier.enable());
-
-  let result = counterVictim.modifiers.filter(
-    (modifier) =>
-      !modifier.isDebuff() &&
-      modifier.enchantment &&
-      modifier.enchantment !== EnchantmentType.CounterSpell,
-  );
-
-  // if everything is going to be countered then short circuit
-  if (result.length <= counterCount) {
-    result.forEach((modifier) => modifier.disable());
-    return;
-  }
-
-  result
-    .sort(
-      (a, b) =>
-        EnchantmentCounterSpellOrder.indexOf(b.enchantment as EnchantmentType) -
-        EnchantmentCounterSpellOrder.indexOf(a.enchantment as EnchantmentType),
-    )
-    .slice(0, counterCount)
-    .forEach((modifier) => modifier.disable());
-}
-
 export function getEnchantedAttributes(
   attackerInput: Combatant,
   victimInput: Combatant,
@@ -162,13 +92,7 @@ export function getEnchantedAttributes(
     attributes: { ...victimInput.attributes },
   } as EnchantedCombatant;
 
-  createStatStealModifiers(attacker.unit, victim.unit);
-  createStatStealModifiers(victim.unit, attacker.unit);
-
-  applyAttackModifiers(attacker.unit, victim.unit);
-  applyAttackModifiers(victim.unit, attacker.unit);
-
-  applyCounterSpells(attacker.unit, victim.unit);
+  attacker.unit.enterCombat(victim.unit);
 
   const result = enchantCombatants(attacker, victim);
   attacker = result.attacker;
@@ -235,37 +159,6 @@ export function enchantCombatants(
   victim.mesmerizeChance = victim.unit.stats.mesmerizeChance;
   victim.focusChance = victim.unit.stats.focusChance;
   victim.lifesteal = victim.unit.stats.lifesteal;
-
-  if (attacker.attackType === AttackType.Ranged) {
-    attacker.bonusWeaponTiers += 1;
-  }
-
-  /// skillz
-  // i don't know why i wrote it that why and im sorry
-
-  // toHit: Attribute;
-  // damage: Attribute;
-  // dodge: Attribute;
-  // damageReduction: Attribute;
-  /*
-    MELEE
-    RANGED
-    CAST
-    SMITE
-    BLOOD
-  */
-
-  /**** Everything up until this point is complete using modifiers alone *****/
-
-  if (attacker.skills) {
-    const attackAttributes = attributesForAttack(attacker.attackType);
-    const victimAttributes = attributesForAttack(victim.attackType);
-
-    attacker.attributes[victimAttributes.damageReduction] *= Math.pow(
-      1.05,
-      attacker.skills.resilience,
-    );
-  }
 
   attacker = getArtifactBuffs(attacker);
   victim = getArtifactBuffs(victim);

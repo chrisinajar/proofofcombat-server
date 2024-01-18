@@ -34,6 +34,15 @@ export class BasicHeroModifier extends Modifier<undefined> {
   getMultiplier(prop: string): number | void {
     const attackAttributes = attributesForAttack(this.parent.attackType);
 
+    if (this.parent.opponent) {
+      const victimAttributes = attributesForAttack(
+        this.parent.opponent.attackType,
+      );
+
+      if (prop === victimAttributes.damageReduction) {
+        return Math.pow(1.05, this.parent.hero.skills.resilience);
+      }
+    }
     if (
       this.parent.attackType === AttackType.Melee ||
       this.parent.attackType === AttackType.Ranged ||

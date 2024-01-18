@@ -11,6 +11,9 @@ import {
   StatStealModifierOptions,
 } from "./stat-steal-modifier";
 import { Unit } from "../units/unit";
+import { ParentModifier } from "./parent-modifier";
+import { InventoryItem } from "../items/inventory-item";
+import { EnchantmentCounterSpellOrder } from "../../combat/enchantment-order";
 
 export type ModifierDefinition<T, O> = {
   type: ModifierClass<T, O>;
@@ -55,6 +58,76 @@ export function modifiersForEnchantment(
 
   return { attacker, victim };
 }
+
+type ModifierDefinitionList = ModifierDefinition<Modifier<any>, any>[];
+
+export function applyAttackModifiers(attackerUnit: Unit, victimUnit: Unit) {
+  victimUnit.modifiers.forEach((modifier) => {
+    if (modifier instanceof ParentModifier) {
+      if (modifier.id === "applyAttackModifiers") {
+        modifier.remove();
+      }
+    }
+  });
+  const modifierList = attackerUnit.equipment.reduce<ModifierDefinitionList>(
+    (memo, item) => {
+      if (item instanceof InventoryItem) {
+        if (item.victimModifiers && item.victimModifiers.length) {
+          return memo.concat(item.victimModifiers);
+        }
+      }
+      return memo;
+    },
+    [] as ModifierDefinitionList,
+  );
+
+  victimUnit.applyModifier({
+    type: ParentModifier,
+    options: {
+      modifiers: modifierList,
+      id: "applyAttackModifiers",
+    },
+  });
+}
+
+export function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
+  const attackerCounters = attackerUnit.stats.counterSpell;
+  const victimCounters = victimUnit.stats.counterSpell;
+  // counter spells cancel each other out, so if they're equal (including both 0) we skip
+  if (attackerCounters === victimCounters) {
+    return;
+  }
+
+  const counterVictim =
+    attackerCounters > victimCounters ? victimUnit : attackerUnit;
+  const counterCount = Math.abs(attackerCounters - victimCounters);
+
+  counterVictim.modifiers.forEach((modifier) => modifier.enable());
+
+  let result = counterVictim.modifiers.filter(
+    (modifier) =>
+      !modifier.isDebuff() &&
+      modifier.enchantment &&
+      modifier.enchantment !== EnchantmentType.CounterSpell,
+  );
+
+  // if everything is going to be countered then short circuit
+  if (result.length <= counterCount) {
+    result.forEach((modifier) => modifier.disable());
+    return;
+  }
+
+  result
+    .sort(
+      (a, b) =>
+        EnchantmentCounterSpellOrder.indexOf(b.enchantment as EnchantmentType) -
+        EnchantmentCounterSpellOrder.indexOf(a.enchantment as EnchantmentType),
+    )
+    .slice(0, counterCount)
+    .forEach((modifier) => modifier.disable());
+}
+
+// enchantment switches //
 
 export function statStealAttackModifierForEnchantment(
   enchantment: EnchantmentType,
