@@ -13,9 +13,11 @@ export default gql`
       amount: Int
     ): LevelUpResponse! @auth @delay(delay: 1000)
 
-    attackHero(id: ID!, attackType: AttackType): HeroFightResult!
-      @auth
-      @delay(delay: 1000)
+    attackHero(
+      id: ID!
+      attackType: AttackType
+      stance: HeroStance
+    ): HeroFightResult! @auth @delay(delay: 1000)
 
     # settings
     changeMinimumStat(name: String!, value: Int!): LevelUpResponse! @auth
@@ -58,6 +60,12 @@ export default gql`
     skills: HeroSkills!
     skillPercent: Int!
     activeSkill: HeroSkill!
+
+    activeStance: HeroStance!
+  }
+
+  enum HeroStance {
+    Normal
   }
 
   enum HeroSkill {

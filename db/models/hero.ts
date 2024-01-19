@@ -9,6 +9,7 @@ import {
   Location,
   Quest,
   HeroSkill,
+  HeroStance,
 } from "types/graphql";
 import { startingLevelCap } from "../../schema/quests/rebirth";
 import { hasQuestItem, takeQuestItem } from "../../schema/quests/helpers";
@@ -57,6 +58,7 @@ type PartialHero = Optional<
   | "skills"
   | "skillPercent"
   | "activeSkill"
+  | "activeStance"
 >;
 
 const inMemoryLeaderboardLength = 50;
@@ -460,6 +462,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
         luck: 10,
       },
     };
+
+    data.activeStance = data.activeStance ?? HeroStance.Normal;
 
     if (!data.combat) {
       data.combat = {

@@ -7,7 +7,7 @@ import {
 
 import { Combatant } from "./types";
 import { attributesForAttack, getItemPassiveUpgradeTier } from "./helpers";
-import { getEnchantedAttributes, getAllGearEnchantments } from "./enchantments";
+import { getEnchantedAttributes } from "./enchantments";
 
 export function calculateDamageValues(
   attackerInput: Combatant,
@@ -148,9 +148,7 @@ export function calculateDamageValues(
     });
   }
 
-  const canOnlyTakeOneDamage = getAllGearEnchantments(victim).find(
-    (ench) => ench === EnchantmentType.CanOnlyTakeOneDamage,
-  );
+  const canOnlyTakeOneDamage = victim.unit.stats.canOnlyTakeOneDamage > 0;
 
   let multiplier = 1;
 

@@ -1149,5 +1149,16 @@ export function genericStatsModifierForEnchantment(
         },
       };
       break;
+    case EnchantmentType.RangedSecondAttackChance:
+      return {
+        type: GenericStatsModifier,
+        enchantment: EnchantmentType.RangedSecondAttackChance,
+        options: {
+          multiplier: {
+            rangedSecondAttackChance: 0.5,
+          },
+        },
+      };
+      break;
   }
 }

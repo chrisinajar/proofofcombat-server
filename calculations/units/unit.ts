@@ -100,6 +100,7 @@ export class Unit {
       mesmerizeChance: 1, // inverse percent
       focusChance: 1, // inverse percent
       lifesteal: 0,
+      rangedSecondAttackChance: 1, // inverse percent
 
       health: 0, // calculated by basic unit/hero modifier
 

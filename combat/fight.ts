@@ -9,8 +9,8 @@ import {
 import { Combatant, CombatResult } from "./types";
 import { calculateHit } from "./calculate-hit";
 import { calculateDamage } from "./calculate-damage";
-import { getAllGearEnchantments, getEnchantedAttributes } from "./enchantments";
 import { calculateEnchantmentDamage } from "./calculate-enchantment-damage";
+import { getEnchantedAttributes } from "./enchantments";
 
 function hasTwoAttacks(combatant: Combatant): boolean {
   let hasTwoAttacks = false;
@@ -37,11 +37,9 @@ function hasTwoAttacks(combatant: Combatant): boolean {
   }
 
   if (combatant.attackType === AttackType.Ranged) {
-    const secondAttackChances = getAllGearEnchantments(combatant).filter(
-      (ench) => ench === EnchantmentType.RangedSecondAttackChance,
-    ).length;
     // 0 = 1, goes *DOWN* from there
-    hasTwoAttacks = Math.random() > Math.pow(0.5, secondAttackChances);
+    hasTwoAttacks =
+      Math.random() > combatant.unit.stats.rangedSecondAttackChance;
   }
 
   return hasTwoAttacks;

@@ -20,6 +20,7 @@ import {
   EnchantmentType,
   HeroFightResult,
   PlayerLocation,
+  HeroStance,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -39,7 +40,7 @@ const resolvers: Resolvers = {
     async leaderboard(
       parent,
       args,
-      context: BaseContext
+      context: BaseContext,
     ): Promise<LeadboardEntry[]> {
       return (await context.db.hero.getTopHeros()).map<LeadboardEntry>(
         (hero: Hero) => ({
@@ -48,7 +49,7 @@ const resolvers: Resolvers = {
           level: hero.level,
           id: hero.id,
           class: hero.class,
-        })
+        }),
       );
     },
   },
@@ -103,10 +104,12 @@ const resolvers: Resolvers = {
         hero.location.map !== victim.location.map
       ) {
         throw new UserInputError(
-          "That hero is not in the same location as you."
+          "That hero is not in the same location as you.",
         );
       }
       const attackType: AttackType = args.attackType || AttackType.Melee;
+      const stance: HeroStance = args.stance || hero.activeStance;
+      hero.activeStance = stance;
       const fightResult = await fightHero(hero, victim, attackType);
 
       hero.combat.health = Math.round(
@@ -117,9 +120,9 @@ const resolvers: Resolvers = {
             hero.combat.health -
               fightResult.attackerDamage -
               fightResult.attackerEnchantmentDamage +
-              fightResult.attackerHeal
-          )
-        )
+              fightResult.attackerHeal,
+          ),
+        ),
       );
 
       victim.combat.health = Math.round(
@@ -130,9 +133,9 @@ const resolvers: Resolvers = {
             victim.combat.health -
               fightResult.victimDamage -
               fightResult.victimEnchantmentDamage +
-              fightResult.victimHeal
-          )
-        )
+              fightResult.victimHeal,
+          ),
+        ),
       );
 
       let attackerDeathHeal = 0;
@@ -141,13 +144,13 @@ const resolvers: Resolvers = {
       if (hero.combat.health === 0) {
         victimDeathHeal = Math.max(
           victim.combat.maxHealth * 0.1,
-          hero.combat.maxHealth
+          hero.combat.maxHealth,
         );
       }
       if (victim.combat.health === 0) {
         attackerDeathHeal = Math.max(
           hero.combat.maxHealth * 0.1,
-          victim.combat.maxHealth
+          victim.combat.maxHealth,
         );
       }
 
@@ -156,18 +159,18 @@ const resolvers: Resolvers = {
           0,
           Math.min(
             victim.combat.maxHealth,
-            victim.combat.health + victimDeathHeal
-          )
-        )
+            victim.combat.health + victimDeathHeal,
+          ),
+        ),
       );
       hero.combat.health = Math.round(
         Math.max(
           0,
           Math.min(
             hero.combat.maxHealth,
-            hero.combat.health + attackerDeathHeal
-          )
-        )
+            hero.combat.health + attackerDeathHeal,
+          ),
+        ),
       );
 
       if (hero.combat.health === 0) {
@@ -213,12 +216,12 @@ const resolvers: Resolvers = {
 
       const automationUpgrades = countEnchantments(
         hero,
-        EnchantmentType.ImprovedAutomation
+        EnchantmentType.ImprovedAutomation,
       );
 
       if (automationUpgrades < 1) {
         throw new UserInputError(
-          "You do not have the quest items needed to do that."
+          "You do not have the quest items needed to do that.",
         );
       }
 
@@ -247,12 +250,12 @@ const resolvers: Resolvers = {
 
       const automationUpgrades = countEnchantments(
         hero,
-        EnchantmentType.ImprovedAutomation
+        EnchantmentType.ImprovedAutomation,
       );
 
       if (automationUpgrades < 1) {
         throw new UserInputError(
-          "You do not have the quest items needed to do that."
+          "You do not have the quest items needed to do that.",
         );
       }
 
@@ -265,7 +268,7 @@ const resolvers: Resolvers = {
     async increaseAttribute(
       parent,
       args,
-      context: BaseContext
+      context: BaseContext,
     ): Promise<LevelUpResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -291,7 +294,7 @@ const resolvers: Resolvers = {
       }
       amountToSpend = Math.max(
         1,
-        Math.min(hero.attributePoints, amountToSpend)
+        Math.min(hero.attributePoints, amountToSpend),
       );
 
       for (let i = 0, l = amountToSpend; i < l; ++i) {
@@ -324,7 +327,7 @@ const resolvers: Resolvers = {
         "increasing their",
         args.attribute,
         amountToSpend,
-        "times"
+        "times",
       );
 
       await context.db.hero.put(hero);
@@ -368,7 +371,7 @@ const resolvers: Resolvers = {
         const account = await context.db.account.get(context.auth.id);
         if (account.access !== AccessRole.Admin) {
           throw new ForbiddenError(
-            "You do not have permission to access that hero"
+            "You do not have permission to access that hero",
           );
         }
       }
@@ -493,12 +496,12 @@ const resolvers: Resolvers = {
     async equipment(
       parent,
       args,
-      context: BaseContext
+      context: BaseContext,
     ): Promise<EquipmentSlots> {
       const hero = parent;
       function findItem(
         hero: Hero,
-        item: string | InventoryItem | undefined | null
+        item: string | InventoryItem | undefined | null,
       ): InventoryItem | undefined {
         if (!item) {
           return;
@@ -516,7 +519,7 @@ const resolvers: Resolvers = {
             "but im in",
             parent.id,
             parent.name,
-            "inventory instead"
+            "inventory instead",
           );
           return;
         }

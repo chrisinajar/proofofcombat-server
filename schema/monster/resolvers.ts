@@ -10,6 +10,7 @@ import {
   HeroClasses,
   MonsterEquipment,
   EnchantmentType,
+  HeroStance,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -45,7 +46,7 @@ const resolvers: Resolvers = {
     async fight(
       parent,
       args,
-      context: BaseContext
+      context: BaseContext,
     ): Promise<MonsterFightResult> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -58,7 +59,7 @@ const resolvers: Resolvers = {
         monster = await context.db.monsterInstances.get(args.monster);
       } catch (e) {
         throw new UserInputError(
-          "This monster has been killed by another player!"
+          "This monster has been killed by another player!",
         );
       }
 
@@ -72,19 +73,22 @@ const resolvers: Resolvers = {
         monster.location.map !== hero.location.map
       ) {
         throw new UserInputError(
-          "You are not in the right location to fight that monster!"
+          "You are not in the right location to fight that monster!",
         );
       }
 
       const lockoutItem = MonsterLockoutItems[monster.monster.id];
       if (lockoutItem && hasQuestItem(hero, lockoutItem)) {
         throw new UserInputError(
-          "You cannot touch the aberration for you already possess it's essence"
+          "You cannot touch the aberration for you already possess it's essence",
         );
       }
 
       const startLevel = hero.level;
       const attackType: AttackType = args.attackType || AttackType.Melee;
+      const stance: HeroStance = args.stance || hero.activeStance;
+      hero.activeStance = stance;
+
       let goldReward = monster.monster.combat.maxHealth * 0.8;
 
       const fightResult = await fightMonster(hero, monster, attackType);
@@ -93,14 +97,14 @@ const resolvers: Resolvers = {
 
       const xpDoublers = context.db.hero.countEnchantments(
         hero,
-        EnchantmentType.DoubleExperience
+        EnchantmentType.DoubleExperience,
       );
       if (hero.class === HeroClasses.Adventurer) {
         experienceRewards *= 3;
       }
 
       experienceRewards = Math.ceil(
-        Math.min(hero.needed / 5, experienceRewards)
+        Math.min(hero.needed / 5, experienceRewards),
       );
 
       experienceRewards *= Math.pow(2, xpDoublers);
@@ -113,9 +117,9 @@ const resolvers: Resolvers = {
             hero.combat.health -
               fightResult.attackerDamage -
               fightResult.attackerEnchantmentDamage +
-              fightResult.attackerHeal
-          )
-        )
+              fightResult.attackerHeal,
+          ),
+        ),
       );
 
       let heroDeathHeal = 0;
@@ -125,7 +129,7 @@ const resolvers: Resolvers = {
         const heroDeathHealPercent = isVoid ? 1 : 0.1;
         heroDeathHeal = Math.max(
           monster.monster.combat.maxHealth * heroDeathHealPercent,
-          hero.combat.maxHealth
+          hero.combat.maxHealth,
         );
       }
 
@@ -138,9 +142,9 @@ const resolvers: Resolvers = {
               fightResult.victimDamage -
               fightResult.victimEnchantmentDamage +
               fightResult.victimHeal +
-              heroDeathHeal
-          )
-        )
+              heroDeathHeal,
+          ),
+        ),
       );
 
       // i am undeath
@@ -160,7 +164,7 @@ const resolvers: Resolvers = {
         const currentTavern = specialLocations(
           hero.location.x,
           hero.location.y,
-          hero.location.map as MapNames
+          hero.location.map as MapNames,
         ).find((location) => location.type === "tavern");
 
         let equipment: MonsterEquipment | undefined = undefined;
@@ -202,7 +206,7 @@ const resolvers: Resolvers = {
             xpDoublers,
             goldReward,
             experienceRewards,
-          }
+          },
         );
 
         await checkAberrationDrop(context, hero, monster.monster.id);
@@ -236,12 +240,12 @@ const resolvers: Resolvers = {
                 Math.floor(
                   bonusEnchantmentDropRate *
                     Math.random() *
-                    (monsterLevel / 9.6)
-                )
+                    (monsterLevel / 9.6),
+                ),
               );
               const itemInstance = enchantItem(
                 createItemInstance(baseItem, hero),
-                enchantment
+                enchantment,
               );
 
               droppedItem = itemInstance;
@@ -252,7 +256,7 @@ const resolvers: Resolvers = {
                 1 +
                 context.db.hero.countEnchantments(
                   hero,
-                  EnchantmentType.BonusDust
+                  EnchantmentType.BonusDust,
                 );
 
               context.io.sendNotification(hero.id, {
@@ -296,7 +300,7 @@ const resolvers: Resolvers = {
     async challenge(
       parent,
       args,
-      context: BaseContext
+      context: BaseContext,
     ): Promise<MonsterInstance> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -315,21 +319,21 @@ const resolvers: Resolvers = {
 
       if (location.terrain !== monster.terrain) {
         throw new UserInputError(
-          "You are in the wrong location for that monster."
+          "You are in the wrong location for that monster.",
         );
       }
 
       const currentTavern = specialLocations(
         hero.location.x,
         hero.location.y,
-        hero.location.map as MapNames
+        hero.location.map as MapNames,
       ).find((location) => location.type === "tavern");
 
       let equipment: MonsterEquipment | undefined = undefined;
 
       if (location.terrain === "void") {
         equipment = VOID_MONSTERS.find(
-          ({ monster }) => monster.id === monster.id
+          ({ monster }) => monster.id === monster.id,
         )?.equipment;
         console.log("void equipment", equipment);
       }
@@ -457,7 +461,7 @@ const resolvers: Resolvers = {
     async monsters(
       parent,
       args,
-      context: BaseContext
+      context: BaseContext,
     ): Promise<MonsterInstance[]> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");

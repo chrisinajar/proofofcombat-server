@@ -15,69 +15,6 @@ import { Modifier } from "../calculations/modifiers/modifier";
 import { ModifierDefinition } from "../calculations/modifiers/enchantments";
 import { Unit } from "../calculations/units/unit";
 
-export function countCounterSpells(attacker: Combatant): number {
-  // eventually other sources of counter spell maybe?
-  return getAllGearEnchantments(attacker).filter(
-    (ench) => ench === EnchantmentType.CounterSpell,
-  ).length;
-}
-
-export function getCounteredGearEnchantments(
-  attacker: Combatant,
-  victim: Combatant,
-): EnchantmentType[] {
-  const attackerCounterSpells = countCounterSpells(attacker);
-  const victimCounterSpells = countCounterSpells(victim);
-
-  return getAllGearEnchantments(attacker, victimCounterSpells);
-}
-
-export function getAllGearEnchantments(
-  attacker: Combatant,
-  counterSpells: number = 0,
-): EnchantmentType[] {
-  let enchantments: EnchantmentType[] = [];
-
-  attacker.equipment.quests.forEach((questItem) => {
-    const baseItem = BaseItems[questItem.baseItem];
-
-    if (baseItem && baseItem.passiveEnchantments) {
-      enchantments = enchantments.concat(baseItem.passiveEnchantments);
-    }
-  });
-  attacker.equipment.armor.forEach((armor) => {
-    if (armor.enchantment) {
-      enchantments.push(armor.enchantment);
-    }
-  });
-
-  attacker.equipment.weapons.forEach((weapon) => {
-    if (weapon.enchantment) {
-      enchantments.push(weapon.enchantment);
-    }
-  });
-
-  enchantments = expandEnchantmentList(enchantments);
-
-  if (counterSpells > 0) {
-    EnchantmentCounterSpellOrder.reverse();
-    enchantments = enchantments.sort(
-      (a, b) =>
-        EnchantmentCounterSpellOrder.indexOf(b) -
-        EnchantmentCounterSpellOrder.indexOf(a),
-    );
-    EnchantmentCounterSpellOrder.reverse();
-
-    enchantments = enchantments.slice(counterSpells);
-  }
-
-  return enchantments.sort(
-    (a, b) =>
-      EnchantmentActivationOrder.indexOf(a) -
-      EnchantmentActivationOrder.indexOf(b),
-  );
-}
-
 export function getEnchantedAttributes(
   attackerInput: Combatant,
   victimInput: Combatant,
