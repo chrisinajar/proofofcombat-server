@@ -59,6 +59,7 @@ type PartialHero = Optional<
   | "skillPercent"
   | "activeSkill"
   | "activeStance"
+  | "availableStances"
 >;
 
 const inMemoryLeaderboardLength = 50;
@@ -464,6 +465,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     };
 
     data.activeStance = data.activeStance ?? HeroStance.Normal;
+    data.availableStances = data.availableStances ?? [HeroStance.Normal];
 
     if (!data.combat) {
       data.combat = {

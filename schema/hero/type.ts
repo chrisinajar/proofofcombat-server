@@ -62,6 +62,7 @@ export default gql`
     activeSkill: HeroSkill!
 
     activeStance: HeroStance!
+    availableStances: [HeroStance!]!
   }
 
   enum HeroStance {
