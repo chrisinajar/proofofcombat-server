@@ -33,7 +33,7 @@ export type SocketServerAPI = {
   sendGlobalNotification: (notification: Notification) => void;
   sendLocalNotification: (
     location: { x: number; y: number; map: string },
-    notification: Notification
+    notification: Notification,
   ) => void;
 };
 
@@ -75,7 +75,7 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
       if (!socket.name) {
         return;
       }
-      if (!data.message.trim().length) {
+      if (!data?.message?.trim?.()?.length) {
         return;
       }
       console.log(socket.name, data.message);
@@ -164,7 +164,7 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
 
   function sendLocalNotification(
     location: { x: number; y: number; map: string },
-    notification: Notification
+    notification: Notification,
   ) {
     console.log("Sending LOCAL notification!", location);
     io.sockets.sockets.forEach(async (socket: ExtendedSocket, id: string) => {
