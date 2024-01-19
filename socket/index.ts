@@ -95,7 +95,7 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
         return;
       }
       let toName = "";
-      if (!data.message.trim().length) {
+      if (!data?.message?.trim?.()?.length) {
         return;
       }
       const message = {
