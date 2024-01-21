@@ -277,6 +277,40 @@ describe("combat", () => {
     });
   });
   describe("blood combat", () => {
+    it("works with huge numbers", () => {
+      const hero = levelUpHero(generateHero(), 5000, { constitution: 1 });
+
+      hero.class = "Vampire";
+      hero.attackType = AttackType.Blood;
+      hero.skills.regeneration = 25;
+
+      hero.equipment.footArmor = {
+        type: InventoryItemType.FootArmor,
+        level: 34,
+        enchantment: EnchantmentType.SuperVamp,
+      };
+      hero.equipment.bodyArmor = {
+        type: InventoryItemType.BodyArmor,
+        level: 34,
+        enchantment: EnchantmentType.SuperVamp,
+      };
+
+      let heroCombatant = createHeroCombatant(hero, AttackType.Melee);
+      const monster = createMonsterCombatant({
+        level: 60,
+        name: `Level ${60} Mob`,
+        attackType: AttackType.Melee,
+        combat: {
+          health: Math.round(Math.pow(1.4, 60) * 8),
+          maxHealth: Math.round(Math.pow(1.4, 60) * 8),
+        },
+      });
+
+      heroCombatant.health = heroCombatant.maxHealth;
+
+      let result = calculateEnchantmentDamage(heroCombatant, monster);
+      expect(result.attackerHeal).toBeLessThan(1000000);
+    });
     it("should reduce enemy enchantment resistance", () => {
       const hero = generateHero();
       const hero2 = generateHero();

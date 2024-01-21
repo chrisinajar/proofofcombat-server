@@ -14,6 +14,7 @@ import { Unit } from "../units/unit";
 import { ParentModifier } from "./parent-modifier";
 import { InventoryItem } from "../items/inventory-item";
 import { EnchantmentCounterSpellOrder } from "../../combat/enchantment-order";
+import { expandEnchantmentList } from "../../combat/enchantment-groups";
 
 export type ModifierDefinition<T, O> = {
   type: ModifierClass<T, O>;
@@ -28,6 +29,27 @@ export function modifiersForEnchantment(
   enchantment: EnchantmentType,
   attackType: AttackType,
 ): AttackerModifierDefinition<Modifier<any>> {
+  const expandedModifiers = expandEnchantmentList([enchantment]);
+  if (!expandedModifiers.length) {
+    return { attacker: [], victim: [] };
+  }
+  if (expandedModifiers.length > 1) {
+    // loop
+    const result = expandedModifiers.reduce<
+      AttackerModifierDefinition<Modifier<any>>
+    >(
+      (memo, e) => {
+        const result = modifiersForEnchantment(e, attackType);
+        memo.attacker = memo.attacker.concat(result.attacker);
+        memo.victim = memo.victim.concat(result.victim);
+        return memo;
+      },
+      { attacker: [], victim: [] },
+    );
+    return result;
+  }
+  enchantment = expandedModifiers[0];
+
   const genericStats = genericStatsModifierForEnchantment(
     enchantment,
     attackType,

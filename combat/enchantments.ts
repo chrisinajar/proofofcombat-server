@@ -8,7 +8,6 @@ import {
   EnchantmentActivationOrder,
   EnchantmentCounterSpellOrder,
 } from "./enchantment-order";
-import { expandEnchantmentList } from "./enchantment-groups";
 
 import { createStatStealModifiers } from "../calculations/modifiers/stat-steal-modifier";
 import { Modifier } from "../calculations/modifiers/modifier";

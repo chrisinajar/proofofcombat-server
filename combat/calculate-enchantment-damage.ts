@@ -79,8 +79,8 @@ export function calculateEnchantmentDamage(
   const attackerCanOnlyTakeOneDamage =
     attacker.unit.stats.canOnlyTakeOneDamage > 0;
 
-  attackerHeal += attacker.maxHealth * attacker.unit.stats.regeneration;
-  victimHeal += victim.maxHealth * victim.unit.stats.regeneration;
+  attackerHeal += attacker.maxHealth * attacker.unit.stats.healthRegeneration;
+  victimHeal += victim.maxHealth * victim.unit.stats.healthRegeneration;
 
   if (victimCanOnlyTakeOneDamage) {
     victimDamage = Math.min(1, victimDamage);

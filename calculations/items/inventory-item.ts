@@ -9,6 +9,7 @@ import {
   ModifierDefinition,
 } from "../modifiers/enchantments";
 import { Modifier } from "../modifiers/modifier";
+import { expandEnchantmentList } from "../../combat/enchantment-groups";
 
 export type InventoryItemOptions = ItemOptions & {
   type: InventoryItemType;
