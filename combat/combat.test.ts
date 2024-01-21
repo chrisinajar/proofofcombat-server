@@ -950,12 +950,7 @@ describe("calculateEnchantmentDamage", () => {
       createHeroCombatant(hero, AttackType.Melee),
       createHeroCombatant(hero2, AttackType.Melee),
     );
-    expect(result).toEqual({
-      attackerDamage: 0,
-      victimDamage: 0,
-      attackerHeal: 0,
-      victimHeal: 0,
-    });
+    expect(result).toMatchSnapshot();
 
     hero.equipment.leftHand = {
       level: 1,
@@ -973,12 +968,7 @@ describe("calculateEnchantmentDamage", () => {
       createHeroCombatant(hero2, AttackType.Melee),
     );
 
-    expect(result).toEqual({
-      attackerDamage: 0,
-      victimDamage: 6,
-      attackerHeal: 6,
-      victimHeal: 0,
-    });
+    expect(result).toMatchSnapshot();
 
     hero.equipment.rightHand = {
       level: 1,
@@ -991,23 +981,13 @@ describe("calculateEnchantmentDamage", () => {
       createHeroCombatant(hero2, AttackType.Melee),
     );
 
-    expect(result).toEqual({
-      attackerDamage: 0,
-      victimDamage: 21,
-      attackerHeal: 21,
-      victimHeal: 0,
-    });
+    expect(result).toMatchSnapshot();
 
     result = calculateEnchantmentDamage(
       createHeroCombatant(hero, AttackType.Blood),
       createHeroCombatant(hero2, AttackType.Melee),
     );
 
-    expect(result).toEqual({
-      attackerDamage: 0,
-      victimDamage: 28,
-      attackerHeal: 28,
-      victimHeal: 0,
-    });
+    expect(result).toMatchSnapshot();
   });
 });

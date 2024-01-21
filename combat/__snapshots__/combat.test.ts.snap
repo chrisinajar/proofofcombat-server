@@ -95,3 +95,39 @@ exports[`builds melee uber items can deal destroy 32s at max level 1`] = `
   "wisdom": 10996,
 }
 `;
+
+exports[`calculateEnchantmentDamage should calculate damage correctly 1`] = `
+{
+  "attackerDamage": 0,
+  "attackerHeal": 0,
+  "victimDamage": 0,
+  "victimHeal": 0,
+}
+`;
+
+exports[`calculateEnchantmentDamage should calculate damage correctly 2`] = `
+{
+  "attackerDamage": 0,
+  "attackerHeal": 6,
+  "victimDamage": 6,
+  "victimHeal": 0,
+}
+`;
+
+exports[`calculateEnchantmentDamage should calculate damage correctly 3`] = `
+{
+  "attackerDamage": 0,
+  "attackerHeal": 23,
+  "victimDamage": 23,
+  "victimHeal": 0,
+}
+`;
+
+exports[`calculateEnchantmentDamage should calculate damage correctly 4`] = `
+{
+  "attackerDamage": 0,
+  "attackerHeal": 31,
+  "victimDamage": 31,
+  "victimHeal": 0,
+}
+`;
