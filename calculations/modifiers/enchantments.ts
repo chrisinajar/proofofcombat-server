@@ -486,6 +486,19 @@ export function genericStatsAttackModifierForEnchantment(
       };
       break;
 
+    case EnchantmentType.SuperVampStats:
+      return {
+        type: GenericStatsModifier,
+        enchantment: EnchantmentType.SuperVampStats,
+        options: {
+          isDebuff: true,
+          multiplier: {
+            percentageEnchantmentDamageReduction: 0.95,
+          },
+        },
+      };
+      break;
+
     case EnchantmentType.Vampirism:
       return {
         type: GenericStatsModifier,
