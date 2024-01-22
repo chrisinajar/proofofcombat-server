@@ -15,7 +15,6 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     hero,
     EnchantmentType.CanCraft,
   );
-  const canCraft = craftCount > 0;
 
   const enchantedItems = hero.inventory.filter((item) => {
     if (item.type === InventoryItemType.Quest) {
@@ -26,7 +25,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   }).length;
 
   const dust = hero.enchantingDust;
-  if (canCraft === 0) {
+  if (craftCount === 0) {
     if (enchantedItems < 20) {
       return hero;
     }
@@ -42,7 +41,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     return hero;
   }
 
-  if (canCraft === 1) {
+  if (craftCount === 1) {
     // if (dust < 5000 || enchantedItems < 200) {
     return hero;
     // }
