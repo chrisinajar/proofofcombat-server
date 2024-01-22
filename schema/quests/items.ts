@@ -857,6 +857,15 @@ export function getQuestRewards() {
       level: 1,
       canBuy: false,
     },
+
+    "crafting-goggles": {
+      id: "crafting-goggles",
+      name: "Spectacular Spectacles",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [EnchantmentType.CanCraft],
+    },
   };
 }
 

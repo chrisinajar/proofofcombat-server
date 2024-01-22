@@ -11,12 +11,11 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     return hero;
   }
 
-  const canCraft =
-    Databases.hero.countEnchantments(hero, EnchantmentType.CanCraft) > 0;
-
-  if (canCraft) {
-    return hero;
-  }
+  const craftCount = Databases.hero.countEnchantments(
+    hero,
+    EnchantmentType.CanCraft,
+  );
+  const canCraft = craftCount > 0;
 
   const enchantedItems = hero.inventory.filter((item) => {
     if (item.type === InventoryItemType.Quest) {
@@ -26,19 +25,39 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     return !!item.enchantment;
   }).length;
 
-  if (enchantedItems < 20) {
+  const dust = hero.enchantingDust;
+  if (canCraft === 0) {
+    if (enchantedItems < 20) {
+      return hero;
+    }
+
+    console.log(hero.name, "is unlocking crafting!");
+
+    hero.currentQuest = {
+      id: `Creafting-${hero.id}`,
+      message: questEvents.welcome,
+      quest: Quest.Rebirth,
+    };
+
     return hero;
   }
 
-  console.log(hero.name, "is unlocking crafting!");
+  if (canCraft === 1) {
+    // if (dust < 5000 || enchantedItems < 200) {
+    return hero;
+    // }
 
-  hero = giveQuestItemNotification(context, hero, "crafting-hammer");
+    // crafting phase two
+    hero.currentQuest = {
+      id: `Creafting-${hero.id}-2`,
+      message: questEvents.enoughDust,
+      quest: Quest.Rebirth,
+    };
 
-  hero.currentQuest = {
-    id: `Creafting-${hero.id}`,
-    message: questEvents.welcome,
-    quest: Quest.Rebirth,
-  };
+    hero = giveQuestItemNotification(context, hero, "crafting-goggles");
+
+    return hero;
+  }
 
   return hero;
 }

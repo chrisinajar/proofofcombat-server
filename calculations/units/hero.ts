@@ -68,11 +68,6 @@ export class Hero extends Unit {
     this.applyModifier(BasicHeroModifier, undefined);
     this.applyModifier(HeroClassModifier, undefined);
 
-    // this.applyModifier(GenericArmorModifier, { tier: 3 });
-    ///@TODO iterate over equipment and quest items to apply appropriate modifiers, apply class based modifiers to change all their things
-
-    // console.log("hero creator!", this.hero.class, this.attackType);
-
     this.equipItem(this.hero.equipment.leftHand);
     this.equipItem(this.hero.equipment.rightHand);
     this.equipItem(this.hero.equipment.bodyArmor);
@@ -88,6 +83,7 @@ export class Hero extends Unit {
         this.equipItem(questItem);
       });
 
+    // artifact which totally works right definitely complete feature
     this.equipArtifact(this.hero.equipment.artifact);
   }
 
