@@ -50,13 +50,13 @@ exports[`builds archer uber items can deal destroy 32s at max level 1`] = `
 
 exports[`builds melee great items can destroy 28's 1`] = `
 {
-  "constitution": 5005,
-  "dexterity": 66426,
-  "intelligence": 5005,
+  "constitution": 7207,
+  "dexterity": 95653,
+  "intelligence": 7207,
   "luck": 8505,
-  "strength": 128549,
-  "willpower": 6006,
-  "wisdom": 5005,
+  "strength": 185111,
+  "willpower": 8649,
+  "wisdom": 7207,
 }
 `;
 
@@ -86,13 +86,13 @@ exports[`builds melee trash items can kill level 1 mobs 1`] = `
 
 exports[`builds melee uber items can deal destroy 32s at max level 1`] = `
 {
-  "constitution": 10996,
-  "dexterity": 182274,
-  "intelligence": 10996,
+  "constitution": 15834,
+  "dexterity": 262472,
+  "intelligence": 15834,
   "luck": 18685,
-  "strength": 1028394,
-  "willpower": 13195,
-  "wisdom": 10996,
+  "strength": 1480887,
+  "willpower": 19001,
+  "wisdom": 15834,
 }
 `;
 

@@ -25,12 +25,11 @@ import {
 export async function checkSkipDrop(
   context: BaseContext,
   hero: Hero,
-  monster: MonsterInstance
+  monster: MonsterInstance,
 ): Promise<boolean> {
   console.log("checking skip drop!");
 
   if (!hasQuestItem(hero, "clean-rag")) {
-    console.log("Allowing!...");
     return true;
   }
 
@@ -46,7 +45,6 @@ export async function checkSkipDrop(
     type: "quest",
   });
 
-  console.log("Preventing...");
   return false;
 }
 
@@ -68,7 +66,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
         hero,
         Quest.MeetTheQueen,
         "intro",
-        questEvents.intro
+        questEvents.intro,
       );
       hero = setQuestLogProgress(hero, Quest.MeetTheQueen, "meetTheQueen", 1);
     }
@@ -91,7 +89,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
         hero,
         Quest.MeetTheQueen,
         "notHere",
-        questEvents.notHere
+        questEvents.notHere,
       );
       hero = setQuestLogProgress(hero, Quest.MeetTheQueen, "meetTheQueen", 2);
 
@@ -106,7 +104,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
         hero,
         Quest.MeetTheQueen,
         "brewconiaIsTheQueen",
-        questEvents.brewconiaIsTheQueen
+        questEvents.brewconiaIsTheQueen,
       );
       hero = setQuestLogProgress(hero, Quest.MeetTheQueen, "meetTheQueen", 3);
 
@@ -118,7 +116,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
         hero,
         Quest.MeetTheQueen,
         "brewconiasFavor",
-        questEvents.brewconiasFavor
+        questEvents.brewconiasFavor,
       );
       hero = setQuestLogProgress(hero, Quest.MeetTheQueen, "meetTheQueen", 10);
 
@@ -179,7 +177,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
       hero,
       Quest.MeetTheQueen,
       "finishedRagsLegendary",
-      questEvents.finishedRagsLegendary
+      questEvents.finishedRagsLegendary,
     );
   } else if (bloodQuality >= 39) {
     // perfect, at least lich+
@@ -187,7 +185,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
       hero,
       Quest.MeetTheQueen,
       "finishedRagsPerfect",
-      questEvents.finishedRagsPerfect
+      questEvents.finishedRagsPerfect,
     );
   } else if (bloodQuality >= 30) {
     // good enough
@@ -195,7 +193,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
       hero,
       Quest.MeetTheQueen,
       "finishedRagsGood",
-      questEvents.finishedRagsGood
+      questEvents.finishedRagsGood,
     );
   } else {
     // literally bad
@@ -203,7 +201,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
       hero,
       Quest.MeetTheQueen,
       "finishedRagsBad",
-      questEvents.finishedRagsBad
+      questEvents.finishedRagsBad,
     );
   }
 
@@ -225,7 +223,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     Quest.MeetTheQueen,
     "meetTheQueen",
     20,
-    true
+    true,
   );
 
   return hero;

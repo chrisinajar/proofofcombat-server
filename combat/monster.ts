@@ -15,13 +15,13 @@ import { Mob } from "../calculations/units/mob";
 
 function createMonsterStatsByLevel(level: number): HeroStats {
   return {
-    strength: Math.ceil(Math.pow(1.35, level - 1) * 8) - 5,
-    dexterity: Math.ceil(Math.pow(1.35, level - 1) * 8) - 5,
-    constitution: Math.ceil(Math.pow(1.35, level - 1) * 8) - 5,
-    intelligence: Math.ceil(Math.pow(1.35, level - 1) * 8) - 5,
-    wisdom: Math.ceil(Math.pow(1.35, level - 1) * 8) - 5,
-    willpower: Math.ceil(Math.pow(1.35, level - 1) * 8) - 5,
-    luck: Math.ceil(Math.pow(1.35, level - 1) * 8) - 5,
+    strength: Math.ceil(Math.pow(1.36, level - 1) * 8) - 5,
+    dexterity: Math.ceil(Math.pow(1.36, level - 1) * 8) - 5,
+    constitution: Math.ceil(Math.pow(1.36, level - 1) * 8) - 5,
+    intelligence: Math.ceil(Math.pow(1.36, level - 1) * 8) - 5,
+    wisdom: Math.ceil(Math.pow(1.36, level - 1) * 8) - 5,
+    willpower: Math.ceil(Math.pow(1.36, level - 1) * 8) - 5,
+    luck: Math.ceil(Math.pow(1.36, level - 1) * 8) - 5,
   };
 }
 
@@ -41,7 +41,7 @@ function createMonsterLuck(monster: Monster) {
 
 export function createMonsterEquipment(
   monster: Partial<Monster> & Pick<Monster, "level">,
-  equipmentOverride?: MonsterEquipment | null
+  equipmentOverride?: MonsterEquipment | null,
 ): CombatantGear {
   if (equipmentOverride) {
     return {
@@ -111,7 +111,7 @@ export function createMonsterCombatant(
     name: string;
     attackType: AttackType;
   },
-  equipment?: MonsterEquipment | null
+  equipment?: MonsterEquipment | null,
 ): Combatant {
   const monsterAttributes = createMonsterStatsByLevel(monster.level);
 

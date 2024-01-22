@@ -890,6 +890,7 @@ describe("builds", () => {
       accessories: [
         { name: "fisherman's str", baseItem: "fishermans-strength" },
         { name: "fisherman's dex", baseItem: "fishermans-dexterity" },
+        { name: "hero guidance", baseItem: "heros-guidance" },
       ],
     });
     const uberGear = () => ({
@@ -926,6 +927,7 @@ describe("builds", () => {
       accessories: [
         { name: "fisherman's str", baseItem: "fishermans-strength" },
         { name: "fisherman's dex", baseItem: "fishermans-dexterity" },
+        { name: "hero guidance", baseItem: "heros-guidance" },
       ],
     });
 
@@ -989,5 +991,65 @@ describe("calculateEnchantmentDamage", () => {
     );
 
     expect(result).toMatchSnapshot();
+  });
+  it("should be symetrical", () => {
+    const hero = levelUpHero(generateHero(), 1000, {
+      strength: 0.3,
+      dexterity: 0.2,
+      luck: 0.3,
+      willpower: 0.2,
+    });
+    const hero2 = levelUpHero(generateHero(), 1000, { constitution: 1 });
+
+    function checkForSymmetry() {
+      hero.combat.health = hero.combat.maxHealth;
+      hero2.combat.health = hero2.combat.maxHealth;
+
+      const result = calculateEnchantmentDamage(
+        createHeroCombatant(hero, AttackType.Melee),
+        createHeroCombatant(hero2, AttackType.Blood),
+      );
+      const result2 = calculateEnchantmentDamage(
+        createHeroCombatant(hero2, AttackType.Blood),
+        createHeroCombatant(hero, AttackType.Melee),
+      );
+
+      expect(result.attackerDamage).toEqual(result2.victimDamage);
+    }
+
+    hero2.equipment.rightHand = {
+      level: 34,
+      type: InventoryItemType.Shield,
+      enchantment: EnchantmentType.SuperVampStats,
+    };
+
+    checkForSymmetry();
+
+    hero2.equipment.leftHand = {
+      level: 34,
+      type: InventoryItemType.Shield,
+      enchantment: EnchantmentType.SuperVampStats,
+    };
+
+    checkForSymmetry();
+
+    hero2.inventory.push({
+      level: 0,
+      baseItem: "vampire-ring",
+      type: InventoryItemType.Quest,
+    });
+    hero2.inventory.push({
+      level: 0,
+      baseItem: "heros-guidance",
+      type: InventoryItemType.Quest,
+    });
+
+    checkForSymmetry();
+
+    hero2.skills.regeneration = 20;
+    hero2.skills.resilience = 20;
+    hero.skills.regeneration = 20;
+    hero.skills.resilience = 20;
+    checkForSymmetry();
   });
 });

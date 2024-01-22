@@ -45,7 +45,7 @@ export function rebirth(context: BaseContext, hero: Hero): Hero {
   // 1, 2, 4, etc
   const startingLevel = Math.pow(
     2,
-    Databases.hero.countEnchantments(hero, EnchantmentType.DoubleLeveling)
+    Databases.hero.countEnchantments(hero, EnchantmentType.DoubleLeveling),
   );
 
   hero.attributePoints = Math.max(0, startingLevel - 1);
@@ -92,17 +92,17 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   }
 
   // amixea can help, grants void travel
-  // if (
-  //   hasQuestItem(hero, "cracked-orb-of-forbidden-power") &&
-  //   // heroLocationName(hero) === "Altar of Transcendence"
-  //   !hasQuestItem(hero, "void-vessel") &&
-  //   heroLocationName(hero) === "Amixea's Hut"
-  // ) {
-  //   hero = rebirthMessage(hero, "amixeaCanHelp", questEvents.amixeaCanHelp);
-  //   giveQuestItemNotification(context, hero, "void-vessel");
+  if (
+    hasQuestItem(hero, "cracked-orb-of-forbidden-power") &&
+    // heroLocationName(hero) === "Altar of Transcendence"
+    !hasQuestItem(hero, "void-vessel") &&
+    heroLocationName(hero) === "Amixea's Hut"
+  ) {
+    hero = rebirthMessage(hero, "amixeaCanHelp", questEvents.amixeaCanHelp);
+    giveQuestItemNotification(context, hero, "void-vessel");
 
-  //   return hero;
-  // }
+    return hero;
+  }
 
   if (hero.levelCap === thirdLevelCap && hero.level === thirdLevelCap) {
     if (
@@ -120,7 +120,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
       giveQuestItemNotification(
         context,
         hero,
-        "cracked-orb-of-forbidden-power"
+        "cracked-orb-of-forbidden-power",
       );
       context.io.sendGlobalNotification({
         message: `A blinding light flashes from above the mountain, ${hero.name} has been cursed`,
@@ -170,13 +170,18 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
 function rebirthMessage(
   hero: Hero,
   uniqueName: string,
-  message: string[]
+  message: string[],
 ): Hero {
   hero.currentQuest = {
     id: `Rebirth-${hero.id}-${uniqueName}`,
     message: message,
     quest: Quest.Rebirth,
   };
+
+  if (hero.questLog.rebirth) {
+    hero.questLog.rebirth.lastEvent = hero.currentQuest;
+  }
+
   return hero;
 }
 

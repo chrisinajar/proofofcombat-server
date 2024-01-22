@@ -58,6 +58,17 @@ export abstract class Modifier<T> {
       this.remove();
     }
     this.parent = unit;
+    if (this.isUnique()) {
+      this.parent.modifiers.forEach((modifier) => {
+        if (modifier === this) {
+          return;
+        }
+        if (modifier.constructor !== this.constructor) {
+          return;
+        }
+        modifier.remove();
+      });
+    }
     if (this.parent.modifiers.find((modifier) => modifier === this)) {
       this.onUpdated();
     } else {
@@ -101,5 +112,8 @@ export abstract class Modifier<T> {
   }
   enable() {
     this._isDisabled = false;
+  }
+  isUnique() {
+    return false;
   }
 }
