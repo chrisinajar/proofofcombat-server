@@ -4,16 +4,19 @@ import type { Unit } from "../units/unit";
 import type { Item } from "../items/item";
 import type { ModifierDefinition } from "./enchantments";
 
-type ModifierSubtype<T extends Modifier<O>, O> = T;
+export type ModifierPersistancyData<O> = {
+  timeRemaining: number;
+  options: O;
+};
 
-export type ModifierOptions<T> = {
+export type ModifierOptions<O> = {
   parent: Unit;
   source: Unit | Item;
-  options: T;
+  options: O;
   enchantment?: EnchantmentType;
 };
 
-export abstract class Modifier<T> {
+export abstract class Modifier<O> {
   parent: Unit;
   source: Unit | Item;
   enchantment?: EnchantmentType;
@@ -21,7 +24,7 @@ export abstract class Modifier<T> {
   _isDebuff: boolean = false;
   _isDisabled: boolean = false;
 
-  constructor(options: ModifierOptions<T>) {
+  constructor(options: ModifierOptions<O>) {
     this.getBonus = this.getBonus.bind(this);
     this.getMultiplier = this.getMultiplier.bind(this);
     this.getExtraBonus = this.getExtraBonus.bind(this);
@@ -114,6 +117,9 @@ export abstract class Modifier<T> {
     this._isDisabled = false;
   }
   isUnique() {
+    return false;
+  }
+  isPersistent(): ModifierPersistancyData<O> | false {
     return false;
   }
 }

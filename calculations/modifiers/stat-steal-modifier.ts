@@ -39,7 +39,7 @@ export function createStatStealModifiers(
   };
 }
 
-export type StatStealVictimModifierOptions = {};
+export type StatStealVictimModifierOptions = { isDebuff: boolean };
 
 export class StatStealVictimModifier extends Modifier<StatStealVictimModifierOptions> {
   options: StatStealVictimModifierOptions;

@@ -19,7 +19,11 @@ import { InventoryItem } from "../items/inventory-item";
 import { ArtifactItem } from "../items/artifact-item";
 
 import type { Item } from "../items/item";
-import type { Modifier, ModifierOptions } from "../modifiers/modifier";
+import type {
+  Modifier,
+  ModifierOptions,
+  ModifierPersistancyData,
+} from "../modifiers/modifier";
 
 declare global {
   interface ProxyConstructor {
@@ -139,6 +143,16 @@ export class Unit {
     };
 
     this.applyModifier(BasicUnitModifier, undefined);
+  }
+
+  getPersistentModifiers(): ModifierPersistancyData<any>[] {
+    return this.modifiers
+      .map((modifier) => modifier.isPersistent())
+      .filter(
+        (
+          persistency: false | ModifierPersistancyData<any>,
+        ): persistency is ModifierPersistancyData<any> => !!persistency,
+      );
   }
 
   enterCombat(victim: Unit) {
