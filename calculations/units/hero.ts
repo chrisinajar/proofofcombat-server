@@ -8,6 +8,7 @@ import {
 
 import { BasicHeroModifier } from "../modifiers/basic-hero-modifier";
 import { HeroClassModifier } from "../modifiers/hero-class-modifier";
+import { HeroStanceModifier } from "../modifiers/hero-stance-modifier";
 import { GenericArmorModifier } from "../modifiers/generic-armor-modifier";
 import { InventoryItem } from "../items/inventory-item";
 
@@ -67,6 +68,7 @@ export class Hero extends Unit {
 
     this.applyModifier(BasicHeroModifier, undefined);
     this.applyModifier(HeroClassModifier, undefined);
+    this.applyModifier(HeroStanceModifier, undefined);
 
     this.equipItem(this.hero.equipment.leftHand);
     this.equipItem(this.hero.equipment.rightHand);

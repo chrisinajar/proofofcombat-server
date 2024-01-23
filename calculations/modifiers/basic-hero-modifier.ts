@@ -1,4 +1,4 @@
-import { HeroClasses, AttackType } from "types/graphql";
+import { HeroClasses, AttackType, HeroStance } from "types/graphql";
 
 import { Modifier, ModifierOptions } from "./modifier";
 
