@@ -10,7 +10,7 @@ import { giveHeroRandomDrop, randomEnchantment } from "../items/helpers";
 export async function checkAberrationDrop(
   context: BaseContext,
   hero: Hero,
-  aberration: string
+  aberration: string,
 ): Promise<void> {
   switch (aberration) {
     case "domari-aberration-1":
@@ -30,7 +30,7 @@ export async function checkAberrationDrop(
 
 async function thornbruteReward(
   context: BaseContext,
-  hero: Hero
+  hero: Hero,
 ): Promise<void> {
   context.io.sendGlobalNotification({
     message: `The terrible aberration in ${hero.location.x}, ${hero.location.y} has been slain by ${hero.name}`,
@@ -49,7 +49,7 @@ async function thornbruteReward(
 
 async function unholyPaladinReward(
   context: BaseContext,
-  hero: Hero
+  hero: Hero,
 ): Promise<void> {
   context.io.sendGlobalNotification({
     message: `${hero.name} has ended the unholy aberration in ${hero.location.x}, ${hero.location.y}`,
@@ -68,18 +68,16 @@ async function unholyPaladinReward(
 
 async function genericAberrationReward(
   context: BaseContext,
-  hero: Hero
+  hero: Hero,
 ): Promise<void> {
-  const enchantmentTier = Math.random() > 0.5 ? 3 : 2;
-
   // random garbo base with a high tier enchant
-  giveHeroRandomDrop(context, hero, 1, enchantmentTier, false, false);
+  giveHeroRandomDrop(context, hero, 1, 3, false, false);
 
-  if (Math.random() < 1 / 10) {
+  if (Math.random() < 1 / 5) {
     let dustAmount = 100 + Math.ceil(Math.random() * 400);
     hero.enchantingDust += dustAmount;
 
-    if (Math.random() < 1 / 20) {
+    if (Math.random() < 1 / 10) {
       // crit
       dustAmount *= 10;
       context.io.sendNotification(hero.id, {
@@ -105,7 +103,7 @@ async function genericAberrationReward(
 
 async function burntHarlequinReward(
   context: BaseContext,
-  hero: Hero
+  hero: Hero,
 ): Promise<void> {
   context.io.sendGlobalNotification({
     message: `at ${hero.location.x}, ${hero.location.y}, ash sits still in the air around ${hero.name}`,
@@ -113,7 +111,7 @@ async function burntHarlequinReward(
   });
 
   // ascended gear piece with a forced tier 3 enchantment on it
-  giveHeroRandomDrop(context, hero, 33, 3, true, false);
+  giveHeroRandomDrop(context, hero, 33, 2, true, false);
 
   let gotReward = false;
 
