@@ -42,9 +42,9 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   }
 
   if (craftCount === 1) {
-    // if (dust < 5000 || enchantedItems < 200) {
-    return hero;
-    // }
+    if (dust < 5000 || enchantedItems < 200) {
+      return hero;
+    }
 
     // crafting phase two
     hero.currentQuest = {
