@@ -26,8 +26,29 @@ export function resetTimer() {
 }
 
 export async function spawnRandomAberration(context: BaseContext) {
-  const aberration =
-    Aberrations[Math.floor(Aberrations.length * Math.random())];
+  const totalWeight = Aberrations.reduce<number>(
+    (memo: number, abby) => memo + abby.weight,
+    0,
+  );
+  let roll = Math.floor(totalWeight * Math.random());
+  console.log({ totalWeight, roll });
+  const aberration = Aberrations.find((abby) => {
+    if (abby.weight > roll) {
+      return true;
+    }
+    roll -= abby.weight;
+    return false;
+  });
+  if (!aberration) {
+    console.error(
+      "ERROR IN ABERRATION CODE",
+      "Could not find a valid aberration with roll",
+      roll,
+      "and totalWeight",
+      totalWeight,
+    );
+    return;
+  }
   console.log("ABERRATION SPAWN EVENT!?", aberration);
   let spawnMessage = "A forgotten aberration is rampaging near {{loc}}";
 
@@ -40,6 +61,9 @@ export async function spawnRandomAberration(context: BaseContext) {
       break;
     case "domari-aberration-1":
       spawnMessage = "Ash can be seen overhead near {{loc}}";
+      break;
+    case "random-aberration-moving-mountain":
+      spawnMessage = "The ground trembles as the mountains rise near {{loc}}";
       break;
   }
 
@@ -136,15 +160,23 @@ export function startAberrations() {
 const Aberrations = [
   {
     id: "domari-aberration-1",
+    weight: 3,
     ...AberrationStats["domari-aberration-1"],
   },
   {
     id: "random-aberration-unholy-paladin",
+    weight: 3,
     ...AberrationStats["random-aberration-unholy-paladin"],
   },
   {
     id: "random-aberration-thornbrute",
+    weight: 3,
     ...AberrationStats["random-aberration-thornbrute"],
+  },
+  {
+    id: "random-aberration-moving-mountain",
+    weight: 1,
+    ...AberrationStats["random-aberration-moving-mountain"],
   },
   // {
   //   id: "random-aberration-void-keeper",

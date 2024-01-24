@@ -92,19 +92,19 @@ export const AberrationStats = {
       attackType: AttackType.Melee,
       level: 33,
       combat: {
-        maxHealth: 5000000000,
-        health: 5000000000,
+        maxHealth: 2000000000,
+        health: 2000000000,
       },
     },
     equipment: {
-      bodyArmor: { level: 40, enchantment: EnchantmentType.BonusArmor },
+      bodyArmor: { level: 40, enchantment: EnchantmentType.SuperCounterSpell },
       handArmor: { level: 40, enchantment: EnchantmentType.LifeHeal },
-      legArmor: { level: 40, enchantment: EnchantmentType.Vampirism },
-      headArmor: { level: 40, enchantment: EnchantmentType.SuperCounterSpell },
+      legArmor: { level: 40, enchantment: EnchantmentType.LifeHeal },
+      headArmor: { level: 40, enchantment: EnchantmentType.BonusArmor },
       footArmor: { level: 40, enchantment: EnchantmentType.BonusArmor },
 
-      leftHand: { level: 30, enchantment: EnchantmentType.SuperDexterity },
-      rightHand: { level: 30, enchantment: EnchantmentType.SuperDexterity },
+      leftHand: { level: 34, enchantment: EnchantmentType.FishermansDexterity },
+      rightHand: { level: 34, enchantment: EnchantmentType.SuperMelee },
     },
   },
 
