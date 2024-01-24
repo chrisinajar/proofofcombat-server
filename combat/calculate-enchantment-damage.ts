@@ -20,11 +20,11 @@ export function getOneSidedData(
 
   victimDamage /= Math.max(
     1,
-    victim.level * victim.percentageEnchantmentDamageReduction,
+    Math.sqrt(victim.level) * victim.percentageEnchantmentDamageReduction,
   );
   attackerLeech /= Math.max(
     1,
-    victim.level * victim.percentageEnchantmentDamageReduction,
+    Math.sqrt(victim.level) * victim.percentageEnchantmentDamageReduction,
   );
   attackerLeech = Math.min(1000000000, attackerLeech);
 
