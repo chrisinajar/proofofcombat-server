@@ -108,8 +108,8 @@ exports[`calculateEnchantmentDamage should calculate damage correctly 1`] = `
 exports[`calculateEnchantmentDamage should calculate damage correctly 2`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 6,
-  "victimDamage": 6,
+  "attackerHeal": 878,
+  "victimDamage": 878,
   "victimHeal": 0,
 }
 `;
@@ -117,8 +117,8 @@ exports[`calculateEnchantmentDamage should calculate damage correctly 2`] = `
 exports[`calculateEnchantmentDamage should calculate damage correctly 3`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 23,
-  "victimDamage": 23,
+  "attackerHeal": 3328,
+  "victimDamage": 3328,
   "victimHeal": 0,
 }
 `;
@@ -126,8 +126,8 @@ exports[`calculateEnchantmentDamage should calculate damage correctly 3`] = `
 exports[`calculateEnchantmentDamage should calculate damage correctly 4`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 31,
-  "victimDamage": 31,
+  "attackerHeal": 4437,
+  "victimDamage": 4437,
   "victimHeal": 0,
 }
 `;
