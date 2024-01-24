@@ -85,6 +85,29 @@ export const AberrationStats = {
     },
   },
 
+  "random-aberration-moving-mountain": {
+    monster: {
+      name: "Moving Mountain",
+      id: "random-aberration-moving-mountain",
+      attackType: AttackType.Melee,
+      level: 33,
+      combat: {
+        maxHealth: 5000000000,
+        health: 5000000000,
+      },
+    },
+    equipment: {
+      bodyArmor: { level: 40, enchantment: EnchantmentType.BonusArmor },
+      handArmor: { level: 40, enchantment: EnchantmentType.LifeHeal },
+      legArmor: { level: 40, enchantment: EnchantmentType.Vampirism },
+      headArmor: { level: 40, enchantment: EnchantmentType.SuperCounterSpell },
+      footArmor: { level: 40, enchantment: EnchantmentType.BonusArmor },
+
+      leftHand: { level: 30, enchantment: EnchantmentType.SuperDexterity },
+      rightHand: { level: 30, enchantment: EnchantmentType.SuperDexterity },
+    },
+  },
+
   "random-aberration-void-keeper": {
     monster: {
       name: "Void Keeper",

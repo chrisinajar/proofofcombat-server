@@ -21,7 +21,7 @@ import { questEvents } from "./text/droop-text";
 export function checkHeroDrop(
   context: BaseContext,
   hero: Hero,
-  monster: MonsterInstance
+  monster: MonsterInstance,
 ): Hero {
   // already finished
   if (hero.questLog.droop?.finished) {
@@ -60,6 +60,7 @@ export function checkHeroDrop(
     return hero;
     // secretLocation
   }
+  console.log(hero.name, "is searching for", secretLocation);
   // lol, droop sucks
   secretLocation[0] += Math.floor(Math.random() * 3) - 1;
   secretLocation[1] += Math.floor(Math.random() * 3) - 1;
@@ -70,7 +71,7 @@ export function checkHeroDrop(
 
   // questEvents
   const message = questEvents.poorlyDrawnMap.map((m) =>
-    m.replace("{{direction}}", direction)
+    m.replace("{{direction}}", direction),
   );
 
   hero.currentQuest = {

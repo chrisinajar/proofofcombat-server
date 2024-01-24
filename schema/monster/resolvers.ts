@@ -87,7 +87,7 @@ const resolvers: Resolvers = {
       const startLevel = hero.level;
       const attackType: AttackType = args.attackType || AttackType.Melee;
       const stance: HeroStance = args.stance || hero.activeStance;
-      hero.activeStance = stance;
+      // hero.activeStance = stance;
 
       let goldReward = monster.monster.combat.maxHealth * 0.8;
 

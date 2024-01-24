@@ -5,7 +5,7 @@ import type { Item } from "../items/item";
 import type { ModifierDefinition } from "./enchantments";
 
 export type ModifierPersistancyData<O> = {
-  timeRemaining: number;
+  expireTime: number;
   options: O;
 };
 

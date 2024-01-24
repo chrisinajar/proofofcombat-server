@@ -23,8 +23,33 @@ export async function checkAberrationDrop(
     case "random-aberration-unholy-paladin":
       return unholyPaladinReward(context, hero);
       break;
-    default:
+    case "random-aberration-moving-mountain":
+      return movingMountainReward(context, hero);
       break;
+
+    default:
+      // this applies to ALL mobs, not just aberrations
+      break;
+  }
+}
+
+async function movingMountainReward(
+  context: BaseContext,
+  hero: Hero,
+): Promise<void> {
+  context.io.sendGlobalNotification({
+    message: `The termors at ${hero.location.x}, ${hero.location.y} have been put to rest by ${hero.name}`,
+    type: "quest",
+  });
+  genericAberrationReward(context, hero);
+
+  if (Math.random() < 1 / 4) {
+    giveHeroRandomDrop(context, hero, 33, 3, false, false);
+    // asdf asdf
+    context.io.sendGlobalNotification({
+      message: `${hero.name} has received great rewards for their task`,
+      type: "quest",
+    });
   }
 }
 
@@ -259,5 +284,6 @@ async function burntHarlequinReward(
   if (!gotReward) {
     // why did you kill this?
     // get something bonus?
+    // essences certainly...
   }
 }

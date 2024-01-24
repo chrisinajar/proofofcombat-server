@@ -9,6 +9,7 @@ import { Combatant } from "./types";
 import { createLuck } from "./helpers";
 
 import { Hero as HeroUnit } from "../calculations/units/hero";
+import Databases from "../db";
 
 export function addItemToCombatant(
   combatant: Combatant,
@@ -122,7 +123,7 @@ export function createHeroCombatant(
   hero: Hero,
   attackType: AttackType,
 ): Combatant {
-  const heroUnit = new HeroUnit(hero);
+  const heroUnit = Databases.hero.getUnit(hero);
   heroUnit.attackType = attackType;
 
   const heroCombatant: Combatant = {

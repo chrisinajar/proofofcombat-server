@@ -17,7 +17,7 @@ import { BaseItems } from "../../schema/items/base-items";
 import { BaseContext } from "../../schema/context";
 import { LocationData } from "../../constants";
 import { Hero as HeroUnit } from "../../calculations/units/hero";
-
+import { ModifierPersistancyData } from "../../calculations/modifiers/modifier";
 import DatabaseInterface from "../interface";
 
 import { getArtifactModifier } from "./artifact";
@@ -33,6 +33,8 @@ const SkillDisplayNames: { [x in HeroSkill]: string } = {
 };
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+
+type HeroData = Hero & { persistedModifiers: ModifierPersistancyData<any>[] };
 
 type PartialHero = Optional<
   Hero,
@@ -68,14 +70,20 @@ import { countEnchantments } from "../../schema/items/helpers";
 import { getClass } from "./hero/classes";
 
 export default class HeroModel extends DatabaseInterface<Hero> {
+  heroUnitMap: WeakMap<Hero, HeroUnit> = new WeakMap();
+
   constructor() {
     super("hero");
   }
 
   getUnit(hero: Hero) {
+    if (this.heroUnitMap.has(hero)) {
+      this.heroUnitMap.get(hero);
+    }
     const heroUnit = new HeroUnit(hero);
     // console.log(heroUnit.baseValues);
     // console.log(heroUnit.stats.health);
+    this.heroUnitMap.set(hero, heroUnit);
 
     return heroUnit;
   }
@@ -610,5 +618,23 @@ export default class HeroModel extends DatabaseInterface<Hero> {
         experience: 0,
       }),
     );
+  }
+
+  async put(data: Hero) {
+    const heroUnit = this.getUnit(data);
+    // console.log("put", heroUnit.getPersistentModifiers());
+    const heroData = data as HeroData;
+    heroData.persistedModifiers = heroUnit.getPersistentModifiers();
+    return super.put(heroData);
+  }
+
+  async get(id: string): Promise<Hero> {
+    // console.log("get", id);
+    const data = (await super.get(id)) as HeroData;
+    // console.log(data.persistedModifiers);
+    const heroUnit = this.getUnit(data);
+    // console.log(heroUnit.getPersistentModifiers());
+    // console.log(data);
+    return data;
   }
 }

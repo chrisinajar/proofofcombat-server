@@ -109,7 +109,7 @@ const resolvers: Resolvers = {
       }
       const attackType: AttackType = args.attackType || AttackType.Melee;
       const stance: HeroStance = args.stance || hero.activeStance;
-      hero.activeStance = stance;
+      // hero.activeStance = stance;
       const fightResult = await fightHero(hero, victim, attackType);
 
       hero.combat.health = Math.round(

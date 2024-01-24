@@ -32,6 +32,8 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
 
     console.log(hero.name, "is unlocking crafting!");
 
+    hero = giveQuestItemNotification(context, hero, "crafting-hammer");
+
     hero.currentQuest = {
       id: `Creafting-${hero.id}`,
       message: questEvents.welcome,
