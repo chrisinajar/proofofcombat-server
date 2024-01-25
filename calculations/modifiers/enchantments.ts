@@ -130,7 +130,7 @@ export function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
     (modifier) =>
       !modifier.isDebuff() &&
       modifier.enchantment &&
-      modifier.enchantment !== EnchantmentType.CounterSpell,
+      EnchantmentCounterSpellOrder.indexOf(modifier.enchantment) >= 0,
   );
 
   // if everything is going to be countered then short circuit

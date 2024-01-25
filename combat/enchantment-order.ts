@@ -73,7 +73,8 @@ export const EnchantmentActivationOrder = [
 
 export const EnchantmentCounterSpellOrder = [
   // counter other counter spells
-  EnchantmentType.CounterSpell,
+  // this is done implicitely in the counter spell logic now
+  // EnchantmentType.CounterSpell,
 
   // big heals
   EnchantmentType.SuperVampStats,
