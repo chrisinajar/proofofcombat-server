@@ -333,7 +333,8 @@ const resolvers: Resolvers = {
 
       if (location.terrain === "void") {
         equipment = VOID_MONSTERS.find(
-          ({ monster }) => monster.id === monster.id,
+          ({ monster: voidMonster }) =>
+            monster && voidMonster.id === monster.id,
         )?.equipment;
         console.log("void equipment", equipment);
       }
