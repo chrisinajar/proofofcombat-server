@@ -100,7 +100,6 @@ async function genericAberrationReward(
 
   if (Math.random() < 1 / 5) {
     let dustAmount = 100 + Math.ceil(Math.random() * 400);
-    hero.enchantingDust += dustAmount;
 
     if (Math.random() < 1 / 10) {
       // crit
@@ -123,6 +122,8 @@ async function genericAberrationReward(
         type: "quest",
       });
     }
+
+    hero.enchantingDust += dustAmount;
   }
 }
 
