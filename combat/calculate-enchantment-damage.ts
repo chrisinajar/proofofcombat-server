@@ -4,6 +4,16 @@ import { Combatant, EnchantedCombatant } from "./types";
 import { attributesForAttack } from "./helpers";
 import { getEnchantedAttributes } from "./enchantments";
 
+import { Unit } from "../calculations/units/unit";
+import { Hero } from "../calculations/units/hero";
+
+function isHero(maybeHero: Unit): maybeHero is Hero {
+  if ("isHero" in maybeHero) {
+    return (maybeHero as Hero).isHero();
+  }
+  return false;
+}
+
 export function getOneSidedData(
   attacker: EnchantedCombatant,
   victim: EnchantedCombatant,
@@ -18,13 +28,22 @@ export function getOneSidedData(
     attacker.unit.stats.enchantmentDamage * attacker.attributes.constitution,
   );
 
+  let enchantDamageResist = 1;
+  const victimUnit = victim.unit;
+
+  if (isHero(victimUnit)) {
+    enchantDamageResist = victim.level;
+  } else {
+    enchantDamageResist = Math.sqrt(victim.level);
+  }
+
   victimDamage /= Math.max(
     1,
-    Math.log(victim.level) * victim.percentageEnchantmentDamageReduction,
+    enchantDamageResist * victim.percentageEnchantmentDamageReduction,
   );
   attackerLeech /= Math.max(
     1,
-    Math.log(victim.level) * victim.percentageEnchantmentDamageReduction,
+    enchantDamageResist * victim.percentageEnchantmentDamageReduction,
   );
   attackerLeech = Math.min(1000000000, attackerLeech);
 

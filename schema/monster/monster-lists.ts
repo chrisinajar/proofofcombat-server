@@ -12,11 +12,11 @@ function makeMonster(
   factor: number,
   amp: number,
   terrain: string,
-  levelScale: number = 1
+  levelScale: number = 1,
 ) {
   return function (
     { name, attackType }: { name: string; attackType: AttackType },
-    index: number
+    index: number,
   ): Monster {
     MONSTERS[name] = {
       id: name,
@@ -185,8 +185,8 @@ export const VOID_MONSTERS: {
       headArmor: { level: 45, enchantment: EnchantmentType.SuperSorcVamp },
       footArmor: { level: 45, enchantment: EnchantmentType.BonusArmor },
 
-      leftHand: { level: 34 },
-      rightHand: { level: 34 },
+      leftHand: { level: 36 },
+      rightHand: { level: 36 },
     },
   },
 ];
