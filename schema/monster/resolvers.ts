@@ -310,6 +310,8 @@ const resolvers: Resolvers = {
 
       if (!monster) {
         throw new UserInputError("Unknown monster");
+      } else {
+        monster.combat.health = monster.combat.maxHealth;
       }
 
       const location =
@@ -332,7 +334,6 @@ const resolvers: Resolvers = {
       let equipment: MonsterEquipment | undefined = undefined;
 
       if (location.terrain === "void") {
-        console.log(monster);
         equipment = VOID_MONSTERS.find(
           ({ monster: voidMonster }) =>
             monster && voidMonster.id === monster.id,
