@@ -493,7 +493,7 @@ const resolvers: Resolvers = {
         return FORBIDDEN_MONSTERS;
       }
       if (location.terrain === "void") {
-        return VOID_MONSTERS.map(({ monster }) => monster);
+        return VOID_MONSTERS.map(({ monster }) => ({ ...monster }));
       }
 
       return [];
