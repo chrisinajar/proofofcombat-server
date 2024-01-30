@@ -160,7 +160,7 @@ export function startAberrations() {
 const Aberrations = [
   {
     id: "domari-aberration-1",
-    weight: 3,
+    weight: 2,
     ...AberrationStats["domari-aberration-1"],
   },
   {
