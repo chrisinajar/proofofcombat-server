@@ -38,7 +38,7 @@ async function movingMountainReward(
   hero: Hero,
 ): Promise<void> {
   context.io.sendGlobalNotification({
-    message: `The termors at ${hero.location.x}, ${hero.location.y} have been put to rest by ${hero.name}`,
+    message: `The tremors at ${hero.location.x}, ${hero.location.y} have been put to rest by ${hero.name}`,
     type: "quest",
   });
   genericAberrationReward(context, hero);

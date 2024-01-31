@@ -674,7 +674,7 @@ export function getQuestRewards() {
       id: "orb-of-forbidden-power",
       name: "Orb of Forbidden Power",
       type: InventoryItemType.Quest,
-      level: 1,
+      level: 2,
       canBuy: false,
       passiveEnchantments: [
         // Orb specific

@@ -56,4 +56,8 @@ export const questEvents = {
   ],
 
   ascendedRebirth: ["You are reborn once again."],
+  forbiddenRebirth: [
+    "Your forbidden orb glows and consumes your life force. The glowing creature is nowhere to be seen.",
+    "You are reborn once again.",
+  ],
 };

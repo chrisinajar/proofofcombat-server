@@ -31,9 +31,15 @@ export function rebirth(context: BaseContext, hero: Hero): Hero {
     hero = rebirthMessage(hero, "rebirth", questEvents.firstRebirth);
     hero = giveQuestItemNotification(context, hero, "totem-of-hero");
   } else if (hero.levelCap === thirdLevelCap) {
-    hero.levelCap = thirdLevelCap;
-    hero = rebirthMessage(hero, "rebirth", questEvents.ascendedRebirth);
-    hero = giveQuestItemNotification(context, hero, "totem-of-hero");
+    if (hasQuestItem(hero, "orb-of-forbidden-power")) {
+      hero.levelCap = thirdLevelCap;
+      hero = rebirthMessage(hero, "rebirth", questEvents.forbiddenRebirth);
+    } else {
+      hero.levelCap = thirdLevelCap;
+      hero = rebirthMessage(hero, "rebirth", questEvents.ascendedRebirth);
+      hero = giveQuestItemNotification(context, hero, "totem-of-hero");
+    }
+
     giveHeroRandomDrop(context, hero, 33, 4, true);
 
     // revert progress so they can rebirth again
