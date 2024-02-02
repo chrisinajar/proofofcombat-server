@@ -132,6 +132,10 @@ export function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
       modifier.enchantment &&
       EnchantmentCounterSpellOrder.indexOf(modifier.enchantment) >= 0,
   );
+  // nothin to counter
+  if (result.length === 0) {
+    return;
+  }
 
   // if everything is going to be countered then short circuit
   if (result.length <= counterCount) {
