@@ -697,6 +697,7 @@ export function getQuestRewards() {
         EnchantmentType.AutoBattle,
         EnchantmentType.DoubleExperience,
         EnchantmentType.CanRebirth,
+        EnchantmentType.DoubleLeveling,
         // Aqua Lungs
         EnchantmentType.CanTravelOnWater,
         // Naga Scale
@@ -743,6 +744,7 @@ export function getQuestRewards() {
         EnchantmentType.AutoBattle,
         EnchantmentType.DoubleExperience,
         EnchantmentType.CanRebirth,
+        EnchantmentType.DoubleLeveling,
         // Aqua Lungs
         EnchantmentType.CanTravelOnWater,
         // Naga Scale
