@@ -56,6 +56,22 @@ finishedRagsLegendary
 */
 
 export function checkHero(context: BaseContext, hero: Hero): Hero {
+  if (
+    hero.questLog.meetTheQueen?.finished &&
+    heroLocationName(hero) !== "Palace of Rotherham"
+  ) {
+    // "uncomplete" it when we're not at the palace
+    // allows repeats
+    // v v lazy
+    hero = setQuestLogProgress(
+      hero,
+      Quest.MeetTheQueen,
+      "meetTheQueen",
+      1,
+      false,
+    );
+    return hero;
+  }
   if (hero.currentQuest || hero.questLog.meetTheQueen?.finished) {
     return hero;
   }
