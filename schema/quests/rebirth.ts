@@ -160,9 +160,16 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
       giveQuestItemNotification(context, hero, "totem-of-champion-rebirth");
       break;
     case 5000:
-      hero = rebirthMessage(hero, "third", questEvents.thirdCap);
-      takeQuestItem(hero, "totem-of-hero");
-      giveQuestItemNotification(context, hero, "totem-of-hero-rebirth");
+      if (
+        hasQuestItem(hero, "orb-of-forbidden-power") ||
+        hasQuestItem(hero, "cracked-orb-of-forbidden-power")
+      ) {
+        // repetitive rebirth in void phase
+      } else {
+        hero = rebirthMessage(hero, "third", questEvents.thirdCap);
+        takeQuestItem(hero, "totem-of-hero");
+        giveQuestItemNotification(context, hero, "totem-of-hero-rebirth");
+      }
       break;
   }
 

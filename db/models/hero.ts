@@ -584,6 +584,24 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       );
     }
 
+    if (data.version < 9) {
+      if (
+        (hasQuestItem(data as Hero, "orb-of-forbidden-power") ||
+          hasQuestItem(data as Hero, "cracked-orb-of-forbidden-power")) &&
+        hasQuestItem(data as Hero, "totem-of-hero-rebirth")
+      ) {
+        data = takeQuestItem(data as Hero, "totem-of-hero-rebirth");
+      }
+      if (
+        (hasQuestItem(data as Hero, "orb-of-forbidden-power") ||
+          hasQuestItem(data as Hero, "cracked-orb-of-forbidden-power")) &&
+        hasQuestItem(data as Hero, "totem-of-hero")
+      ) {
+        data = takeQuestItem(data as Hero, "totem-of-hero");
+      }
+      data.version = 9;
+    }
+
     // recalculate stats and turn it into a real hero object
     let hero = this.recalculateStats(data as Hero);
     hero.gold = Math.min(this.maxGold(hero), Math.round(hero.gold));
