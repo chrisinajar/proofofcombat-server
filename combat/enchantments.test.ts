@@ -328,6 +328,6 @@ describe("getEnchantedAttributes", () => {
           !modifier.isDisabled() &&
           modifier.enchantment === EnchantmentType.DoubleAllStats,
       ).length,
-    ).toBe(2);
+    ).toBe(1);
   });
 });

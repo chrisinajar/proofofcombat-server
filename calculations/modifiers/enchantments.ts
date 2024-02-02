@@ -113,8 +113,8 @@ export function applyAttackModifiers(attackerUnit: Unit, victimUnit: Unit) {
 }
 
 export function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
-  const attackerCounters = attackerUnit.stats.counterSpell;
-  const victimCounters = victimUnit.stats.counterSpell;
+  const attackerCounters = attackerUnit.stats.counterSpell * 2;
+  const victimCounters = victimUnit.stats.counterSpell * 2;
   // counter spells cancel each other out, so if they're equal (including both 0) we skip
   if (attackerCounters === victimCounters) {
     return;
