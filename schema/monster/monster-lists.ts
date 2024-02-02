@@ -168,7 +168,7 @@ export const VOID_MONSTERS: {
 }[] = [
   {
     monster: {
-      id: "Void Monster",
+      id: "void-monster",
       name: "Void Monster",
       level: 45,
       attackType: AttackType.Cast,
@@ -185,8 +185,8 @@ export const VOID_MONSTERS: {
       headArmor: { level: 45, enchantment: EnchantmentType.SuperSorcVamp },
       footArmor: { level: 45, enchantment: EnchantmentType.BonusArmor },
 
-      leftHand: { level: 36 },
-      rightHand: { level: 36 },
+      leftHand: { level: 44 },
+      rightHand: { level: 44 },
     },
   },
 ];

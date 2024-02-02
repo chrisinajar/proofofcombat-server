@@ -6,6 +6,7 @@ import {
   takeQuestItem,
 } from "../quests/helpers";
 import { giveHeroRandomDrop, randomEnchantment } from "../items/helpers";
+import { rebirth } from "../quests/rebirth";
 
 export async function checkAberrationDrop(
   context: BaseContext,
@@ -27,9 +28,36 @@ export async function checkAberrationDrop(
       return movingMountainReward(context, hero);
       break;
 
+    case "void-monster":
+      return voidMonsterReward(context, hero);
+      break;
     default:
       // this applies to ALL mobs, not just aberrations
       break;
+  }
+}
+
+async function voidMonsterReward(
+  context: BaseContext,
+  hero: Hero,
+): Promise<void> {
+  const isVoid = hero.location.map === "void";
+
+  if (!isVoid) {
+    return;
+  }
+
+  // this is the first void travel monster
+  // you go there, kill it, and return
+  // if you have a cracked orb and kill it them amixea can help
+
+  // send them back to the mortal plane
+  hero.location = { x: 64, y: 44, map: "default" };
+  hero = rebirth(context, hero);
+
+  if (hasQuestItem(hero, "cracked-orb-of-forbidden-power")) {
+    hero = takeQuestItem(hero, "cracked-orb-of-forbidden-power");
+    hero = giveQuestItemNotification(context, hero, "orb-of-forbidden-power");
   }
 }
 

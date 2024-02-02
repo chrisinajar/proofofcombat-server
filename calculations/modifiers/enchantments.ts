@@ -135,10 +135,24 @@ export function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
 
   // if everything is going to be countered then short circuit
   if (result.length <= counterCount) {
+    console.log(
+      counterVictim === victimUnit ? "victim" : "attacker",
+      "is having all",
+      result.length,
+      "modifiers countered",
+    );
     result.forEach((modifier) => modifier.disable());
     return;
   }
 
+  console.log(
+    counterVictim === victimUnit ? "victim" : "attacker",
+    "is having ",
+    counterCount,
+    "of",
+    result.length,
+    "modifiers countered",
+  );
   result
     .sort(
       (a, b) =>

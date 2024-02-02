@@ -212,17 +212,6 @@ const resolvers: Resolvers = {
 
         await checkAberrationDrop(context, hero, monster.monster.id);
 
-        const isVoid = hero.location.map === "void";
-
-        if (isVoid) {
-          // killed a void creature!
-          // send them home
-
-          // send them back to the mortal plane
-          hero.location = { x: 64, y: 44, map: "default" };
-          hero = rebirth(context, hero);
-        }
-
         context.db.hero.addExperience(context, hero, experienceRewards);
         hero.gold = hero.gold + goldReward;
 
