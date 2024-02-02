@@ -140,6 +140,7 @@ export function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
       "is having all",
       result.length,
       "modifiers countered",
+      { attackerCounters, victimCounters },
     );
     result.forEach((modifier) => modifier.disable());
     return;
@@ -152,6 +153,7 @@ export function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
     "of",
     result.length,
     "modifiers countered",
+    { attackerCounters, victimCounters },
   );
   result
     .sort(
