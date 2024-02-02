@@ -15,6 +15,7 @@ import {
 export const startingLevelCap = 10;
 export const secondLevelCap = 100;
 export const thirdLevelCap = 5000;
+export const fourthLevelCap = 6000;
 
 export function rebirth(context: BaseContext, hero: Hero): Hero {
   console.log("Rebirthing", hero.name);
@@ -31,7 +32,10 @@ export function rebirth(context: BaseContext, hero: Hero): Hero {
     hero = rebirthMessage(hero, "rebirth", questEvents.firstRebirth);
     hero = giveQuestItemNotification(context, hero, "totem-of-hero");
   } else if (hero.levelCap === thirdLevelCap) {
-    if (hasQuestItem(hero, "orb-of-forbidden-power")) {
+    if (
+      hasQuestItem(hero, "orb-of-forbidden-power") ||
+      hasQuestItem(hero, "cracked-orb-of-forbidden-power")
+    ) {
       hero.levelCap = thirdLevelCap;
       hero = rebirthMessage(hero, "rebirth", questEvents.forbiddenRebirth);
     } else {
