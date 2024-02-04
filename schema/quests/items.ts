@@ -491,6 +491,13 @@ export function getQuestRewards() {
       level: 2,
       canBuy: false,
     },
+    "essence-of-void": {
+      id: "essence-of-void",
+      name: "Essence of the Void",
+      type: InventoryItemType.Quest,
+      level: 2,
+      canBuy: false,
+    },
 
     // minor class upgrades...
     "archers-impatience": {
@@ -674,7 +681,7 @@ export function getQuestRewards() {
       id: "orb-of-forbidden-power",
       name: "Orb of Forbidden Power",
       type: InventoryItemType.Quest,
-      level: 2,
+      level: 3,
       canBuy: false,
       passiveEnchantments: [
         // Orb specific
@@ -764,6 +771,57 @@ export function getQuestRewards() {
         EnchantmentType.IncreasedGoldCap, // 2 of these total
       ],
     },
+    "orb-of-void-power": {
+      id: "orb-of-void-power",
+      name: "Orb of Void Power",
+      type: InventoryItemType.Quest,
+      level: 3,
+      canBuy: false,
+      passiveEnchantments: [
+        // Orb specific
+        EnchantmentType.CanTravelOnForbidden,
+        EnchantmentType.BonusDust,
+        EnchantmentType.IncreasedGoldCap, // 2 of these total
+        // Kraken Shell Medallion
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.BonusArmorTier,
+        // Interesting Mechanical Trophy
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.ImprovedAutomation,
+        // Hidden Stump Trophy
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.DoubleDodge,
+        // Engraved Lich Rib
+        EnchantmentType.DoubleAllStats,
+        EnchantmentType.BonusWeaponTier,
+        // Totem of Heroic Rebirth
+        EnchantmentType.AutoBattle,
+        EnchantmentType.DoubleExperience,
+        EnchantmentType.CanRebirth,
+        EnchantmentType.DoubleLeveling,
+        // Aqua Lungs
+        EnchantmentType.CanTravelOnWater,
+        // Naga Scale
+        EnchantmentType.CounterSpell,
+        EnchantmentType.BonusWeaponTier,
+        // Alvarado’s Cloak
+        EnchantmentType.DoubleAccuracy,
+        EnchantmentType.DoubleDodge,
+        // Hero's Guidance
+        EnchantmentType.BonusAllStats,
+        EnchantmentType.BonusAllStats,
+        EnchantmentType.VampireArmorPiercing,
+        EnchantmentType.VampireArmorPiercing,
+        EnchantmentType.MinusEnemyArmor,
+        EnchantmentType.BonusWeaponTier,
+        EnchantmentType.RangedSecondAttackChance,
+        EnchantmentType.IncreasedGoldCap, // 2 of these total
+        // Void Vessel
+        EnchantmentType.VoidTravel,
+        EnchantmentType.VoidTravel, // vessel has one, orb gains one more
+      ],
+    },
+
     "void-vessel": {
       id: "void-vessel",
       name: "Void Vessel",

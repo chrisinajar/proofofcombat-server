@@ -17,7 +17,11 @@ export const secondLevelCap = 100;
 export const thirdLevelCap = 5000;
 export const fourthLevelCap = 6000;
 
-export function rebirth(context: BaseContext, hero: Hero): Hero {
+export function rebirth(
+  context: BaseContext,
+  hero: Hero,
+  disableRewards = false,
+): Hero {
   console.log("Rebirthing", hero.name);
   hero = takeQuestItem(hero, "totem-of-rebirth");
   hero = takeQuestItem(hero, "totem-of-champion-rebirth");
@@ -44,7 +48,9 @@ export function rebirth(context: BaseContext, hero: Hero): Hero {
       hero = giveQuestItemNotification(context, hero, "totem-of-hero");
     }
 
-    giveHeroRandomDrop(context, hero, 33, 4, true);
+    if (!disableRewards) {
+      giveHeroRandomDrop(context, hero, 33, 4, true);
+    }
 
     // revert progress so they can rebirth again
     if (hero.questLog?.rebirth) {
@@ -113,10 +119,24 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
 
     return hero;
   }
+  // amixea did help, repair the orb using the void essence
+  if (
+    hasQuestItem(hero, "cracked-orb-of-forbidden-power") &&
+    hasQuestItem(hero, "essence-of-void") &&
+    heroLocationName(hero) === "Amixea's Hut"
+  ) {
+    hero = rebirthMessage(hero, "amixeaDidHelp", questEvents.amixeaCanHelp);
+    takeQuestItem(hero, "cracked-orb-of-forbidden-power");
+    takeQuestItem(hero, "essence-of-void");
+    giveQuestItemNotification(context, hero, "orb-of-forbidden-power");
+
+    return hero;
+  }
 
   if (hero.levelCap === thirdLevelCap && hero.level === thirdLevelCap) {
     if (
       hasQuestItem(hero, "orb-of-forbidden-power") &&
+      !hasQuestItem(hero, "void-vessel") &&
       isMaxTierItem(hero.equipment.leftHand) &&
       isMaxTierItem(hero.equipment.rightHand) &&
       isMaxTierItem(hero.equipment.bodyArmor) &&

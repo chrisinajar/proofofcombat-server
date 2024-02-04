@@ -640,7 +640,6 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
   async put(data: Hero) {
     const heroUnit = this.getUnit(data);
-    // console.log("put", heroUnit.getPersistentModifiers());
     const heroData = data as HeroData;
     heroData.persistedModifiers = heroUnit.getPersistentModifiers();
     return super.put(heroData);

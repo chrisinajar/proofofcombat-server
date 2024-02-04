@@ -55,9 +55,15 @@ async function voidMonsterReward(
   hero.location = { x: 64, y: 44, map: "default" };
   hero = rebirth(context, hero);
 
-  if (hasQuestItem(hero, "cracked-orb-of-forbidden-power")) {
-    hero = takeQuestItem(hero, "cracked-orb-of-forbidden-power");
-    hero = giveQuestItemNotification(context, hero, "orb-of-forbidden-power");
+  // should we get some sort of void thingy then you then use to repair the orb?
+  // maybe it becomes an "orb of the void" or something like that...
+  // if (hasQuestItem(hero, "cracked-orb-of-forbidden-power")) {
+  //   hero = takeQuestItem(hero, "cracked-orb-of-forbidden-power");
+  //   hero = giveQuestItemNotification(context, hero, "orb-of-forbidden-power");
+  // }
+  // just give them a useless essence for now lolololol
+  if (!hasQuestItem(hero, "essence-of-void")) {
+    hero = giveQuestItemNotification(context, hero, "essence-of-void");
   }
 }
 

@@ -115,6 +115,7 @@ export class ArtifactItem extends Item {
 
       case ArtifactAttributeType.BonusHealth:
         // implemented in hero model health calculations //
+        // is it?
         // done
         break;
 
@@ -139,7 +140,10 @@ export class ArtifactItem extends Item {
           type: GenericStatsModifier,
           options: {
             bonus: {
-              lifesteal: attribute.magnitude,
+              lifesteal:
+                attribute.magnitude > 1
+                  ? attribute.magnitude - 1
+                  : attribute.magnitude,
             },
           },
         });

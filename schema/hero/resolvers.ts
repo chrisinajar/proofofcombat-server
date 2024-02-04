@@ -30,6 +30,7 @@ import { BaseItems } from "../items/base-items";
 import { createItemInstance } from "../items/helpers";
 import type { BaseItem } from "../items";
 import { checkHero } from "../quests/helpers";
+import { rebirth } from "../quests/rebirth";
 import { createHeroCombatant } from "../../combat/hero";
 import { getEnchantedAttributes } from "../../combat/enchantments";
 import { fightHero } from "../../combat/fight-hero";
@@ -343,7 +344,7 @@ const resolvers: Resolvers = {
       }
 
       const account = await context.db.account.get(context.auth.id);
-      const hero = await context.db.hero.get(context.auth.id);
+      let hero = await context.db.hero.get(context.auth.id);
 
       hero.combat.health = hero.combat.maxHealth;
 
@@ -352,6 +353,7 @@ const resolvers: Resolvers = {
       if (isVoid) {
         // send them back to the mortal plane
         hero.location = { x: 64, y: 44, map: "default" };
+        hero = rebirth(context, hero, true);
       }
 
       await context.db.hero.put(hero);
@@ -539,6 +541,7 @@ const resolvers: Resolvers = {
         accessories: hero.equipment.accessories
           .filter((item) => !!findItem(hero, item))
           .map((item) => findItem(hero, item) as InventoryItem),
+        artifact: hero.equipment.artifact,
       };
     },
   },

@@ -54,6 +54,16 @@ export const questEvents = {
     '"Go to the Altar of Transcendence, bring this with you."',
     '"Know that where you are going, death is not like it is here."',
   ],
+  amixeaDidHelp: [
+    '"You continue to impress me, hero." Amixae stands as you approach, she looks at you with a newfound respect.',
+    '"The creature you\'ve slain today has consumed a thousands lifetimes, it lives to trick foolish adventurers such as yourself into feeding it their very lives."',
+    "She pauses for a moment in reflection,",
+    '"You see, a dog knows not of his chain until he strays from the pole. I had assumed you were like the others, and for this I am sorry."',
+    '"I will help you, I believe you can bring about change."',
+    '"There are many more creatures like the one you fought living out their vile existence in The Void."',
+    '"I believe that you, alone, can stop them."',
+    '"Bring me back another of these void essences, we should be able to use it to restore my Witchforge to its former glory"',
+  ],
 
   ascendedRebirth: ["You are reborn once again."],
   forbiddenRebirth: [
