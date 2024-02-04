@@ -365,7 +365,7 @@ export function getQuestRewards() {
     },
     "precious-flaying-knife": {
       id: "precious-flaying-knife",
-      name: "Precious Flaying Knife",
+      name: "Ornate Flaying Knife",
       type: InventoryItemType.Quest,
       level: 1,
       canBuy: false,

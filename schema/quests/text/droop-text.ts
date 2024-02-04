@@ -3,7 +3,8 @@ export const questEvents = {
     "You find a crudely drawn map on the Hobgoblin's body,",
     "It's hard to make out what's what in the map, but it's clearly signed by a \"Commander Droop\".",
     "Isn't that the goblin that robbed you back at the pub?",
-    "It's barely legible, but think Droop is probably {{direction}} from here",
+    "It's barely legible, but think Droop is probably {{direction}} from here, but it's unclear how far.",
+    "You should head in that direction and kill more Hobgoblins to find an updated map.",
   ],
   foundDroop: [
     '"He\'s right over there!!"',
