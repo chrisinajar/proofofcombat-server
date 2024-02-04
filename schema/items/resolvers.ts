@@ -38,6 +38,7 @@ const resolvers: Resolvers = {
           name: baseItem.name,
           type: baseItem.type,
           cost: baseItem.cost,
+          level: baseItem.level,
         }));
     },
   },
@@ -89,7 +90,7 @@ const resolvers: Resolvers = {
       const offerHero = await context.db.hero.get(offer.fromId);
 
       const offerItem = offerHero.inventory.find(
-        (item) => item.id === offer.item.id
+        (item) => item.id === offer.item.id,
       );
 
       if (!offerItem) {
@@ -100,11 +101,11 @@ const resolvers: Resolvers = {
       await Promise.all(
         (
           await context.db.trades.offersForItem(offerItem.id)
-        ).map((otherOffers) => context.db.trades.del(offer))
+        ).map((otherOffers) => context.db.trades.del(offer)),
       );
 
       offerHero.inventory = offerHero.inventory.filter(
-        (item) => item.id !== offerItem.id
+        (item) => item.id !== offerItem.id,
       );
       offerHero.gold += Math.round(offer.gold);
       await context.db.hero.put(offerHero);
@@ -156,7 +157,7 @@ const resolvers: Resolvers = {
         hero,
         toHero,
         item,
-        gold
+        gold,
       );
 
       context.io.sendPrivateMessage(toHero.id, {
@@ -178,7 +179,7 @@ const resolvers: Resolvers = {
     async enchantItem(
       parent,
       args,
-      context: BaseContext
+      context: BaseContext,
     ): Promise<LevelUpResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -189,7 +190,7 @@ const resolvers: Resolvers = {
 
       const itemId: string = args.item;
       const item: InventoryItem | undefined = hero.inventory.find(
-        (item: InventoryItem) => item.id === itemId
+        (item: InventoryItem) => item.id === itemId,
       );
 
       if (!item) {
@@ -204,12 +205,12 @@ const resolvers: Resolvers = {
 
       if (hero.enchantingDust < item.level) {
         throw new UserInputError(
-          "You need more enchanting dust to enchant that item!"
+          "You need more enchanting dust to enchant that item!",
         );
       }
 
       const hasEnchantment = hero.enchantments.find(
-        (ench: EnchantmentType) => ench === args.enchantment
+        (ench: EnchantmentType) => ench === args.enchantment,
       );
       if (!hasEnchantment) {
         throw new UserInputError("You do not have that enchantment!");
@@ -237,7 +238,7 @@ const resolvers: Resolvers = {
     async disenchantItem(
       parent,
       args,
-      context: BaseContext
+      context: BaseContext,
     ): Promise<LevelUpResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -248,7 +249,7 @@ const resolvers: Resolvers = {
 
       const itemId: string = args.item;
       const item: InventoryItem | undefined = hero.inventory.find(
-        (item: InventoryItem) => item.id === itemId
+        (item: InventoryItem) => item.id === itemId,
       );
 
       if (!item) {
@@ -275,7 +276,7 @@ const resolvers: Resolvers = {
 
       if (hero.enchantingDust < item.level) {
         throw new UserInputError(
-          "You need more enchanting dust to disenchant that item!"
+          "You need more enchanting dust to disenchant that item!",
         );
       }
 
@@ -292,7 +293,7 @@ const resolvers: Resolvers = {
     async destroyItem(
       parent,
       args,
-      context: BaseContext
+      context: BaseContext,
     ): Promise<LevelUpResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -303,7 +304,7 @@ const resolvers: Resolvers = {
 
       const itemId: string = args.item;
       const item: InventoryItem | undefined = hero.inventory.find(
-        (item: InventoryItem) => item.id === itemId
+        (item: InventoryItem) => item.id === itemId,
       );
 
       if (!item) {
@@ -332,7 +333,7 @@ const resolvers: Resolvers = {
       }
 
       hero.inventory = hero.inventory.filter(
-        (i: InventoryItem) => i.id !== item.id
+        (i: InventoryItem) => i.id !== item.id,
       );
 
       hero.enchantingDust =
@@ -369,7 +370,7 @@ const resolvers: Resolvers = {
       }
 
       const inventoryItem = hero.inventory.find(
-        (item: InventoryItem) => item.id === args.item
+        (item: InventoryItem) => item.id === args.item,
       );
 
       if (!inventoryItem) {
@@ -452,7 +453,7 @@ const resolvers: Resolvers = {
 
       const itemId: string = args.item;
       const item: InventoryItem | undefined = hero.inventory.find(
-        (item: InventoryItem) => item.id === itemId
+        (item: InventoryItem) => item.id === itemId,
       );
 
       if (!item) {
@@ -483,7 +484,7 @@ const resolvers: Resolvers = {
       hero.gold = hero.gold + Math.round(baseItem.cost / 3);
 
       hero.inventory = hero.inventory.filter(
-        (item: InventoryItem) => item.id !== itemId
+        (item: InventoryItem) => item.id !== itemId,
       );
 
       await context.db.hero.put(hero);

@@ -30,6 +30,7 @@ export default gql`
     name: String!
     type: InventoryItemType!
     cost: Int
+    level: Int!
   }
 
   type InventoryItem implements BaseModel {
