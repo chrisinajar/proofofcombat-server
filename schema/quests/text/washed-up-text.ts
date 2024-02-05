@@ -100,6 +100,7 @@ export const questEvents = {
     "She entertains and dazzles the whole pub, performing with her goblin sidekick and singing fantastical tales of demons, vampires, and legends from far away.",
     "You drink, sing, and laugh for hours.",
     "Brewconia, however, is long gone before you realize the goblin robbed your coin purse.",
+    'Perhaps you should "interrogate" some Hobgoblins to track him down.',
   ],
 
   // already has ocean bubble, upgraded class, gets aqua lungs

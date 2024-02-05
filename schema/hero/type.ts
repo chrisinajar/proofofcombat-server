@@ -160,6 +160,7 @@ export default gql`
     Paladin # shield shield
     Ranger # ranged
     BloodMage # con / ench vamp
+    Monk # no weapon ??? stats
     # upgraded calsses
     Daredevil # <- Gambler <- high luck
     Gladiator # <- Fighter <- melee shield

@@ -8,12 +8,12 @@ import { getRandomizer } from "../random";
 import { io } from "../index";
 
 // at least 1 minute between spawns
-const minSpawnTime = 60000;
+const minSpawnTime = 90000;
 // const minSpawnTime = 10000;
 const maxSpawnTime = 48 * 60 * 60 * 1000;
 // const maxSpawnTime = 120 * 1000;
 
-const idealSpawnTime = 0.75 * 60 * 60 * 1000;
+const idealSpawnTime = 0.8 * 60 * 60 * 1000;
 // const idealSpawnTime = 30 * 1000;
 const changeWindow = 600;
 
@@ -180,6 +180,7 @@ const Aberrations = [
   },
   // {
   //   id: "random-aberration-void-keeper",
+  //   weight: 1,
   //   ...AberrationStats["random-aberration-void-keeper"],
   // },
 ];

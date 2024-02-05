@@ -86,7 +86,7 @@ export const CampUpgrades: {
     ],
   },
   [PlayerLocationUpgrades.StorageCache]: {
-    name: "Build a large storage cach",
+    name: "Build a large storage cache",
     type: PlayerLocationUpgrades.StorageCache,
     cost: [
       { name: "stone", value: 6000 },
