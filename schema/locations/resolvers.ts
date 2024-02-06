@@ -210,6 +210,36 @@ const resolvers: Resolvers = {
           hero.location.y
         ];
 
+      const neighborTerrain = {
+        north:
+          hero.location.y > 0
+            ? LocationData[hero.location.map as MapNames]?.locations[
+                hero.location.x
+              ][hero.location.y - 1]
+            : null,
+
+        south:
+          hero.location.y < 96
+            ? LocationData[hero.location.map as MapNames]?.locations[
+                hero.location.x
+              ][hero.location.y + 1]
+            : null,
+
+        east:
+          hero.location.x < 128
+            ? LocationData[hero.location.map as MapNames]?.locations[
+                hero.location.x + 1
+              ][hero.location.y]
+            : null,
+
+        west:
+          hero.location.y > 0
+            ? LocationData[hero.location.map as MapNames]?.locations[
+                hero.location.x - 1
+              ][hero.location.y]
+            : null,
+      };
+
       return {
         location: targetLocation,
         terrain: terrain,
@@ -218,6 +248,7 @@ const resolvers: Resolvers = {
           hero.location.y,
           hero.location.map as MapNames,
         ).map((location) => ({ ...location, location: targetLocation })),
+        neighborTerrain,
       };
     },
   },

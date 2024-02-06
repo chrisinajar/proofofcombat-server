@@ -127,6 +127,14 @@ export default gql`
     playerLocations: [PlayerLocation!]
 
     voidTravel: Boolean
+
+    neighborTerrain: NeighborTerrainData!
+  }
+  type NeighborTerrainData {
+    north: TerrainData
+    south: TerrainData
+    east: TerrainData
+    west: TerrainData
   }
   type SpecialLocation {
     location: Location!
