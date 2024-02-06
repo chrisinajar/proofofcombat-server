@@ -52,7 +52,7 @@ async function voidMonsterReward(
   // if you have a cracked orb and kill it them amixea can help
 
   // send them back to the mortal plane
-  hero.location = { x: 64, y: 44, map: "default" };
+  hero.location.map = "default";
   hero = rebirth(context, hero);
 
   // should we get some sort of void thingy then you then use to repair the orb?
@@ -64,6 +64,12 @@ async function voidMonsterReward(
   // just give them a useless essence for now lolololol
   if (!hasQuestItem(hero, "essence-of-void")) {
     hero = giveQuestItemNotification(context, hero, "essence-of-void");
+    if (hasQuestItem(hero, "cracked-orb-of-forbidden-power")) {
+      context.io.sendGlobalNotification({
+        message: `A blinding flash of light fades into nothing as the lifeless body of ${hero.name} falls from the sky`,
+        type: "quest",
+      });
+    }
   }
 }
 
