@@ -125,7 +125,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     hasQuestItem(hero, "essence-of-void") &&
     heroLocationName(hero) === "Amixea's Hut"
   ) {
-    hero = rebirthMessage(hero, "amixeaDidHelp", questEvents.amixeaCanHelp);
+    hero = rebirthMessage(hero, "amixeaDidHelp", questEvents.amixeaDidHelp);
     takeQuestItem(hero, "cracked-orb-of-forbidden-power");
     takeQuestItem(hero, "essence-of-void");
     giveQuestItemNotification(context, hero, "orb-of-forbidden-power");
