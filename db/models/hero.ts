@@ -181,7 +181,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     if (this.lastLeaderCalculation > Date.now()) {
       return this.cachedLeaderboard;
     }
-    this.lastLeaderCalculation = Date.now() + 1000 * 60;
+    this.lastLeaderCalculation = Date.now() + 1000 * 600;
     const resultList: Hero[] = [];
     const iterator = this.db.iterate({});
     // ? iterator.seek(...); // You can first seek if you'd like.
