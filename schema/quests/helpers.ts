@@ -41,7 +41,7 @@ import { checkCapital as checkCapitalForSettlements } from "./settlements";
 export async function checkSkipDrop(
   context: BaseContext,
   hero: Hero,
-  monster: MonsterInstance
+  monster: MonsterInstance,
 ): Promise<boolean> {
   if (!(await checkSkipDropForMeetTheQueen(context, hero, monster))) {
     return false;
@@ -53,7 +53,7 @@ export async function checkSkipDrop(
 export async function checkCapital(
   context: BaseContext,
   capital: PlayerLocation,
-  hero: Hero
+  hero: Hero,
 ): Promise<void> {
   await checkCapitalForSettlements(context, capital, hero);
 }
@@ -61,7 +61,7 @@ export async function checkCapital(
 export function checkHeroDrop(
   context: BaseContext,
   hero: Hero,
-  monster: MonsterInstance
+  monster: MonsterInstance,
 ): Hero {
   hero = checkHeroDropForClasses(context, hero, monster);
   hero = checkHeroDropForAquaLung(context, hero, monster);
@@ -88,7 +88,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
 
 export function takeQuestItem(hero: Hero, baseItemName: string): Hero {
   hero.inventory = hero.inventory.filter(
-    (item) => item.baseItem !== baseItemName
+    (item) => item.baseItem !== baseItemName,
   );
 
   return hero;
@@ -118,7 +118,7 @@ export function countQuestItem(hero: Hero, baseItemName: string): number {
 export function giveQuestItemNotification(
   context: BaseContext,
   hero: Hero,
-  baseItemName: string
+  baseItemName: string,
 ): Hero {
   return giveQuestItemQuantityNotification(context, hero, baseItemName, 1);
 }
@@ -127,7 +127,7 @@ export function giveQuestItemQuantityNotification(
   context: BaseContext,
   hero: Hero,
   baseItemName: string,
-  quantity: number
+  quantity: number,
 ): Hero {
   const existingCount = countQuestItem(hero, baseItemName);
   if (existingCount >= quantity) {
@@ -164,7 +164,7 @@ export function giveQuestItem(hero: Hero, baseItemName: string): Hero {
 export function giveQuestItemQuantity(
   hero: Hero,
   baseItemName: string,
-  quantity: number
+  quantity: number,
 ): Hero {
   const existingCount = countQuestItem(hero, baseItemName);
   if (existingCount >= quantity) {
@@ -184,10 +184,10 @@ export function giveQuestItemQuantity(
 
 export function getOrCreateQuestItem(
   hero: Hero,
-  baseItemName: string
+  baseItemName: string,
 ): InventoryItem {
   const existingItem = hero.inventory.find(
-    (item) => item.baseItem === baseItemName
+    (item) => item.baseItem === baseItemName,
   );
   if (existingItem) {
     return existingItem;
@@ -205,7 +205,7 @@ export function setQuestEvent(
   hero: Hero,
   quest: Quest,
   step: string,
-  message: string[]
+  message: string[],
 ): Hero {
   hero.currentQuest = {
     id: `${quest}-${hero.id}-${step}`,
@@ -220,7 +220,7 @@ export function setQuestLogProgress(
   quest: Quest,
   entryName: keyof Hero["questLog"],
   progress: number,
-  finished: boolean = false
+  finished: boolean = false,
 ): Hero {
   if (entryName === "id") {
     return hero;
@@ -231,7 +231,7 @@ export function setQuestLogProgress(
     id: `${quest}-${hero.id}`,
     started: true,
     finished,
-    progress: progress | (hero.questLog[entryName]?.progress ?? 0),
+    progress: progress || (hero.questLog[entryName]?.progress ?? 0),
     lastEvent,
   };
 
@@ -242,7 +242,7 @@ export function heroLocationName(hero: Hero): string | null {
   const locations: SpecialLocation[] = specialLocations(
     hero.location.x,
     hero.location.y,
-    hero.location.map as MapNames
+    hero.location.map as MapNames,
   );
 
   if (!locations.length) {

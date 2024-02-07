@@ -602,6 +602,14 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       data.version = 9;
     }
 
+    if (data.version < 10) {
+      // 31 is a glitch because of bitwise combining progress incorrectly
+      if (data?.questLog?.meetTheQueen?.progress === 31) {
+        data.questLog.meetTheQueen = null;
+      }
+      data.version = 10;
+    }
+
     // recalculate stats and turn it into a real hero object
     let hero = this.recalculateStats(data as Hero);
     hero.gold = Math.min(this.maxGold(hero), Math.round(hero.gold));
