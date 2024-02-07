@@ -32,9 +32,9 @@ export function getOneSidedData(
   const victimUnit = victim.unit;
 
   if (isHero(victimUnit)) {
-    enchantDamageResist = victim.level;
-  } else {
     enchantDamageResist = Math.sqrt(victim.level);
+  } else {
+    enchantDamageResist = victim.level;
   }
 
   victimDamage /= Math.max(
