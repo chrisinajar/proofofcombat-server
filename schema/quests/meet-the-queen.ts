@@ -56,13 +56,12 @@ finishedRagsLegendary
 */
 
 export function checkHero(context: BaseContext, hero: Hero): Hero {
-  if (
-    hero.questLog.meetTheQueen?.finished &&
-    heroLocationName(hero) !== "Palace of Rotherham"
-  ) {
+  const isInPalace = heroLocationName(hero) === "Palace of Rotherham";
+  if (hero.questLog.meetTheQueen?.finished && !isInPalace) {
     // "uncomplete" it when we're not at the palace
     // allows repeats
     // v v lazy
+    // perhaps it even works now though!
     hero = setQuestLogProgress(
       hero,
       Quest.MeetTheQueen,
@@ -77,7 +76,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   }
 
   if (!hero.questLog.meetTheQueen?.started) {
-    if (hero.gold > 10000000000) {
+    if (hero.gold > 10000000000 && !isInPalace) {
       hero = setQuestEvent(
         hero,
         Quest.MeetTheQueen,
@@ -92,10 +91,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
 
   // quest is started
 
-  if (
-    hero.questLog.meetTheQueen.progress < 10 &&
-    heroLocationName(hero) === "Palace of Rotherham"
-  ) {
+  if (hero.questLog.meetTheQueen.progress < 10 && isInPalace) {
     if (
       !hero.questLog.droop?.finished &&
       hero.questLog.meetTheQueen.progress < 2
@@ -151,7 +147,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   }
 
   // everything 10+ is at the palace
-  if (heroLocationName(hero) !== "Palace of Rotherham") {
+  if (!isInPalace) {
     return hero;
   }
 
