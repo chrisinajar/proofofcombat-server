@@ -141,7 +141,10 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     for await (const { key, value } of iterator) {
       let index = -1;
       resultList.forEach((hero, i) => {
-        if (hero.level < value.level) {
+        if (
+          hero.level <= value.level &&
+          hero.enchantingDust <= value.enchantingDust
+        ) {
           index = i;
         }
       });
