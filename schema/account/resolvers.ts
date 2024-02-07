@@ -47,7 +47,7 @@ const resolvers: Resolvers = {
     async createAccount(
       root,
       args,
-      context: BaseContext
+      context: BaseContext,
     ): Promise<BaseAccount> {
       const name = context.db.account.cleanName(args.name);
       const id = context.db.account.nameToId(args.name);
@@ -79,6 +79,13 @@ const resolvers: Resolvers = {
 
         const hashedPassword = hash(args.password);
         if (!account || account.password !== hashedPassword) {
+          throw new ForbiddenError("Incorrect username or password!");
+        }
+        if (account.banned) {
+          // password error just to mess with them
+          await new Promise((resolve, reject) => {
+            setTimeout(resolve, 10000);
+          });
           throw new ForbiddenError("Incorrect username or password!");
         }
         // authorize the rest of this request

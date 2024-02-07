@@ -49,6 +49,7 @@ export class BasicHeroModifier extends Modifier<undefined> {
     }
     if (
       this.parent.attackType === AttackType.Melee ||
+      this.parent.attackType === AttackType.Smite ||
       this.parent.attackType === AttackType.Ranged ||
       (this.parent.attackType === AttackType.Cast &&
         (this.parent.class === HeroClasses.BattleMage ||

@@ -16,10 +16,18 @@ export default gql`
     giveGold(id: ID!, amount: Float!): BaseAccount! @auth @admin
     setSkill(id: ID!, skill: HeroSkill!, level: Int!): BaseAccount! @auth @admin
     addLevels(id: ID!, levels: Int!): BaseAccount! @auth @admin
+
+    banAccount(id: ID!): AdminActionResponse! @auth @admin
+    unbanAccount(id: ID!): AdminActionResponse! @auth @admin
+    deleteAccount(id: ID!): AdminActionResponse! @auth @admin
   }
 
   type AccountListResponse {
     count: Int!
     accounts: [BaseAccount!]!
+  }
+  type AdminActionResponse {
+    success: Boolean!
+    account: BaseAccount
   }
 `;
