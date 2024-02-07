@@ -186,9 +186,12 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     const iterator = this.db.iterate({});
     // ? iterator.seek(...); // You can first seek if you'd like.
     for await (const { key, value } of iterator) {
+      const valueStoryTier = this.getStoryTier(value);
+      if (valueStoryTier === 0) {
+        continue;
+      }
       let index = -1;
       resultList.forEach((hero, i) => {
-        const valueStoryTier = this.getStoryTier(value);
         const heroStoryTier = this.getStoryTier(hero);
         if (valueStoryTier < heroStoryTier) {
           return;
