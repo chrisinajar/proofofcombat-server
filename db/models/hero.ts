@@ -134,6 +134,38 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     return resultList;
   }
 
+  getStoryTier(hero: Hero): number {
+    const questItemCount = hero.inventory.filter(
+      (item) => item.type === InventoryItemType.Quest,
+    );
+    if (questItemCount < 4) {
+      return 0;
+    }
+    let questItemLevel = 0;
+    if (hero.questLog.minorClassUpgrades?.finished) {
+      questItemLevel++;
+    }
+    if (hero.questLog.nagaScale?.finished) {
+      questItemLevel++;
+    }
+    if (hero.questLog.tavernChampion?.finished) {
+      questItemLevel += 2;
+    }
+    if (hero.questLog.washedUp?.finished) {
+      questItemLevel += 3;
+    }
+    if (hasQuestItem(hero, "orb-of-forbidden-power")) {
+      questItemLevel += 10;
+      if (hasQuestItem(hero, "void-vessel")) {
+        questItemLevel += 10;
+      }
+    } else if (hasQuestItem(hero, "cracked-orb-of-forbidden-power")) {
+      questItemLevel += 20;
+    }
+
+    return questItemLevel;
+  }
+
   async getTopHeros(): Promise<Hero[]> {
     const resultList: Hero[] = [];
     const iterator = this.db.iterate({});
@@ -141,11 +173,28 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     for await (const { key, value } of iterator) {
       let index = -1;
       resultList.forEach((hero, i) => {
-        if (
-          hero.level <= value.level &&
-          hero.enchantingDust <= value.enchantingDust
-        ) {
+        if (getStoryTier(value) < getStoryTier(hero)) {
+          return;
+        }
+        if (getStoryTier(value) > getStoryTier(hero)) {
           index = i;
+          return;
+        }
+        if (value.level < hero.level) {
+          return;
+        }
+        if (value.level > hero.level) {
+          index = i;
+          return;
+        }
+        if (value.enchantingDust < hero.enchantingDust) {
+          return;
+        }
+        // >= because it's the last one
+        // in the case of a perfect tie, add them to the list
+        if (value.enchantingDust >= hero.enchantingDust) {
+          index = i;
+          return;
         }
       });
 
