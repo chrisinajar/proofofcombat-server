@@ -219,7 +219,7 @@ const resolvers: Resolvers = {
             : null,
 
         south:
-          hero.location.y < 96
+          hero.location.y < 95
             ? LocationData[hero.location.map as MapNames]?.locations[
                 hero.location.x
               ][hero.location.y + 1]
