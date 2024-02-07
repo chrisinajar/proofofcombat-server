@@ -219,21 +219,21 @@ const resolvers: Resolvers = {
             : null,
 
         south:
-          hero.location.y < 96
+          hero.location.y < 95
             ? LocationData[hero.location.map as MapNames]?.locations[
                 hero.location.x
               ][hero.location.y + 1]
             : null,
 
         east:
-          hero.location.x < 128
+          hero.location.x < 127
             ? LocationData[hero.location.map as MapNames]?.locations[
                 hero.location.x + 1
               ][hero.location.y]
             : null,
 
         west:
-          hero.location.y > 0
+          hero.location.x > 0
             ? LocationData[hero.location.map as MapNames]?.locations[
                 hero.location.x - 1
               ][hero.location.y]
