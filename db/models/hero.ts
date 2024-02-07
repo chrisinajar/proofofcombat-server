@@ -178,7 +178,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   async getTopHeros(): Promise<Hero[]> {
-    if (this.lastLeaderCalculation > Date.now() + 1000 * 60) {
+    if (this.lastLeaderCalculation > Date.now()) {
       return this.cachedLeaderboard;
     }
     this.lastLeaderCalculation = Date.now() + 1000 * 60;
