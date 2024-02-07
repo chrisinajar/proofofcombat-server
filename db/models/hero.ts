@@ -71,6 +71,8 @@ import { getClass } from "./hero/classes";
 
 export default class HeroModel extends DatabaseInterface<Hero> {
   heroUnitMap: WeakMap<Hero, HeroUnit> = new WeakMap();
+  lastLeaderCalculation: number = 0;
+  cachedLeaderboard: Hero[] = [];
 
   constructor() {
     super("hero");
@@ -135,10 +137,15 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   getStoryTier(hero: Hero): number {
-    const questItemCount = hero.inventory.filter(
+    if (!hero.questLog.rebirth || hero.questLog.rebirth.progress < 100) {
+      return 0;
+    }
+
+    const questItems = hero.inventory.filter(
       (item) => item.type === InventoryItemType.Quest,
-    ).length;
-    if (questItemCount < 4) {
+    );
+
+    if (questItems.length < 4) {
       return 0;
     }
     let questItemLevel = 0;
@@ -154,12 +161,16 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     if (hero.questLog.washedUp?.finished) {
       questItemLevel += 3;
     }
-    if (hasQuestItem(hero, "orb-of-forbidden-power")) {
+    if (questItems.find((item) => item.baseItem === "orb-of-forbidden-power")) {
       questItemLevel += 10;
       if (hasQuestItem(hero, "void-vessel")) {
-        questItemLevel += 10;
+        questItemLevel += 20;
       }
-    } else if (hasQuestItem(hero, "cracked-orb-of-forbidden-power")) {
+    } else if (
+      questItems.find(
+        (item) => item.baseItem === "cracked-orb-of-forbidden-power",
+      )
+    ) {
       questItemLevel += 20;
     }
 
@@ -167,16 +178,22 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   async getTopHeros(): Promise<Hero[]> {
+    if (this.lastLeaderCalculation > Date.now() + 1000 * 60) {
+      return this.cachedLeaderboard;
+    }
+    this.lastLeaderCalculation = Date.now() + 1000 * 60;
     const resultList: Hero[] = [];
     const iterator = this.db.iterate({});
     // ? iterator.seek(...); // You can first seek if you'd like.
     for await (const { key, value } of iterator) {
       let index = -1;
       resultList.forEach((hero, i) => {
-        if (this.getStoryTier(value) < this.getStoryTier(hero)) {
+        const valueStoryTier = this.getStoryTier(value);
+        const heroStoryTier = this.getStoryTier(hero);
+        if (valueStoryTier < heroStoryTier) {
           return;
         }
-        if (this.getStoryTier(value) > this.getStoryTier(hero)) {
+        if (valueStoryTier > heroStoryTier) {
           index = i;
           return;
         }
@@ -204,10 +221,12 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     } // If the end of the iterable is reached, iterator.end() is callend.
     await iterator.end();
 
-    return resultList
+    this.cachedLeaderboard = resultList
       .reverse()
       .slice(0, inMemoryLeaderboardLength)
       .map((hero) => this.upgrade(hero));
+
+    return this.cachedLeaderboard;
   }
 
   recalculateStats(hero: Hero): Hero {
