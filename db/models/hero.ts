@@ -137,7 +137,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   getStoryTier(hero: Hero): number {
     const questItemCount = hero.inventory.filter(
       (item) => item.type === InventoryItemType.Quest,
-    );
+    ).length;
     if (questItemCount < 4) {
       return 0;
     }
@@ -173,10 +173,10 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     for await (const { key, value } of iterator) {
       let index = -1;
       resultList.forEach((hero, i) => {
-        if (getStoryTier(value) < getStoryTier(hero)) {
+        if (this.getStoryTier(value) < this.getStoryTier(hero)) {
           return;
         }
-        if (getStoryTier(value) > getStoryTier(hero)) {
+        if (this.getStoryTier(value) > this.getStoryTier(hero)) {
           index = i;
           return;
         }
