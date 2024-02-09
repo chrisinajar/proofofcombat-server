@@ -71,6 +71,8 @@ import { getClass } from "./hero/classes";
 
 export default class HeroModel extends DatabaseInterface<Hero> {
   heroUnitMap: WeakMap<Hero, HeroUnit> = new WeakMap();
+  lastLeaderCalculation: number = 0;
+  cachedLeaderboard: Hero[] = [];
 
   constructor() {
     super("hero");
@@ -134,15 +136,85 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     return resultList;
   }
 
+  getStoryTier(hero: Hero): number {
+    if (!hero.questLog.rebirth || hero.questLog.rebirth.progress < 100) {
+      return 0;
+    }
+
+    const questItems = hero.inventory.filter(
+      (item) => item.type === InventoryItemType.Quest,
+    );
+
+    if (questItems.length < 4) {
+      return 0;
+    }
+    let questItemLevel = 0;
+    if (hero.questLog.minorClassUpgrades?.finished) {
+      questItemLevel++;
+    }
+    if (hero.questLog.nagaScale?.finished) {
+      questItemLevel++;
+    }
+    if (hero.questLog.tavernChampion?.finished) {
+      questItemLevel += 2;
+    }
+    if (hero.questLog.washedUp?.finished) {
+      questItemLevel += 3;
+    }
+    if (questItems.find((item) => item.baseItem === "orb-of-forbidden-power")) {
+      questItemLevel += 10;
+      if (hasQuestItem(hero, "void-vessel")) {
+        questItemLevel += 20;
+      }
+    } else if (
+      questItems.find(
+        (item) => item.baseItem === "cracked-orb-of-forbidden-power",
+      )
+    ) {
+      questItemLevel += 20;
+    }
+
+    return questItemLevel;
+  }
+
   async getTopHeros(): Promise<Hero[]> {
+    if (this.lastLeaderCalculation > Date.now()) {
+      return this.cachedLeaderboard;
+    }
+    this.lastLeaderCalculation = Date.now() + 1000 * 600;
     const resultList: Hero[] = [];
     const iterator = this.db.iterate({});
     // ? iterator.seek(...); // You can first seek if you'd like.
     for await (const { key, value } of iterator) {
+      const valueStoryTier = this.getStoryTier(value);
+      if (valueStoryTier === 0) {
+        continue;
+      }
       let index = -1;
       resultList.forEach((hero, i) => {
-        if (hero.level < value.level) {
+        const heroStoryTier = this.getStoryTier(hero);
+        if (valueStoryTier < heroStoryTier) {
+          return;
+        }
+        if (valueStoryTier > heroStoryTier) {
           index = i;
+          return;
+        }
+        if (value.level < hero.level) {
+          return;
+        }
+        if (value.level > hero.level) {
+          index = i;
+          return;
+        }
+        if (value.enchantingDust < hero.enchantingDust) {
+          return;
+        }
+        // >= because it's the last one
+        // in the case of a perfect tie, add them to the list
+        if (value.enchantingDust >= hero.enchantingDust) {
+          index = i;
+          return;
         }
       });
 
@@ -152,10 +224,12 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     } // If the end of the iterable is reached, iterator.end() is callend.
     await iterator.end();
 
-    return resultList
+    this.cachedLeaderboard = resultList
       .reverse()
       .slice(0, inMemoryLeaderboardLength)
       .map((hero) => this.upgrade(hero));
+
+    return this.cachedLeaderboard;
   }
 
   recalculateStats(hero: Hero): Hero {
@@ -600,6 +674,14 @@ export default class HeroModel extends DatabaseInterface<Hero> {
         data = takeQuestItem(data as Hero, "totem-of-hero");
       }
       data.version = 9;
+    }
+
+    if (data.version < 10) {
+      // 31 is a glitch because of bitwise combining progress incorrectly
+      if (data?.questLog?.meetTheQueen?.progress === 31) {
+        data.questLog.meetTheQueen = null;
+      }
+      data.version = 10;
     }
 
     // recalculate stats and turn it into a real hero object
