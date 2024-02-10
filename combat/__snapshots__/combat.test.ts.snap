@@ -3,7 +3,7 @@
 exports[`builds archer great items can destroy 28's 1`] = `
 {
   "constitution": 5005,
-  "dexterity": 477926,
+  "dexterity": 238965,
   "intelligence": 5005,
   "luck": 12005,
   "strength": 5005,
@@ -15,7 +15,7 @@ exports[`builds archer great items can destroy 28's 1`] = `
 exports[`builds archer normal items can kill level 5 mobs 1`] = `
 {
   "constitution": 8,
-  "dexterity": 348,
+  "dexterity": 174,
   "intelligence": 8,
   "luck": 13,
   "strength": 8,
@@ -27,7 +27,7 @@ exports[`builds archer normal items can kill level 5 mobs 1`] = `
 exports[`builds archer trash items can kill level 1 mobs 1`] = `
 {
   "constitution": 5,
-  "dexterity": 10,
+  "dexterity": 5,
   "intelligence": 5,
   "luck": 5,
   "strength": 5,
@@ -39,7 +39,7 @@ exports[`builds archer trash items can kill level 1 mobs 1`] = `
 exports[`builds archer uber items can deal destroy 32s at max level 1`] = `
 {
   "constitution": 8458,
-  "dexterity": 642835,
+  "dexterity": 321418,
   "intelligence": 8458,
   "luck": 20288,
   "strength": 8458,
