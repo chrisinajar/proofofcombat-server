@@ -4,6 +4,7 @@ import { Resolvers, BaseAccount, AccountListResponse } from "types/graphql";
 
 import { giveHeroItem } from "../items/helpers";
 import { BaseItems } from "../items/base-items";
+import { spawnRandomAberration } from "../aberration";
 
 const resolvers: Resolvers = {
   Query: {
@@ -22,6 +23,10 @@ const resolvers: Resolvers = {
   },
 
   Mutation: {
+    async spawnRandomBoss(parent, args, context) {
+      await spawnRandomAberration(context);
+      return { success: true };
+    },
     async banAccount(parent, args, context) {
       let account = await context.db.account.get(args.id);
       if (!account) {

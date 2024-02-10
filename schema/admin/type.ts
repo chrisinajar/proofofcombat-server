@@ -20,6 +20,8 @@ export default gql`
     banAccount(id: ID!): AdminActionResponse! @auth @admin
     unbanAccount(id: ID!): AdminActionResponse! @auth @admin
     deleteAccount(id: ID!): AdminActionResponse! @auth @admin
+
+    spawnRandomBoss: AdminActionResponse! @auth @admin
   }
 
   type AccountListResponse {
