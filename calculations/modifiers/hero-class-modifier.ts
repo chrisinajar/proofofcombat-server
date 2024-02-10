@@ -227,16 +227,16 @@ export class HeroClassModifier extends Modifier<undefined> {
           return 3 * 2;
         }
         if (prop === "dexterity") {
-          return 1.3 * 1.3;
+          return 1.7;
         }
         if (prop === "intelligence") {
           return 3 * 2;
         }
         if (prop === "wisdom") {
-          return 1.3 * 1.3;
+          return 1.7;
         }
         if (prop === "willpower") {
-          return 1.2 * 1.2;
+          return 1.5;
         }
         if (prop === "bonusAccuracy") {
           return 2;
@@ -263,7 +263,7 @@ export class HeroClassModifier extends Modifier<undefined> {
 
       case HeroClasses.Zealot:
         if (prop === "willpower") {
-          return 1.3 * 1.3;
+          return 1.7;
         }
         if (prop === "wisdom") {
           return 2;
@@ -281,14 +281,11 @@ export class HeroClassModifier extends Modifier<undefined> {
 
       case HeroClasses.Archer:
         if (prop === "dexterity") {
-          return 4 * 2;
+          return 3;
         }
         break;
 
       case HeroClasses.Ranger:
-        if (prop === "dexterity") {
-          return 2;
-        }
         break;
 
       case HeroClasses.Vampire:
