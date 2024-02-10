@@ -197,6 +197,13 @@ async function burntHarlequinReward(
           type: "quest",
         });
         gotReward = true;
+      } else if (!hasQuestItem(hero, "loaded-dice")) {
+        hero = giveQuestItemNotification(context, hero, "loaded-dice");
+
+        context.io.sendGlobalNotification({
+          message: `${hero.name} has found something precious`,
+          type: "quest",
+        });
       }
 
       break;
@@ -215,6 +222,13 @@ async function burntHarlequinReward(
           type: "quest",
         });
         gotReward = true;
+      } else if (!hasQuestItem(hero, "warrior-plate")) {
+        hero = giveQuestItemNotification(context, hero, "warrior-plate");
+
+        context.io.sendGlobalNotification({
+          message: `${hero.name} has found something precious`,
+          type: "quest",
+        });
       }
 
       break;
@@ -233,6 +247,13 @@ async function burntHarlequinReward(
           type: "quest",
         });
         gotReward = true;
+      } else if (!hasQuestItem(hero, "secret-codex")) {
+        hero = giveQuestItemNotification(context, hero, "secret-codex");
+
+        context.io.sendGlobalNotification({
+          message: `${hero.name} has found something precious`,
+          type: "quest",
+        });
       }
 
       break;
@@ -250,6 +271,13 @@ async function burntHarlequinReward(
           type: "quest",
         });
         gotReward = true;
+      } else if (!hasQuestItem(hero, "patrons-mark")) {
+        hero = giveQuestItemNotification(context, hero, "patrons-mark");
+
+        context.io.sendGlobalNotification({
+          message: `${hero.name} has found something precious`,
+          type: "quest",
+        });
       }
 
       break;
@@ -267,6 +295,13 @@ async function burntHarlequinReward(
           type: "quest",
         });
         gotReward = true;
+      } else if (!hasQuestItem(hero, "righteous-incense")) {
+        hero = giveQuestItemNotification(context, hero, "righteous-incense");
+
+        context.io.sendGlobalNotification({
+          message: `${hero.name} has found something precious`,
+          type: "quest",
+        });
       }
 
       break;
@@ -284,6 +319,13 @@ async function burntHarlequinReward(
           type: "quest",
         });
         gotReward = true;
+      } else if (!hasQuestItem(hero, "fletching-leather")) {
+        hero = giveQuestItemNotification(context, hero, "fletching-leather");
+
+        context.io.sendGlobalNotification({
+          message: `${hero.name} has found something precious`,
+          type: "quest",
+        });
       }
 
       break;
@@ -301,6 +343,13 @@ async function burntHarlequinReward(
           type: "quest",
         });
         gotReward = true;
+      } else if (!hasQuestItem(hero, "blood-stone")) {
+        hero = giveQuestItemNotification(context, hero, "blood-stone");
+
+        context.io.sendGlobalNotification({
+          message: `${hero.name} has found something precious`,
+          type: "quest",
+        });
       }
 
       break;
@@ -326,5 +375,9 @@ async function burntHarlequinReward(
     // why did you kill this?
     // get something bonus?
     // essences certainly...
+    context.io.sendGlobalNotification({
+      message: `${hero.name} must be stopped`,
+      type: "quest",
+    });
   }
 }
