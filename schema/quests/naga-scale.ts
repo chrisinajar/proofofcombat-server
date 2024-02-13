@@ -28,13 +28,13 @@ const NagaScale = 0x01 << 5;
 export function checkHeroDrop(
   context: BaseContext,
   hero: Hero,
-  monster: MonsterInstance
+  monster: MonsterInstance,
 ): Hero {
   if (hero.questLog.nagaScale?.finished) {
     return hero;
   }
   const progress = hero.questLog.nagaScale?.progress ?? 0;
-  if ((progress & FleshMound) === 0 && monster.monster.level === 19) {
+  if ((progress & FleshMound) === 0 && monster.monster.name === "Flesh Golem") {
     if (Math.random() > 1 / 10000) {
       return hero;
     }
@@ -59,7 +59,7 @@ export function checkHeroDrop(
   if (
     (progress & NagaScale) === 0 &&
     (progress & FlayingKnife) === FlayingKnife &&
-    monster.monster.level === 35
+    monster.monster.name === "Sentinel Naga"
   ) {
     if (Math.random() > 1 / 10) {
       return hero;
@@ -147,7 +147,7 @@ function heroLocationName(hero: Hero): string | null {
   const locations: SpecialLocation[] = specialLocations(
     hero.location.x,
     hero.location.y,
-    hero.location.map as MapNames
+    hero.location.map as MapNames,
   );
 
   if (!locations.length) {

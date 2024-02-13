@@ -323,7 +323,6 @@ export default class HeroModel extends DatabaseInterface<Hero> {
           1,
           hero.skillPercent / Math.pow(1.8, currentSkillLevel),
         );
-
         if (hero.equipment.artifact) {
           const modifier = getArtifactModifier(
             hero.equipment.artifact,
@@ -342,12 +341,45 @@ export default class HeroModel extends DatabaseInterface<Hero> {
             odds * 100,
           );
           hero.skills[hero.activeSkill] += 1;
-          context.io.sendNotification(hero.id, {
-            message: `Your skills in ${
-              SkillDisplayNames[hero.activeSkill]
-            } has increased to level ${hero.skills[hero.activeSkill]}`,
-            type: "quest",
-          });
+          if (hero.skillPercent === 69) {
+            if (hero.skills[hero.activeSkill] === 69) {
+              context.io.sendNotification(hero.id, {
+                message: `Your skills in ${
+                  SkillDisplayNames[hero.activeSkill]
+                } has increased to level ${
+                  hero.skills[hero.activeSkill]
+                }. NOICE.`,
+                type: "quest",
+              });
+            } else {
+              context.io.sendNotification(hero.id, {
+                message: `Your skills in ${
+                  SkillDisplayNames[hero.activeSkill]
+                } has increased to level ${
+                  hero.skills[hero.activeSkill]
+                }. Nice.`,
+                type: "quest",
+              });
+            }
+          } else {
+            if (hero.skills[hero.activeSkill] === 69) {
+              context.io.sendNotification(hero.id, {
+                message: `Your skills in ${
+                  SkillDisplayNames[hero.activeSkill]
+                } has increased to level ${
+                  hero.skills[hero.activeSkill]
+                }. Nice.`,
+                type: "quest",
+              });
+            } else {
+              context.io.sendNotification(hero.id, {
+                message: `Your skills in ${
+                  SkillDisplayNames[hero.activeSkill]
+                } has increased to level ${hero.skills[hero.activeSkill]}`,
+                type: "quest",
+              });
+            }
+          }
         }
       }
     }
