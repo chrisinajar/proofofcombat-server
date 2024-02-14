@@ -29,6 +29,7 @@ import { specialLocations, distance2d } from "../../helpers";
 import { Pathfinder } from "../../pathfinding";
 import { hasQuestItem, checkCapital } from "../quests/helpers";
 import { countEnchantments } from "../items/helpers";
+import { checkTeleport } from "../quests/staff-of-teleportation";
 
 import { getShopData, executeNpcTrade } from "./npc-shops";
 import { CampUpgrades } from "./camp-upgrades";
@@ -625,6 +626,16 @@ const resolvers: Resolvers = {
         throw new UserInputError(
           "You do not have the quest items needed to move there!",
         );
+      }
+
+      if (checkTeleport(context, hero)) {
+        await context.db.hero.put(hero);
+
+        return {
+          hero,
+          account,
+          monsters: [],
+        };
       }
 
       hero.location.x = targetLocation.x;
