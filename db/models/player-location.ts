@@ -19,7 +19,9 @@ type PartialPlayerLocation = Optional<
 > & { version?: number };
 
 const inMemoryLocationMaxLength = 100;
-const upkeepInterval = 1000 * 60 * 60;
+const upkeepInterval = 1000 * 6;
+
+const soldierTiers = ["enlisted", "soldier", "veteran", "ghost"];
 
 type UpkeepCosts = {
   stone: number;
@@ -344,6 +346,17 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     this.upkeepReentrancy = true;
     const now = Number(this.upkeepNow());
     const lastUpkeep = Number(location.lastUpkeep);
+
+    const upkeeps = Math.min(
+      24,
+      Math.max(0, Math.floor((now - lastUpkeep) / upkeepInterval)),
+    );
+
+    if (upkeeps < 1) {
+      this.upkeepReentrancy = false;
+      return location;
+    }
+
     let canAffordUpkeep = true;
     let settlementDead = false;
 
@@ -364,25 +377,26 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     const startingBees =
       location.resources.find((r) => r.name === "bees")?.value ?? 0;
 
-    const upkeeps = Math.min(
-      24,
-      Math.max(0, Math.floor((now - lastUpkeep) / upkeepInterval)),
+    const startingMilitaryUnits = soldierTiers.map(
+      (tier) => location.resources.find((r) => r.name === tier)?.value ?? 0,
     );
+    const totalMilitaryUnits = startingMilitaryUnits.reduce((a, b) => a + b);
 
-    if (upkeeps < 1) {
-      this.upkeepReentrancy = false;
-      return location;
+    if (totalMilitaryUnits > 0) {
+      console.log({ totalMilitaryUnits, startingMilitaryUnits }, location.type);
     }
 
     let isDecaying = false;
     let foodProduction = 0;
+    const capital = await this.getHome(location.owner);
+    const capitalPopulation =
+      capital?.resources?.find?.((r) => r.name === "population")?.value ?? 0;
 
     if (
       location.type !== PlayerLocationType.Settlement &&
       location.type !== PlayerLocationType.Camp
     ) {
       // non-central building, like a farm or something
-      const capital = await this.getHome(location.owner);
       // we are "decaying" if we don't have a capital
       isDecaying = !capital;
 
@@ -406,6 +420,36 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         location.resources.find((r) => r.name === "bees")?.value ?? 0;
 
       location.resources.forEach((resource) => {
+        // handle military
+        if (totalMilitaryUnits > 0) {
+          // upkeep military
+          // they cost nothing because upkeep costs are effectively "local"
+          const currentResourceSoldierTier = soldierTiers.indexOf(
+            resource.name,
+          );
+          if (currentResourceSoldierTier >= 0) {
+            // this is a soldier unit
+            const odds =
+              Math.pow(0.05, currentResourceSoldierTier + 1) * Math.random();
+            if (currentResourceSoldierTier === 0) {
+              resource.value += Math.floor(odds * (totalMilitaryUnits / 3));
+            }
+            if (currentResourceSoldierTier + 1 < soldierTiers.length) {
+              console.log(
+                "I want to upgrade",
+                Math.floor(odds * resource.value),
+              );
+              // resource.value -= Math.floor(odds * resource.value);
+            }
+            console.log({
+              ...resource,
+              odds: odds,
+              ups: odds * resource.value,
+              currentResourceSoldierTier,
+              capitalPopulation,
+            });
+          }
+        }
         // upgrades
         if (resource.name === "water") {
           if (hasRainCollection) {
@@ -437,11 +481,13 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           if (hasGarden) {
             resource.value += Math.floor(Math.random() * Math.random() * 10);
           }
+          // bwahahahahaha why
           resource.value += Math.floor(
             (1 /
               (1 +
                 Math.pow(
                   1.3,
+                  // okay sure xD
                   1 - Math.log(population / 1000) / Math.log(16),
                 ))) *
               (5000 * (population / (population + 10000))),
@@ -688,6 +734,12 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     if (data.type === PlayerLocationType.Apiary) {
       defaultResources.bees = 5;
       defaultResources.honey = 0;
+    }
+    if (data.type === PlayerLocationType.Barracks) {
+      soldierTiers.map((tier) => {
+        defaultResources[tier] = 0;
+      });
+      defaultResources[soldierTiers[0]] = 10;
     }
     if (
       data.type === PlayerLocationType.Camp ||

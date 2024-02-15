@@ -116,6 +116,7 @@ export default gql`
     Shrine
     Apiary
     Barracks
+    Garrison
   }
 
   type LocationDetails {

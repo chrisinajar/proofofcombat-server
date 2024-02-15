@@ -35,7 +35,7 @@ import { getShopData, executeNpcTrade } from "./npc-shops";
 import { CampUpgrades } from "./camp-upgrades";
 import {
   payForBuilding,
-  canAffordBuilding,
+  shouldSeeBuilding,
   Buildings,
   validBuildingLocationType,
 } from "./settlement-buildings";
@@ -133,6 +133,7 @@ const resolvers: Resolvers = {
 
       return upgradeList
         .filter((upgrade) => {
+          // don't show upgrades we already have
           if (playerLocation.upgrades.indexOf(upgrade.type) > -1) {
             return false;
           }
@@ -151,7 +152,7 @@ const resolvers: Resolvers = {
           }
           return true;
         })
-        .slice(0, 3);
+        .slice(0, 4);
     },
     async docks(
       parent,
@@ -984,18 +985,21 @@ const resolvers: Resolvers = {
 
       const result: PlayerLocationBuildingDescription[] = [];
 
-      if (canAffordBuilding(parent.capital, PlayerLocationType.Farm)) {
+      if (shouldSeeBuilding(parent.capital, PlayerLocationType.Farm)) {
         result.push(Buildings[PlayerLocationType.Farm]);
       }
       if (
         parent.capital.upgrades.indexOf(PlayerLocationUpgrades.HasBuiltFarm) < 0
       ) {
-        console.log("has never built a farm");
+        // console.log("has never built a farm");
         return result;
       }
 
-      if (canAffordBuilding(parent.capital, PlayerLocationType.Apiary)) {
+      if (shouldSeeBuilding(parent.capital, PlayerLocationType.Apiary)) {
         result.push(Buildings[PlayerLocationType.Apiary]);
+      }
+      if (shouldSeeBuilding(parent.capital, PlayerLocationType.Barracks)) {
+        result.push(Buildings[PlayerLocationType.Barracks]);
       }
 
       return result;
