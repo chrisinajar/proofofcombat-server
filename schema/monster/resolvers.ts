@@ -21,7 +21,6 @@ import {
   enchantItem,
 } from "../items/helpers";
 import { checkHeroDrop, hasQuestItem, checkSkipDrop } from "../quests/helpers";
-import { rebirth } from "../quests/rebirth";
 import { createMonsterEquipment } from "../../combat/monster";
 import { fightMonster } from "../../combat/fight-monster";
 import { LocationData, MapNames } from "../../constants";
@@ -80,9 +79,29 @@ const resolvers: Resolvers = {
 
       const lockoutItem = MonsterLockoutItems[monster.monster.id];
       if (lockoutItem && hasQuestItem(hero, lockoutItem)) {
-        throw new UserInputError(
-          "You cannot touch the aberration for you already possess it's essence",
-        );
+        if (monster.monster.id === "domari-aberration-1") {
+          switch (hero.class) {
+            case HeroClasses.Daredevil:
+            case HeroClasses.Gladiator:
+            case HeroClasses.EnragedBerserker:
+            case HeroClasses.MasterWizard:
+            case HeroClasses.MasterWarlock:
+            case HeroClasses.DemonHunter:
+            case HeroClasses.Zealot:
+            case HeroClasses.Archer:
+            case HeroClasses.Vampire:
+            // fuck these two too
+            case HeroClasses.JackOfAllTrades:
+            case HeroClasses.Adventurer:
+              throw new UserInputError(
+                "You cannot touch the aberration for you already possess it's essence",
+              );
+          }
+        } else {
+          throw new UserInputError(
+            "You cannot touch the aberration for you already possess it's essence",
+          );
+        }
       }
 
       const startLevel = hero.level;
