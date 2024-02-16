@@ -387,10 +387,6 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     const militaryGains = soldierTiers.map(() => 0);
     const totalMilitaryUnits = startingMilitaryUnits.reduce((a, b) => a + b);
 
-    if (totalMilitaryUnits > 0) {
-      console.log({ totalMilitaryUnits, startingMilitaryUnits }, location.type);
-    }
-
     let isDecaying = false;
     let foodProduction = 0;
     const capital = await this.getHome(location.owner);
@@ -769,7 +765,6 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       soldierTiers.map((tier) => {
         defaultResources[tier] = 0;
       });
-      defaultResources[soldierTiers[0]] = 10;
     }
     if (
       data.type === PlayerLocationType.Camp ||

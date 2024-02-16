@@ -36,6 +36,13 @@ export default gql`
 
     # military
     recruit(location: LocationInput!, amount: Int!): PlayerLocation!
+      @auth
+      @delay(delay: 500)
+    attack(
+      source: LocationInput!
+      target: LocationInput!
+      units: MilitaryUnitInput!
+    ): AttackResponse! @auth @delay(delay: 5000)
   }
 
   type ExtendedCampResponse {
@@ -189,5 +196,17 @@ export default gql`
     hero: Hero!
     account: BaseAccount!
     monsters: [MonsterInstance!]!
+  }
+
+  input MilitaryUnitInput {
+    enlisted: Int
+    soldier: Int
+    veteran: Int
+    ghost: Int
+  }
+
+  type AttackResponse {
+    source: PlayerLocation!
+    target: PlayerLocation!
   }
 `;

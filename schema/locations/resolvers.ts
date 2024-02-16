@@ -255,6 +255,23 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
+    async attack(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const targetLocation = args.target;
+      const sourceLocation = args.source;
+
+      const targetPlayerLocation = await context.db.playerLocation.get(
+        context.db.playerLocation.locationId(targetLocation),
+      );
+      const sourcePlayerLocation = await context.db.playerLocation.get(
+        context.db.playerLocation.locationId(sourceLocation),
+      );
+
+      return { target: targetPlayerLocation, source: sourcePlayerLocation };
+    },
     async recruit(parent, args, context) {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
