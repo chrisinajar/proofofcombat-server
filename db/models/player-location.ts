@@ -435,8 +435,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           if (currentResourceSoldierTier >= 0) {
             // this is a soldier unit
             const odds =
-              Math.pow(0.05, currentResourceSoldierTier * 2 + 1) *
-              Math.random();
+              Math.pow(0.05, currentResourceSoldierTier + 1) * Math.random();
             if (currentResourceSoldierTier === 0) {
               const amount = Math.floor(odds * totalMilitaryUnits);
               if (amount > 0) {

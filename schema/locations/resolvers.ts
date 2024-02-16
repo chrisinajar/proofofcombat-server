@@ -642,18 +642,6 @@ const resolvers: Resolvers = {
         throw new UserInputError("You cannot move while dead!");
       }
 
-      // const currentLocations = specialLocations(
-      //   hero.location.x,
-      //   hero.location.y,
-      //   hero.location.map as MapNames
-      // );
-
-      // const targetLocations = specialLocations(
-      //   args.x,
-      //   args.y,
-      //   hero.location.map as MapNames
-      // );
-
       const currentLocation = hero.location;
       const targetLocation = {
         x: Math.min(127, Math.max(0, args.x)),
@@ -696,6 +684,7 @@ const resolvers: Resolvers = {
         monsters: [],
       };
     },
+
     async voidTravel(parent, args, context) {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -950,10 +939,12 @@ const resolvers: Resolvers = {
       }
       return parent.resources;
     },
+
     async publicOwner(parent, args, context): Promise<PublicHero> {
       const hero = await context.db.hero.get(parent.owner);
       return context.db.hero.publicHero(hero, true);
     },
+
     async connections(parent, args, context): Promise<PlayerLocation[]> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -1019,6 +1010,8 @@ const resolvers: Resolvers = {
       if (parent.id !== context.auth.id) {
         return [];
       }
+
+      // get fucked i guess
       return [];
     },
     async availableBuildings(parent, args, context) {
