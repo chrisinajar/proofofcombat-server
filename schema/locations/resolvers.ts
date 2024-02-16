@@ -255,6 +255,52 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
+    async recruit(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const targetLocation = args.location;
+      const playerLocation = await context.db.playerLocation.get(
+        context.db.playerLocation.locationId(targetLocation),
+      );
+
+      // playerLocation
+      console.log(playerLocation);
+      if (playerLocation.owner !== context.auth.id) {
+        throw new ForbiddenError(
+          "You must own this location to recruit troops there",
+        );
+      }
+      if (playerLocation.type !== PlayerLocationType.Barracks) {
+        throw new UserInputError("You may only recruit troops at a barracks");
+      }
+      if (args.amount <= 0) {
+        throw new UserInputError("You must recruit at least 1 troop");
+      }
+
+      const cost = 1000000 * args.amount;
+      if (cost > hero.gold) {
+        throw new UserInputError("You cannot afford that many troops");
+      }
+
+      const enlistedResource = playerLocation.resources.find(
+        (res) => res.name === "enlisted",
+      );
+
+      if (!enlistedResource) {
+        throw new Error("Could not find enlisted troop resource");
+      }
+
+      hero.gold -= cost;
+      enlistedResource.value += args.amount;
+
+      await context.db.playerLocation.put(playerLocation);
+      await context.db.hero.put(hero);
+
+      return playerLocation;
+    },
     async destroyBuilding(parent, args, context) {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");

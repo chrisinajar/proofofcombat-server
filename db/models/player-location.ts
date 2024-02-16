@@ -246,6 +246,10 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       }
     }
 
+    if (soldierTiers.indexOf(resource) >= 0) {
+      return 1000000;
+    }
+
     return 100;
   }
 
@@ -380,6 +384,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     const startingMilitaryUnits = soldierTiers.map(
       (tier) => location.resources.find((r) => r.name === tier)?.value ?? 0,
     );
+    const militaryGains = soldierTiers.map(() => 0);
     const totalMilitaryUnits = startingMilitaryUnits.reduce((a, b) => a + b);
 
     if (totalMilitaryUnits > 0) {
@@ -430,24 +435,26 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           if (currentResourceSoldierTier >= 0) {
             // this is a soldier unit
             const odds =
-              Math.pow(0.05, currentResourceSoldierTier + 1) * Math.random();
+              Math.pow(0.05, currentResourceSoldierTier * 2 + 1) *
+              Math.random();
             if (currentResourceSoldierTier === 0) {
-              resource.value += Math.floor(odds * (totalMilitaryUnits / 3));
+              const amount = Math.floor(odds * totalMilitaryUnits);
+              if (amount > 0) {
+                militaryGains[currentResourceSoldierTier] += amount;
+                resource.value += amount;
+              }
             }
             if (currentResourceSoldierTier + 1 < soldierTiers.length) {
-              console.log(
-                "I want to upgrade",
-                Math.floor(odds * resource.value),
+              const upgradeTarget = location.resources.find(
+                (r) => r.name === soldierTiers[currentResourceSoldierTier + 1],
               );
-              // resource.value -= Math.floor(odds * resource.value);
+              const amount = Math.floor(odds * odds * resource.value);
+              if (upgradeTarget && amount > 0) {
+                resource.value -= amount;
+                upgradeTarget.value += amount;
+                militaryGains[currentResourceSoldierTier + 1] += amount;
+              }
             }
-            console.log({
-              ...resource,
-              odds: odds,
-              ups: odds * resource.value,
-              currentResourceSoldierTier,
-              capitalPopulation,
-            });
           }
         }
         // upgrades
@@ -636,6 +643,30 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
               message: `Your farm at ${location.location.x}, ${
                 location.location.y
               } gained ${parts.join(" and ")}.`,
+              type: "quest",
+            });
+          }
+        }
+        if (location.type === PlayerLocationType.Barracks) {
+          const parts: string[] = [];
+          militaryGains.forEach((gains, index) => {
+            if (gains > 0) {
+              if (index === 0) {
+                parts.push(
+                  `recruited ${gains.toLocaleString()} ${soldierTiers[index]}`,
+                );
+              } else {
+                parts.push(
+                  `trained ${gains.toLocaleString()} ${soldierTiers[index]}`,
+                );
+              }
+            }
+          });
+          if (parts.length) {
+            io.sendNotification(location.owner, {
+              message: `Your barracks at ${location.location.x}, ${
+                location.location.y
+              } ${parts.join(" and ")}.`,
               type: "quest",
             });
           }

@@ -33,6 +33,9 @@ export default gql`
     destroyBuilding(location: LocationInput!): LevelUpResponse!
       @auth
       @delay(delay: 2000)
+
+    # military
+    recruit(location: LocationInput!, amount: Int!): PlayerLocation!
   }
 
   type ExtendedCampResponse {
