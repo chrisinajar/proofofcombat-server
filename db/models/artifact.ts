@@ -14,7 +14,7 @@ type PartialArtifactItem = ArtifactItem; // Optional<ArtifactItem, "banned" | "n
 
 export function getArtifactModifier(
   artifact: ArtifactItem,
-  type: ArtifactAttributeType
+  type: ArtifactAttributeType,
 ): ArtifactAttribute | undefined {
   const modifiers = modifiersForArtifact(artifact);
   const modifier = modifiers.find((mod) => mod.type === type);
@@ -22,7 +22,7 @@ export function getArtifactModifier(
 }
 
 export function modifiersForArtifact(
-  artifact: ArtifactItem
+  artifact: ArtifactItem,
 ): ArtifactAttribute[] {
   const artifactBuffs: ArtifactAttribute[] = [
     artifact.attributes.namePrefix,
@@ -102,7 +102,7 @@ export default class ArtifactItemModel extends DatabaseInterface<ArtifactItem> {
         Math.round(
           (affix.magnitude[0] +
             Math.random() * (affix.magnitude[1] - affix.magnitude[0])) /
-            affix.step
+            affix.step,
         ) /
         (1 / affix.step),
     }));
@@ -182,7 +182,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Wrestler",
     levelRequirement: 1,
     attributeType: ArtifactAttributeType.BonusStrength,
-    magnitude: [1.01, 1.1],
+    magnitude: [1.1, 1.2],
     step: 0.01,
   },
   {
@@ -192,7 +192,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Carrier",
     levelRequirement: 20,
     attributeType: ArtifactAttributeType.BonusStrength,
-    magnitude: [1.1, 1.2],
+    magnitude: [1.2, 1.4],
     step: 0.01,
   },
   {
@@ -202,7 +202,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Dominator",
     levelRequirement: 40,
     attributeType: ArtifactAttributeType.BonusStrength,
-    magnitude: [1.2, 1.3],
+    magnitude: [1.4, 1.8],
     step: 0.01,
   },
 
@@ -213,7 +213,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Escapist",
     levelRequirement: 1,
     attributeType: ArtifactAttributeType.BonusDexterity,
-    magnitude: [1.01, 1.1],
+    magnitude: [1.1, 1.2],
     step: 0.01,
   },
   {
@@ -223,7 +223,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Shadow",
     levelRequirement: 20,
     attributeType: ArtifactAttributeType.BonusDexterity,
-    magnitude: [1.1, 1.2],
+    magnitude: [1.2, 1.4],
     step: 0.01,
   },
   {
@@ -233,7 +233,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Blur",
     levelRequirement: 40,
     attributeType: ArtifactAttributeType.BonusDexterity,
-    magnitude: [1.2, 1.3],
+    magnitude: [1.4, 1.8],
     step: 0.01,
   },
 
@@ -244,7 +244,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Whale",
     levelRequirement: 1,
     attributeType: ArtifactAttributeType.BonusConstitution,
-    magnitude: [1.01, 1.1],
+    magnitude: [1.1, 1.2],
     step: 0.01,
   },
   {
@@ -254,7 +254,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Endurance",
     levelRequirement: 20,
     attributeType: ArtifactAttributeType.BonusConstitution,
-    magnitude: [1.1, 1.2],
+    magnitude: [1.2, 1.4],
     step: 0.01,
   },
   {
@@ -264,7 +264,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Nightmare",
     levelRequirement: 40,
     attributeType: ArtifactAttributeType.BonusConstitution,
-    magnitude: [1.2, 1.3],
+    magnitude: [1.4, 1.8],
     step: 0.01,
   },
 
@@ -275,7 +275,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Wand",
     levelRequirement: 1,
     attributeType: ArtifactAttributeType.BonusIntelligence,
-    magnitude: [1.01, 1.1],
+    magnitude: [1.1, 1.2],
     step: 0.01,
   },
   {
@@ -285,7 +285,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Stone",
     levelRequirement: 20,
     attributeType: ArtifactAttributeType.BonusIntelligence,
-    magnitude: [1.1, 1.2],
+    magnitude: [1.2, 1.4],
     step: 0.01,
   },
   {
@@ -295,7 +295,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Orb",
     levelRequirement: 40,
     attributeType: ArtifactAttributeType.BonusIntelligence,
-    magnitude: [1.2, 1.3],
+    magnitude: [1.4, 1.8],
     step: 0.01,
   },
 
@@ -306,7 +306,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Monk",
     levelRequirement: 1,
     attributeType: ArtifactAttributeType.BonusWisdom,
-    magnitude: [1.01, 1.1],
+    magnitude: [1.1, 1.2],
     step: 0.01,
   },
   {
@@ -316,7 +316,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Mind",
     levelRequirement: 20,
     attributeType: ArtifactAttributeType.BonusWisdom,
-    magnitude: [1.1, 1.2],
+    magnitude: [1.2, 1.4],
     step: 0.01,
   },
   {
@@ -326,7 +326,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Invocation",
     levelRequirement: 40,
     attributeType: ArtifactAttributeType.BonusWisdom,
-    magnitude: [1.2, 1.3],
+    magnitude: [1.4, 1.8],
     step: 0.01,
   },
 
@@ -337,7 +337,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Bard",
     levelRequirement: 1,
     attributeType: ArtifactAttributeType.BonusWillpower,
-    magnitude: [1.01, 1.1],
+    magnitude: [1.1, 1.2],
     step: 0.01,
   },
   {
@@ -347,7 +347,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Light",
     levelRequirement: 20,
     attributeType: ArtifactAttributeType.BonusWillpower,
-    magnitude: [1.1, 1.2],
+    magnitude: [1.2, 1.4],
     step: 0.01,
   },
   {
@@ -357,7 +357,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Spirit",
     levelRequirement: 40,
     attributeType: ArtifactAttributeType.BonusWillpower,
-    magnitude: [1.2, 1.3],
+    magnitude: [1.4, 1.8],
     step: 0.01,
   },
 
@@ -368,7 +368,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Luck",
     levelRequirement: 1,
     attributeType: ArtifactAttributeType.BonusLuck,
-    magnitude: [1.01, 1.1],
+    magnitude: [1.1, 1.2],
     step: 0.01,
   },
   {
@@ -378,7 +378,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Gambler",
     levelRequirement: 20,
     attributeType: ArtifactAttributeType.BonusLuck,
-    magnitude: [1.1, 1.2],
+    magnitude: [1.2, 1.4],
     step: 0.01,
   },
   {
@@ -388,7 +388,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Singer",
     levelRequirement: 40,
     attributeType: ArtifactAttributeType.BonusLuck,
-    magnitude: [1.2, 1.3],
+    magnitude: [1.4, 1.8],
     step: 0.01,
   },
 
@@ -542,7 +542,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     namePostfix: "gadget",
     titlePrefix: "Skilled",
     titlePostfix: "Learner",
-    levelRequirement: 10,
+    levelRequirement: 20,
     attributeType: ArtifactAttributeType.BonusSkillChance,
     magnitude: [1.1, 2],
     step: 0.1,
@@ -554,7 +554,17 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Collector",
     levelRequirement: 40,
     attributeType: ArtifactAttributeType.BonusSkillChance,
-    magnitude: [2, 5],
+    magnitude: [2, 3],
+    step: 0.1,
+  },
+  {
+    namePrefix: "Prodigious",
+    namePostfix: "mind",
+    titlePrefix: "Prodigious",
+    titlePostfix: "Prodigy",
+    levelRequirement: 50,
+    attributeType: ArtifactAttributeType.BonusSkillChance,
+    magnitude: [3, 4],
     step: 0.1,
   },
 
@@ -566,7 +576,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Leech",
     levelRequirement: 1,
     attributeType: ArtifactAttributeType.Lifesteal,
-    magnitude: [0.01, 0.05],
+    magnitude: [1.01, 1.05],
     step: 0.01,
   },
   {
@@ -576,7 +586,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Lamprey",
     levelRequirement: 20,
     attributeType: ArtifactAttributeType.Lifesteal,
-    magnitude: [0.06, 0.1],
+    magnitude: [1.06, 1.1],
     step: 0.01,
   },
   {
@@ -586,7 +596,7 @@ const ArtifactAffixes: ArtifactAffix[] = [
     titlePostfix: "Vampire",
     levelRequirement: 40,
     attributeType: ArtifactAttributeType.Lifesteal,
-    magnitude: [0.11, 0.15],
+    magnitude: [1.11, 1.15],
     step: 0.01,
   },
 
