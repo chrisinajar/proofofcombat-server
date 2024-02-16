@@ -4,6 +4,8 @@ import { ApolloServer } from "apollo-server-express";
 import { hiveApollo } from "@graphql-hive/client";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import express from "express";
+import compression from "compression";
+
 import fs from "fs";
 import http from "http";
 import https from "https";
@@ -64,6 +66,7 @@ const httpServer = http.createServer(app);
 const httpsServer = getHttpsServer(app);
 const socketioHttpsServer = getHttpsServer();
 
+app.use(compression());
 app.use(cors(corsOptions));
 export const io = addSocketToServer(socketioHttpsServer);
 

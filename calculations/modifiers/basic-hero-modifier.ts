@@ -23,7 +23,7 @@ export class BasicHeroModifier extends Modifier<undefined> {
         //   (hero.stats.constitution * 20 + hero.level * 20) * bonusHealth
         // );
         return (
-          (this.parent.stats.constitution + this.parent.stats.level) * 20 -
+          (this.parent.stats.constitution + this.parent.stats.level / 2) * 20 -
           this.parent.baseValues.health
         );
       // Math.pow(1.08, this.parent.stats.vitality)
@@ -92,6 +92,7 @@ export class BasicHeroModifier extends Modifier<undefined> {
     // regeneration: 0,
     return;
   }
+
   getExtraBonus(prop: string): number | void {
     return;
   }

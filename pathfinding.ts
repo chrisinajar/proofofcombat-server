@@ -43,7 +43,7 @@ export class Pathfinder<Node> {
 
   async findPath(
     start: Node,
-    end: Node
+    end: Node,
   ): Promise<{ success: boolean; path: Node[] }> {
     const openNodes = new Map<string, NodeData<Node>>();
     const heap = new Heap<NodeData<Node>>((a, b) => a.score - b.score);
@@ -62,6 +62,10 @@ export class Pathfinder<Node> {
 
     while (heap.size() && ++iteration < this.maxIterations) {
       const node = heap.pop();
+
+      if (!node) {
+        continue;
+      }
 
       if ((await this.distance(node.data, end)) === 0) {
         return {
@@ -99,7 +103,7 @@ export class Pathfinder<Node> {
             didUpdate = true;
             heap.push(existingItem);
           }
-        })
+        }),
       );
       if (didUpdate) {
         heap.heapify();
