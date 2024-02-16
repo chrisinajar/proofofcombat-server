@@ -116,7 +116,15 @@ export class ArtifactItem extends Item {
       case ArtifactAttributeType.BonusHealth:
         // implemented in hero model health calculations //
         // is it?
-        // done
+        // no, it is not.
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            multiplier: {
+              health: attribute.magnitude,
+            },
+          },
+        });
         break;
 
       case ArtifactAttributeType.ReducedDelay:
