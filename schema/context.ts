@@ -13,4 +13,5 @@ export type BaseContext = {
   };
   db: typeof DatabaseList;
   io: SocketServerAPI;
+  delay?: number;
 };

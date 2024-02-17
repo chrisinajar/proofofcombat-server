@@ -9,7 +9,7 @@ import { runAberrationCheck } from "../aberration";
 
 export function delayDirectiveTransformer(
   schema: GraphQLSchema,
-  directiveName: string
+  directiveName: string,
 ) {
   return mapSchema(schema, {
     // Executes once for each object field in the schema
@@ -18,7 +18,7 @@ export function delayDirectiveTransformer(
       const delayDirective = getDirective(
         schema,
         fieldConfig,
-        directiveName
+        directiveName,
       )?.[0];
 
       if (delayDirective) {
@@ -29,7 +29,7 @@ export function delayDirectiveTransformer(
           source,
           args,
           context: BaseContext,
-          info
+          info,
         ) {
           if (!context?.auth?.id) {
             throw new ForbiddenError("Missing auth");
@@ -58,13 +58,14 @@ export function delayDirectiveTransformer(
               if (hero?.equipment?.artifact) {
                 const reducedDelay = context.db.artifact.getArtifactModifier(
                   hero.equipment.artifact,
-                  ArtifactAttributeType.ReducedDelay
+                  ArtifactAttributeType.ReducedDelay,
                 );
                 if (reducedDelay) {
                   delay = delay * (1 / reducedDelay.magnitude);
                 }
               }
               delay = Math.round(delay);
+              context.delay = delay;
               account.nextAllowedAction = `${now + delay}`;
               await context.db.account.put(account);
             }
