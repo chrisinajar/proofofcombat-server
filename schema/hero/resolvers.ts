@@ -416,30 +416,30 @@ const resolvers: Resolvers = {
       let attackType = AttackType.Melee;
       switch (parent.class) {
         case HeroClasses.Adventurer:
-          attackType = AttackType.Melee;
-          break;
         case HeroClasses.Gambler:
-          attackType = AttackType.Melee;
-          break;
+        case HeroClasses.Daredevil:
         case HeroClasses.Fighter:
-          attackType = AttackType.Melee;
-          break;
+        case HeroClasses.Gladiator:
         case HeroClasses.Berserker:
+        case HeroClasses.EnragedBerserker:
           attackType = AttackType.Melee;
           break;
         case HeroClasses.Ranger:
+        case HeroClasses.Archer:
           attackType = AttackType.Ranged;
           break;
         case HeroClasses.BloodMage:
+        case HeroClasses.Vampire:
           attackType = AttackType.Blood;
           break;
         case HeroClasses.Wizard:
-          attackType = AttackType.Cast;
-          break;
+        case HeroClasses.MasterWizard:
         case HeroClasses.Warlock:
+        case HeroClasses.MasterWarlock:
           attackType = AttackType.Cast;
           break;
         case HeroClasses.Paladin:
+        case HeroClasses.Zealot:
           attackType = AttackType.Smite;
           break;
       }
