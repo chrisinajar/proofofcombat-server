@@ -5,6 +5,7 @@ import {
   AccessRole,
   Location,
   Hero,
+  UpkeepCosts,
 } from "types/graphql";
 import DatabaseInterface from "../interface";
 
@@ -15,20 +16,18 @@ import { io } from "../../index";
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 type PartialPlayerLocation = Optional<
   PlayerLocation,
-  "upgrades" | "resources" | "lastUpkeep" | "connections" | "availableUpgrades"
+  | "upgrades"
+  | "resources"
+  | "lastUpkeep"
+  | "connections"
+  | "availableUpgrades"
+  | "upkeep"
 > & { version?: number };
 
 const inMemoryLocationMaxLength = 100;
-const upkeepInterval = 1000 * 6;
+const upkeepInterval = 1000 * 60;
 
 const soldierTiers = ["enlisted", "soldier", "veteran", "ghost"];
-
-type UpkeepCosts = {
-  stone: number;
-  wood: number;
-  food: number;
-  water: number;
-};
 
 export default class PlayerLocationModel extends DatabaseInterface<PlayerLocation> {
   upkeepReentrancy: boolean = false;
@@ -247,7 +246,11 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     }
 
     if (soldierTiers.indexOf(resource) >= 0) {
-      return 1000000;
+      return 1000000000;
+    }
+
+    if (resource === "bonds") {
+      return 1000000000;
     }
 
     return 100;
@@ -380,6 +383,8 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       location.resources.find((r) => r.name === "honey")?.value ?? 0;
     const startingBees =
       location.resources.find((r) => r.name === "bees")?.value ?? 0;
+    const startingBonds =
+      location.resources.find((r) => r.name === "bonds")?.value ?? 0;
 
     const startingMilitaryUnits = soldierTiers.map(
       (tier) => location.resources.find((r) => r.name === tier)?.value ?? 0,
@@ -431,7 +436,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           if (currentResourceSoldierTier >= 0) {
             // this is a soldier unit
             const odds =
-              Math.pow(0.05, currentResourceSoldierTier + 1) * Math.random();
+              Math.pow(0.02, currentResourceSoldierTier + 1) * Math.random();
             if (currentResourceSoldierTier === 0) {
               const amount = Math.floor(odds * totalMilitaryUnits);
               if (amount > 0) {
@@ -464,6 +469,8 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           );
         } else if (resource.name === "bees") {
           resource.value += Math.floor(Math.random() * 1.1);
+        } else if (resource.name === "bonds") {
+          resource.value += Math.floor(resource.value * 0.01);
         } else if (resource.name === "honey") {
           resource.value += Math.floor(
             Math.random() *
@@ -479,6 +486,12 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             Math.random() * Math.random() * Math.log2(resource.value) +
               (Math.random() * Math.random() * resource.value) / 100,
           );
+          if (resource.maximum) {
+            console.log(resource);
+            if (resource.value > resource.maximum) {
+              foodProduction += (resource.value - resource.maximum) * 10;
+            }
+          }
         } else if (resource.name === "food") {
           if (hasGarden) {
             resource.value += Math.floor(Math.random() * Math.random() * 10);
@@ -593,14 +606,38 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             type: "quest",
           });
         }
+        if (location.type === PlayerLocationType.Treasury) {
+          const endingBonds =
+            location.resources.find((r) => r.name === "bonds")?.value ?? 0;
+          if (endingBonds > startingBonds) {
+            io.sendNotification(location.owner, {
+              message: `Your treasury at ${location.location.x}, ${
+                location.location.y
+              } gained ${(
+                endingBonds - startingBonds
+              ).toLocaleString()} bonds.`,
+              type: "quest",
+            });
+          }
+        }
         if (location.type === PlayerLocationType.Farm) {
           const endingCattle =
             location.resources.find((r) => r.name === "cattle")?.value ?? 0;
-          if (endingCattle - startingCattle > 0) {
+          if (foodProduction + (endingCattle - startingCattle) > 0) {
+            const foodMsg =
+              foodProduction > 0
+                ? ` ${foodProduction.toLocaleString()} food`
+                : null;
+            const cattleMsg =
+              endingCattle - startingCattle > 0
+                ? ` ${(endingCattle - startingCattle).toLocaleString()} cattle`
+                : null;
             io.sendNotification(location.owner, {
               message: `Your farm at ${location.location.x}, ${
                 location.location.y
-              } gained ${endingCattle - startingCattle} cattle.`,
+              } gained ${[cattleMsg, foodMsg]
+                .filter((a) => !!a)
+                .join(" and ")}.`,
               type: "quest",
             });
           }
@@ -766,6 +803,9 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         defaultResources[tier] = 0;
       });
     }
+    if (data.type === PlayerLocationType.Treasury) {
+      defaultResources.bonds = 0;
+    }
     if (
       data.type === PlayerLocationType.Camp ||
       data.type === PlayerLocationType.Settlement
@@ -798,6 +838,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         });
       }
     });
+
     return playerLocation;
   }
 }

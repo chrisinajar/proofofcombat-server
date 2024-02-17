@@ -41,9 +41,20 @@ const BuildingsData = {
       { name: "stone", value: 1200000 },
     ],
   },
+  [PlayerLocationType.Treasury]: {
+    type: PlayerLocationType.Treasury,
+    name: "Treasury",
+    description:
+      "A large secure facility to store gold and generate interest on it.",
+    cost: [
+      { name: "water", value: 500000 },
+      { name: "wood", value: 2000000 },
+      { name: "stone", value: 5000000 },
+    ],
+  },
 };
 
-type DescribedBuildings = keyof typeof BuildingsData;
+export type DescribedBuildings = keyof typeof BuildingsData;
 
 export const Buildings: {
   [x in DescribedBuildings]: PlayerLocationBuildingDescription;

@@ -34,10 +34,15 @@ export default gql`
       @auth
       @delay(delay: 2000)
 
+    purchaseBonds(
+      location: LocationInput!
+      amount: Int!
+    ): PlayerLocationResponse! @auth @delay(delay: 800)
+
     # military
-    recruit(location: LocationInput!, amount: Int!): PlayerLocation!
+    recruit(location: LocationInput!, amount: Int!): PlayerLocationResponse!
       @auth
-      @delay(delay: 500)
+      @delay(delay: 800)
     attack(
       source: LocationInput!
       target: LocationInput!
@@ -89,9 +94,17 @@ export default gql`
     type: PlayerLocationType!
     upgrades: [PlayerLocationUpgrades!]!
     resources: [CampResources!]!
+    upkeep: UpkeepCosts!
     lastUpkeep: String
     connections: [PlayerLocation!]!
     availableUpgrades: [PlayerLocationUpgradeDescription!]!
+  }
+
+  type UpkeepCosts {
+    stone: Int!
+    wood: Int!
+    food: Int!
+    water: Int!
   }
 
   type CampResources {
@@ -209,5 +222,10 @@ export default gql`
   type AttackResponse {
     source: PlayerLocation!
     target: PlayerLocation!
+  }
+
+  type PlayerLocationResponse {
+    location: PlayerLocation!
+    account: BaseAccount
   }
 `;

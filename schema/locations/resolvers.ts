@@ -38,6 +38,7 @@ import {
   shouldSeeBuilding,
   Buildings,
   validBuildingLocationType,
+  DescribedBuildings,
 } from "./settlement-buildings";
 
 function isCloseToSpecialLocation(location: Location): boolean {
@@ -288,8 +289,6 @@ const resolvers: Resolvers = {
         context.db.playerLocation.locationId(targetLocation),
       );
 
-      // playerLocation
-      console.log(playerLocation);
       if (playerLocation.owner !== context.auth.id) {
         throw new ForbiddenError(
           "You must own this location to recruit troops there",
@@ -321,8 +320,59 @@ const resolvers: Resolvers = {
       await context.db.playerLocation.put(playerLocation);
       await context.db.hero.put(hero);
 
-      return playerLocation;
+      return { location: playerLocation };
     },
+    async purchaseBonds(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const targetLocation = args.location;
+      const playerLocation = await context.db.playerLocation.get(
+        context.db.playerLocation.locationId(targetLocation),
+      );
+
+      if (playerLocation.owner !== context.auth.id) {
+        throw new ForbiddenError(
+          "You must own this location to purchase bonds there",
+        );
+      }
+      if (playerLocation.type !== PlayerLocationType.Treasury) {
+        throw new UserInputError("You may only purchase bonds at a treasury");
+      }
+
+      const bondsResource = playerLocation.resources.find(
+        (res) => res.name === "bonds",
+      );
+      if (!bondsResource) {
+        throw new Error("Could not find bonds resource");
+      }
+
+      if (args.amount <= 0) {
+        const amount = 0 - args.amount;
+        if (amount > bondsResource.value) {
+          throw new UserInputError("You do not have that many bonds");
+        }
+
+        const cost = 1000000 * amount;
+        hero.gold += cost;
+        bondsResource.value -= amount;
+      } else {
+        const cost = 1000000 * args.amount;
+        if (cost > hero.gold) {
+          throw new UserInputError("You cannot afford that many bonds");
+        }
+
+        hero.gold -= cost;
+        bondsResource.value += args.amount;
+      }
+      await context.db.playerLocation.put(playerLocation);
+      await context.db.hero.put(hero);
+
+      return { location: playerLocation };
+    },
+
     async destroyBuilding(parent, args, context) {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -427,16 +477,18 @@ const resolvers: Resolvers = {
         );
       }
 
-      const newLocation = await context.db.playerLocation.put({
-        id: context.db.playerLocation.locationId(targetLocation),
-        type: buildingType,
-        availableUpgrades: [],
-        connections: [],
-        location: targetLocation,
-        owner: context.auth.id,
-        resources: [],
-        upgrades: [],
-      });
+      const newLocation = await context.db.playerLocation.put(
+        context.db.playerLocation.upgrade({
+          id: context.db.playerLocation.locationId(targetLocation),
+          type: buildingType,
+          availableUpgrades: [],
+          connections: [],
+          location: targetLocation,
+          owner: context.auth.id,
+          resources: [],
+          upgrades: [],
+        }),
+      );
 
       capital.connections.push(newLocation);
       if (
@@ -961,6 +1013,12 @@ const resolvers: Resolvers = {
       }
       return parent.resources;
     },
+    async upkeep(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      return context.db.playerLocation.calculateUpkeepCosts(parent);
+    },
 
     async publicOwner(parent, args, context): Promise<PublicHero> {
       const hero = await context.db.hero.get(parent.owner);
@@ -1056,27 +1114,26 @@ const resolvers: Resolvers = {
         return result;
       }
 
-      [
+      const buildingsAfterFarm: DescribedBuildings[] = [
         PlayerLocationType.Apiary,
-        // PlayerLocationType.Treasury,
+        PlayerLocationType.Treasury,
         PlayerLocationType.Barracks,
-      ].forEach((type) => {
+      ];
+      buildingsAfterFarm.forEach((type) => {
         if (shouldSeeBuilding(parent.capital, type)) {
           result.push(Buildings[type]);
         }
       });
 
-      if (shouldSeeBuilding(parent.capital, PlayerLocationType.Apiary)) {
-        result.push(Buildings[PlayerLocationType.Apiary]);
-      }
-      if (shouldSeeBuilding(parent.capital, PlayerLocationType.Barracks)) {
-        result.push(Buildings[PlayerLocationType.Barracks]);
-      }
-      if (shouldSeeBuilding(parent.capital, PlayerLocationType.Barracks)) {
-        result.push(Buildings[PlayerLocationType.Barracks]);
-      }
-
       return result;
+    },
+  },
+  PlayerLocationResponse: {
+    async account(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      return context.db.account.get(context.auth.id);
     },
   },
 };
