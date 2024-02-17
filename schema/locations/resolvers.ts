@@ -256,9 +256,9 @@ const resolvers: Resolvers = {
   },
   Mutation: {
     async attack(parent, args, context) {
-      if (!context?.auth?.id) {
-        throw new ForbiddenError("Missing auth");
-      }
+      // if (!context?.auth?.id) {
+      //   throw new ForbiddenError("Missing auth");
+      // }
 
       const targetLocation = args.target;
       const sourceLocation = args.source;
@@ -269,6 +269,11 @@ const resolvers: Resolvers = {
       const sourcePlayerLocation = await context.db.playerLocation.get(
         context.db.playerLocation.locationId(sourceLocation),
       );
+
+      console.log("Attacking with", args, {
+        targetPlayerLocation,
+        sourcePlayerLocation,
+      });
 
       return { target: targetPlayerLocation, source: sourcePlayerLocation };
     },
@@ -1051,8 +1056,21 @@ const resolvers: Resolvers = {
         return result;
       }
 
+      [
+        PlayerLocationType.Apiary,
+        // PlayerLocationType.Treasury,
+        PlayerLocationType.Barracks,
+      ].forEach((type) => {
+        if (shouldSeeBuilding(parent.capital, type)) {
+          result.push(Buildings[type]);
+        }
+      });
+
       if (shouldSeeBuilding(parent.capital, PlayerLocationType.Apiary)) {
         result.push(Buildings[PlayerLocationType.Apiary]);
+      }
+      if (shouldSeeBuilding(parent.capital, PlayerLocationType.Barracks)) {
+        result.push(Buildings[PlayerLocationType.Barracks]);
       }
       if (shouldSeeBuilding(parent.capital, PlayerLocationType.Barracks)) {
         result.push(Buildings[PlayerLocationType.Barracks]);

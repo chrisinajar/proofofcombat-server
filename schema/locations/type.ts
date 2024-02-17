@@ -42,7 +42,8 @@ export default gql`
       source: LocationInput!
       target: LocationInput!
       units: MilitaryUnitInput!
-    ): AttackResponse! @auth @delay(delay: 5000)
+    ): AttackResponse!
+    # @auth @delay(delay: 5000)
   }
 
   type ExtendedCampResponse {
