@@ -487,7 +487,6 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
               (Math.random() * Math.random() * resource.value) / 100,
           );
           if (resource.maximum) {
-            console.log(resource);
             if (resource.value > resource.maximum) {
               foodProduction += (resource.value - resource.maximum) * 10;
             }
