@@ -43,7 +43,7 @@ function isCloseToSpecialLocation(location: Location): boolean {
   return !!LocationData[location.map as MapNames].specialLocations.find(
     (specialLocation) => {
       return distance2d(specialLocation, location) < 4;
-    },
+    }
   );
 }
 
@@ -54,7 +54,7 @@ function isAllowedThere(hero: Hero, location: Location): boolean {
   const locations = specialLocations(
     location.x,
     location.y,
-    location.map as MapNames,
+    location.map as MapNames
   );
   let isAllowed = true;
 
@@ -86,7 +86,7 @@ function isAllowedThere(hero: Hero, location: Location): boolean {
 function createSettlementManager(
   context: BaseContext,
   hero: Hero,
-  capital: PlayerLocation,
+  capital: PlayerLocation
 ): SettlementManager {
   return {
     id: hero.id,
@@ -138,7 +138,7 @@ const resolvers: Resolvers = {
           if (
             !upgrade.cost.reduce((canAfford, cost) => {
               const resource = playerLocation.resources.find(
-                (res) => res.name === cost.name,
+                (res) => res.name === cost.name
               );
               if (!resource) {
                 return canAfford;
@@ -155,7 +155,7 @@ const resolvers: Resolvers = {
     async docks(
       parent,
       args,
-      context: BaseContext,
+      context: BaseContext
     ): Promise<SpecialLocation[]> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -164,7 +164,7 @@ const resolvers: Resolvers = {
 
       if (args.map && hero.location.map !== args.map) {
         throw new ForbiddenError(
-          "You may only get details about locations you're in.",
+          "You may only get details about locations you're in."
         );
       }
 
@@ -181,7 +181,7 @@ const resolvers: Resolvers = {
     async locationDetails(
       parent,
       args,
-      context: BaseContext,
+      context: BaseContext
     ): Promise<LocationDetails> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -201,7 +201,7 @@ const resolvers: Resolvers = {
           hero.location.map !== args.location.map)
       ) {
         throw new ForbiddenError(
-          "You may only get details about locations you're in.",
+          "You may only get details about locations you're in."
         );
       }
 
@@ -246,7 +246,7 @@ const resolvers: Resolvers = {
         specialLocations: specialLocations(
           hero.location.x,
           hero.location.y,
-          hero.location.map as MapNames,
+          hero.location.map as MapNames
         ).map((location) => ({ ...location, location: targetLocation })),
         neighborTerrain,
       };
@@ -261,7 +261,7 @@ const resolvers: Resolvers = {
       const account = await context.db.account.get(context.auth.id);
       const targetLocation = args.location;
       const playerLocation = await context.db.playerLocation.get(
-        context.db.playerLocation.locationId(targetLocation),
+        context.db.playerLocation.locationId(targetLocation)
       );
 
       if (!playerLocation || playerLocation.owner !== hero.id) {
@@ -286,13 +286,13 @@ const resolvers: Resolvers = {
       let existingPlayerLocation: PlayerLocation | null = null;
       try {
         existingPlayerLocation = await context.db.playerLocation.get(
-          context.db.playerLocation.locationId(targetLocation),
+          context.db.playerLocation.locationId(targetLocation)
         );
       } catch (e) {}
 
       if (existingPlayerLocation) {
         throw new UserInputError(
-          "There is already something built on that square.",
+          "There is already something built on that square."
         );
       }
 
@@ -303,7 +303,7 @@ const resolvers: Resolvers = {
         [locationHash(capital.location)]: capital.location,
       };
       capital.connections = await context.db.playerLocation.getConnections(
-        capital,
+        capital
       );
       capital.connections.forEach((loc) => {
         locationCoords[locationHash(loc.location)] = loc.location;
@@ -336,14 +336,14 @@ const resolvers: Resolvers = {
 
       if (!path.success) {
         throw new UserInputError(
-          "That location has no connection to your capital",
+          "That location has no connection to your capital"
         );
       }
       console.log(path);
       // range? i dunno man... i'll get to it
       if (path.path.length > context.db.playerLocation.range(capital)) {
         throw new UserInputError(
-          "That location is too far away from your capital",
+          "That location is too far away from your capital"
         );
       }
       const buildingType = args.type;
@@ -353,7 +353,7 @@ const resolvers: Resolvers = {
 
       if (!payForBuilding(capital, buildingType)) {
         throw new UserInputError(
-          "You do not have enough resources for that building",
+          "You do not have enough resources for that building"
         );
       }
 
@@ -409,13 +409,13 @@ const resolvers: Resolvers = {
       if (isSettlement) {
         if (isCloseToSpecialLocation(camp.location)) {
           throw new UserInputError(
-            "You are too close to a special location to create a settlement.",
+            "You are too close to a special location to create a settlement."
           );
         }
         let existingSettlement: PlayerLocation | null = null;
         try {
           existingSettlement = await context.db.playerLocation.get(
-            context.db.playerLocation.locationId(camp.location),
+            context.db.playerLocation.locationId(camp.location)
           );
         } catch (e) {}
         if (existingSettlement) {
@@ -455,7 +455,7 @@ const resolvers: Resolvers = {
 
       if (!canAfford) {
         throw new UserInputError(
-          `You do not have enough ${resourceName} for that upgrade!`,
+          `You do not have enough ${resourceName} for that upgrade!`
         );
       }
 
@@ -503,7 +503,7 @@ const resolvers: Resolvers = {
       }
 
       const resourceCost = context.db.playerLocation.resourceCost(
-        args.resource,
+        args.resource
       );
 
       if (!resourceCost) {
@@ -514,7 +514,7 @@ const resolvers: Resolvers = {
 
       if (hero.gold < goldCost) {
         throw new UserInputError(
-          "You do not have enough gold to get those resources!",
+          "You do not have enough gold to get those resources!"
         );
       }
 
@@ -547,12 +547,12 @@ const resolvers: Resolvers = {
       }
       if (resource.value < args.amount) {
         throw new UserInputError(
-          `You do not have enough ${args.resource} to get those resources!`,
+          `You do not have enough ${args.resource} to get those resources!`
         );
       }
 
       const resourceCost = context.db.playerLocation.resourceCost(
-        args.resource,
+        args.resource
       );
 
       if (!resourceCost) {
@@ -614,7 +614,7 @@ const resolvers: Resolvers = {
       };
 
       const cost = Math.round(
-        Math.pow(distance2d(currentLocation, targetLocation) * 5, 1.3),
+        Math.pow(distance2d(currentLocation, targetLocation) * 5, 1.3)
       );
 
       if (cost > hero.stats.intelligence) {
@@ -623,7 +623,7 @@ const resolvers: Resolvers = {
 
       if (!isAllowedThere(hero, targetLocation)) {
         throw new UserInputError(
-          "You do not have the quest items needed to move there!",
+          "You do not have the quest items needed to move there!"
         );
       }
 
@@ -650,13 +650,13 @@ const resolvers: Resolvers = {
       }
       if (hero.level !== hero.levelCap) {
         throw new UserInputError(
-          "You must be at max level before you may enter the void world.",
+          "You must be at max level before you may enter the void world."
         );
       }
 
       if (countEnchantments(hero, EnchantmentType.VoidTravel) === 0) {
         throw new UserInputError(
-          "You do not have the ability to travel in the void!",
+          "You do not have the ability to travel in the void!"
         );
       }
 
@@ -725,13 +725,99 @@ const resolvers: Resolvers = {
 
       if (!isAllowedThere(hero, heroLocation)) {
         throw new UserInputError(
-          "You do not have the quest items needed to move there!",
+          "You do not have the quest items needed to move there!"
         );
       }
 
       hero.location = heroLocation;
 
       await context.db.hero.put(hero);
+
+      return {
+        hero,
+        account,
+        monsters: [],
+      };
+    },
+    async moveAStar(parent, args, context: BaseContext): Promise<MoveResponse> {
+      // Ima just comment everything I did that is different from move
+
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      if (hero.combat.health <= 0) {
+        throw new UserInputError("You cannot move while dead!");
+      }
+
+      const heroLocation = { ...hero.location };
+      // Declare the final desired location for final use
+      // Also forces x and y to be in bounds
+      const desiredLocation = {
+        ...heroLocation,
+        x: Math.min(127, Math.max(0, args.x)),
+        y: Math.min(95, Math.max(0, args.y)),
+      };
+      // Needed to set the delay
+      const now = Date.now();
+
+      // Figure out at the start if they can go where they are clicking
+      if (!isAllowedThere(hero, desiredLocation)) {
+        throw new UserInputError(
+          "You do not have the quest items needed to move there!"
+        );
+      }
+
+      // See your own example
+      function locationHash(loc: Location): string {
+        return `${loc.x}-${loc.y}`;
+      }
+
+      // See your own example except for neighbors which now only pushes to results if the hero is allowed on that tile
+      const pf = new Pathfinder<Location>({
+        hash: locationHash,
+        distance: (a: Location, b: Location): number =>
+          Math.abs(a.x - b.x) + Math.abs(a.y - b.y),
+        cost: (a: Location): number => 1,
+        neighbors: (a: Location): Location[] => {
+          const results: Location[] = [];
+          if (isAllowedThere(hero, { ...a, x: a.x + 1 })) {
+            results.push({ ...a, x: a.x + 1 });
+          }
+          if (isAllowedThere(hero, { ...a, x: a.x - 1 })) {
+            results.push({ ...a, x: a.x - 1 });
+          }
+          if (isAllowedThere(hero, { ...a, x: a.y + 1 })) {
+            results.push({ ...a, x: a.y + 1 });
+          }
+          if (isAllowedThere(hero, { ...a, x: a.y - 1 })) {
+            results.push({ ...a, x: a.y - 1 });
+          }
+
+          return results;
+        },
+      });
+
+      // Find the path
+      const path = await pf.findPath(desiredLocation, heroLocation);
+
+      // If the path cant be made or is too long? throw an error, maybe should be 2 different ones
+      if (!path.success || path.path.length > 48) {
+        throw new UserInputError("Could not find a valid path!");
+      }
+
+      //Teleport them to the destination
+      hero.location = desiredLocation;
+
+      await context.db.hero.put(hero);
+
+      //Set their delay to 500 * the length of the path
+      account.nextAllowedAction += `${now + 500 * path.path.length}`;
+
+      await context.db.account.put(account);
 
       return {
         hero,
@@ -758,7 +844,7 @@ const resolvers: Resolvers = {
       const currentDock = specialLocations(
         hero.location.x,
         hero.location.y,
-        hero.location.map as MapNames,
+        hero.location.map as MapNames
       ).find((location) => location.type === "dock");
 
       if (!currentDock) {
@@ -768,7 +854,7 @@ const resolvers: Resolvers = {
       const targetDock = specialLocations(
         args.x,
         args.y,
-        hero.location.map as MapNames,
+        hero.location.map as MapNames
       ).find((location) => location.type === "dock");
 
       if (!targetDock) {
@@ -804,19 +890,19 @@ const resolvers: Resolvers = {
 
       if (hero.gold < campCost) {
         throw new UserInputError(
-          "You do not have enough gold to settle a camp!",
+          "You do not have enough gold to settle a camp!"
         );
       }
 
       const locations = specialLocations(
         hero.location.x,
         hero.location.y,
-        hero.location.map as MapNames,
+        hero.location.map as MapNames
       );
 
       if (locations.length) {
         throw new UserInputError(
-          "You cannot settle a camp on a special location!",
+          "You cannot settle a camp on a special location!"
         );
       }
 
@@ -831,7 +917,7 @@ const resolvers: Resolvers = {
     async monsters(
       parent,
       args,
-      context: BaseContext,
+      context: BaseContext
     ): Promise<MonsterInstance[]> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -866,7 +952,7 @@ const resolvers: Resolvers = {
     },
     async players(parent, args, context): Promise<PublicHero[]> {
       const heroList = await context.db.hero.getHeroesInLocation(
-        parent.location,
+        parent.location
       );
 
       return heroList.map((hero) => context.db.hero.publicHero(hero, true));
@@ -875,7 +961,7 @@ const resolvers: Resolvers = {
       try {
         return [
           await context.db.playerLocation.get(
-            context.db.playerLocation.locationId(parent.location),
+            context.db.playerLocation.locationId(parent.location)
           ),
         ];
       } catch (e) {}
@@ -938,7 +1024,7 @@ const resolvers: Resolvers = {
           if (
             !upgrade.cost.reduce((canAfford, cost) => {
               const resource = playerLocation.resources.find(
-                (res) => res.name === cost.name,
+                (res) => res.name === cost.name
               );
               if (!resource) {
                 return canAfford;
