@@ -216,19 +216,6 @@ const resolvers: Resolvers = {
         experienceRewards = Math.round(experienceRewards);
         goldReward = Math.min(1000000000, Math.round(goldReward));
 
-        console.log(
-          hero.name,
-          hero.level,
-          "killed a",
-          monster.monster.name,
-          monster.monster.level,
-          {
-            xpDoublers,
-            goldReward,
-            experienceRewards,
-          },
-        );
-
         await checkAberrationDrop(context, hero, monster.monster.id);
 
         context.db.hero.addExperience(context, hero, experienceRewards);
