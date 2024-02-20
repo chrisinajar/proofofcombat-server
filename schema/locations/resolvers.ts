@@ -302,8 +302,9 @@ const resolvers: Resolvers = {
       const locationCoords = {
         [locationHash(capital.location)]: capital.location,
       };
-      capital.connections =
-        await context.db.playerLocation.getConnections(capital);
+      capital.connections = await context.db.playerLocation.getConnections(
+        capital,
+      );
       capital.connections.forEach((loc) => {
         locationCoords[locationHash(loc.location)] = loc.location;
       });
