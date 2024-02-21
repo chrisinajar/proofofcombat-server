@@ -302,8 +302,20 @@ const resolvers: Resolvers = {
       }
 
       const cost = 1000000 * args.amount;
+      const home = await context.db.playerLocation.getHome(hero.id);
+      if (!home) {
+        throw new UserInputError("You don't have a working capital");
+      }
       if (cost > hero.gold) {
-        throw new UserInputError("You cannot afford that many troops");
+        const result = await context.db.playerLocation.spendResources(
+          home,
+          "bonds",
+          Math.ceil(cost / 1000000),
+        );
+
+        if (!result) {
+          throw new UserInputError("You cannot afford that many troops");
+        }
       }
 
       const enlistedResource = playerLocation.resources.find(
@@ -316,6 +328,54 @@ const resolvers: Resolvers = {
 
       hero.gold -= cost;
       enlistedResource.value += args.amount;
+
+      await context.db.playerLocation.put(playerLocation);
+      await context.db.hero.put(hero);
+
+      return { location: playerLocation };
+    },
+    async craftHoneyEssences(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const targetLocation = args.location;
+      const playerLocation = await context.db.playerLocation.get(
+        context.db.playerLocation.locationId(targetLocation),
+      );
+
+      if (playerLocation.owner !== context.auth.id) {
+        throw new ForbiddenError("You must own this location to craft there");
+      }
+      if (playerLocation.type !== PlayerLocationType.Apiary) {
+        throw new UserInputError(
+          "You may only craft honey essences in an apiary",
+        );
+      }
+      if (args.amount <= 0) {
+        throw new UserInputError("You must craft at least 1 essence");
+      }
+
+      const cost = 1000000 * args.amount;
+      if (cost > hero.gold) {
+        throw new UserInputError("You cannot afford that many essences");
+      }
+
+      const honeyResource = playerLocation.resources.find(
+        (res) => res.name === "honey",
+      );
+
+      if (!honeyResource) {
+        throw new Error("Could not find enlisted troop resource");
+      }
+      const honeyCost = 10 * args.amount;
+      if (honeyResource.value < honeyCost) {
+        throw new UserInputError("You cannot afford that many essences");
+      }
+
+      hero.gold -= cost;
+      honeyResource.value -= args.amount;
 
       await context.db.playerLocation.put(playerLocation);
       await context.db.hero.put(hero);

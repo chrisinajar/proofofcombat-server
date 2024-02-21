@@ -75,6 +75,88 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     }
   }
 
+  async getResources(
+    home: PlayerLocation,
+    resourceType: string,
+  ): Promise<number> {
+    const connections = await this.getConnections(home);
+    let total = 0;
+
+    connections.forEach((location) => {
+      const resource = location.resources.find((r) => r.name === resourceType);
+      console.log(resource);
+      if (resource) {
+        total += resource.value;
+      }
+    });
+
+    const resource = home.resources.find((r) => r.name === resourceType);
+    console.log(resource);
+    if (resource) {
+      total += resource.value;
+    }
+
+    return total;
+  }
+
+  async spendResources(
+    home: PlayerLocation,
+    resourceType: string,
+    amount: number,
+  ) {
+    const data = await this.getResourceData(home, resourceType);
+
+    const total = data.reduce(
+      (total, value) => (total += value.resource?.value ?? 0),
+      0,
+    );
+    if (total < amount) {
+      return false;
+    }
+    let pocketChange = 0;
+    let remaining = amount;
+    for (let i = 0, l = 1000; remaining > 0 && i < l; ++i) {
+      data.forEach(({ resource }) => {
+        if (!resource) {
+          return;
+        }
+        const takenValue = remaining * (resource.value / total);
+        const amountToTake = Math.floor(takenValue);
+        pocketChange += takenValue - amountToTake;
+        resource.value -= amountToTake;
+        remaining -= amountToTake;
+        if (pocketChange >= 1 && resource.value > 0) {
+          resource.value -= 1;
+          pocketChange -= 1;
+          remaining -= 1;
+        }
+      });
+    }
+
+    await Promise.all(data.map(({ location }) => this.put(location)));
+
+    return remaining <= 0;
+  }
+  async getResourceData(home: PlayerLocation, resourceType: string) {
+    const connections = await this.getConnections(home);
+
+    const resourceData = connections
+      .map((location) => {
+        const resource = location.resources.find(
+          (r) => r.name === resourceType,
+        );
+        return { resource, location };
+      })
+      .filter((location) => !!location.resource);
+
+    const resource = home.resources.find((r) => r.name === resourceType);
+    if (resource) {
+      resourceData.push({ resource, location: home });
+    }
+
+    return resourceData;
+  }
+
   async getConnections(location: PlayerLocation): Promise<PlayerLocation[]> {
     if (location.type !== PlayerLocationType.Settlement) {
       return [];
