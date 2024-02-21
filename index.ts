@@ -1,7 +1,6 @@
 import "dotenv/config";
 
 import { ApolloServer } from "apollo-server-express";
-import { hiveApollo } from "@graphql-hive/client";
 import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 import express from "express";
 import compression from "compression";
@@ -97,27 +96,6 @@ async function startApolloServer() {
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
       ApolloServerPluginDrainHttpServer({ httpServer: httpsServer }),
-      hiveApollo({
-        enabled: !!process.env.HIVE_TOKEN,
-        token: process.env.HIVE_TOKEN ?? "",
-        reporting: {
-          author: "chrisinajar",
-          commit: "automated",
-        },
-        usage: {
-          clientInfo(context) {
-            if (context.client) {
-              const { name, version } = context.client;
-
-              if (name && version) {
-                return { name, version };
-              }
-            }
-
-            return null;
-          },
-        },
-      }),
     ],
 
     context: async ({ res, req }): Promise<BaseContext> => {
