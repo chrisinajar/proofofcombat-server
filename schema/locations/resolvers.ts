@@ -799,6 +799,7 @@ const resolvers: Resolvers = {
 
           return results;
         },
+        maxLength:48,
       });
 
       // Find the path
