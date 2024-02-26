@@ -26,6 +26,7 @@ type PartialPlayerLocation = Optional<
 
 const inMemoryLocationMaxLength = 100;
 const upkeepInterval = 1000 * 60;
+const maxStoredUpkeeps = 1;
 
 const soldierTiers = ["enlisted", "soldier", "veteran", "ghost"];
 
@@ -84,14 +85,12 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
     connections.forEach((location) => {
       const resource = location.resources.find((r) => r.name === resourceType);
-      console.log(resource);
       if (resource) {
         total += resource.value;
       }
     });
 
     const resource = home.resources.find((r) => r.name === resourceType);
-    console.log(resource);
     if (resource) {
       total += resource.value;
     }
@@ -103,8 +102,14 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     home: PlayerLocation,
     resourceType: string,
     amount: number,
+    maxDistance: number = -1,
   ) {
-    const data = await this.getResourceData(home, resourceType);
+    let data = await this.getResourceData(home, resourceType);
+    if (maxDistance < 0) {
+      data = data.filter(({ location }) => {
+        return true;
+      });
+    }
 
     const total = data.reduce(
       (total, value) => (total += value.resource?.value ?? 0),
@@ -335,6 +340,10 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       return 1000000000;
     }
 
+    if (resource === "fortifications") {
+      return 1000000000;
+    }
+
     return 100;
   }
 
@@ -437,7 +446,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     const lastUpkeep = Number(location.lastUpkeep);
 
     const upkeeps = Math.min(
-      24,
+      maxStoredUpkeeps,
       Math.max(0, Math.floor((now - lastUpkeep) / upkeepInterval)),
     );
 
@@ -518,9 +527,16 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           if (currentResourceSoldierTier >= 0) {
             // this is a soldier unit
             const odds =
-              Math.pow(0.02, currentResourceSoldierTier + 1) * Math.random();
+              0.001 *
+              Math.pow(0.05, currentResourceSoldierTier) *
+              (Math.random() * 0.5 + 0.5);
             if (currentResourceSoldierTier === 0) {
-              const amount = Math.floor(odds * totalMilitaryUnits);
+              const availableSlots =
+                this.resourceStorage(location, resource.name) - resource.value;
+              const amount = Math.min(
+                availableSlots,
+                Math.floor(odds * 0.5 * totalMilitaryUnits),
+              );
               if (amount > 0) {
                 militaryGains[currentResourceSoldierTier] += amount;
                 resource.value += amount;
@@ -530,11 +546,19 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
               const upgradeTarget = location.resources.find(
                 (r) => r.name === soldierTiers[currentResourceSoldierTier + 1],
               );
-              const amount = Math.floor(odds * odds * resource.value);
-              if (upgradeTarget && amount > 0) {
-                resource.value -= amount;
-                upgradeTarget.value += amount;
-                militaryGains[currentResourceSoldierTier + 1] += amount;
+              if (upgradeTarget) {
+                const availableSlots =
+                  this.resourceStorage(location, upgradeTarget.name) -
+                  upgradeTarget.value;
+                const amount = Math.min(
+                  availableSlots,
+                  Math.floor(odds * resource.value),
+                );
+                if (amount > 0) {
+                  resource.value -= amount;
+                  upgradeTarget.value += amount;
+                  militaryGains[currentResourceSoldierTier + 1] += amount;
+                }
               }
             }
           }
@@ -886,6 +910,9 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     }
     if (data.type === PlayerLocationType.Treasury) {
       defaultResources.bonds = 0;
+    }
+    if (data.type === PlayerLocationType.Garrison) {
+      defaultResources.fortifications = 0;
     }
     if (
       data.type === PlayerLocationType.Camp ||

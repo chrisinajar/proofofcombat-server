@@ -42,17 +42,23 @@ export default gql`
       location: LocationInput!
       amount: Int!
     ): PlayerLocationResponse! @auth @delay(delay: 800)
+    buildFortifications(
+      location: LocationInput!
+      amount: Int!
+    ): PlayerLocationResponse! @auth @delay(delay: 800)
 
     # military
     recruit(location: LocationInput!, amount: Int!): PlayerLocationResponse!
       @auth
       @delay(delay: 800)
-    attack(
-      source: LocationInput!
+    attackLocation(
       target: LocationInput!
       units: MilitaryUnitInput!
-    ): AttackResponse!
-    # @auth @delay(delay: 5000)
+    ): AttackResponse! @auth @delay(delay: 5000)
+    moveTroups(
+      target: LocationInput!
+      units: MilitaryUnitInput!
+    ): PlayerLocationResponse! @auth @delay(delay: 1200)
   }
 
   type ExtendedCampResponse {
@@ -79,6 +85,7 @@ export default gql`
     range: Int!
     availableUpgrades: [PlayerLocationUpgradeDescription!]!
     availableBuildings: [PlayerLocationBuildingDescription!]!
+    adjacentTiles: [PlayerLocation!]!
   }
 
   type PlayerLocationBuildingDescription {
@@ -224,8 +231,8 @@ export default gql`
   }
 
   type AttackResponse {
-    source: PlayerLocation!
     target: PlayerLocation!
+    account: BaseAccount
   }
 
   type PlayerLocationResponse {

@@ -52,6 +52,17 @@ const BuildingsData = {
       { name: "stone", value: 5000000 },
     ],
   },
+  [PlayerLocationType.Garrison]: {
+    type: PlayerLocationType.Garrison,
+    name: "Garrison",
+    description: "A defensive fortress to keep surrounding tiles safe.",
+    cost: [
+      { name: "water", value: 600000 },
+      { name: "food", value: 600000 },
+      { name: "wood", value: 1600000 },
+      { name: "stone", value: 2000000 },
+    ],
+  },
 };
 
 export type DescribedBuildings = keyof typeof BuildingsData;

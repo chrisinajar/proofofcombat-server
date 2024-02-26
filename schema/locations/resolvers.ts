@@ -21,6 +21,7 @@ import {
   PlayerLocationUpgradeDescription,
   PlayerLocationBuildingDescription,
   SettlementManager,
+  MilitaryUnitInput,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -96,6 +97,7 @@ function createSettlementManager(
     range: context.db.playerLocation.range(capital),
     availableUpgrades: [],
     availableBuildings: [],
+    adjacentTiles: [],
   };
 }
 
@@ -256,27 +258,213 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
-    async attack(parent, args, context) {
-      // if (!context?.auth?.id) {
-      //   throw new ForbiddenError("Missing auth");
-      // }
+    async moveTroups(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const home = await context.db.playerLocation.getHome(hero.id);
+      if (!home) {
+        throw new UserInputError("You don't have a working capital");
+      }
+
+      const unitTypes: (keyof MilitaryUnitInput)[] = [
+        "enlisted",
+        "soldier",
+        "veteran",
+        "ghost",
+      ];
+
+      const targetPlayerLocation = await context.db.playerLocation.get(
+        context.db.playerLocation.locationId(args.target),
+      );
+
+      let resourceData = await Promise.all(
+        unitTypes.map(async (resourceType) => {
+          const resources = await context.db.playerLocation.getResourceData(
+            home,
+            resourceType,
+          );
+
+          const total = resources.reduce((memo, val) => {
+            return memo + (val.resource?.value ?? 0);
+          }, 0);
+
+          const maximum = context.db.playerLocation.resourceStorage(
+            targetPlayerLocation,
+            resourceType,
+          );
+
+          const locationResource = targetPlayerLocation.resources.find(
+            (r) => r.name === resourceType,
+          );
+
+          if (!locationResource) {
+            throw new UserInputError(
+              `Target location does not have storage for ${resourceType}`,
+            );
+          }
+
+          return {
+            resources,
+            total,
+            maximum,
+            name: resourceType,
+            locationResource,
+          };
+        }),
+      );
+
+      await Promise.all(
+        unitTypes.map(async (unitName) => {
+          if (!(unitName in args.units)) {
+            throw new UserInputError(`Invalid input for value ${unitName}`);
+          }
+          const value = args.units[unitName];
+          if (
+            value === undefined ||
+            value === null ||
+            isNaN(value) ||
+            !isFinite(value) ||
+            value < 0
+          ) {
+            throw new UserInputError(`Invalid input for value ${unitName}`);
+          }
+          const data = resourceData.find((r) => r.name === unitName);
+          if (!data) {
+            throw new UserInputError(
+              `Failed to find any ${unitName} in your empire`,
+            );
+          }
+          if (data.total < value) {
+            throw new UserInputError(
+              `You do not have that many ${unitName} to move`,
+            );
+          }
+          if (value + data.locationResource.value > data.maximum) {
+            throw new UserInputError(
+              `There is not enough storage for that many ${unitName} in the target location`,
+            );
+          }
+        }),
+      );
+
+      await Promise.all(
+        unitTypes.map(async (unitName) => {
+          const amount = args.units[unitName] as number;
+          const result = await context.db.playerLocation.spendResources(
+            home,
+            unitName,
+            amount,
+          );
+
+          if (!result) {
+            throw new Error(`Failed to spend resournce ${unitName}`);
+          }
+          const data = resourceData.find((r) => r.name === unitName);
+          if (!data) {
+            throw new UserInputError(
+              `Failed to find any ${unitName} in your empire`,
+            );
+          }
+          data.locationResource.value = data.locationResource.value + amount;
+        }),
+      );
+
+      await context.db.playerLocation.put(targetPlayerLocation);
+
+      return { location: targetPlayerLocation };
+    },
+    async attackLocation(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
 
       const targetLocation = args.target;
-      const sourceLocation = args.source;
 
       const targetPlayerLocation = await context.db.playerLocation.get(
         context.db.playerLocation.locationId(targetLocation),
       );
-      const sourcePlayerLocation = await context.db.playerLocation.get(
-        context.db.playerLocation.locationId(sourceLocation),
+
+      if (
+        !targetPlayerLocation ||
+        targetPlayerLocation.owner === context.auth.id
+      ) {
+        throw new UserInputError("Invalid attack target");
+      }
+
+      const targetHome = await context.db.playerLocation.getHome(
+        targetPlayerLocation.owner,
+      );
+      const home = await context.db.playerLocation.getHome(context.auth.id);
+      if (!home) {
+        throw new UserInputError("You don't have a working capital");
+      }
+
+      const unitTypes: (keyof MilitaryUnitInput)[] = [
+        "enlisted",
+        "soldier",
+        "veteran",
+        "ghost",
+      ];
+
+      await Promise.all(
+        unitTypes.map(async (unitType: keyof MilitaryUnitInput) => {
+          const resources = await context.db.playerLocation.getResourceData(
+            home,
+            unitType,
+          );
+
+          if (targetHome) {
+            const targetResources = (
+              await context.db.playerLocation.getResourceData(
+                targetHome,
+                unitType,
+              )
+            ).filter((entry) => {
+              return (
+                Math.abs(entry.location.location.x - targetLocation.x) +
+                  Math.abs(entry.location.location.y - targetLocation.y) <
+                3
+              );
+            });
+          }
+
+          const total = resources.reduce(
+            (memo, val) => memo + (val.resource?.value ?? 0),
+            0,
+          );
+
+          const inputValue = args.units[unitType];
+
+          if (
+            inputValue == null ||
+            inputValue > total ||
+            isNaN(inputValue) ||
+            !isFinite(inputValue)
+          ) {
+            throw new UserInputError(`Invalid number of ${unitType} specified`);
+          }
+        }),
       );
 
-      console.log("Attacking with", args, {
-        targetPlayerLocation,
-        sourcePlayerLocation,
-      });
+      // if (
+      //   args.units.enlisted &&
+      //   args.units.enlisted > 0 &&
+      //   (await context.db.playerLocation.spendResources(
+      //     home,
+      //     "enlisted",
+      //     args.units.enlisted,
+      //   ))
+      // ) {
+      //   const enlistedCount = args.units.enlisted;
+      //   console.log("sending enlisted...");
+      // }
 
-      return { target: targetPlayerLocation, source: sourcePlayerLocation };
+      throw new UserInputError("Attacking is currently disabled.");
+
+      return { target: targetPlayerLocation };
     },
     async recruit(parent, args, context) {
       if (!context?.auth?.id) {
@@ -301,6 +489,14 @@ const resolvers: Resolvers = {
         throw new UserInputError("You must recruit at least 1 troop");
       }
 
+      const enlistedResource = playerLocation.resources.find(
+        (res) => res.name === "enlisted",
+      );
+
+      if (!enlistedResource) {
+        throw new Error("Could not find enlisted troop resource");
+      }
+
       const cost = 1000000 * args.amount;
       const home = await context.db.playerLocation.getHome(hero.id);
       if (!home) {
@@ -316,17 +512,10 @@ const resolvers: Resolvers = {
         if (!result) {
           throw new UserInputError("You cannot afford that many troops");
         }
+      } else {
+        hero.gold -= cost;
       }
 
-      const enlistedResource = playerLocation.resources.find(
-        (res) => res.name === "enlisted",
-      );
-
-      if (!enlistedResource) {
-        throw new Error("Could not find enlisted troop resource");
-      }
-
-      hero.gold -= cost;
       enlistedResource.value += args.amount;
 
       await context.db.playerLocation.put(playerLocation);
@@ -358,10 +547,6 @@ const resolvers: Resolvers = {
       }
 
       const cost = 1000000 * args.amount;
-      if (cost > hero.gold) {
-        throw new UserInputError("You cannot afford that many essences");
-      }
-
       const honeyResource = playerLocation.resources.find(
         (res) => res.name === "honey",
       );
@@ -374,8 +559,88 @@ const resolvers: Resolvers = {
         throw new UserInputError("You cannot afford that many essences");
       }
 
-      hero.gold -= cost;
+      if (cost > hero.gold) {
+        const home = await context.db.playerLocation.getHome(hero.id);
+        if (!home) {
+          throw new UserInputError("You don't have a working capital");
+        }
+        const result = await context.db.playerLocation.spendResources(
+          home,
+          "bonds",
+          Math.ceil(cost / 1000000),
+        );
+
+        if (!result) {
+          throw new UserInputError("You cannot afford that many essences");
+        }
+      } else {
+        hero.gold -= cost;
+      }
+
       honeyResource.value -= args.amount;
+
+      await context.db.playerLocation.put(playerLocation);
+      await context.db.hero.put(hero);
+
+      return { location: playerLocation };
+    },
+    async buildFortifications(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const targetLocation = args.location;
+      const playerLocation = await context.db.playerLocation.get(
+        context.db.playerLocation.locationId(targetLocation),
+      );
+
+      if (playerLocation.owner !== context.auth.id) {
+        throw new ForbiddenError(
+          "You must own this location to build fortifications there",
+        );
+      }
+      if (playerLocation.type !== PlayerLocationType.Garrison) {
+        throw new UserInputError(
+          "You may only build fortifications at a garrison",
+        );
+      }
+
+      const fortificationsResource = playerLocation.resources.find(
+        (res) => res.name === "fortifications",
+      );
+      if (!fortificationsResource) {
+        throw new Error("Could not find fortifications resource");
+      }
+
+      if (args.amount <= 0) {
+        throw new UserInputError("You must build at least 1 fortification");
+      }
+
+      const cost = 1000000 * args.amount;
+
+      if (cost > hero.gold) {
+        const home = await context.db.playerLocation.getHome(hero.id);
+        if (!home) {
+          throw new UserInputError("You don't have a working capital");
+        }
+
+        const result = await context.db.playerLocation.spendResources(
+          home,
+          "bonds",
+          Math.ceil(cost / 1000000),
+        );
+
+        if (!result) {
+          throw new UserInputError(
+            "You cannot afford that many fortifications",
+          );
+        }
+      } else {
+        hero.gold -= cost;
+      }
+
+      fortificationsResource.value += args.amount;
 
       await context.db.playerLocation.put(playerLocation);
       await context.db.hero.put(hero);
@@ -420,6 +685,7 @@ const resolvers: Resolvers = {
         bondsResource.value -= amount;
       } else {
         const cost = 1000000 * args.amount;
+
         if (cost > hero.gold) {
           throw new UserInputError("You cannot afford that many bonds");
         }
@@ -692,15 +958,27 @@ const resolvers: Resolvers = {
         throw new UserInputError("You cannot purchase that resource");
       }
 
-      const goldCost = args.amount * resourceCost;
+      const goldCost = Math.round(args.amount * resourceCost);
 
       if (hero.gold < goldCost) {
-        throw new UserInputError(
-          "You do not have enough gold to get those resources!",
+        const home = await context.db.playerLocation.getHome(hero.id);
+        if (!home) {
+          throw new UserInputError("You don't have a working capital");
+        }
+        const result = await context.db.playerLocation.spendResources(
+          home,
+          "bonds",
+          Math.ceil(goldCost / 1000000),
         );
-      }
 
-      hero.gold -= Math.round(goldCost);
+        if (!result) {
+          throw new UserInputError(
+            "You do not have enough gold to get those resources!",
+          );
+        }
+      } else {
+        hero.gold -= goldCost;
+      }
 
       context.db.playerLocation.addResource(camp, args.resource, args.amount);
       await context.db.playerLocation.put(camp);
@@ -1143,6 +1421,79 @@ const resolvers: Resolvers = {
     },
   },
   SettlementManager: {
+    async adjacentTiles(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const connections = await context.db.playerLocation.getConnections(
+        parent.capital,
+      );
+      const foundEdges = {
+        [parent.capital.location.x]: {
+          [parent.capital.location.y]: false,
+        },
+      };
+      const knownLocations = {
+        [parent.capital.location.x]: {
+          [parent.capital.location.y]: true,
+        },
+      };
+      function checkEdge(x: number, y: number) {
+        if (x < 0 || y < 0 || x >= 128 || y >= 96) {
+          return false;
+        }
+        if (knownLocations[x]?.[y]) {
+          return false;
+        }
+        if (!foundEdges[x]) {
+          foundEdges[x] = {};
+        }
+        foundEdges[x][y] = true;
+      }
+      function checkLocation(location: PlayerLocation) {
+        if (!knownLocations[location.location.x]) {
+          knownLocations[location.location.x] = {};
+        }
+        knownLocations[location.location.x][location.location.y] = true;
+        if (foundEdges[location.location.x]) {
+          foundEdges[location.location.x][location.location.y] = false;
+        }
+        checkEdge(location.location.x + 1, location.location.y);
+        checkEdge(location.location.x - 1, location.location.y);
+        checkEdge(location.location.x, location.location.y + 1);
+        checkEdge(location.location.x, location.location.y - 1);
+      }
+      connections.forEach(checkLocation);
+      checkLocation(parent.capital);
+
+      const edges: PlayerLocation[] = [];
+      await Promise.all(
+        Object.keys(foundEdges).map(async (xStr) => {
+          const x = Number(xStr);
+          await Promise.all(
+            Object.keys(foundEdges[x]).map(async (yStr) => {
+              const y = Number(yStr);
+              if (!foundEdges[x][y]) {
+                return;
+              }
+              try {
+                const playerLocation = await context.db.playerLocation.get(
+                  context.db.playerLocation.locationId({
+                    x,
+                    y,
+                    map: parent.capital.location.map,
+                  }),
+                );
+                edges.push(playerLocation);
+              } catch (e) {}
+            }),
+          );
+        }),
+      );
+
+      return edges;
+    },
     async availableUpgrades(parent, args, context) {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -1177,9 +1528,23 @@ const resolvers: Resolvers = {
       const buildingsAfterFarm: DescribedBuildings[] = [
         PlayerLocationType.Apiary,
         PlayerLocationType.Treasury,
-        PlayerLocationType.Barracks,
       ];
       buildingsAfterFarm.forEach((type) => {
+        if (shouldSeeBuilding(parent.capital, type)) {
+          result.push(Buildings[type]);
+        }
+      });
+
+      const hero = await context.db.hero.get(context.auth.id);
+      if (countEnchantments(hero, EnchantmentType.UpgradedSettlement) === 0) {
+        return result;
+      }
+
+      const buildingsAfterGovernorsTitle: DescribedBuildings[] = [
+        PlayerLocationType.Barracks,
+        PlayerLocationType.Garrison,
+      ];
+      buildingsAfterGovernorsTitle.forEach((type) => {
         if (shouldSeeBuilding(parent.capital, type)) {
           result.push(Buildings[type]);
         }
