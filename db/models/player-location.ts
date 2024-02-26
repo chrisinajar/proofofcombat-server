@@ -25,8 +25,8 @@ type PartialPlayerLocation = Optional<
 > & { version?: number };
 
 const inMemoryLocationMaxLength = 100;
-const upkeepInterval = 1000 * 60;
-const maxStoredUpkeeps = 1;
+const upkeepInterval = 1000 * 60 * 60;
+const maxStoredUpkeeps = 24;
 
 const soldierTiers = ["enlisted", "soldier", "veteran", "ghost"];
 
@@ -777,7 +777,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           }
           if (parts.length) {
             io.sendNotification(location.owner, {
-              message: `Your farm at ${location.location.x}, ${
+              message: `Your apiary at ${location.location.x}, ${
                 location.location.y
               } gained ${parts.join(" and ")}.`,
               type: "quest",
