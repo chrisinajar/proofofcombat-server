@@ -528,7 +528,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             // this is a soldier unit
             const odds =
               0.001 *
-              Math.pow(0.05, currentResourceSoldierTier) *
+              Math.pow(0.02, currentResourceSoldierTier) *
               (Math.random() * 0.5 + 0.5);
             if (currentResourceSoldierTier === 0) {
               const availableSlots =
