@@ -139,7 +139,11 @@ export default gql`
     Settlement
 
     # post-settlement upgrades
+    # flags from events / external things
     HasBuiltFarm
+    HasGovernorsTitle
+    # settlement tier upgrades
+    GovernorsManor
   }
 
   enum PlayerLocationType {

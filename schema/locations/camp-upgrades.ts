@@ -1,10 +1,17 @@
 import {
   PlayerLocationUpgradeDescription,
   PlayerLocationUpgrades,
+  PlayerLocationType,
+  PlayerLocation,
 } from "types/graphql";
 
+type ExtendedPlayerLocationUpgradeDescription =
+  PlayerLocationUpgradeDescription & {
+    requires?: PlayerLocationUpgrades[];
+  };
+
 export const CampUpgrades: {
-  [x in PlayerLocationUpgrades]?: PlayerLocationUpgradeDescription;
+  [x in PlayerLocationUpgrades]?: ExtendedPlayerLocationUpgradeDescription;
 } = {
   [PlayerLocationUpgrades.ChoppingBlock]: {
     name: "Build chopping block",
@@ -114,3 +121,72 @@ export const CampUpgrades: {
   //   ],
   // },
 };
+
+export const SettlementUpgrades: {
+  [x in PlayerLocationUpgrades]?: ExtendedPlayerLocationUpgradeDescription;
+} = {
+  [PlayerLocationUpgrades.GovernorsManor]: {
+    name: "Construct Governor's Manor",
+    type: PlayerLocationUpgrades.GovernorsManor,
+    requires: [PlayerLocationUpgrades.HasGovernorsTitle],
+    cost: [
+      { name: "wood", value: 8000000 },
+      { name: "stone", value: 12000000 },
+      { name: "bonds", value: 1000000 },
+    ],
+  },
+};
+
+export function getUpgradesForLocationType(
+  type: PlayerLocationType,
+): ExtendedPlayerLocationUpgradeDescription[] {
+  const result: ExtendedPlayerLocationUpgradeDescription[] = [];
+  if (
+    type === PlayerLocationType.Camp ||
+    type === PlayerLocationType.Settlement
+  ) {
+    result.push(...Object.values(CampUpgrades));
+
+    if (type === PlayerLocationType.Settlement) {
+      result.push(...Object.values(SettlementUpgrades));
+    }
+  }
+  return result;
+}
+
+export function getUpgradesForLocation(
+  playerLocation: PlayerLocation,
+): PlayerLocationUpgradeDescription[] {
+  const upgradeList = getUpgradesForLocationType(playerLocation.type);
+
+  return upgradeList.filter((upgrade) => {
+    if (playerLocation.upgrades.indexOf(upgrade.type) > -1) {
+      return false;
+    }
+    if (
+      upgrade.requires &&
+      !upgrade.requires.reduce((hasUpgrades, upgrade) => {
+        if (!hasUpgrades || playerLocation.upgrades.indexOf(upgrade) === -1) {
+          return false;
+        }
+        return true;
+      }, true)
+    ) {
+      return false;
+    }
+    if (
+      !upgrade.cost.reduce((canAfford, cost) => {
+        const resource = playerLocation.resources.find(
+          (res) => res.name === cost.name,
+        );
+        if (!resource) {
+          return canAfford;
+        }
+        return canAfford && cost.value <= (resource.maximum ?? 0);
+      }, true)
+    ) {
+      return false;
+    }
+    return true;
+  });
+}

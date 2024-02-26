@@ -2,6 +2,7 @@ import {
   PlayerLocation,
   PlayerLocationType,
   PlayerLocationUpgrades,
+  CampResources,
   AccessRole,
   Location,
   Hero,
@@ -24,6 +25,11 @@ type PartialPlayerLocation = Optional<
   | "upkeep"
 > & { version?: number };
 
+type ResourceDataEntry = {
+  location: PlayerLocation;
+  resource: CampResources;
+};
+
 const inMemoryLocationMaxLength = 100;
 const upkeepInterval = 1000 * 60 * 60;
 const maxStoredUpkeeps = 24;
@@ -38,7 +44,17 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
   }
 
   range(capital: PlayerLocation): number {
-    return 5;
+    let range = 4;
+    if (
+      capital.upgrades.indexOf(PlayerLocationUpgrades.HasGovernorsTitle) >= 0
+    ) {
+      range += 2;
+    }
+    if (capital.upgrades.indexOf(PlayerLocationUpgrades.GovernorsManor) >= 0) {
+      range += 2;
+    }
+
+    return range;
   }
 
   async get(id: string): Promise<PlayerLocation> {
@@ -105,11 +121,11 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     maxDistance: number = -1,
   ) {
     let data = await this.getResourceData(home, resourceType);
-    if (maxDistance < 0) {
-      data = data.filter(({ location }) => {
-        return true;
-      });
-    }
+    // if (maxDistance > 0) {
+    //   data = data.filter(({ location }) => {
+    //     return true;
+    //   });
+    // }
 
     const total = data.reduce(
       (total, value) => (total += value.resource?.value ?? 0),
@@ -121,11 +137,12 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     let pocketChange = 0;
     let remaining = amount;
     for (let i = 0, l = 1000; remaining > 0 && i < l; ++i) {
+      const currentAmount = remaining;
       data.forEach(({ resource }) => {
         if (!resource) {
           return;
         }
-        const takenValue = remaining * (resource.value / total);
+        const takenValue = currentAmount * (resource.value / total);
         const amountToTake = Math.floor(takenValue);
         pocketChange += takenValue - amountToTake;
         resource.value -= amountToTake;
@@ -142,17 +159,24 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
     return remaining <= 0;
   }
-  async getResourceData(home: PlayerLocation, resourceType: string) {
+
+  async getResourceData(
+    home: PlayerLocation,
+    resourceType: string,
+  ): Promise<ResourceDataEntry[]> {
     const connections = await this.getConnections(home);
 
     const resourceData = connections
-      .map((location) => {
+      .map((location): ResourceDataEntry | false => {
         const resource = location.resources.find(
           (r) => r.name === resourceType,
         );
-        return { resource, location };
+        if (resource) {
+          return { resource, location };
+        }
+        return false;
       })
-      .filter((location) => !!location.resource);
+      .filter((location): location is ResourceDataEntry => !!location);
 
     const resource = home.resources.find((r) => r.name === resourceType);
     if (resource) {
@@ -841,6 +865,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     let resultList: PlayerLocation[] = [];
     const iterator = this.db.iterate({});
     // ? iterator.seek(...); // You can first seek if you'd like.
+    // can't get just do like a get all here?
     for await (const { key, value } of iterator) {
       if (resultList.length >= inMemoryLocationMaxLength) {
         break;
@@ -918,10 +943,10 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       data.type === PlayerLocationType.Camp ||
       data.type === PlayerLocationType.Settlement
     ) {
-      defaultResources.wood = 1;
-      defaultResources.food = 1;
-      defaultResources.water = 1;
-      defaultResources.stone = 1;
+      defaultResources.wood = 5;
+      defaultResources.food = 5;
+      defaultResources.water = 5;
+      defaultResources.stone = 5;
       if (data.type === PlayerLocationType.Settlement) {
         defaultResources.population = 2;
       }

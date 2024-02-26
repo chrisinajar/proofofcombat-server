@@ -1,4 +1,9 @@
-import { PlayerLocation, Quest, Hero } from "types/graphql";
+import {
+  PlayerLocation,
+  PlayerLocationUpgrades,
+  Quest,
+  Hero,
+} from "types/graphql";
 import { BaseContext } from "../context";
 
 import { questEvents } from "./text/settlements-text";
@@ -12,9 +17,10 @@ import {
 export async function checkCapital(
   context: BaseContext,
   capital: PlayerLocation,
-  hero: Hero
+  hero: Hero,
 ): Promise<void> {
-  if (!hero.questLog.settlements && !hasQuestItem(hero, "governors-title")) {
+  let hasGovernorsTitle = hasQuestItem(hero, "governors-title");
+  if (!hero.questLog.settlements && !hasGovernorsTitle) {
     // governor's title
     const population =
       capital.resources.find((resource) => resource.name === "population")
@@ -28,10 +34,19 @@ export async function checkCapital(
         hero,
         Quest.Settlements,
         "governor",
-        questEvents.governor
+        questEvents.governor,
       );
       hero = setQuestLogProgress(hero, Quest.Settlements, "settlements", 1);
+      hasGovernorsTitle = true;
+
       await context.db.hero.put(hero);
     }
+  }
+  if (
+    hasGovernorsTitle &&
+    capital.upgrades.indexOf(PlayerLocationUpgrades.HasGovernorsTitle) === -1
+  ) {
+    capital.upgrades.push(PlayerLocationUpgrades.HasGovernorsTitle);
+    await context.db.playerLocation.put(capital);
   }
 }

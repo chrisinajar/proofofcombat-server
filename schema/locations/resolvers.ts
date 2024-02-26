@@ -33,7 +33,11 @@ import { countEnchantments } from "../items/helpers";
 import { checkTeleport } from "../quests/staff-of-teleportation";
 
 import { getShopData, executeNpcTrade } from "./npc-shops";
-import { CampUpgrades } from "./camp-upgrades";
+import {
+  CampUpgrades,
+  SettlementUpgrades,
+  getUpgradesForLocation,
+} from "./camp-upgrades";
 import {
   payForBuilding,
   shouldSeeBuilding,
@@ -130,32 +134,10 @@ const resolvers: Resolvers = {
         return [];
       }
 
-      const upgradeList: PlayerLocationUpgradeDescription[] = [];
+      const upgradeList: PlayerLocationUpgradeDescription[] =
+        getUpgradesForLocation(playerLocation);
 
-      upgradeList.push(...Object.values(CampUpgrades));
-
-      return upgradeList
-        .filter((upgrade) => {
-          // don't show upgrades we already have
-          if (playerLocation.upgrades.indexOf(upgrade.type) > -1) {
-            return false;
-          }
-          if (
-            !upgrade.cost.reduce((canAfford, cost) => {
-              const resource = playerLocation.resources.find(
-                (res) => res.name === cost.name,
-              );
-              if (!resource) {
-                return canAfford;
-              }
-              return canAfford && cost.value <= (resource.maximum ?? 0);
-            }, true)
-          ) {
-            return false;
-          }
-          return true;
-        })
-        .slice(0, 4);
+      return upgradeList.slice(0, 4);
     },
     async docks(
       parent,
@@ -687,10 +669,22 @@ const resolvers: Resolvers = {
         const cost = 1000000 * args.amount;
 
         if (cost > hero.gold) {
-          throw new UserInputError("You cannot afford that many bonds");
-        }
+          const home = await context.db.playerLocation.getHome(hero.id);
+          if (!home) {
+            throw new UserInputError("You don't have a working capital");
+          }
+          const result = await context.db.playerLocation.spendResources(
+            home,
+            "bonds",
+            Math.ceil(args.amount),
+          );
 
-        hero.gold -= cost;
+          if (!result) {
+            throw new UserInputError("You cannot afford that many bonds");
+          }
+        } else {
+          hero.gold -= cost;
+        }
         bondsResource.value += args.amount;
       }
       await context.db.playerLocation.put(playerLocation);
@@ -848,11 +842,13 @@ const resolvers: Resolvers = {
       if (camp.upgrades.find((entry) => entry === args.upgrade)) {
         throw new UserInputError("You already own that upgrade!");
       }
-      const upgrade = CampUpgrades[args.upgrade];
+      const isSettlement = args.upgrade === PlayerLocationUpgrades.Settlement;
+      const upgrade =
+        CampUpgrades[args.upgrade] || SettlementUpgrades[args.upgrade];
+
       if (!upgrade) {
         throw new UserInputError("Unknown upgrade!");
       }
-      const isSettlement = upgrade.type === PlayerLocationUpgrades.Settlement;
 
       if (isSettlement) {
         if (isCloseToSpecialLocation(camp.location)) {
@@ -877,10 +873,24 @@ const resolvers: Resolvers = {
 
       let canAfford = true;
       let resourceName = "";
-      upgrade.cost.forEach((cost) => {
+
+      await upgrade.cost.reduce<Promise<void>>(async (memo, cost) => {
+        // let previous run fully first
+        await memo;
         if (!canAfford) {
           return;
         }
+
+        const resources = await context.db.playerLocation.getResourceData(
+          camp,
+          cost.name,
+        );
+
+        const total = resources.reduce((memo, val) => {
+          return memo + val.resource.value;
+        }, 0);
+        console.log(resources, total);
+
         if (cost.name === "gold") {
           canAfford = cost.value <= hero.gold;
           if (!canAfford) {
@@ -888,18 +898,12 @@ const resolvers: Resolvers = {
           }
           return;
         }
-        const resource = camp.resources.find((res) => res.name === cost.name);
-        if (!resource) {
+        if (total < cost.value) {
           canAfford = false;
           resourceName = cost.name;
           return;
         }
-        canAfford = resource.value >= cost.value;
-
-        if (!canAfford) {
-          resourceName = cost.name;
-        }
-      });
+      }, new Promise((resolve) => resolve()));
 
       if (!canAfford) {
         throw new UserInputError(
@@ -907,17 +911,25 @@ const resolvers: Resolvers = {
         );
       }
 
-      upgrade.cost.forEach((cost) => {
-        if (cost.name === "gold") {
-          hero.gold -= Math.round(cost.value);
-          return;
-        }
-        const resource = camp.resources.find((res) => res.name === cost.name);
-        if (!resource) {
-          return;
-        }
-        resource.value -= Math.round(cost.value);
-      });
+      await Promise.all(
+        upgrade.cost.map(async (cost) => {
+          if (cost.name === "gold") {
+            hero.gold -= Math.round(cost.value);
+            return;
+          }
+
+          const result = await context.db.playerLocation.spendResources(
+            camp,
+            cost.name,
+            cost.value,
+          );
+          if (!result) {
+            throw new UserInputError(
+              `You do not have enough ${cost.name} for that upgrade!`,
+            );
+          }
+        }),
+      );
 
       camp.upgrades.push(upgrade.type);
 
@@ -1387,37 +1399,16 @@ const resolvers: Resolvers = {
         return [];
       }
       const hero = await context.db.hero.get(context.auth.id);
-      const playerLocation = await context.db.playerLocation.get(parent.owner);
+      const playerLocation = parent;
 
       if (!playerLocation) {
         return [];
       }
 
-      const upgradeList: PlayerLocationUpgradeDescription[] = [];
+      const upgradeList: PlayerLocationUpgradeDescription[] =
+        getUpgradesForLocation(playerLocation);
 
-      upgradeList.push(...Object.values(CampUpgrades));
-
-      return upgradeList
-        .filter((upgrade) => {
-          if (playerLocation.upgrades.indexOf(upgrade.type) > -1) {
-            return false;
-          }
-          if (
-            !upgrade.cost.reduce((canAfford, cost) => {
-              const resource = playerLocation.resources.find(
-                (res) => res.name === cost.name,
-              );
-              if (!resource) {
-                return canAfford;
-              }
-              return canAfford && cost.value <= (resource.maximum ?? 0);
-            }, true)
-          ) {
-            return false;
-          }
-          return true;
-        })
-        .slice(0, 3);
+      return upgradeList.slice(0, 3);
     },
   },
   SettlementManager: {
