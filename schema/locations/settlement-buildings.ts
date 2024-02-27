@@ -21,7 +21,7 @@ const BuildingsData = {
     type: PlayerLocationType.Apiary,
     name: "Apiary",
     description:
-      "A place where bees live and breed. Generates honey, an rare an valuable resource, passively so long as it remains connected to your capital.",
+      "A place where bees live and breed. Generates honey, an rare and valuable resource, passively so long as it remains connected to your capital.",
     cost: [
       { name: "water", value: 1200000 },
       { name: "food", value: 1000000 },
@@ -29,23 +29,57 @@ const BuildingsData = {
       { name: "stone", value: 1000000 },
     ],
   },
+  [PlayerLocationType.Barracks]: {
+    type: PlayerLocationType.Barracks,
+    name: "Barracks",
+    description:
+      "Housing and training facilities for your military. Allows the purchasing of military units and passively upgrades any existing military units.",
+    cost: [
+      { name: "water", value: 400000 },
+      { name: "food", value: 1000000 },
+      { name: "wood", value: 800000 },
+      { name: "stone", value: 1200000 },
+    ],
+  },
+  [PlayerLocationType.Treasury]: {
+    type: PlayerLocationType.Treasury,
+    name: "Treasury",
+    description:
+      "A large secure facility to store gold and generate interest on it.",
+    cost: [
+      { name: "water", value: 500000 },
+      { name: "wood", value: 2000000 },
+      { name: "stone", value: 5000000 },
+    ],
+  },
+  [PlayerLocationType.Garrison]: {
+    type: PlayerLocationType.Garrison,
+    name: "Garrison",
+    description: "A defensive fortress to keep surrounding tiles safe.",
+    cost: [
+      { name: "water", value: 600000 },
+      { name: "food", value: 600000 },
+      { name: "wood", value: 1600000 },
+      { name: "stone", value: 2000000 },
+    ],
+  },
 };
 
-type DescribedBuildings = keyof typeof BuildingsData;
+export type DescribedBuildings = keyof typeof BuildingsData;
 
 export const Buildings: {
   [x in DescribedBuildings]: PlayerLocationBuildingDescription;
 } = BuildingsData;
 
 export function validBuildingLocationType(
-  type: PlayerLocationType
+  type: PlayerLocationType,
 ): type is DescribedBuildings {
   return type in Buildings;
 }
 
 export function payForBuilding(
   location: PlayerLocation,
-  type: DescribedBuildings
+  type: DescribedBuildings,
 ): boolean {
   if (!canAffordBuilding(location, type)) {
     return false;
@@ -57,7 +91,7 @@ export function payForBuilding(
 
   buildingEntry.cost.forEach((cost) => {
     const valueEntry = location.resources.find(
-      (resource) => resource.name == cost.name
+      (resource) => resource.name == cost.name,
     );
     // first iteration in canAffordBuildings means this is always truthy
     if (valueEntry) {
@@ -70,7 +104,7 @@ export function payForBuilding(
 
 export function canAffordBuilding(
   location: PlayerLocation,
-  type: DescribedBuildings
+  type: DescribedBuildings,
 ): boolean {
   const buildingEntry = Buildings[type];
   if (!buildingEntry) {
@@ -82,10 +116,32 @@ export function canAffordBuilding(
         return false;
       }
       const valueEntry = location.resources.find(
-        (resource) => resource.name == cost.name
+        (resource) => resource.name == cost.name,
       );
       return !!valueEntry && valueEntry.value >= cost.value;
     },
-    true
+    true,
+  );
+}
+
+export function shouldSeeBuilding(
+  location: PlayerLocation,
+  type: DescribedBuildings,
+): boolean {
+  const buildingEntry = Buildings[type];
+  if (!buildingEntry) {
+    return false;
+  }
+  return buildingEntry.cost.reduce<boolean>(
+    (canAfford: boolean, cost): boolean => {
+      if (!canAfford) {
+        return false;
+      }
+      const valueEntry = location.resources.find(
+        (resource) => resource.name == cost.name,
+      );
+      return (valueEntry?.maximum ?? 0) >= cost.value;
+    },
+    true,
   );
 }

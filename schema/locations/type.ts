@@ -33,6 +33,32 @@ export default gql`
     destroyBuilding(location: LocationInput!): LevelUpResponse!
       @auth
       @delay(delay: 2000)
+
+    purchaseBonds(
+      location: LocationInput!
+      amount: Int!
+    ): PlayerLocationResponse! @auth @delay(delay: 800)
+    craftHoneyEssences(
+      location: LocationInput!
+      amount: Int!
+    ): PlayerLocationResponse! @auth @delay(delay: 800)
+    buildFortifications(
+      location: LocationInput!
+      amount: Int!
+    ): PlayerLocationResponse! @auth @delay(delay: 800)
+
+    # military
+    recruit(location: LocationInput!, amount: Int!): PlayerLocationResponse!
+      @auth
+      @delay(delay: 800)
+    attackLocation(
+      target: LocationInput!
+      units: MilitaryUnitInput!
+    ): AttackResponse! @auth @delay(delay: 5000)
+    moveTroups(
+      target: LocationInput!
+      units: MilitaryUnitInput!
+    ): PlayerLocationResponse! @auth @delay(delay: 1200)
   }
 
   type ExtendedCampResponse {
@@ -59,6 +85,7 @@ export default gql`
     range: Int!
     availableUpgrades: [PlayerLocationUpgradeDescription!]!
     availableBuildings: [PlayerLocationBuildingDescription!]!
+    adjacentTiles: [PlayerLocation!]!
   }
 
   type PlayerLocationBuildingDescription {
@@ -78,9 +105,17 @@ export default gql`
     type: PlayerLocationType!
     upgrades: [PlayerLocationUpgrades!]!
     resources: [CampResources!]!
+    upkeep: UpkeepCosts!
     lastUpkeep: String
     connections: [PlayerLocation!]!
     availableUpgrades: [PlayerLocationUpgradeDescription!]!
+  }
+
+  type UpkeepCosts {
+    stone: Int!
+    wood: Int!
+    food: Int!
+    water: Int!
   }
 
   type CampResources {
@@ -104,7 +139,11 @@ export default gql`
     Settlement
 
     # post-settlement upgrades
+    # flags from events / external things
     HasBuiltFarm
+    HasGovernorsTitle
+    # settlement tier upgrades
+    GovernorsManor
   }
 
   enum PlayerLocationType {
@@ -116,6 +155,7 @@ export default gql`
     Shrine
     Apiary
     Barracks
+    Garrison
   }
 
   type LocationDetails {
@@ -185,5 +225,22 @@ export default gql`
     hero: Hero!
     account: BaseAccount!
     monsters: [MonsterInstance!]!
+  }
+
+  input MilitaryUnitInput {
+    enlisted: Int
+    soldier: Int
+    veteran: Int
+    ghost: Int
+  }
+
+  type AttackResponse {
+    target: PlayerLocation!
+    account: BaseAccount
+  }
+
+  type PlayerLocationResponse {
+    location: PlayerLocation!
+    account: BaseAccount
   }
 `;

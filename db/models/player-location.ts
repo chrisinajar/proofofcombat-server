@@ -2,9 +2,11 @@ import {
   PlayerLocation,
   PlayerLocationType,
   PlayerLocationUpgrades,
+  CampResources,
   AccessRole,
   Location,
   Hero,
+  UpkeepCosts,
 } from "types/graphql";
 import DatabaseInterface from "../interface";
 
@@ -15,18 +17,24 @@ import { io } from "../../index";
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 type PartialPlayerLocation = Optional<
   PlayerLocation,
-  "upgrades" | "resources" | "lastUpkeep" | "connections" | "availableUpgrades"
+  | "upgrades"
+  | "resources"
+  | "lastUpkeep"
+  | "connections"
+  | "availableUpgrades"
+  | "upkeep"
 > & { version?: number };
+
+type ResourceDataEntry = {
+  location: PlayerLocation;
+  resource: CampResources;
+};
 
 const inMemoryLocationMaxLength = 100;
 const upkeepInterval = 1000 * 60 * 60;
+const maxStoredUpkeeps = 24;
 
-type UpkeepCosts = {
-  stone: number;
-  wood: number;
-  food: number;
-  water: number;
-};
+const soldierTiers = ["enlisted", "soldier", "veteran", "ghost"];
 
 export default class PlayerLocationModel extends DatabaseInterface<PlayerLocation> {
   upkeepReentrancy: boolean = false;
@@ -36,7 +44,17 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
   }
 
   range(capital: PlayerLocation): number {
-    return 5;
+    let range = 4;
+    if (
+      capital.upgrades.indexOf(PlayerLocationUpgrades.HasGovernorsTitle) >= 0
+    ) {
+      range += 2;
+    }
+    if (capital.upgrades.indexOf(PlayerLocationUpgrades.GovernorsManor) >= 0) {
+      range += 2;
+    }
+
+    return range;
   }
 
   async get(id: string): Promise<PlayerLocation> {
@@ -72,6 +90,100 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     } catch (e) {
       return null;
     }
+  }
+
+  async getResources(
+    home: PlayerLocation,
+    resourceType: string,
+  ): Promise<number> {
+    const connections = await this.getConnections(home);
+    let total = 0;
+
+    connections.forEach((location) => {
+      const resource = location.resources.find((r) => r.name === resourceType);
+      if (resource) {
+        total += resource.value;
+      }
+    });
+
+    const resource = home.resources.find((r) => r.name === resourceType);
+    if (resource) {
+      total += resource.value;
+    }
+
+    return total;
+  }
+
+  async spendResources(
+    home: PlayerLocation,
+    resourceType: string,
+    amount: number,
+    maxDistance: number = -1,
+  ) {
+    let data = await this.getResourceData(home, resourceType);
+    // if (maxDistance > 0) {
+    //   data = data.filter(({ location }) => {
+    //     return true;
+    //   });
+    // }
+
+    const total = data.reduce(
+      (total, value) => (total += value.resource?.value ?? 0),
+      0,
+    );
+    if (total < amount) {
+      return false;
+    }
+    let pocketChange = 0;
+    let remaining = amount;
+    for (let i = 0, l = 1000; remaining > 0 && i < l; ++i) {
+      const currentAmount = remaining;
+      data.forEach(({ resource }) => {
+        if (!resource) {
+          return;
+        }
+        const takenValue = currentAmount * (resource.value / total);
+        const amountToTake = Math.floor(takenValue);
+        pocketChange += takenValue - amountToTake;
+        resource.value -= amountToTake;
+        remaining -= amountToTake;
+        if (pocketChange >= 1 && resource.value > 0) {
+          resource.value -= 1;
+          pocketChange -= 1;
+          remaining -= 1;
+        }
+      });
+    }
+
+    await Promise.all(data.map(({ location }) => this.put(location)));
+
+    return remaining <= 0;
+  }
+
+  async getResourceData(
+    home: PlayerLocation,
+    resourceType: string,
+  ): Promise<ResourceDataEntry[]> {
+    const connections = await this.getConnections(home);
+
+    const resourceData = connections
+      .map((location): ResourceDataEntry | false => {
+        const resource = location.resources.find(
+          (r) => r.name === resourceType,
+        );
+        if (resource) {
+          return { resource, location };
+        }
+        return false;
+      })
+      .filter((location): location is ResourceDataEntry => !!location);
+
+    const resource = home.resources.find((r) => r.name === resourceType);
+    if (resource) {
+      resourceData.push({ resource, location: home });
+    }
+
+    return resourceData;
   }
 
   async getConnections(location: PlayerLocation): Promise<PlayerLocation[]> {
@@ -244,6 +356,18 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       }
     }
 
+    if (soldierTiers.indexOf(resource) >= 0) {
+      return 1000000000;
+    }
+
+    if (resource === "bonds") {
+      return 1000000000;
+    }
+
+    if (resource === "fortifications") {
+      return 1000000000;
+    }
+
     return 100;
   }
 
@@ -344,6 +468,17 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     this.upkeepReentrancy = true;
     const now = Number(this.upkeepNow());
     const lastUpkeep = Number(location.lastUpkeep);
+
+    const upkeeps = Math.min(
+      maxStoredUpkeeps,
+      Math.max(0, Math.floor((now - lastUpkeep) / upkeepInterval)),
+    );
+
+    if (upkeeps < 1) {
+      this.upkeepReentrancy = false;
+      return location;
+    }
+
     let canAffordUpkeep = true;
     let settlementDead = false;
 
@@ -363,26 +498,26 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       location.resources.find((r) => r.name === "honey")?.value ?? 0;
     const startingBees =
       location.resources.find((r) => r.name === "bees")?.value ?? 0;
+    const startingBonds =
+      location.resources.find((r) => r.name === "bonds")?.value ?? 0;
 
-    const upkeeps = Math.min(
-      24,
-      Math.max(0, Math.floor((now - lastUpkeep) / upkeepInterval)),
+    const startingMilitaryUnits = soldierTiers.map(
+      (tier) => location.resources.find((r) => r.name === tier)?.value ?? 0,
     );
-
-    if (upkeeps < 1) {
-      this.upkeepReentrancy = false;
-      return location;
-    }
+    const militaryGains = soldierTiers.map(() => 0);
+    const totalMilitaryUnits = startingMilitaryUnits.reduce((a, b) => a + b);
 
     let isDecaying = false;
     let foodProduction = 0;
+    const capital = await this.getHome(location.owner);
+    const capitalPopulation =
+      capital?.resources?.find?.((r) => r.name === "population")?.value ?? 0;
 
     if (
       location.type !== PlayerLocationType.Settlement &&
       location.type !== PlayerLocationType.Camp
     ) {
       // non-central building, like a farm or something
-      const capital = await this.getHome(location.owner);
       // we are "decaying" if we don't have a capital
       isDecaying = !capital;
 
@@ -406,6 +541,52 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         location.resources.find((r) => r.name === "bees")?.value ?? 0;
 
       location.resources.forEach((resource) => {
+        // handle military
+        if (totalMilitaryUnits > 0) {
+          // upkeep military
+          // they cost nothing because upkeep costs are effectively "local"
+          const currentResourceSoldierTier = soldierTiers.indexOf(
+            resource.name,
+          );
+          if (currentResourceSoldierTier >= 0) {
+            // this is a soldier unit
+            const odds =
+              0.001 *
+              Math.pow(0.02, currentResourceSoldierTier) *
+              (Math.random() * 0.5 + 0.5);
+            if (currentResourceSoldierTier === 0) {
+              const availableSlots =
+                this.resourceStorage(location, resource.name) - resource.value;
+              const amount = Math.min(
+                availableSlots,
+                Math.floor(odds * 0.5 * totalMilitaryUnits),
+              );
+              if (amount > 0) {
+                militaryGains[currentResourceSoldierTier] += amount;
+                resource.value += amount;
+              }
+            }
+            if (currentResourceSoldierTier + 1 < soldierTiers.length) {
+              const upgradeTarget = location.resources.find(
+                (r) => r.name === soldierTiers[currentResourceSoldierTier + 1],
+              );
+              if (upgradeTarget) {
+                const availableSlots =
+                  this.resourceStorage(location, upgradeTarget.name) -
+                  upgradeTarget.value;
+                const amount = Math.min(
+                  availableSlots,
+                  Math.floor(odds * resource.value),
+                );
+                if (amount > 0) {
+                  resource.value -= amount;
+                  upgradeTarget.value += amount;
+                  militaryGains[currentResourceSoldierTier + 1] += amount;
+                }
+              }
+            }
+          }
+        }
         // upgrades
         if (resource.name === "water") {
           if (hasRainCollection) {
@@ -418,6 +599,8 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           );
         } else if (resource.name === "bees") {
           resource.value += Math.floor(Math.random() * 1.1);
+        } else if (resource.name === "bonds") {
+          resource.value += Math.floor(resource.value * 0.01);
         } else if (resource.name === "honey") {
           resource.value += Math.floor(
             Math.random() *
@@ -433,15 +616,22 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             Math.random() * Math.random() * Math.log2(resource.value) +
               (Math.random() * Math.random() * resource.value) / 100,
           );
+          if (resource.maximum) {
+            if (resource.value > resource.maximum) {
+              foodProduction += (resource.value - resource.maximum) * 10;
+            }
+          }
         } else if (resource.name === "food") {
           if (hasGarden) {
             resource.value += Math.floor(Math.random() * Math.random() * 10);
           }
+          // bwahahahahaha why
           resource.value += Math.floor(
             (1 /
               (1 +
                 Math.pow(
                   1.3,
+                  // okay sure xD
                   1 - Math.log(population / 1000) / Math.log(16),
                 ))) *
               (5000 * (population / (population + 10000))),
@@ -545,14 +735,38 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             type: "quest",
           });
         }
+        if (location.type === PlayerLocationType.Treasury) {
+          const endingBonds =
+            location.resources.find((r) => r.name === "bonds")?.value ?? 0;
+          if (endingBonds > startingBonds) {
+            io.sendNotification(location.owner, {
+              message: `Your treasury at ${location.location.x}, ${
+                location.location.y
+              } gained ${(
+                endingBonds - startingBonds
+              ).toLocaleString()} bonds.`,
+              type: "quest",
+            });
+          }
+        }
         if (location.type === PlayerLocationType.Farm) {
           const endingCattle =
             location.resources.find((r) => r.name === "cattle")?.value ?? 0;
-          if (endingCattle - startingCattle > 0) {
+          if (foodProduction + (endingCattle - startingCattle) > 0) {
+            const foodMsg =
+              foodProduction > 0
+                ? ` ${foodProduction.toLocaleString()} food`
+                : null;
+            const cattleMsg =
+              endingCattle - startingCattle > 0
+                ? ` ${(endingCattle - startingCattle).toLocaleString()} cattle`
+                : null;
             io.sendNotification(location.owner, {
               message: `Your farm at ${location.location.x}, ${
                 location.location.y
-              } gained ${endingCattle - startingCattle} cattle.`,
+              } gained ${[cattleMsg, foodMsg]
+                .filter((a) => !!a)
+                .join(" and ")}.`,
               type: "quest",
             });
           }
@@ -587,9 +801,33 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           }
           if (parts.length) {
             io.sendNotification(location.owner, {
-              message: `Your farm at ${location.location.x}, ${
+              message: `Your apiary at ${location.location.x}, ${
                 location.location.y
               } gained ${parts.join(" and ")}.`,
+              type: "quest",
+            });
+          }
+        }
+        if (location.type === PlayerLocationType.Barracks) {
+          const parts: string[] = [];
+          militaryGains.forEach((gains, index) => {
+            if (gains > 0) {
+              if (index === 0) {
+                parts.push(
+                  `recruited ${gains.toLocaleString()} ${soldierTiers[index]}`,
+                );
+              } else {
+                parts.push(
+                  `trained ${gains.toLocaleString()} ${soldierTiers[index]}`,
+                );
+              }
+            }
+          });
+          if (parts.length) {
+            io.sendNotification(location.owner, {
+              message: `Your barracks at ${location.location.x}, ${
+                location.location.y
+              } ${parts.join(" and ")}.`,
               type: "quest",
             });
           }
@@ -627,6 +865,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     let resultList: PlayerLocation[] = [];
     const iterator = this.db.iterate({});
     // ? iterator.seek(...); // You can first seek if you'd like.
+    // can't get just do like a get all here?
     for await (const { key, value } of iterator) {
       if (resultList.length >= inMemoryLocationMaxLength) {
         break;
@@ -689,14 +928,25 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       defaultResources.bees = 5;
       defaultResources.honey = 0;
     }
+    if (data.type === PlayerLocationType.Barracks) {
+      soldierTiers.map((tier) => {
+        defaultResources[tier] = 0;
+      });
+    }
+    if (data.type === PlayerLocationType.Treasury) {
+      defaultResources.bonds = 0;
+    }
+    if (data.type === PlayerLocationType.Garrison) {
+      defaultResources.fortifications = 0;
+    }
     if (
       data.type === PlayerLocationType.Camp ||
       data.type === PlayerLocationType.Settlement
     ) {
-      defaultResources.wood = 1;
-      defaultResources.food = 1;
-      defaultResources.water = 1;
-      defaultResources.stone = 1;
+      defaultResources.wood = 5;
+      defaultResources.food = 5;
+      defaultResources.water = 5;
+      defaultResources.stone = 5;
       if (data.type === PlayerLocationType.Settlement) {
         defaultResources.population = 2;
       }
@@ -721,6 +971,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         });
       }
     });
+
     return playerLocation;
   }
 }
