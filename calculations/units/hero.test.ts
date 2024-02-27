@@ -42,11 +42,12 @@ describe("calculations hero base class", () => {
     unitA.baseValues.constitution = 1;
     expect(unitA.stats.health).toBeGreaterThan(0);
 
-    unitB.baseValues.constitution = 10;
-    expect(unitB.stats.health).toBeGreaterThan(20);
-
     unitB.baseValues.constitution = 2;
     expect(unitB.stats.health).toBeGreaterThan(unitA.stats.health);
+
+    unitB.baseValues.constitution = 10;
+    unitB.baseValues.level = 2;
+    expect(unitB.stats.health).toBeGreaterThan(20);
   });
 
   it("should default values to 0", () => {

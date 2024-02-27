@@ -309,7 +309,7 @@ describe("combat", () => {
       heroCombatant.health = heroCombatant.maxHealth;
 
       let result = calculateEnchantmentDamage(heroCombatant, monster);
-      expect(result.attackerHeal).toBeLessThan(1000000);
+      expect(result.attackerHeal).toBeLessThan(30000000);
     });
     it("should reduce enemy enchantment resistance", () => {
       const hero = generateHero();

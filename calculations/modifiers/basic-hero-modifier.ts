@@ -23,13 +23,14 @@ export class BasicHeroModifier extends Modifier<undefined> {
         //   (hero.stats.constitution * 20 + hero.level * 20) * bonusHealth
         // );
         return (
-          (this.parent.stats.constitution + this.parent.stats.level / 2) * 20 -
+          this.parent.baseValues.constitution * this.parent.stats.level +
+          this.parent.stats.constitution -
           this.parent.baseValues.health
         );
       // Math.pow(1.08, this.parent.stats.vitality)
       case "healthRegeneration":
         // asympotically approach 0.0 -> 1.0
-        return 1 - Math.pow(0.99, this.parent.hero.skills.regeneration);
+        return 1 - Math.pow(0.995, this.parent.hero.skills.regeneration);
         break;
     }
     return;
