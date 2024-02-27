@@ -889,7 +889,6 @@ const resolvers: Resolvers = {
         const total = resources.reduce((memo, val) => {
           return memo + val.resource.value;
         }, 0);
-        console.log(resources, total);
 
         if (cost.name === "gold") {
           canAfford = cost.value <= hero.gold;
