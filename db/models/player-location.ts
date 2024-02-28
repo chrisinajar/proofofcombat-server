@@ -33,8 +33,8 @@ export type ResourceDataEntry = {
 };
 
 const inMemoryLocationMaxLength = 100;
-const upkeepInterval = 1000 * 60 * 60;
-const maxStoredUpkeeps = 24;
+export const upkeepInterval = 1000 * 60 * 60;
+export const maxStoredUpkeeps = 24;
 
 const soldierTiers = ["enlisted", "soldier", "veteran", "ghost"];
 
