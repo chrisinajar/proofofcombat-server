@@ -47,6 +47,8 @@ import {
   DescribedBuildings,
 } from "./settlement-buildings";
 
+const attackingIsDisabled = true;
+
 function isCloseToSpecialLocation(location: Location): boolean {
   return !!LocationData[location.map as MapNames].specialLocations.find(
     (specialLocation) => {
@@ -364,6 +366,10 @@ const resolvers: Resolvers = {
         throw new ForbiddenError("Missing auth");
       }
 
+      if (attackingIsDisabled) {
+        throw new UserInputError("Attacking is currently disabled.");
+      }
+
       const builtInFortifications = 1000;
       const targetLocation = args.target;
 
@@ -431,12 +437,10 @@ const resolvers: Resolvers = {
                 location: targetPlayerLocation,
               },
             ],
-            total: fortificationsResource.value,
+            total: fortificationsResource.value + builtInFortifications,
           };
         }
       }
-
-      throw new UserInputError("Attacking is currently disabled.");
 
       await Promise.all(
         unitTypes.map(
@@ -501,52 +505,89 @@ const resolvers: Resolvers = {
         ),
       );
 
+      const combatStats = {
+        enlisted: {
+          health: 2,
+          damage: 1,
+        },
+        soldier: {
+          health: 4,
+          damage: 3,
+        },
+        veteran: {
+          health: 10,
+          damage: 6,
+        },
+        ghost: {
+          health: 128,
+          damage: 64,
+        },
+        fortifications: {
+          health: 100,
+          damage: 4,
+        },
+      };
+
       const attackerAttributes = {
         enlisted: {
-          health: (args.units.enlisted ?? 0) * 2,
-          damage: (args.units.enlisted ?? 0) * 1,
+          health: (args.units.enlisted ?? 0) * combatStats.enlisted.health,
+          damage: (args.units.enlisted ?? 0) * combatStats.enlisted.damage,
           count: args.units.enlisted ?? 0,
         },
         soldier: {
-          health: (args.units.soldier ?? 0) * 4,
-          damage: (args.units.soldier ?? 0) * 3,
+          health: (args.units.soldier ?? 0) * combatStats.soldier.health,
+          damage: (args.units.soldier ?? 0) * combatStats.soldier.damage,
           count: args.units.soldier ?? 0,
         },
         veteran: {
-          health: (args.units.veteran ?? 0) * 10,
-          damage: (args.units.veteran ?? 0) * 6,
+          health: (args.units.veteran ?? 0) * combatStats.veteran.health,
+          damage: (args.units.veteran ?? 0) * combatStats.veteran.damage,
           count: args.units.veteran ?? 0,
         },
         ghost: {
-          health: (args.units.ghost ?? 0) * 32,
-          damage: (args.units.ghost ?? 0) * 16,
+          health: (args.units.ghost ?? 0) * combatStats.ghost.health,
+          damage: (args.units.ghost ?? 0) * combatStats.ghost.damage,
           count: args.units.ghost ?? 0,
         },
       };
       const defenderAttributes = {
         enlisted: {
-          health: (targetResources.enlisted?.total ?? 0) * 2,
-          damage: (targetResources.enlisted?.total ?? 0) * 1,
+          health:
+            (targetResources.enlisted?.total ?? 0) *
+            combatStats.enlisted.health,
+          damage:
+            (targetResources.enlisted?.total ?? 0) *
+            combatStats.enlisted.damage,
           count: targetResources.enlisted?.total ?? 0,
         },
         soldier: {
-          health: (targetResources.soldier?.total ?? 0) * 4,
-          damage: (targetResources.soldier?.total ?? 0) * 3,
+          health:
+            (targetResources.soldier?.total ?? 0) * combatStats.soldier.health,
+          damage:
+            (targetResources.soldier?.total ?? 0) * combatStats.soldier.damage,
           count: targetResources.soldier?.total ?? 0,
         },
         veteran: {
-          health: (targetResources.veteran?.total ?? 0) * 10,
-          damage: (targetResources.veteran?.total ?? 0) * 6,
+          health:
+            (targetResources.veteran?.total ?? 0) * combatStats.veteran.health,
+          damage:
+            (targetResources.veteran?.total ?? 0) * combatStats.veteran.damage,
           count: targetResources.veteran?.total ?? 0,
         },
         ghost: {
-          health: (targetResources.ghost?.total ?? 0) * 32,
-          damage: (targetResources.ghost?.total ?? 0) * 16,
+          health:
+            (targetResources.ghost?.total ?? 0) * combatStats.ghost.health,
+          damage:
+            (targetResources.ghost?.total ?? 0) * combatStats.ghost.damage,
           count: targetResources.ghost?.total ?? 0,
         },
         fortifications: {
-          health: (targetResources.fortifications?.total ?? 0) * 100,
-          damage: (targetResources.fortifications?.total ?? 0) * 4,
+          health:
+            (targetResources.fortifications?.total ?? 0) *
+            combatStats.fortifications.health,
+          damage:
+            (targetResources.fortifications?.total ?? 0) *
+            combatStats.fortifications.damage,
           count: targetResources.fortifications?.total ?? 0,
         },
       };
@@ -561,7 +602,8 @@ const resolvers: Resolvers = {
         defenderAttributes.soldier.damage +
         defenderAttributes.veteran.damage +
         defenderAttributes.fortifications.damage +
-        defenderAttributes.ghost.damage;
+        defenderAttributes.ghost.damage +
+        context.db.playerLocation.defensiveDamage(targetPlayerLocation.type);
 
       const totalAttackerHealth =
         attackerAttributes.enlisted.health +
@@ -613,14 +655,24 @@ const resolvers: Resolvers = {
           defenderAttributes.ghost.count,
           percentRemainingDefenderHealth * 0.9 + 0.1,
         ),
-        fortifications: Math.max(
-          0,
-          applyDamage(
-            defenderAttributes.fortifications.count,
-            percentRemainingDefenderHealth,
-          ) -
-            (targetResources.fortifications?.resource.length ?? 0) *
-              builtInFortifications,
+        fortifications: Math.round(
+          0.2 *
+            applyDamage(
+              defenderAttributes.fortifications.count -
+                (targetResources.fortifications?.resource.length ?? 0) *
+                  builtInFortifications,
+              percentRemainingDefenderHealth,
+            ) +
+            0.8 *
+              Math.max(
+                0,
+                applyDamage(
+                  defenderAttributes.fortifications.count,
+                  percentRemainingDefenderHealth,
+                ) -
+                  (targetResources.fortifications?.resource.length ?? 0) *
+                    builtInFortifications,
+              ),
         ),
       };
 
@@ -647,7 +699,15 @@ const resolvers: Resolvers = {
       console.log("vs");
       console.log(defenderAttributes, targetResources);
 
-      console.log("casualties");
+      console.log(
+        "casualties",
+        percentRemainingDefenderHealth,
+        defenderAttributes.fortifications.count,
+        applyDamage(
+          defenderAttributes.fortifications.count,
+          percentRemainingDefenderHealth,
+        ),
+      );
 
       console.log(defenderCasualties);
       console.log(attackerCasualties);
@@ -714,13 +774,17 @@ const resolvers: Resolvers = {
         );
       }
 
+      // buildings take 1/10th damage
+      let overDamage = Math.round(
+        (totalAttackerDamage - totalDefenderHealth) / 10,
+      );
+      let didDestroy = false;
+      let didDealDamage = false;
       // deal wit over-damage
-      if (totalAttackerDamage > totalDefenderHealth) {
-        const overDamage = totalAttackerDamage - totalDefenderHealth;
-
+      if (overDamage > 0) {
         const garrisonHealth = targetResources.fortifications
           ? (targetResources.fortifications?.resource ?? []).reduce(
-              (memo, val) => memo + val.location.health,
+              (memo, val) => memo + (val.location.health - 1),
               0,
             )
           : 0;
@@ -728,7 +792,49 @@ const resolvers: Resolvers = {
         console.log(
           { overDamage, garrisonHealth },
           targetResources.fortifications,
+          targetPlayerLocation.health,
         );
+
+        if (garrisonHealth > 0 && targetResources.fortifications) {
+          const damage =
+            overDamage > garrisonHealth ? garrisonHealth : overDamage;
+          const garrisonCount = targetResources.fortifications.resource.length;
+          console.log("Dealing", damage, "to", garrisonCount, "garrisons");
+          await Promise.all(
+            targetResources.fortifications.resource.map(async (entry) => {
+              const localDamage = Math.min(
+                entry.location.health - 1,
+                Math.floor(damage * (entry.location.health / garrisonHealth)),
+              );
+              console.log(
+                "Dealing",
+                localDamage,
+                "to garrison with",
+                entry.location.health,
+              );
+              entry.location.health -= localDamage;
+              overDamage -= localDamage;
+              await context.db.playerLocation.put(entry.location);
+            }),
+          );
+        }
+
+        if (overDamage > 0) {
+          console.log("After garrisons we still have", overDamage);
+          if (overDamage >= targetPlayerLocation.health) {
+            // kill!.... later
+
+            targetPlayerLocation.health = targetPlayerLocation.maxHealth * 0.1;
+            targetPlayerLocation.owner = context.auth.id;
+            didDestroy = true;
+            didDealDamage = true;
+          } else {
+            targetPlayerLocation.health -= overDamage;
+            await context.db.playerLocation.put(targetPlayerLocation);
+            didDealDamage = true;
+          }
+        }
+        // overDamage;
       }
 
       return { target: targetPlayerLocation };

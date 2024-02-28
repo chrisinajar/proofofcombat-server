@@ -24,6 +24,7 @@ type PartialPlayerLocation = Optional<
   | "availableUpgrades"
   | "upkeep"
   | "health"
+  | "maxHealth"
 > & { version?: number };
 
 export type ResourceDataEntry = {
@@ -281,6 +282,19 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     });
   }
 
+  defensiveDamage(type: PlayerLocationType): number {
+    switch (type) {
+      case PlayerLocationType.Barracks:
+        return 50000;
+      case PlayerLocationType.Garrison:
+        return 10000;
+      case PlayerLocationType.Settlement:
+        return 2000;
+      default:
+        return 1000;
+    }
+  }
+
   buildingHealth(type: PlayerLocationType): number {
     switch (type) {
       case PlayerLocationType.Barracks:
@@ -290,9 +304,9 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       case PlayerLocationType.Settlement:
         return 1000000;
       case PlayerLocationType.Treasury:
-        return 50000;
+        return 500000;
       default:
-        return 10000;
+        return 100000;
     }
   }
 
@@ -945,6 +959,15 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       data.health = this.buildingHealth(data.type);
       data.version = 2;
     }
+    // this is basically to refill the HP after all max hp was * 10
+    if (data.version === 2) {
+      data.health = this.buildingHealth(data.type);
+      data.version = 3;
+    }
+
+    // lets just do this every time...
+    data.maxHealth = this.buildingHealth(data.type);
+    data.health = Math.min(data.health ?? 1, data.maxHealth);
 
     // construct real object to manipulate further will easier type checking...
     const playerLocation = data as PlayerLocation;

@@ -110,6 +110,7 @@ export default gql`
     connections: [PlayerLocation!]!
     availableUpgrades: [PlayerLocationUpgradeDescription!]!
     health: Int!
+    maxHealth: Int!
   }
 
   type UpkeepCosts {
