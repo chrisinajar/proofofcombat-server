@@ -109,6 +109,7 @@ export default gql`
     lastUpkeep: String
     connections: [PlayerLocation!]!
     availableUpgrades: [PlayerLocationUpgradeDescription!]!
+    health: Int!
   }
 
   type UpkeepCosts {

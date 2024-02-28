@@ -26,7 +26,7 @@ export class BasicHeroModifier extends Modifier<undefined> {
           (this.parent.baseValues.constitution * this.parent.stats.level +
             this.parent.stats.constitution) /
             2 +
-          10 -
+          97 -
           this.parent.baseValues.health
         );
       // Math.pow(1.08, this.parent.stats.vitality)

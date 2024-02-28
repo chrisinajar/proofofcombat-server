@@ -25,6 +25,7 @@ import {
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
+import { ResourceDataEntry } from "../../db/models/player-location";
 import { LocationData, MapNames } from "../../constants";
 import { specialLocations, distance2d } from "../../helpers";
 import { Pathfinder } from "../../pathfinding";
@@ -363,6 +364,7 @@ const resolvers: Resolvers = {
         throw new ForbiddenError("Missing auth");
       }
 
+      const builtInFortifications = 1000;
       const targetLocation = args.target;
 
       const targetPlayerLocation = await context.db.playerLocation.get(
@@ -379,10 +381,12 @@ const resolvers: Resolvers = {
       const targetHome = await context.db.playerLocation.getHome(
         targetPlayerLocation.owner,
       );
-      const home = await context.db.playerLocation.getHome(context.auth.id);
-      if (!home) {
+      // ugh typescript lol
+      const rawHome = await context.db.playerLocation.getHome(context.auth.id);
+      if (!rawHome) {
         throw new UserInputError("You don't have a working capital");
       }
+      const home: PlayerLocation = rawHome;
 
       const unitTypes: (keyof MilitaryUnitInput)[] = [
         "enlisted",
@@ -391,60 +395,341 @@ const resolvers: Resolvers = {
         "ghost",
       ];
 
-      await Promise.all(
-        unitTypes.map(async (unitType: keyof MilitaryUnitInput) => {
-          const resources = await context.db.playerLocation.getResourceData(
-            home,
-            unitType,
+      const targetResources: {
+        [x in keyof MilitaryUnitInput | "fortifications"]?: {
+          resource: ResourceDataEntry[];
+          total: number;
+        };
+      } = {};
+
+      if (targetHome) {
+        const targetResource = (
+          await context.db.playerLocation.getResourceData(
+            targetHome,
+            "fortifications",
+          )
+        ).filter((entry) => {
+          return (
+            Math.abs(entry.location.location.x - targetLocation.x) +
+              Math.abs(entry.location.location.y - targetLocation.y) <
+            3
           );
-
-          if (targetHome) {
-            const targetResources = (
-              await context.db.playerLocation.getResourceData(
-                targetHome,
-                unitType,
-              )
-            ).filter((entry) => {
-              return (
-                Math.abs(entry.location.location.x - targetLocation.x) +
-                  Math.abs(entry.location.location.y - targetLocation.y) <
-                3
-              );
-            });
-          }
-
-          const total = resources.reduce(
-            (memo, val) => memo + (val.resource?.value ?? 0),
-            0,
-          );
-
-          const inputValue = args.units[unitType];
-
-          if (
-            inputValue == null ||
-            inputValue > total ||
-            isNaN(inputValue) ||
-            !isFinite(inputValue)
-          ) {
-            throw new UserInputError(`Invalid number of ${unitType} specified`);
-          }
-        }),
-      );
-
-      // if (
-      //   args.units.enlisted &&
-      //   args.units.enlisted > 0 &&
-      //   (await context.db.playerLocation.spendResources(
-      //     home,
-      //     "enlisted",
-      //     args.units.enlisted,
-      //   ))
-      // ) {
-      //   const enlistedCount = args.units.enlisted;
-      //   console.log("sending enlisted...");
-      // }
+        });
+        const total = targetResource.reduce((memo, val) => {
+          return memo + val.resource.value;
+        }, targetResource.length * builtInFortifications);
+        targetResources.fortifications = { resource: targetResource, total };
+      } else {
+        const fortificationsResource = targetPlayerLocation.resources.find(
+          (res) => res.name === "fortifications",
+        );
+        if (fortificationsResource) {
+          targetResources.fortifications = {
+            resource: [
+              {
+                resource: fortificationsResource,
+                location: targetPlayerLocation,
+              },
+            ],
+            total: fortificationsResource.value,
+          };
+        }
+      }
 
       throw new UserInputError("Attacking is currently disabled.");
+
+      await Promise.all(
+        unitTypes.map(
+          async (unitType: keyof MilitaryUnitInput, unitRank: number) => {
+            const resources = await context.db.playerLocation.getResourceData(
+              home,
+              unitType,
+            );
+
+            if (targetHome) {
+              const targetResource = (
+                await context.db.playerLocation.getResourceData(
+                  targetHome,
+                  unitType,
+                )
+              ).filter((entry) => {
+                return (
+                  Math.abs(entry.location.location.x - targetLocation.x) +
+                    Math.abs(entry.location.location.y - targetLocation.y) <
+                  3
+                );
+              });
+              const total = targetResource.reduce((memo, val) => {
+                return memo + val.resource.value;
+              }, 0);
+              targetResources[unitType] = { resource: targetResource, total };
+            } else {
+              const unitTypeResource = targetPlayerLocation.resources.find(
+                (res) => res.name === unitType,
+              );
+              if (unitTypeResource) {
+                targetResources[unitType] = {
+                  resource: [
+                    {
+                      resource: unitTypeResource,
+                      location: targetPlayerLocation,
+                    },
+                  ],
+                  total: unitTypeResource.value,
+                };
+              }
+            }
+
+            const total = resources.reduce(
+              (memo, val) => memo + (val.resource?.value ?? 0),
+              0,
+            );
+
+            const inputValue = args.units[unitType];
+
+            if (
+              inputValue == null ||
+              inputValue > total ||
+              isNaN(inputValue) ||
+              !isFinite(inputValue)
+            ) {
+              throw new UserInputError(
+                `Invalid number of ${unitType} specified`,
+              );
+            }
+          },
+        ),
+      );
+
+      const attackerAttributes = {
+        enlisted: {
+          health: (args.units.enlisted ?? 0) * 2,
+          damage: (args.units.enlisted ?? 0) * 1,
+          count: args.units.enlisted ?? 0,
+        },
+        soldier: {
+          health: (args.units.soldier ?? 0) * 4,
+          damage: (args.units.soldier ?? 0) * 3,
+          count: args.units.soldier ?? 0,
+        },
+        veteran: {
+          health: (args.units.veteran ?? 0) * 10,
+          damage: (args.units.veteran ?? 0) * 6,
+          count: args.units.veteran ?? 0,
+        },
+        ghost: {
+          health: (args.units.ghost ?? 0) * 32,
+          damage: (args.units.ghost ?? 0) * 16,
+          count: args.units.ghost ?? 0,
+        },
+      };
+      const defenderAttributes = {
+        enlisted: {
+          health: (targetResources.enlisted?.total ?? 0) * 2,
+          damage: (targetResources.enlisted?.total ?? 0) * 1,
+          count: targetResources.enlisted?.total ?? 0,
+        },
+        soldier: {
+          health: (targetResources.soldier?.total ?? 0) * 4,
+          damage: (targetResources.soldier?.total ?? 0) * 3,
+          count: targetResources.soldier?.total ?? 0,
+        },
+        veteran: {
+          health: (targetResources.veteran?.total ?? 0) * 10,
+          damage: (targetResources.veteran?.total ?? 0) * 6,
+          count: targetResources.veteran?.total ?? 0,
+        },
+        ghost: {
+          health: (targetResources.ghost?.total ?? 0) * 32,
+          damage: (targetResources.ghost?.total ?? 0) * 16,
+          count: targetResources.ghost?.total ?? 0,
+        },
+        fortifications: {
+          health: (targetResources.fortifications?.total ?? 0) * 100,
+          damage: (targetResources.fortifications?.total ?? 0) * 4,
+          count: targetResources.fortifications?.total ?? 0,
+        },
+      };
+
+      const totalAttackerDamage =
+        attackerAttributes.enlisted.damage +
+        attackerAttributes.soldier.damage +
+        attackerAttributes.veteran.damage +
+        attackerAttributes.ghost.damage;
+      const totalDefenderDamage =
+        defenderAttributes.enlisted.damage +
+        defenderAttributes.soldier.damage +
+        defenderAttributes.veteran.damage +
+        defenderAttributes.fortifications.damage +
+        defenderAttributes.ghost.damage;
+
+      const totalAttackerHealth =
+        attackerAttributes.enlisted.health +
+        attackerAttributes.soldier.health +
+        attackerAttributes.veteran.health +
+        attackerAttributes.ghost.health;
+      const totalDefenderHealth =
+        1.5 *
+        (defenderAttributes.enlisted.health +
+          defenderAttributes.soldier.health +
+          defenderAttributes.veteran.health +
+          defenderAttributes.fortifications.health +
+          defenderAttributes.ghost.health);
+
+      const totalRemainingDefenderHealth = Math.max(
+        0,
+        totalDefenderHealth - totalAttackerDamage,
+      );
+      const percentRemainingDefenderHealth =
+        totalRemainingDefenderHealth / totalDefenderHealth;
+
+      const totalRemainingAttackerHealth = Math.max(
+        0,
+        totalAttackerHealth - totalDefenderDamage,
+      );
+      const percentRemainingAttackerHealth =
+        totalRemainingAttackerHealth / totalAttackerHealth;
+
+      function applyDamage(unitCount: number, percent: number): number {
+        const rawRemaining = unitCount * (1 - percent);
+        const result = Math.ceil(rawRemaining);
+        return result - (result - rawRemaining > Math.random() ? 1 : 0);
+      }
+
+      const defenderCasualties = {
+        enlisted: applyDamage(
+          defenderAttributes.enlisted.count,
+          percentRemainingDefenderHealth * 0.9 + 0.1,
+        ),
+        soldier: applyDamage(
+          defenderAttributes.soldier.count,
+          percentRemainingDefenderHealth * 0.9 + 0.1,
+        ),
+        veteran: applyDamage(
+          defenderAttributes.veteran.count,
+          percentRemainingDefenderHealth * 0.9 + 0.1,
+        ),
+        ghost: applyDamage(
+          defenderAttributes.ghost.count,
+          percentRemainingDefenderHealth * 0.9 + 0.1,
+        ),
+        fortifications: Math.max(
+          0,
+          applyDamage(
+            defenderAttributes.fortifications.count,
+            percentRemainingDefenderHealth,
+          ) -
+            (targetResources.fortifications?.resource.length ?? 0) *
+              builtInFortifications,
+        ),
+      };
+
+      const attackerCasualties = {
+        enlisted: applyDamage(
+          attackerAttributes.enlisted.count,
+          percentRemainingAttackerHealth,
+        ),
+        soldier: applyDamage(
+          attackerAttributes.soldier.count,
+          percentRemainingAttackerHealth,
+        ),
+        veteran: applyDamage(
+          attackerAttributes.veteran.count,
+          percentRemainingAttackerHealth,
+        ),
+        ghost: applyDamage(
+          attackerAttributes.ghost.count,
+          percentRemainingAttackerHealth,
+        ),
+      };
+
+      console.log(attackerAttributes, args.units);
+      console.log("vs");
+      console.log(defenderAttributes, targetResources);
+
+      console.log("casualties");
+
+      console.log(defenderCasualties);
+      console.log(attackerCasualties);
+
+      if (targetResources.enlisted && defenderCasualties.enlisted > 0) {
+        await context.db.playerLocation.spendResourcesFromData(
+          targetResources.enlisted?.resource ?? [],
+          defenderCasualties.enlisted,
+        );
+      }
+      if (targetResources.soldier && defenderCasualties.soldier > 0) {
+        await context.db.playerLocation.spendResourcesFromData(
+          targetResources.soldier?.resource ?? [],
+          defenderCasualties.soldier,
+        );
+      }
+      if (targetResources.veteran && defenderCasualties.veteran > 0) {
+        await context.db.playerLocation.spendResourcesFromData(
+          targetResources.veteran?.resource ?? [],
+          defenderCasualties.veteran,
+        );
+      }
+      if (targetResources.ghost && defenderCasualties.ghost > 0) {
+        await context.db.playerLocation.spendResourcesFromData(
+          targetResources.ghost?.resource ?? [],
+          defenderCasualties.ghost,
+        );
+      }
+      if (
+        targetResources.fortifications &&
+        defenderCasualties.fortifications > 0
+      ) {
+        await context.db.playerLocation.spendResourcesFromData(
+          targetResources.fortifications?.resource ?? [],
+          defenderCasualties.fortifications,
+        );
+      }
+      if (attackerCasualties.enlisted > 0) {
+        await context.db.playerLocation.spendResources(
+          home,
+          "enlisted",
+          attackerCasualties.enlisted,
+        );
+      }
+      if (attackerCasualties.soldier > 0) {
+        await context.db.playerLocation.spendResources(
+          home,
+          "soldier",
+          attackerCasualties.soldier,
+        );
+      }
+      if (attackerCasualties.veteran > 0) {
+        await context.db.playerLocation.spendResources(
+          home,
+          "veteran",
+          attackerCasualties.veteran,
+        );
+      }
+      if (attackerCasualties.ghost > 0) {
+        await context.db.playerLocation.spendResources(
+          home,
+          "ghost",
+          attackerCasualties.ghost,
+        );
+      }
+
+      // deal wit over-damage
+      if (totalAttackerDamage > totalDefenderHealth) {
+        const overDamage = totalAttackerDamage - totalDefenderHealth;
+
+        const garrisonHealth = targetResources.fortifications
+          ? (targetResources.fortifications?.resource ?? []).reduce(
+              (memo, val) => memo + val.location.health,
+              0,
+            )
+          : 0;
+
+        console.log(
+          { overDamage, garrisonHealth },
+          targetResources.fortifications,
+        );
+      }
 
       return { target: targetPlayerLocation };
     },

@@ -23,9 +23,10 @@ type PartialPlayerLocation = Optional<
   | "connections"
   | "availableUpgrades"
   | "upkeep"
+  | "health"
 > & { version?: number };
 
-type ResourceDataEntry = {
+export type ResourceDataEntry = {
   location: PlayerLocation;
   resource: CampResources;
 };
@@ -126,7 +127,10 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     //     return true;
     //   });
     // }
+    return this.spendResourcesFromData(data, amount);
+  }
 
+  async spendResourcesFromData(data: ResourceDataEntry[], amount: number) {
     const total = data.reduce(
       (total, value) => (total += value.resource?.value ?? 0),
       0,
@@ -277,6 +281,21 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     });
   }
 
+  buildingHealth(type: PlayerLocationType): number {
+    switch (type) {
+      case PlayerLocationType.Barracks:
+        return 250000;
+      case PlayerLocationType.Garrison:
+        return 1000000;
+      case PlayerLocationType.Settlement:
+        return 1000000;
+      case PlayerLocationType.Treasury:
+        return 50000;
+      default:
+        return 10000;
+    }
+  }
+
   resourceCost(resource: string): number | null {
     if (
       resource === "water" ||
@@ -309,6 +328,12 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       const population =
         location.resources.find((res) => res.name === "population")?.value ?? 0;
       if (population > 1000) {
+        populationUpgrades += 1;
+      }
+      if (population > 10000) {
+        populationUpgrades += 1;
+      }
+      if (population > 100000) {
         populationUpgrades += 1;
       }
     }
@@ -915,6 +940,10 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         population.value = 2;
         console.log("Resetting population", data.location);
       }
+    }
+    if (data.version === 1) {
+      data.health = this.buildingHealth(data.type);
+      data.version = 2;
     }
 
     // construct real object to manipulate further will easier type checking...
