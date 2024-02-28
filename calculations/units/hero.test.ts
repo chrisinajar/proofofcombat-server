@@ -50,6 +50,15 @@ describe("calculations hero base class", () => {
     expect(unitB.stats.health).toBeGreaterThan(20);
   });
 
+  it("level 1 max health should be reasonable", () => {
+    const unitA = new HeroUnit(generateHero());
+
+    unitA.baseValues.constitution = 5;
+    unitA.baseValues.level = 1;
+    expect(unitA.stats.health).toBeGreaterThan(100);
+    expect(unitA.stats.health).toBeLessThan(200);
+  });
+
   it("should default values to 0", () => {
     const unit = new HeroUnit(generateHero());
 
