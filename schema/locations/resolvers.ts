@@ -47,7 +47,7 @@ import {
   DescribedBuildings,
 } from "./settlement-buildings";
 
-const attackingIsDisabled = true;
+export const attackingIsDisabled = true;
 
 function isCloseToSpecialLocation(location: Location): boolean {
   return !!LocationData[location.map as MapNames].specialLocations.find(
