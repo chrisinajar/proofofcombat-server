@@ -49,6 +49,29 @@ import {
 
 export const attackingIsDisabled = true;
 
+const combatStats = {
+  enlisted: {
+    health: 2,
+    damage: 1,
+  },
+  soldier: {
+    health: 8,
+    damage: 4,
+  },
+  veteran: {
+    health: 32,
+    damage: 16,
+  },
+  ghost: {
+    health: 256,
+    damage: 64,
+  },
+  fortifications: {
+    health: 150,
+    damage: 6,
+  },
+};
+
 function isCloseToSpecialLocation(location: Location): boolean {
   return !!LocationData[location.map as MapNames].specialLocations.find(
     (specialLocation) => {
@@ -504,29 +527,6 @@ const resolvers: Resolvers = {
           },
         ),
       );
-
-      const combatStats = {
-        enlisted: {
-          health: 2,
-          damage: 1,
-        },
-        soldier: {
-          health: 4,
-          damage: 3,
-        },
-        veteran: {
-          health: 10,
-          damage: 6,
-        },
-        ghost: {
-          health: 128,
-          damage: 64,
-        },
-        fortifications: {
-          health: 100,
-          damage: 4,
-        },
-      };
 
       const attackerAttributes = {
         enlisted: {

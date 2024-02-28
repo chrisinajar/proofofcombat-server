@@ -570,8 +570,20 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       }
     }
 
+    const totalUpkeepsPaid = {
+      food: 0,
+      wood: 0,
+      water: 0,
+      stone: 0,
+    };
+
     for (let i = 0; i < upkeeps; ++i) {
       const upkeepCosts = this.calculateUpkeepCosts(location);
+      totalUpkeepsPaid.food += upkeepCosts.food;
+      totalUpkeepsPaid.wood += upkeepCosts.wood;
+      totalUpkeepsPaid.water += upkeepCosts.water;
+      totalUpkeepsPaid.stone += upkeepCosts.stone;
+
       const food =
         location.resources.find((r) => r.name === "food")?.value ?? 0;
       const population =
@@ -762,15 +774,29 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           }
         }
       } else {
+        const upkeepString = (
+          Object.keys(totalUpkeepsPaid) as (keyof typeof totalUpkeepsPaid)[]
+        )
+          .sort((a, b) => totalUpkeepsPaid[b] - totalUpkeepsPaid[a])
+          .map((name) => {
+            const amount = totalUpkeepsPaid[name];
+            if (amount > 0) {
+              return `${amount.toLocaleString()} ${name}`;
+            } else {
+              return false;
+            }
+          })
+          .filter((val): val is string => !!val)
+          .join(", ");
         if (location.type === PlayerLocationType.Camp) {
           io.sendNotification(location.owner, {
-            message: `Your camp at ${location.location.x}, ${location.location.y} paid upkeep.`,
+            message: `Your camp at ${location.location.x}, ${location.location.y} paid upkeep: ${upkeepString}`,
             type: "quest",
           });
         }
         if (location.type === PlayerLocationType.Settlement) {
           io.sendNotification(location.owner, {
-            message: `Your settlement at ${location.location.x}, ${location.location.y} paid upkeep.`,
+            message: `Your settlement at ${location.location.x}, ${location.location.y} paid upkeep: ${upkeepString}`,
             type: "quest",
           });
         }
