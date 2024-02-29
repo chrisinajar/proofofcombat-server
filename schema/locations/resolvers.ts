@@ -396,6 +396,7 @@ const resolvers: Resolvers = {
       const builtInFortifications = 1000;
       const targetLocation = args.target;
 
+      const hero = await context.db.hero.get(context.auth.id);
       const targetPlayerLocation = await context.db.playerLocation.get(
         context.db.playerLocation.locationId(targetLocation),
       );
@@ -410,12 +411,61 @@ const resolvers: Resolvers = {
       const targetHome = await context.db.playerLocation.getHome(
         targetPlayerLocation.owner,
       );
-      // ugh typescript lol
-      const rawHome = await context.db.playerLocation.getHome(context.auth.id);
-      if (!rawHome) {
+      const home = await context.db.playerLocation.getHome(context.auth.id);
+      if (!home) {
         throw new UserInputError("You don't have a working capital");
       }
-      const home: PlayerLocation = rawHome;
+
+      const range = context.db.playerLocation.range(home);
+
+      let hasNeighbor = false;
+      async function checkNeighbor(coordinates: Location) {
+        try {
+          const location = await context.db.playerLocation.get(
+            context.db.playerLocation.locationId(coordinates),
+          );
+          if (!location) {
+            return;
+          }
+          if (!home) {
+            return;
+          }
+          if (location.owner === hero.id) {
+            const length = await context.db.playerLocation.pathLengthToCapital(
+              location,
+              home,
+            );
+            if (range > length) {
+              hasNeighbor = true;
+            }
+          }
+        } catch (e) {}
+      }
+
+      await checkNeighbor({
+        map: targetLocation.map,
+        x: targetLocation.x - 1,
+        y: targetLocation.y,
+      });
+      await checkNeighbor({
+        map: targetLocation.map,
+        x: targetLocation.x + 1,
+        y: targetLocation.y,
+      });
+      await checkNeighbor({
+        map: targetLocation.map,
+        x: targetLocation.x,
+        y: targetLocation.y + 1,
+      });
+      await checkNeighbor({
+        map: targetLocation.map,
+        x: targetLocation.x,
+        y: targetLocation.y - 1,
+      });
+
+      if (!hasNeighbor) {
+        throw new UserInputError("Invalid target location");
+      }
 
       const unitTypes: (keyof MilitaryUnitInput)[] = [
         "enlisted",
@@ -610,13 +660,15 @@ const resolvers: Resolvers = {
         attackerAttributes.soldier.health +
         attackerAttributes.veteran.health +
         attackerAttributes.ghost.health;
-      const totalDefenderHealth =
+      const totalDefenderHealth = Math.max(
+        1,
         1.5 *
-        (defenderAttributes.enlisted.health +
-          defenderAttributes.soldier.health +
-          defenderAttributes.veteran.health +
-          defenderAttributes.fortifications.health +
-          defenderAttributes.ghost.health);
+          (defenderAttributes.enlisted.health +
+            defenderAttributes.soldier.health +
+            defenderAttributes.veteran.health +
+            defenderAttributes.fortifications.health +
+            defenderAttributes.ghost.health),
+      );
 
       const totalRemainingDefenderHealth = Math.max(
         0,
@@ -775,9 +827,11 @@ const resolvers: Resolvers = {
       }
 
       // buildings take 1/10th damage
-      let overDamage = Math.round(
-        (totalAttackerDamage - totalDefenderHealth) / 10,
+      const totalDamage = Math.max(
+        0,
+        Math.round((totalAttackerDamage - totalDefenderHealth) / 10),
       );
+      let overDamage = totalDamage;
       let didDestroy = false;
       let didDealDamage = false;
       // deal wit over-damage
@@ -837,7 +891,13 @@ const resolvers: Resolvers = {
         // overDamage;
       }
 
-      return { target: targetPlayerLocation };
+      return {
+        target: targetPlayerLocation,
+        damage: overDamage,
+        targetCasualties: defenderCasualties,
+        attackerCasualties,
+        totalDamage,
+      };
     },
     async recruit(parent, args, context) {
       if (!context?.auth?.id) {
@@ -1935,6 +1995,14 @@ const resolvers: Resolvers = {
     },
   },
   PlayerLocationResponse: {
+    async account(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+      return context.db.account.get(context.auth.id);
+    },
+  },
+  AttackResponse: {
     async account(parent, args, context) {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");

@@ -13,7 +13,7 @@ const monsterLevelRequired = 17;
 export function checkHeroDrop(
   context: BaseContext,
   hero: Hero,
-  monster: MonsterInstance
+  monster: MonsterInstance,
 ): Hero {
   if (monster.monster.level < monsterLevelRequired) {
     return hero;
@@ -22,6 +22,15 @@ export function checkHeroDrop(
   if (Math.random() > 1 / 20000) {
     return hero;
   }
+
+  const dustAmount = Math.round(Math.random() * 300 + 200);
+
+  context.io.sendNotification(hero.id, {
+    message: `You find something rare and precious. It seems to do nothing for now, but you find ${dustAmount} enchanting dust along with it.`,
+    type: "quest",
+  });
+
+  hero.enchantingDust += dustAmount;
 
   console.log(hero.name, "IS GETTING CLASS UPGRADE ITEM", hero.class);
   switch (hero.class) {

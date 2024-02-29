@@ -577,6 +577,8 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       stone: 0,
     };
 
+    const totalHoney = capital ? await this.getResources(capital, "honey") : 0;
+
     for (let i = 0; i < upkeeps; ++i) {
       const upkeepCosts = this.calculateUpkeepCosts(location);
       totalUpkeepsPaid.food += upkeepCosts.food;
@@ -740,7 +742,20 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             resource.value,
           ),
         );
-      });
+      }); // location.resources.forEach((resource) => {
+
+      if (
+        !isDecaying &&
+        canAffordUpkeep &&
+        location.health < location.maxHealth
+      ) {
+        location.health = Math.min(
+          location.maxHealth,
+          location.health +
+            ((0.8 * (totalHoney / (totalHoney + 2000)) + 0.1) / 2) *
+              location.maxHealth,
+        );
+      }
     }
 
     if (upkeeps > 0) {
@@ -993,7 +1008,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
     // lets just do this every time...
     data.maxHealth = this.buildingHealth(data.type);
-    data.health = Math.min(data.health ?? 1, data.maxHealth);
+    data.health = Math.round(Math.min(data.health ?? 1, data.maxHealth));
 
     // construct real object to manipulate further will easier type checking...
     const playerLocation = data as PlayerLocation;

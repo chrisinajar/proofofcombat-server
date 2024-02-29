@@ -237,8 +237,21 @@ export default gql`
   }
 
   type AttackResponse {
-    target: PlayerLocation!
     account: BaseAccount
+    target: PlayerLocation!
+    totalDamage: Int!
+    damage: Int!
+
+    targetCasualties: AttackCasualties!
+    attackerCasualties: AttackCasualties!
+  }
+
+  type AttackCasualties {
+    enlisted: Int
+    soldier: Int
+    veteran: Int
+    ghost: Int
+    fortifications: Int
   }
 
   type PlayerLocationResponse {
