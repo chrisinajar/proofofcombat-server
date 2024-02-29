@@ -52,24 +52,6 @@ export class HeroClassModifier extends Modifier<undefined> {
       case HeroClasses.Adventurer:
         break;
       case HeroClasses.JackOfAllTrades:
-        if (prop === "strength") {
-          return 1.5;
-        }
-        if (prop === "dexterity") {
-          return 1.5;
-        }
-        if (prop === "constitution") {
-          return 1.5;
-        }
-        if (prop === "intelligence") {
-          return 1.5;
-        }
-        if (prop === "wisdom") {
-          return 1.5;
-        }
-        if (prop === "willpower") {
-          return 1.5;
-        }
         break;
 
       case HeroClasses.Daredevil:

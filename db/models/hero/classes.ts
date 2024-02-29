@@ -150,6 +150,9 @@ export function getBaseClass(hero: Hero): HeroClasses {
   });
 
   if (highestStatRatio < 1.2) {
+    if (hero.level < 100) {
+      return HeroClasses.Adventurer;
+    }
     return HeroClasses.JackOfAllTrades;
   }
   if (highestStat === "luck") {
