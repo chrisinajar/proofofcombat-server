@@ -24,6 +24,7 @@ import {
   MilitaryUnitInput,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
+import { timeAgo } from "short-time-ago";
 
 import { ResourceDataEntry } from "../../db/models/player-location";
 import { LocationData, MapNames } from "../../constants";
@@ -47,7 +48,8 @@ import {
   DescribedBuildings,
 } from "./settlement-buildings";
 
-export const attackingIsDisabled = true;
+export const attackingIsDisabled = false;
+export const attackingIsEnabledAt = 1709337600000;
 
 const combatStats = {
   enlisted: {
@@ -391,6 +393,12 @@ const resolvers: Resolvers = {
 
       if (attackingIsDisabled) {
         throw new UserInputError("Attacking is currently disabled.");
+      } else if (Date.now() < attackingIsEnabledAt) {
+        throw new UserInputError(
+          `Attacking will be enabled ${timeAgo(
+            new Date(attackingIsEnabledAt),
+          )}`,
+        );
       }
 
       const builtInFortifications = 1000;

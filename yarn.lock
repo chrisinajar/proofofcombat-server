@@ -6801,6 +6801,11 @@ shell-quote@^1.7.3:
   resolved "https://registry.yarnpkg.com/shell-quote/-/shell-quote-1.8.1.tgz#6dbf4db75515ad5bac63b4f1894c3a154c766680"
   integrity sha512-6j1W9l1iAs/4xYBI1SYOVZyFcCis9b4KCLQ8fgAGG07QvzaRLVVRQvAy85yNmmZSjYjg4MWh4gNvlPujU/5LpA==
 
+short-time-ago@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/short-time-ago/-/short-time-ago-2.0.0.tgz#3fde172e626999510c5ca6784aba568c964d50dc"
+  integrity sha512-klqvTBTPpU2xI/+qeTl3zMX6EVfcF7ddTfoaOg+aOpJY4IOhwwgxTQ2eu3sLDrSAQL0PwjFAoWqJUDUcJSEXXA==
+
 side-channel@^1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/side-channel/-/side-channel-1.0.5.tgz#9a84546599b48909fb6af1211708d23b1946221b"

@@ -37,6 +37,7 @@
     "lru-cache": "^7.7.1",
     "seedrandom": "^3.0.5",
     "sha.js": "^2.4.11",
+    "short-time-ago": "^2.0.0",
     "socket.io": "^4.4.1",
     "tsc": "^2.0.4",
     "typescript": "~4.9.4",
