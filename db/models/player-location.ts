@@ -561,6 +561,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     const totalMilitaryUnits = startingMilitaryUnits.reduce((a, b) => a + b);
 
     let isDecaying = false;
+    let queuedForRemoval = false;
     let foodProduction = 0;
     const capital = await this.getHome(location.owner);
     const capitalPopulation =
@@ -769,15 +770,30 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             ((0.8 * (totalHoney / (totalHoney + 2000)) + 0.1) / 2) *
               location.maxHealth,
         );
+      } else if (isDecaying) {
+        if (location.health > 1) {
+          location.health = Math.max(1, Math.round(location.health / 2));
+        } else {
+          // ded
+          queuedForRemoval = true;
+        }
       }
     }
 
     if (upkeeps > 0) {
       if (isDecaying) {
-        io.sendNotification(location.owner, {
-          message: `${location.location.x}, ${location.location.y} has no connection to your capital and is decaying`,
-          type: "quest",
-        });
+        if (!queuedForRemoval) {
+          io.sendNotification(location.owner, {
+            message: `${location.location.x}, ${location.location.y} has no connection to your capital and is decaying`,
+            type: "quest",
+          });
+        } else {
+          // queuedForRemoval
+          io.sendNotification(location.owner, {
+            message: `There is no connectin from your capital to ${location.location.x}, ${location.location.y}, the building there was lost to decay`,
+            type: "quest",
+          });
+        }
       } else if (!canAffordUpkeep) {
         if (location.type === PlayerLocationType.Camp) {
           io.sendNotification(location.owner, {
@@ -928,8 +944,12 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           }
         }
       }
-      location.lastUpkeep = `${now}`;
-      await this.put(location);
+      if (!queuedForRemoval) {
+        location.lastUpkeep = `${now}`;
+        await this.put(location);
+      } else {
+        await this.del(location);
+      }
     }
 
     this.upkeepReentrancy = false;
