@@ -56,12 +56,14 @@ const resolvers: Resolvers = {
         throw new ForbiddenError("Username already exists");
       }
       const password = hash(args.password);
-      const account = await context.db.account.put({
-        id,
-        password,
-        name,
-        banned: false,
-      });
+      const account = await context.db.account.put(
+        context.db.account.upgrade({
+          id,
+          password,
+          name,
+          banned: false,
+        }),
+      );
       account.hero = await context.db.hero.create(account);
 
       console.log("Created a new account for", name);
@@ -77,15 +79,16 @@ const resolvers: Resolvers = {
       try {
         const account = await context.db.account.get(id);
 
-        const hashedPassword = hash(args.password);
-        if (!account || account.password !== hashedPassword) {
-          throw new ForbiddenError("Incorrect username or password!");
-        }
         if (account.banned) {
           // password error just to mess with them
           await new Promise((resolve, reject) => {
             setTimeout(resolve, 10000);
           });
+          throw new ForbiddenError("Incorrect username or password!");
+        }
+
+        const hashedPassword = hash(args.password);
+        if (!account || account.password !== hashedPassword) {
           throw new ForbiddenError("Incorrect username or password!");
         }
         // authorize the rest of this request

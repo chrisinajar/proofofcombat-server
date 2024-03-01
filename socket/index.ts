@@ -150,13 +150,12 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
   function sendNotification(heroId: string, notification: Notification) {
     io.sockets.sockets.forEach((socket: ExtendedSocket, id: string) => {
       if (socket.heroId === heroId) {
-        console.log("Sending notification!");
         socket.emit("notification", notification);
       }
     });
   }
   function sendGlobalNotification(notification: Notification) {
-    console.log("Sending global notification!");
+    console.log("Sending global notification!", notification.message);
     io.sockets.sockets.forEach((socket: ExtendedSocket, id: string) => {
       socket.emit("notification", notification);
     });
@@ -166,7 +165,7 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
     location: { x: number; y: number; map: string },
     notification: Notification,
   ) {
-    console.log("Sending LOCAL notification!", location);
+    console.log(location, notification.message);
     io.sockets.sockets.forEach(async (socket: ExtendedSocket, id: string) => {
       if (!socket.heroId) {
         return;

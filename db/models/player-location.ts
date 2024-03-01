@@ -25,6 +25,7 @@ type PartialPlayerLocation = Optional<
   | "upkeep"
   | "health"
   | "maxHealth"
+  | "remainingAttacks"
 > & { version?: number };
 
 export type ResourceDataEntry = {
@@ -43,6 +44,19 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
   constructor() {
     super("playerLocation");
+  }
+
+  getAttacksPerHour(capital: PlayerLocation): number {
+    if (capital.type !== PlayerLocationType.Settlement) {
+      return 0;
+    }
+    const hasGovernorsTitle =
+      capital.upgrades.indexOf(PlayerLocationUpgrades.HasGovernorsTitle) >= 0;
+    if (hasGovernorsTitle) {
+      return 8;
+    }
+
+    return 5;
   }
 
   range(capital: PlayerLocation): number {
@@ -814,6 +828,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             message: `Your settlement at ${location.location.x}, ${location.location.y} paid upkeep: ${upkeepString}`,
             type: "quest",
           });
+          location.remainingAttacks = this.getAttacksPerHour(location);
         }
         if (location.type === PlayerLocationType.Treasury) {
           const endingBonds =
@@ -977,6 +992,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
     data.upgrades = data.upgrades ?? [];
     data.resources = data.resources ?? [];
+
     data.lastUpkeep = data.lastUpkeep ?? this.upkeepNow();
     data.connections = [];
     data.availableUpgrades = [];
@@ -1012,6 +1028,9 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
 
     // construct real object to manipulate further will easier type checking...
     const playerLocation = data as PlayerLocation;
+
+    playerLocation.remainingAttacks =
+      playerLocation.remainingAttacks ?? this.getAttacksPerHour(playerLocation);
 
     const defaultResources: { [x in string]: number } = {};
     if (data.type === PlayerLocationType.Farm) {

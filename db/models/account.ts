@@ -4,7 +4,10 @@ import DatabaseInterface from "../interface";
 import { hash } from "../../hash";
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
-type PartialAccount = Optional<BaseAccount, "banned" | "nextAllowedAction">;
+type PartialAccount = Optional<
+  BaseAccount,
+  "banned" | "nextAllowedAction" | "authVersion"
+>;
 
 export default class AccountModel extends DatabaseInterface<BaseAccount> {
   constructor() {
@@ -26,6 +29,9 @@ export default class AccountModel extends DatabaseInterface<BaseAccount> {
     if (Number(data.nextAllowedAction) - Date.now() > maxDelay) {
       data.nextAllowedAction = `${Date.now() + maxDelay}`;
     }
+
+    // which version of auth this account uses
+    data.authVersion = data.authVersion ?? 1;
 
     // make sure i always have admin
     if (data.name === "chrisinajar") {

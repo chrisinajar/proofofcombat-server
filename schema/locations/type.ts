@@ -111,6 +111,9 @@ export default gql`
     availableUpgrades: [PlayerLocationUpgradeDescription!]!
     health: Int!
     maxHealth: Int!
+
+    # settlement only value
+    remainingAttacks: Int!
   }
 
   type UpkeepCosts {

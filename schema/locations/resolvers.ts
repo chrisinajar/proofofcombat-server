@@ -411,9 +411,16 @@ const resolvers: Resolvers = {
       const targetHome = await context.db.playerLocation.getHome(
         targetPlayerLocation.owner,
       );
+      const targetHero = await context.db.hero.get(targetPlayerLocation.owner);
       const home = await context.db.playerLocation.getHome(context.auth.id);
       if (!home) {
         throw new UserInputError("You don't have a working capital");
+      }
+
+      if (home.remainingAttacks <= 0) {
+        throw new UserInputError(
+          "You must wait until the next hour to attack.",
+        );
       }
 
       const range = context.db.playerLocation.range(home);
@@ -578,6 +585,14 @@ const resolvers: Resolvers = {
         ),
       );
 
+      // all inputs are verified and ready to go
+      // start actual attack code
+
+      // decrease the attack count since we're starting an attack
+      home.remainingAttacks -= 1;
+      await context.db.playerLocation.put(home);
+
+      // start calculating units and go from here....
       const attackerAttributes = {
         enlisted: {
           health: (args.units.enlisted ?? 0) * combatStats.enlisted.health,
@@ -747,23 +762,6 @@ const resolvers: Resolvers = {
         ),
       };
 
-      console.log(attackerAttributes, args.units);
-      console.log("vs");
-      console.log(defenderAttributes, targetResources);
-
-      console.log(
-        "casualties",
-        percentRemainingDefenderHealth,
-        defenderAttributes.fortifications.count,
-        applyDamage(
-          defenderAttributes.fortifications.count,
-          percentRemainingDefenderHealth,
-        ),
-      );
-
-      console.log(defenderCasualties);
-      console.log(attackerCasualties);
-
       if (targetResources.enlisted && defenderCasualties.enlisted > 0) {
         await context.db.playerLocation.spendResourcesFromData(
           targetResources.enlisted?.resource ?? [],
@@ -843,29 +841,23 @@ const resolvers: Resolvers = {
             )
           : 0;
 
-        console.log(
-          { overDamage, garrisonHealth },
-          targetResources.fortifications,
-          targetPlayerLocation.health,
-        );
-
         if (garrisonHealth > 0 && targetResources.fortifications) {
           const damage =
             overDamage > garrisonHealth ? garrisonHealth : overDamage;
           const garrisonCount = targetResources.fortifications.resource.length;
-          console.log("Dealing", damage, "to", garrisonCount, "garrisons");
+          // console.log("Dealing", damage, "to", garrisonCount, "garrisons");
           await Promise.all(
             targetResources.fortifications.resource.map(async (entry) => {
               const localDamage = Math.min(
                 entry.location.health - 1,
                 Math.floor(damage * (entry.location.health / garrisonHealth)),
               );
-              console.log(
-                "Dealing",
-                localDamage,
-                "to garrison with",
-                entry.location.health,
-              );
+              // console.log(
+              //   "Dealing",
+              //   localDamage,
+              //   "to garrison with",
+              //   entry.location.health,
+              // );
               entry.location.health -= localDamage;
               overDamage -= localDamage;
               await context.db.playerLocation.put(entry.location);
@@ -874,7 +866,7 @@ const resolvers: Resolvers = {
         }
 
         if (overDamage > 0) {
-          console.log("After garrisons we still have", overDamage);
+          // console.log("After garrisons we still have", overDamage);
           if (overDamage >= targetPlayerLocation.health) {
             // kill!.... later
 
@@ -889,6 +881,23 @@ const resolvers: Resolvers = {
           }
         }
         // overDamage;
+      }
+
+      if (didDestroy) {
+        context.io.sendGlobalNotification({
+          message: `${hero.name} has attacked ${targetHero.name}'s settlement at ${targetLocation.x}, ${targetLocation.y} and successfully claimed it as their own.`,
+          type: "quest",
+        });
+      } else if (didDealDamage) {
+        context.io.sendGlobalNotification({
+          message: `${hero.name} has attacked ${targetHero.name}'s settlement at ${targetLocation.x}, ${targetLocation.y}, damaging the location.`,
+          type: "quest",
+        });
+      } else {
+        context.io.sendGlobalNotification({
+          message: `${hero.name} has attacked ${targetHero.name}'s settlement at ${targetLocation.x}, ${targetLocation.y}.`,
+          type: "quest",
+        });
       }
 
       return {

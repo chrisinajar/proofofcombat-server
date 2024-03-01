@@ -16,6 +16,7 @@ export default gql`
     id: ID!
     name: String!
     password: String!
+    authVersion: Int!
 
     banned: Boolean!
     nextAllowedAction: String
