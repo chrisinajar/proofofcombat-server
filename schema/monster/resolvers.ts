@@ -226,12 +226,11 @@ const resolvers: Resolvers = {
         const dropOdds =
           ((0.25 + luck / (luck + monsterAntiLuck + 5)) * bonusDropRate) / 50;
         if (process.env.MAX_LEVEL_TESTING || Math.random() < dropOdds) {
-          console.log(hero.name, "DROP!! Odds:", {
-            luck,
-            monsterAntiLuck,
-            bonusDropRate,
-            dropOdds: Math.round(dropOdds * 1000) / 1000,
-          });
+          console.log(
+            hero.name,
+            "DROP!! Odds:",
+            Math.round(dropOdds * 1000) / 1000,
+          );
 
           if (await checkSkipDrop(context, hero, monster)) {
             if (monster.monster.level > hero.settings.autoDust) {
