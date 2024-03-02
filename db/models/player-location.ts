@@ -102,6 +102,9 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       if (home.id !== heroId) {
         home = await this.get(home.id);
       }
+      if (home.owner !== heroId) {
+        return null;
+      }
       return home;
     } catch (e) {
       return null;
