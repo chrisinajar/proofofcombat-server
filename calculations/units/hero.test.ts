@@ -55,7 +55,7 @@ describe("calculations hero base class", () => {
 
     unitA.baseValues.constitution = 5;
     unitA.baseValues.level = 1;
-    expect(unitA.stats.health).toBe(100);
+    expect(unitA.stats.health).toBe(200);
   });
 
   it("should default values to 0", () => {
