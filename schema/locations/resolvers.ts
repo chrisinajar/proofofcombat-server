@@ -1171,9 +1171,35 @@ const resolvers: Resolvers = {
       const playerLocation = await context.db.playerLocation.get(
         context.db.playerLocation.locationId(targetLocation),
       );
+      const home = await context.db.playerLocation.getHome(context.auth.id);
 
       if (!playerLocation || playerLocation.owner !== hero.id) {
         throw new UserInputError("You do not own a building on that location");
+      }
+
+      if (home && playerLocation.type === PlayerLocationType.Settlement) {
+        if (playerLocation.id === home.id) {
+          console.log(hero.name, "is deleting their own capital");
+        } else {
+          playerLocation.resources.forEach((resource) => {
+            const homeResource = home.resources.find(
+              (r) => r.name === resource.name,
+            );
+            if (!homeResource) {
+              return;
+            }
+            homeResource.value += Math.round(resource.value * 0.8);
+            if (homeResource.maximum) {
+              homeResource.value = Math.min(
+                homeResource.value,
+                homeResource.maximum,
+              );
+            }
+          });
+
+          await context.db.playerLocation.put(home);
+          // destroying a settlement
+        }
       }
 
       await context.db.playerLocation.del(playerLocation);

@@ -5,19 +5,12 @@ export function createStatStealModifiers(
   attacker: Unit,
   victim: Unit,
 ): {
-  attackerModifier: StatStealAttackerModifier;
   victimModifier: StatStealVictimModifier;
 } {
-  const existingAttackerMod = attacker.modifiers.find(
-    (mod) => mod instanceof StatStealAttackerModifier,
-  );
   const existingVictimMod = victim.modifiers.find(
     (mod) => mod instanceof StatStealVictimModifier,
   );
 
-  if (existingAttackerMod) {
-    existingAttackerMod.remove();
-  }
   if (existingVictimMod) {
     existingVictimMod.remove();
   }
@@ -27,14 +20,8 @@ export function createStatStealModifiers(
     { isDebuff: true },
     attacker,
   );
-  const attackerModifier = attacker.applyModifier(
-    StatStealAttackerModifier,
-    { victimModifier },
-    attacker,
-  );
 
   return {
-    attackerModifier,
     victimModifier,
   };
 }
@@ -71,39 +58,10 @@ export class StatStealVictimModifier extends Modifier<StatStealVictimModifierOpt
     }
 
     const multipliedValue = attacker.getMultiplierValue(prop);
-    return 0 - multipliedValue * (stolenAmount - 1);
-    return;
-  }
-}
-
-export type StatStealAttackerModifierOptions = {
-  victimModifier: StatStealVictimModifier;
-};
-
-export class StatStealAttackerModifier extends Modifier<StatStealAttackerModifierOptions> {
-  options: StatStealAttackerModifierOptions;
-
-  constructor(options: ModifierOptions<StatStealAttackerModifierOptions>) {
-    super(options);
-
-    this.options = options.options;
-  }
-
-  getBonus(prop: string): number | void {
-    return;
-  }
-  getMultiplier(prop: string): number | void {
-    return;
-  }
-  getExtraBonus(prop: string): number | void {
-    if (prop.endsWith("Steal")) {
-      return;
-    }
-    const victimStolenAmount = this.options.victimModifier.getExtraBonus(prop);
-    if (victimStolenAmount && victimStolenAmount < 0) {
-      return 0 - victimStolenAmount;
-    }
-    return;
+    const preStealAmount = multipliedValue / stolenAmount;
+    // preStealAmount is what the value would be if it weren't boosted from steals
+    // backwards because we actually want the negative number
+    return preStealAmount - multipliedValue;
   }
 }
 
@@ -130,6 +88,10 @@ export class StatStealModifier extends Modifier<StatStealModifierOptions> {
     return;
   }
   getMultiplier(prop: string): number | void {
+    // give boost here..?
+    if (this.options[prop]) {
+      return 1 + this.options[prop];
+    }
     if (!prop.endsWith("Steal")) {
       return;
     }
