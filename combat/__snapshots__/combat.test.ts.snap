@@ -3,7 +3,7 @@
 exports[`builds archer great items can destroy 28's 1`] = `
 {
   "constitution": 5005,
-  "dexterity": 238965,
+  "dexterity": 238963,
   "intelligence": 5005,
   "luck": 12005,
   "strength": 5005,
