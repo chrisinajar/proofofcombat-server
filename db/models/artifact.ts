@@ -83,12 +83,15 @@ export default class ArtifactItemModel extends DatabaseInterface<ArtifactItem> {
     const affixTypesFound: { [x in ArtifactAttributeType]?: true } = {};
     const affixes: ArtifactAffix[] = [];
 
-    for (let i = 0; i < 100 && affixes.length < affixCount; ++i) {
+    const magicFloorBase = Math.min(0, Math.round((baseLevel - 5) / 2));
+
+    for (let i = 0; i < 500 && affixes.length < affixCount; ++i) {
       const affixChoice =
         ArtifactAffixes[Math.floor(Math.random() * ArtifactAffixes.length)];
       if (
         affixTypesFound[affixChoice.attributeType] ||
-        affixChoice.levelRequirement > baseLevel
+        affixChoice.levelRequirement > baseLevel ||
+        affixChoice.levelRequirement < magicFloorBase * Math.random()
       ) {
         continue;
       }
@@ -174,6 +177,7 @@ type ArtifactAffix = {
 // namename the title1 title2
 // namename the title1
 // namename
+
 const ArtifactAffixes: ArtifactAffix[] = [
   {
     namePrefix: "Ogre",
@@ -203,6 +207,16 @@ const ArtifactAffixes: ArtifactAffix[] = [
     levelRequirement: 40,
     attributeType: ArtifactAttributeType.BonusStrength,
     magnitude: [1.4, 1.8],
+    step: 0.01,
+  },
+  {
+    namePrefix: "Titan",
+    namePostfix: "grasp",
+    titlePrefix: "Colossal",
+    titlePostfix: "Might",
+    levelRequirement: 45,
+    attributeType: ArtifactAttributeType.BonusStrength,
+    magnitude: [1.8, 2.2],
     step: 0.01,
   },
 
@@ -236,6 +250,16 @@ const ArtifactAffixes: ArtifactAffix[] = [
     magnitude: [1.4, 1.8],
     step: 0.01,
   },
+  {
+    namePrefix: "Feather",
+    namePostfix: "step",
+    titlePrefix: "Whisper",
+    titlePostfix: "Wind",
+    levelRequirement: 45,
+    attributeType: ArtifactAttributeType.BonusDexterity,
+    magnitude: [1.8, 2.2],
+    step: 0.01,
+  },
 
   {
     namePrefix: "Whale",
@@ -265,6 +289,16 @@ const ArtifactAffixes: ArtifactAffix[] = [
     levelRequirement: 40,
     attributeType: ArtifactAttributeType.BonusConstitution,
     magnitude: [1.4, 1.8],
+    step: 0.01,
+  },
+  {
+    namePrefix: "Mountain",
+    namePostfix: "heart",
+    titlePrefix: "Unyielding",
+    titlePostfix: "Fortress",
+    levelRequirement: 45,
+    attributeType: ArtifactAttributeType.BonusConstitution,
+    magnitude: [1.8, 2.2],
     step: 0.01,
   },
 
@@ -298,6 +332,16 @@ const ArtifactAffixes: ArtifactAffix[] = [
     magnitude: [1.4, 1.8],
     step: 0.01,
   },
+  {
+    namePrefix: "Sage",
+    namePostfix: "insight",
+    titlePrefix: "Ancient",
+    titlePostfix: "Knowledge",
+    levelRequirement: 45,
+    attributeType: ArtifactAttributeType.BonusIntelligence,
+    magnitude: [1.8, 2.2],
+    step: 0.01,
+  },
 
   {
     namePrefix: "Monk",
@@ -327,6 +371,16 @@ const ArtifactAffixes: ArtifactAffix[] = [
     levelRequirement: 40,
     attributeType: ArtifactAttributeType.BonusWisdom,
     magnitude: [1.4, 1.8],
+    step: 0.01,
+  },
+  {
+    namePrefix: "Oracle",
+    namePostfix: "vision",
+    titlePrefix: "Eternal",
+    titlePostfix: "Seer",
+    levelRequirement: 45,
+    attributeType: ArtifactAttributeType.BonusWisdom,
+    magnitude: [1.8, 2.2],
     step: 0.01,
   },
 
@@ -360,6 +414,16 @@ const ArtifactAffixes: ArtifactAffix[] = [
     magnitude: [1.4, 1.8],
     step: 0.01,
   },
+  {
+    namePrefix: "Stalwart",
+    namePostfix: "resolve",
+    titlePrefix: "Iron",
+    titlePostfix: "Will",
+    levelRequirement: 45,
+    attributeType: ArtifactAttributeType.BonusWillpower,
+    magnitude: [1.8, 2.2],
+    step: 0.01,
+  },
 
   {
     namePrefix: "Chance",
@@ -389,6 +453,16 @@ const ArtifactAffixes: ArtifactAffix[] = [
     levelRequirement: 40,
     attributeType: ArtifactAttributeType.BonusLuck,
     magnitude: [1.4, 1.8],
+    step: 0.01,
+  },
+  {
+    namePrefix: "Fate",
+    namePostfix: "weaver",
+    titlePrefix: "Destined",
+    titlePostfix: "Favor",
+    levelRequirement: 45,
+    attributeType: ArtifactAttributeType.BonusLuck,
+    magnitude: [1.8, 2.2],
     step: 0.01,
   },
 
