@@ -1,4 +1,8 @@
-import { InventoryItemType, EnchantmentType } from "types/graphql";
+import {
+  InventoryItemType,
+  EnchantmentType,
+  ArtifactItem,
+} from "types/graphql";
 
 import { BaseItems } from "../../schema/items/base-items";
 
@@ -9,12 +13,12 @@ import {
   ModifierDefinition,
 } from "../modifiers/enchantments";
 import { Modifier } from "../modifiers/modifier";
-import { expandEnchantmentList } from "../../combat/enchantment-groups";
 
 export type InventoryItemOptions = ItemOptions & {
   type: InventoryItemType;
   baseItem: string;
   enchantment?: EnchantmentType | null;
+  imbue?: ArtifactItem | null;
 };
 
 export class InventoryItem extends Item {
@@ -68,6 +72,10 @@ export class InventoryItem extends Item {
           this.registerModifier(modifier);
         });
       });
+    }
+
+    if (options.imbue) {
+      this.unit.equipArtifact(options.imbue);
     }
   }
 }

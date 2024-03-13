@@ -159,12 +159,14 @@ export class Unit {
     this.opponent = victim;
     victim.opponent = this;
 
+    // we call of these in both directions to make sure all buffs/debuffs are applied
     createStatStealModifiers(this, victim);
     createStatStealModifiers(victim, this);
 
     applyAttackModifiers(this, victim);
     applyAttackModifiers(victim, this);
 
+    // this one has built in symmetry so we only need to call it once
     applyCounterSpells(this, victim);
   }
 
@@ -184,7 +186,7 @@ export class Unit {
     item:
       | Pick<
           InventoryItemData,
-          "level" | "baseItem" | "enchantment" | "type" | "name"
+          "level" | "baseItem" | "enchantment" | "type" | "name" | "imbue"
         >
       | null
       | undefined,
@@ -199,6 +201,7 @@ export class Unit {
       enchantment: item.enchantment,
       type: item.type,
       name: item.name,
+      imbue: item.imbue,
       unit: this,
     });
 

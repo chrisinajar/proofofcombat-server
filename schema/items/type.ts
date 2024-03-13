@@ -42,6 +42,7 @@ export default gql`
     type: InventoryItemType!
     level: Int!
     enchantment: EnchantmentType
+    imbue: ArtifactItem
   }
 
   # artifacts are uniquely different than other items
