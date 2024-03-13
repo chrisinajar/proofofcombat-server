@@ -26,7 +26,7 @@ type NpcTradeResult = { success: boolean; message: string };
 export async function executeNpcTrade(
   context: BaseContext,
   hero: Hero,
-  tradeId: string
+  tradeId: string,
 ): Promise<NpcTradeResult> {
   // aberration spawns
   if (tradeId.startsWith("domari")) {
@@ -52,7 +52,7 @@ export async function executeNpcTrade(
 export function getShopData(
   context: BaseContext,
   hero: Hero,
-  location: SpecialLocation
+  location: SpecialLocation,
 ): NpcShop | null {
   if (location.name === "Domari's Hut") {
     return getDomariTrades(context, hero);
@@ -71,7 +71,7 @@ export function getShopData(
 
 function getTranscendenceTrades(
   context: BaseContext,
-  hero: Hero
+  hero: Hero,
 ): NpcShop | null {
   // Amixea is a old small quiet witch who radiates with a magical aura.
   const shop: NpcShop = {
@@ -115,7 +115,7 @@ function getTranscendenceTrades(
 async function executeTranscendenceTrade(
   context: BaseContext,
   hero: Hero,
-  tradeId: string
+  tradeId: string,
 ): Promise<NpcTradeResult> {
   if (tradeId === "transcendence-essence-upgrade") {
     if (
@@ -132,7 +132,7 @@ async function executeTranscendenceTrade(
       (item) =>
         item.level === 33 &&
         item.type !== InventoryItemType.Quest &&
-        !item.enchantment
+        !item.enchantment,
     );
     if (!pureAscendedItem) {
       return {
@@ -151,11 +151,11 @@ async function executeTranscendenceTrade(
     hero = takeQuestItem(hero, "essence-of-thorns");
     hero = takeQuestItem(hero, "essence-of-darkness");
     hero.inventory = hero.inventory.filter(
-      (item) => item.id !== pureAscendedItem.id
+      (item) => item.id !== pureAscendedItem.id,
     );
 
     const baseItem = Object.values(BaseItems).find(
-      (base) => base.level === 34 && base.type === pureAscendedItem.type
+      (base) => base.level === 34 && base.type === pureAscendedItem.type,
     );
     if (!baseItem) {
       return {
@@ -168,7 +168,7 @@ async function executeTranscendenceTrade(
       "is upgrading",
       pureAscendedItem.name,
       "to",
-      baseItem.name
+      baseItem.name,
     );
 
     const newItem = createItemInstance(baseItem, hero);
@@ -191,7 +191,7 @@ async function executeTranscendenceTrade(
 async function executeAmixeaTrade(
   context: BaseContext,
   hero: Hero,
-  tradeId: string
+  tradeId: string,
 ): Promise<NpcTradeResult> {
   if (tradeId === "amixea-circle-upgrade") {
     if (
@@ -404,7 +404,7 @@ function getAmixeaTrades(context: BaseContext, hero: Hero): NpcShop | null {
 
 function hasEnchantmentsForTrimarim(
   hero: Hero,
-  price: NpcShopItems
+  price: NpcShopItems,
 ): false | EnchantmentType[] {
   const enchantmentsFound: { [x in EnchantmentType]?: number } = {};
 
@@ -742,7 +742,7 @@ const TrimarimTrades: {
 async function executeTrimarimTrade(
   context: BaseContext,
   hero: Hero,
-  tradeId: string
+  tradeId: string,
 ): Promise<NpcTradeResult> {
   const trade = TrimarimTrades[tradeId];
   if (!trade) {
@@ -798,11 +798,11 @@ function getUnupgradedItems(hero: Hero): InventoryItem[] {
       item.baseItem === "fishermans-wisdom" ||
       item.baseItem === "fishermans-willpower" ||
       item.baseItem === "fishermans-dexterity" ||
-      item.baseItem === "fishermans-constitution"
+      item.baseItem === "fishermans-constitution",
   );
 }
 
-function getCurrentCircle(hero: Hero): string | false {
+function getCurrentHexingCircle(hero: Hero): string | false {
   let circle: string | false = false;
 
   if (hasQuestItem(hero, "circle-of-hexing")) {
@@ -848,7 +848,7 @@ function getNaxxremisTrades(context: BaseContext, hero: Hero): NpcShop {
     });
   }
 
-  const currentCircle = getCurrentCircle(hero);
+  const currentCircle = getCurrentHexingCircle(hero);
 
   if (
     !hasQuestItem(hero, "circle-of-protection") &&
@@ -925,10 +925,10 @@ function getNaxxremisTrades(context: BaseContext, hero: Hero): NpcShop {
 async function executeNaxxremisTrade(
   context: BaseContext,
   hero: Hero,
-  tradeId: string
+  tradeId: string,
 ): Promise<NpcTradeResult> {
+  const currentCircle = getCurrentHexingCircle(hero);
   if (tradeId === "naxxremis-ashen-circle") {
-    const currentCircle = getCurrentCircle(hero);
     if (!currentCircle) {
       return {
         success: false,
@@ -941,6 +941,13 @@ async function executeNaxxremisTrade(
         message: "You lack the enchanting power",
       };
     }
+    if (!hasQuestItem(hero, "essence-of-ash")) {
+      return {
+        success: false,
+        message: "You lack the essence required to influse your circle",
+      };
+    }
+    hero = takeQuestItem(hero, "essence-of-ash");
     hero = takeQuestItem(hero, currentCircle);
     hero = giveQuestItemNotification(context, hero, "ashen-circle-of-hexing");
     hero.enchantingDust -= NaxxremisCircleInfuseCost;
@@ -951,7 +958,6 @@ async function executeNaxxremisTrade(
     };
   }
   if (tradeId === "naxxremis-thorny-circle") {
-    const currentCircle = getCurrentCircle(hero);
     if (!currentCircle) {
       return {
         success: false,
@@ -964,6 +970,13 @@ async function executeNaxxremisTrade(
         message: "You lack the enchanting power",
       };
     }
+    if (!hasQuestItem(hero, "essence-of-thorns")) {
+      return {
+        success: false,
+        message: "You lack the essence required to influse your circle",
+      };
+    }
+    hero = takeQuestItem(hero, "essence-of-thorns");
     hero = takeQuestItem(hero, currentCircle);
     hero = giveQuestItemNotification(context, hero, "thorny-circle-of-hexing");
     hero.enchantingDust -= NaxxremisCircleInfuseCost;
@@ -974,7 +987,6 @@ async function executeNaxxremisTrade(
     };
   }
   if (tradeId === "naxxremis-shadow-circle") {
-    const currentCircle = getCurrentCircle(hero);
     if (!currentCircle) {
       return {
         success: false,
@@ -987,6 +999,13 @@ async function executeNaxxremisTrade(
         message: "You lack the enchanting power",
       };
     }
+    if (!hasQuestItem(hero, "essence-of-darkness")) {
+      return {
+        success: false,
+        message: "You lack the essence required to influse your circle",
+      };
+    }
+    hero = takeQuestItem(hero, "essence-of-darkness");
     hero = takeQuestItem(hero, currentCircle);
     hero = giveQuestItemNotification(context, hero, "shadow-circle-of-hexing");
     hero.enchantingDust -= NaxxremisCircleInfuseCost;
@@ -1006,7 +1025,8 @@ async function executeNaxxremisTrade(
     }
     if (
       hasQuestItem(hero, "circle-of-protection") ||
-      hasQuestItem(hero, "circle-of-hexing")
+      hasQuestItem(hero, "circle-of-hexing") ||
+      currentCircle
     ) {
       return {
         success: false,
@@ -1112,7 +1132,7 @@ function getDomariTrades(context: BaseContext, hero: Hero): NpcShop {
 async function executeDomariTrade(
   context: BaseContext,
   hero: Hero,
-  tradeId: string
+  tradeId: string,
 ): Promise<NpcTradeResult> {
   console.log("Attempting summon aberration", hero.name, tradeId);
   let tradeIndex = -1;
@@ -1149,7 +1169,7 @@ async function executeDomariTrade(
     console.log({ aberration });
     let location: [number, number] = getRandomTerrainLocation(
       hero.location.map as MapNames,
-      "land"
+      "land",
     );
     const monster = {
       ...aberration,
@@ -1173,7 +1193,7 @@ async function executeDomariTrade(
 
 function getRandomTerrainLocation(
   map: MapNames,
-  targetTerrain: string
+  targetTerrain: string,
 ): [number, number] {
   for (let i = 0, l = 1000; i < l; ++i) {
     const location = getRandomLocation(map);
