@@ -926,6 +926,23 @@ export function getQuestRewards() {
       canBuy: false,
       passiveEnchantments: [EnchantmentType.CanCraft],
     },
+
+    "essence-of-gold": {
+      id: "essence-of-gold",
+      name: "Essence of Gold",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [],
+    },
+    "greater-essence-of-gold": {
+      id: "greater-essence-of-gold",
+      name: "Greater Essence of Gold",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [],
+    },
   };
 }
 

@@ -46,6 +46,10 @@ export default gql`
       location: LocationInput!
       amount: Int!
     ): PlayerLocationResponse! @auth @delay(delay: 800)
+    craftGoldEssences(
+      location: LocationInput!
+      greater: Boolean!
+    ): PlayerLocationResponse! @auth @delay(delay: 800)
 
     # military
     recruit(location: LocationInput!, amount: Int!): PlayerLocationResponse!

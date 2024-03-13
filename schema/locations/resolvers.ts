@@ -973,6 +973,34 @@ const resolvers: Resolvers = {
 
       return { location: playerLocation };
     },
+    async craftGoldEssences(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const targetLocation = args.location;
+      const playerLocation = await context.db.playerLocation.get(
+        context.db.playerLocation.locationId(targetLocation),
+      );
+
+      if (playerLocation.owner !== context.auth.id) {
+        throw new ForbiddenError("You must own this location to craft there");
+      }
+      if (playerLocation.type !== PlayerLocationType.Treasury) {
+        throw new UserInputError(
+          "You may only craft gold essences in a treasury",
+        );
+      }
+
+      const bondsResource = playerLocation.resources.find(
+        (res) => res.name === "bonds",
+      );
+
+      console.log(bondsResource);
+
+      return { location: playerLocation };
+    },
     async craftHoneyEssences(parent, args, context) {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -987,6 +1015,7 @@ const resolvers: Resolvers = {
       if (playerLocation.owner !== context.auth.id) {
         throw new ForbiddenError("You must own this location to craft there");
       }
+
       if (playerLocation.type !== PlayerLocationType.Apiary) {
         throw new UserInputError(
           "You may only craft honey essences in an apiary",
