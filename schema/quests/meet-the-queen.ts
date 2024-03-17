@@ -27,11 +27,11 @@ export async function checkSkipDrop(
   hero: Hero,
   monster: MonsterInstance,
 ): Promise<boolean> {
-  console.log("checking skip drop!");
-
   if (!hasQuestItem(hero, "clean-rag")) {
     return true;
   }
+
+  console.log("checking skip drop!");
 
   takeOneQuestItem(hero, "clean-rag");
 
