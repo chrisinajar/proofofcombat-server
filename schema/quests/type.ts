@@ -20,6 +20,7 @@ export default gql`
     MinorClassUpgrades # 3 tier system with 5 tracks, ezpz basically free
     Settlements # governor's title and it's upgrades
     MeetTheQueen # queen stuff
+    EssencePurification # tracking daily essense purges
   }
 
   type QuestLog {
@@ -34,6 +35,7 @@ export default gql`
     minorClassUpgrades: QuestProgress
     settlements: QuestProgress
     meetTheQueen: QuestProgress
+    dailyPurification: QuestProgress
   }
 
   type QuestEvent {

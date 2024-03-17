@@ -192,11 +192,31 @@ export function getOrCreateQuestItem(
   if (existingItem) {
     return existingItem;
   }
+
+  return giveBaseItem(hero, baseItemName);
+}
+
+export function giveBaseItemNotification(
+  context: BaseContext,
+  hero: Hero,
+  baseItemName: string,
+): InventoryItem {
+  const item = giveBaseItem(hero, baseItemName);
+  context.io.sendNotification(hero.id, {
+    message: "You have received {{item}}",
+    type: "quest",
+    item,
+  });
+
+  return item;
+}
+
+export function giveBaseItem(hero: Hero, baseItemName: string): InventoryItem {
   const baseItem = BaseItems[baseItemName];
   const item = createItemInstance(baseItem, hero);
   hero.inventory.push(item);
 
-  console.log(hero.name, "got quest item", item.name);
+  console.log(hero.name, "got a new", item.name);
 
   return item;
 }

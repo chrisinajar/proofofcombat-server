@@ -30,7 +30,11 @@ import { ResourceDataEntry } from "../../db/models/player-location";
 import { LocationData, MapNames } from "../../constants";
 import { specialLocations, distance2d } from "../../helpers";
 import { Pathfinder } from "../../pathfinding";
-import { hasQuestItem, checkCapital } from "../quests/helpers";
+import {
+  hasQuestItem,
+  checkCapital,
+  giveBaseItemNotification,
+} from "../quests/helpers";
 import { countEnchantments } from "../items/helpers";
 import { checkTeleport } from "../quests/staff-of-teleportation";
 
@@ -983,6 +987,11 @@ const resolvers: Resolvers = {
       const playerLocation = await context.db.playerLocation.get(
         context.db.playerLocation.locationId(targetLocation),
       );
+      const home = await context.db.playerLocation.getHome(hero.id);
+
+      if (!home) {
+        throw new UserInputError("You do not have a functioning capital");
+      }
 
       if (playerLocation.owner !== context.auth.id) {
         throw new ForbiddenError("You must own this location to craft there");
@@ -997,7 +1006,35 @@ const resolvers: Resolvers = {
         (res) => res.name === "bonds",
       );
 
-      console.log(bondsResource);
+      const bondsCost = args.greater ? 250000000 : 1000000;
+      if (!bondsResource || bondsResource.value < bondsCost) {
+        throw new UserInputError(
+          "You do not have enough bonds for that essence",
+        );
+      }
+
+      const result = await context.db.playerLocation.spendResources(
+        home,
+        "honey",
+        args.greater ? 250 : 1,
+      );
+
+      if (!result) {
+        throw new UserInputError(
+          "You lack the honey to properly bind the essence",
+        );
+      }
+
+      bondsResource.value -= bondsCost;
+
+      giveBaseItemNotification(
+        context,
+        hero,
+        args.greater ? "greater-essence-of-gold" : "essence-of-gold",
+      );
+
+      await context.db.playerLocation.put(playerLocation);
+      await context.db.hero.put(hero);
 
       return { location: playerLocation };
     },

@@ -109,7 +109,12 @@ const resolvers: Resolvers = {
       const stance: HeroStance = args.stance || hero.activeStance;
       // hero.activeStance = stance;
 
-      let goldReward = monster.monster.combat.maxHealth * 0.8;
+      const monsterMaxHealth = monster.monster.combat.maxHealth;
+      // big nerf, curves values close to or above 1b to always be below maxBaseGoldReward
+      const maxBaseGoldReward = 1100000000;
+      let goldReward =
+        (1 - monsterMaxHealth / (monsterMaxHealth + maxBaseGoldReward)) *
+        monsterMaxHealth;
 
       const fightResult = await fightMonster(hero, monster, attackType);
       let experienceRewards =

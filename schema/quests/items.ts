@@ -943,6 +943,15 @@ export function getQuestRewards() {
       canBuy: false,
       passiveEnchantments: [],
     },
+
+    "pure-essence": {
+      id: "pure-essence",
+      name: "Pure Essence",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+      passiveEnchantments: [],
+    },
   };
 }
 

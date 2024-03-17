@@ -1,3 +1,5 @@
+import { timeAgo } from "short-time-ago";
+
 import {
   InventoryItemType,
   SpecialLocation,
@@ -8,10 +10,14 @@ import {
   InventoryItem,
   EnchantmentType,
   NpcShopItems,
+  Quest,
 } from "types/graphql";
+
 import { LocationData, MapNames } from "../../constants";
+
 import {
   giveQuestItemNotification,
+  setQuestLogProgress,
   takeQuestItem,
   hasQuestItem,
 } from "../quests/helpers";
@@ -20,8 +26,45 @@ import { BaseItems } from "../items/base-items";
 import { getQuestRewards } from "../quests/items";
 import { AberrationStats } from "../monster/aberration-stats";
 import { BaseContext } from "../context";
+import { spawnRandomAberration } from "../aberration";
 
 type NpcTradeResult = { success: boolean; message: string };
+
+let purificationToday = Math.floor(Date.now() / 1000 / 60 / 60 / 24);
+let purificationTomorrowTime = 0;
+
+setTimeout(setPurificationToday);
+
+function setPurificationToday(): void {
+  const now = Date.now();
+
+  purificationToday = Math.floor(now / 1000 / 60 / 60 / 24);
+  const purificationTomorrow = Math.ceil(now / 1000 / 60 / 60 / 24);
+  purificationTomorrowTime = purificationTomorrow * 1000 * 60 * 60 * 24 + 1000;
+
+  if (
+    purificationToday === purificationTomorrow ||
+    purificationTomorrowTime < now
+  ) {
+    console.log(
+      "The clocks somehow perfectly synced, this should be near impossible",
+    );
+    setTimeout(setPurificationToday, 10000);
+    return;
+  }
+  console.log(
+    "Checking purification time window",
+    timeAgo(new Date(Date.now() + purificationTomorrowTime - now)),
+  );
+  setTimeout(
+    setPurificationToday,
+    Math.max(
+      500,
+      Math.min(1000 * 60 * 60, (purificationTomorrowTime - now) / 2),
+    ),
+  );
+  return;
+}
 
 export async function executeNpcTrade(
   context: BaseContext,
@@ -103,6 +146,27 @@ function getTranscendenceTrades(
         description: "great power",
       },
     });
+
+    // best way to track this to be daily? hmm..
+    // quest log i guess?
+    if (hero.questLog.dailyPurification?.progress ?? 0 < purificationToday) {
+      shop.trades.push({
+        id: "transcendence-essence-purification",
+        price: {
+          dust: 200,
+          description: "some dust and time",
+          questItems: [
+            questItems["essence-of-ash"].name,
+            questItems["essence-of-thorns"].name,
+            questItems["essence-of-darkness"].name,
+          ],
+        },
+        offer: {
+          questItems: [questItems["pure-essence"].name],
+          description: "essence purification",
+        },
+      });
+    }
   }
 
   if (!shop.trades.length) {
@@ -117,6 +181,54 @@ async function executeTranscendenceTrade(
   hero: Hero,
   tradeId: string,
 ): Promise<NpcTradeResult> {
+  if (tradeId === "transcendence-essence-purification") {
+    if (hero.questLog.dailyPurification?.progress ?? 0 >= purificationToday) {
+      return {
+        success: false,
+        // "in 22 hours", etc
+        message: `The altar does not react to your essences. Return again ${timeAgo(
+          new Date(purificationTomorrowTime),
+        )}`,
+      };
+    }
+    if (
+      !hasQuestItem(hero, "essence-of-ash") ||
+      !hasQuestItem(hero, "essence-of-thorns") ||
+      !hasQuestItem(hero, "essence-of-darkness")
+    ) {
+      return {
+        success: false,
+        message: "You must have all 3 primary essences in order to purify them",
+      };
+    }
+    if (hero.enchantingDust < 200) {
+      return {
+        success: false,
+        message: "You do not have enough enchanting dust to activate the altar",
+      };
+    }
+
+    hero = takeQuestItem(hero, "essence-of-ash");
+    hero = takeQuestItem(hero, "essence-of-thorns");
+    hero = takeQuestItem(hero, "essence-of-darkness");
+    giveQuestItemNotification(context, hero, "pure-essence");
+
+    hero = setQuestLogProgress(
+      hero,
+      Quest.EssencePurification,
+      "dailyPurification",
+      purificationToday,
+    );
+
+    await context.db.hero.put(hero);
+    await spawnRandomAberration(context);
+
+    return {
+      success: true,
+      message:
+        "The altar comes to life with energy as you infuse it with the essences, quickly fading back to the mundane ruins you know so well",
+    };
+  }
   if (tradeId === "transcendence-essence-upgrade") {
     if (
       !hasQuestItem(hero, "essence-of-ash") ||
@@ -541,7 +653,7 @@ const TrimarimTrades: {
     },
     offer: EnchantmentType.SuperDexterity,
     message: "The enchantments are fused into one",
-    description: "unbelievable power",
+    description: "putrid speed",
   },
   "trimarim-enchantment-tier4-superwillpower": {
     price: {
@@ -558,7 +670,7 @@ const TrimarimTrades: {
     },
     offer: EnchantmentType.SuperWillpower,
     message: "The enchantments are fused into one",
-    description: "unbelievable power",
+    description: "unallowable willpower",
   },
   "trimarim-enchantment-tier4-superwisdom": {
     price: {
@@ -575,7 +687,7 @@ const TrimarimTrades: {
     },
     offer: EnchantmentType.SuperWisdom,
     message: "The enchantments are fused into one",
-    description: "unbelievable power",
+    description: "impermissible wisdom",
   },
   "trimarim-enchantment-tier4-supervamp": {
     price: {
@@ -591,7 +703,7 @@ const TrimarimTrades: {
     },
     offer: EnchantmentType.SuperVamp,
     message: "The enchantments are fused into one",
-    description: "unbelievable power",
+    description: "nosferatu's breath",
   },
   "trimarim-enchantment-tier4-supermelee": {
     price: {
@@ -607,7 +719,7 @@ const TrimarimTrades: {
     },
     offer: EnchantmentType.SuperMelee,
     message: "The enchantments are fused into one",
-    description: "unbelievable power",
+    description: "vicious slaughtering",
   },
   "trimarim-enchantment-tier4-supercaster": {
     price: {
@@ -623,7 +735,7 @@ const TrimarimTrades: {
     },
     offer: EnchantmentType.SuperCaster,
     message: "The enchantments are fused into one",
-    description: "unbelievable power",
+    description: "godly magic",
   },
   "trimarim-enchantment-tier4-superbattlemage": {
     price: {
@@ -639,7 +751,7 @@ const TrimarimTrades: {
     },
     offer: EnchantmentType.SuperBattleMage,
     message: "The enchantments are fused into one",
-    description: "unbelievable power",
+    description: "demon hunting",
   },
   "trimarim-enchantment-tier4-superbattlemage-2": {
     price: {
@@ -655,7 +767,7 @@ const TrimarimTrades: {
     },
     offer: EnchantmentType.SuperBattleMage,
     message: "The enchantments are fused into one",
-    description: "unbelievable power",
+    description: "demon hunting",
   },
   "trimarim-enchantment-tier4-superallstats": {
     price: {
@@ -671,7 +783,7 @@ const TrimarimTrades: {
     },
     offer: EnchantmentType.SuperAllStats,
     message: "The enchantments are fused into one",
-    description: "unbelievable power",
+    description: "overwhelming power",
   },
   "trimarim-enchantment-tier4-supervampmelee": {
     price: {
@@ -687,7 +799,7 @@ const TrimarimTrades: {
     },
     offer: EnchantmentType.SuperVampMelee,
     message: "The enchantments are fused into one",
-    description: "unbelievable power",
+    description: "flesh consumption",
   },
   "trimarim-enchantment-tier4-supervampsorc": {
     price: {
@@ -703,7 +815,7 @@ const TrimarimTrades: {
     },
     offer: EnchantmentType.SuperVampSorc,
     message: "The enchantments are fused into one",
-    description: "unbelievable power",
+    description: "necrotic consumption",
   },
   "trimarim-enchantment-tier4-supermeleevamp": {
     price: {
@@ -719,7 +831,7 @@ const TrimarimTrades: {
     },
     offer: EnchantmentType.SuperMeleeVamp,
     message: "The enchantments are fused into one",
-    description: "unbelievable power",
+    description: "bloodletting",
   },
   "trimarim-enchantment-tier4-supersorcvamp": {
     price: {
@@ -735,7 +847,7 @@ const TrimarimTrades: {
     },
     offer: EnchantmentType.SuperSorcVamp,
     message: "The enchantments are fused into one",
-    description: "unbelievable power",
+    description: "bookburning",
   },
 };
 
