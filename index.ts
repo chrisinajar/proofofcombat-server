@@ -12,6 +12,7 @@ import cors from "cors";
 
 import schema from "./schema";
 import type { BaseContext } from "./schema/context";
+import { setPurificationToday } from "./schema/locations/npc-shops";
 import db from "./db";
 import { confirm } from "./security";
 
@@ -159,4 +160,5 @@ if (require.main === module) {
     console.log(`🚀  Socket ready on ${socketIoPort}`);
   });
   startApolloServer();
+  setPurificationToday();
 }

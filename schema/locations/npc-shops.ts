@@ -33,9 +33,7 @@ type NpcTradeResult = { success: boolean; message: string };
 let purificationToday = Math.floor(Date.now() / 1000 / 60 / 60 / 24);
 let purificationTomorrowTime = 0;
 
-setTimeout(setPurificationToday);
-
-function setPurificationToday(): void {
+export function setPurificationToday(): void {
   const now = Date.now();
 
   purificationToday = Math.floor(now / 1000 / 60 / 60 / 24);
