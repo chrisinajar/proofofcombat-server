@@ -145,26 +145,22 @@ function getTranscendenceTrades(
       },
     });
 
-    // best way to track this to be daily? hmm..
-    // quest log i guess?
-    if (hero.questLog.dailyPurification?.progress ?? 0 < purificationToday) {
-      shop.trades.push({
-        id: "transcendence-essence-purification",
-        price: {
-          dust: 200,
-          description: "some dust and time",
-          questItems: [
-            questItems["essence-of-ash"].name,
-            questItems["essence-of-thorns"].name,
-            questItems["essence-of-darkness"].name,
-          ],
-        },
-        offer: {
-          questItems: [questItems["pure-essence"].name],
-          description: "essence purification",
-        },
-      });
-    }
+    shop.trades.push({
+      id: "transcendence-essence-purification",
+      price: {
+        dust: 200,
+        description: "some dust and time",
+        questItems: [
+          questItems["essence-of-ash"].name,
+          questItems["essence-of-thorns"].name,
+          questItems["essence-of-darkness"].name,
+        ],
+      },
+      offer: {
+        questItems: [questItems["pure-essence"].name],
+        description: "essence purification",
+      },
+    });
   }
 
   if (!shop.trades.length) {
@@ -180,7 +176,7 @@ async function executeTranscendenceTrade(
   tradeId: string,
 ): Promise<NpcTradeResult> {
   if (tradeId === "transcendence-essence-purification") {
-    if (hero.questLog.dailyPurification?.progress ?? 0 >= purificationToday) {
+    if ((hero.questLog.dailyPurification?.progress ?? 0) >= purificationToday) {
       return {
         success: false,
         // "in 22 hours", etc
