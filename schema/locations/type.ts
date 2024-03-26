@@ -11,6 +11,7 @@ export default gql`
     teleport(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 5000)
     sail(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 10000)
     move(direction: MoveDirection!): MoveResponse! @auth @delay(delay: 500)
+    moveAStar(x: Int!, y: Int!): MoveResponse! @auth @delay(delay: 500)
     npcTrade(trade: ID!): NpcShopTradeResponse! @auth @delay(delay: 2000)
 
     voidTravel: MoveResponse! @auth @delay(delay: 5000)
