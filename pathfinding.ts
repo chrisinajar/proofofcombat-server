@@ -14,6 +14,7 @@ type NodeData<Node> = {
   // cost + distance
   score: number;
   parent?: NodeData<Node>;
+  pathLength: number;
 };
 
 export class Pathfinder<Node> {
@@ -29,16 +30,19 @@ export class Pathfinder<Node> {
     cost,
     hash,
     neighbors,
+    maxLength,
   }: {
     distance: DistanceEstimate<Node>;
     cost: TravelCost<Node>;
     hash: HashMethod<Node>;
     neighbors: Neighbors<Node>;
+    maxLength?: number;
   }) {
     this.distance = distance;
     this.cost = cost;
     this.hash = hash;
     this.neighbors = neighbors;
+    this.maxLength = maxLength || Infinity;
   }
 
   async findPath(
@@ -52,6 +56,7 @@ export class Pathfinder<Node> {
       distance: await this.distance(start, end),
       cost: 0,
       score: 0,
+      pathLength: 0,
     };
     startData.score = startData.distance;
 
@@ -90,10 +95,14 @@ export class Pathfinder<Node> {
               distance: Infinity,
               cost: Infinity,
               score: Infinity,
+              pathLength: node.pathLength + 1,
             };
             openNodes.set(neighborHash, existingItem);
           }
-          if (existingItem.cost > costFromHere) {
+          if (
+            existingItem.cost > costFromHere &&
+            existingItem.pathLength < this.maxLength
+          ) {
             existingItem.cost = costFromHere;
             existingItem.distance = await this.distance(neighbor, end);
             existingItem.score = existingItem.cost + existingItem.distance;

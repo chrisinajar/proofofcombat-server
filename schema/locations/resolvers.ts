@@ -1769,6 +1769,91 @@ const resolvers: Resolvers = {
         monsters: [],
       };
     },
+    async moveAStar(parent, args, context: BaseContext): Promise<MoveResponse> {
+      // Ima just comment everything I did that is different from move
+
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      // Needed to set the delay
+      const now = Date.now();
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      if (hero.combat.health <= 0) {
+        throw new UserInputError("You cannot move while dead!");
+      }
+
+      const startLocation = { ...hero.location };
+      // Declare the final desired location for final use
+      // Also forces x and y to be in bounds
+      const desiredLocation = {
+        ...startLocation,
+        x: Math.min(127, Math.max(0, args.x)),
+        y: Math.min(95, Math.max(0, args.y)),
+      };
+
+      // Figure out at the start if they can go where they are clicking
+      if (!isAllowedThere(hero, desiredLocation)) {
+        throw new UserInputError(
+          "You do not have the quest items needed to move there!",
+        );
+      }
+
+      // See your own example
+      function locationHash(loc: Location): string {
+        return `${loc.x}-${loc.y}`;
+      }
+
+      // See your own example except for neighbors which now only pushes to results if the hero is allowed on that tile
+      const pf = new Pathfinder<Location>({
+        hash: locationHash,
+        distance: (a: Location, b: Location): number =>
+          Math.abs(a.x - b.x) + Math.abs(a.y - b.y),
+        cost: (a: Location): number => 1,
+        neighbors: (a: Location): Location[] => {
+          const results: Location[] = [];
+          if (isAllowedThere(hero, { ...a, x: a.x + 1 }) && a.x + 1 < 128) {
+            results.push({ ...a, x: a.x + 1 });
+          }
+          if (isAllowedThere(hero, { ...a, x: a.x - 1 }) && a.x - 1 > 0) {
+            results.push({ ...a, x: a.x - 1 });
+          }
+          if (isAllowedThere(hero, { ...a, x: a.y + 1 }) && a.y + 1 < 96) {
+            results.push({ ...a, y: a.y + 1 });
+          }
+          if (isAllowedThere(hero, { ...a, x: a.y - 1 }) && a.y - 1 > 0) {
+            results.push({ ...a, y: a.y - 1 });
+          }
+
+          return results;
+        },
+        maxLength:48,
+      });
+
+      // Find the path
+      const path = await pf.findPath(desiredLocation, startLocation);
+
+      // If the path cant be made or is too long? throw an error, maybe should be 2 different ones
+      if (!path.success || path.path.length > 48) {
+        throw new UserInputError("Could not find a valid path!");
+      }
+
+      //Teleport them to the destination
+      hero.location = desiredLocation;
+      //Set their delay to 500 * the length of the path
+      account.nextAllowedAction += `${now + 500 * path.path.length}`;
+
+      await context.db.hero.put(hero);
+      await context.db.account.put(account);
+
+      return {
+        hero,
+        account,
+        monsters: [],
+      };
+    },
     async sail(parent, args, context: BaseContext): Promise<MoveResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
