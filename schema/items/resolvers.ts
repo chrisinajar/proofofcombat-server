@@ -98,8 +98,16 @@ const resolvers: Resolvers = {
       const selectedAffixes = affixes
         .map((affix) => artifactAffixes.find((a) => a.type === affix))
         .filter((a): a is ArtifactAttribute => !!a);
+      const goalImbueLength = Math.min(
+        3,
+        Math.min(selectedAffixes.length + 1, artifactAffixes.length),
+      );
 
-      for (let i = 0; selectedAffixes.length < 3 && i < 100; i++) {
+      for (
+        let i = 0;
+        selectedAffixes.length < goalImbueLength && i < 100;
+        i++
+      ) {
         // grab a randomized affix from the list and make sure it isn't already selected
         const affix =
           artifactAffixes[Math.floor(Math.random() * artifactAffixes.length)];

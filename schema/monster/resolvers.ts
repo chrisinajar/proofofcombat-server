@@ -422,14 +422,15 @@ const resolvers: Resolvers = {
             },
           };
         } else if (currentTavern.name === "Wyverns Holm") {
+          monster = { ...monster, level: monster.level + 5 };
           equipment = {
             leftHand: {
               level: monster.level + 3,
-              enchantment: randomEnchantment(3, false),
+              enchantment: EnchantmentType.SuperCounterSpell,
             },
             rightHand: {
               level: monster.level + 3,
-              enchantment: randomEnchantment(3, false),
+              enchantment: EnchantmentType.SuperCounterSpell,
             },
 
             bodyArmor: {
