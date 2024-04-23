@@ -71,6 +71,9 @@ const resolvers: Resolvers = {
       if (affixes.length > 3) {
         throw new UserInputError("Too many affixes");
       }
+      if (affixes.length < 1) {
+        throw new UserInputError("Not enough affixes");
+      }
 
       // make sure we have enough dust
       const dustCost = Math.pow(32, affixes.length);
