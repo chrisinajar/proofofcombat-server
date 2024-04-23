@@ -55,9 +55,9 @@ export default class ArtifactItemModel extends DatabaseInterface<ArtifactItem> {
 
   artifactName(affixes: ArtifactAffix[]): string {
     if (affixes.length > 3) {
-      return `${affixes[0].namePrefix}${affixes[1].namePostfix} of the ${affixes[2].titlePrefix} ${affixes[3].titlePostfix}`;
+      return `${affixes[0].namePrefix}${affixes[1].namePostfix} the ${affixes[2].titlePrefix} ${affixes[3].titlePostfix}`;
     } else if (affixes.length > 2) {
-      return `${affixes[0].namePrefix}${affixes[1].namePostfix} of the ${affixes[2].titlePrefix}`;
+      return `${affixes[0].namePrefix}${affixes[1].namePostfix} the ${affixes[2].titlePrefix}`;
     } else if (affixes.length > 1) {
       return `${affixes[0].namePrefix}${affixes[1].namePostfix}`;
     }

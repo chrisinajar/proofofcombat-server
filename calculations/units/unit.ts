@@ -1,4 +1,5 @@
 import {
+  ArtifactAttributeType,
   AttackType,
   HeroClasses,
   InventoryItem as InventoryItemData,
@@ -170,7 +171,10 @@ export class Unit {
     applyCounterSpells(this, victim);
   }
 
-  equipArtifact(artifact: ArtifactItemType | null | undefined) {
+  equipArtifact(
+    artifact: ArtifactItemType | null | undefined,
+    enabledAffixes?: ArtifactAttributeType[] | undefined,
+  ) {
     if (!artifact) {
       return;
     }
@@ -179,6 +183,7 @@ export class Unit {
       name: artifact.name,
       unit: this,
       attributes: artifact.attributes,
+      enabledAffixes,
     });
   }
 

@@ -7,6 +7,7 @@ import {
 } from "../quests/helpers";
 import { giveHeroRandomDrop, randomEnchantment } from "../items/helpers";
 import { rebirth } from "../quests/rebirth";
+import { endVoidTravel } from "../void-travel";
 
 export async function checkAberrationDrop(
   context: BaseContext,
@@ -52,8 +53,9 @@ async function voidMonsterReward(
   // if you have a cracked orb and kill it them amixea can help
 
   // send them back to the mortal plane
-  hero.location.map = "default";
-  hero = rebirth(context, hero);
+  await endVoidTravel(context, hero);
+  // hero.location.map = "default";
+  // hero = rebirth(context, hero);
 
   // should we get some sort of void thingy then you then use to repair the orb?
   // maybe it becomes an "orb of the void" or something like that...

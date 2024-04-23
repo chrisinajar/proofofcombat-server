@@ -1,4 +1,5 @@
 import {
+  InventoryItemImbue,
   InventoryItemType,
   EnchantmentType,
   ArtifactItem,
@@ -18,7 +19,7 @@ export type InventoryItemOptions = ItemOptions & {
   type: InventoryItemType;
   baseItem: string;
   enchantment?: EnchantmentType | null;
-  imbue?: ArtifactItem | null;
+  imbue?: InventoryItemImbue | null;
 };
 
 export class InventoryItem extends Item {
@@ -75,7 +76,7 @@ export class InventoryItem extends Item {
     }
 
     if (options.imbue) {
-      this.unit.equipArtifact(options.imbue);
+      this.unit.equipArtifact(options.imbue.artifact, options.imbue.affixes);
     }
   }
 }

@@ -671,7 +671,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         } else if (resource.name === "bees") {
           resource.value += Math.floor(Math.random() * 1.1);
         } else if (resource.name === "bonds") {
-          resource.value += Math.floor(resource.value * 0.01);
+          resource.value += Math.floor(resource.value * 0.008);
         } else if (resource.name === "honey") {
           resource.value += Math.floor(
             Math.random() *

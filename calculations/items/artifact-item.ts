@@ -9,20 +9,36 @@ import { GenericStatsModifier } from "../modifiers/generic-stats-modifier";
 
 export type ArtifactItemOptions = ItemOptions & {
   attributes: ArtifactAttributes;
+  enabledAffixes?: ArtifactAttributeType[];
 };
 
 export class ArtifactItem extends Item {
+  options: ArtifactItemOptions;
+
   constructor(options: ArtifactItemOptions) {
     super(options);
+
+    this.options = options;
 
     this.applyArtifactAttribute(options.attributes.namePrefix);
     this.applyArtifactAttribute(options.attributes.namePostfix);
     this.applyArtifactAttribute(options.attributes.titlePrefix);
     this.applyArtifactAttribute(options.attributes.titlePostfix);
+
+    options.attributes.bonusAffixes.forEach((affix) => {
+      this.applyArtifactAttribute(affix);
+    });
   }
 
   applyArtifactAttribute(attribute?: ArtifactAttribute | null) {
     if (!attribute) {
+      return;
+    }
+
+    if (
+      this.options.enabledAffixes &&
+      !this.options.enabledAffixes.includes(attribute.type)
+    ) {
       return;
     }
 

@@ -37,6 +37,7 @@ import {
 } from "../quests/helpers";
 import { countEnchantments } from "../items/helpers";
 import { checkTeleport } from "../quests/staff-of-teleportation";
+import { endVoidTravel, startVoidTravel } from "../void-travel";
 
 import { getShopData, executeNpcTrade } from "./npc-shops";
 import {
@@ -1691,8 +1692,10 @@ const resolvers: Resolvers = {
       }
 
       if (hero.location.map === "void") {
+        await endVoidTravel(context, hero);
         hero.location = { x: 64, y: 44, map: "default" };
       } else {
+        await startVoidTravel(context, hero, "glowingAberration");
         hero.location = {
           x: Math.floor(Math.random() * 128),
           y: Math.floor(Math.random() * 96),

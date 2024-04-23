@@ -9,6 +9,7 @@ import {
   InventoryItemType,
   TradeOfferReply,
   TradeOffer,
+  ArtifactAttribute,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -17,6 +18,7 @@ import { createHeroCombatant } from "../../combat/hero";
 import { BaseItems } from "../items/base-items";
 import { createItemInstance, countEnchantments } from "../items/helpers";
 import type { BaseItem } from "../items";
+import { hasQuestItem, takeQuestItem } from "../quests/helpers";
 
 type SlotNameType =
   | "leftHand"
@@ -43,6 +45,83 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
+    async imbueItem(parent, args, context) {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+
+      const item = hero.inventory.find((i) => i.id === args.item);
+      if (!item) {
+        throw new UserInputError("Invalid item");
+      }
+
+      if (item.imbue) {
+        throw new UserInputError("Item is already imbued");
+      }
+
+      const artifact = hero.equipment.artifact;
+      if (!artifact || artifact.id !== args.artifact) {
+        throw new UserInputError("Invalid artifact");
+      }
+
+      const affixes = args.affixes;
+
+      if (affixes.length > 3) {
+        throw new UserInputError("Too many affixes");
+      }
+
+      // make sure we have enough dust
+      const dustCost = Math.pow(32, affixes.length);
+      if (hero.enchantingDust < dustCost) {
+        throw new UserInputError("Not enough enchanting dust");
+      }
+      // make sure we have both void and pure essence
+      if (
+        !hasQuestItem(hero, "essence-of-void") ||
+        !hasQuestItem(hero, "pure-essence")
+      ) {
+        throw new UserInputError("Missing required quest items");
+      }
+
+      // take dust and essences
+      hero.enchantingDust -= dustCost;
+      takeQuestItem(hero, "essence-of-void");
+      takeQuestItem(hero, "pure-essence");
+
+      hero.equipment.artifact = null;
+
+      const artifactAffixes =
+        context.db.artifact.modifiersForArtifact(artifact);
+
+      const selectedAffixes = affixes
+        .map((affix) => artifactAffixes.find((a) => a.type === affix))
+        .filter((a): a is ArtifactAttribute => !!a);
+
+      for (let i = 0; selectedAffixes.length < 3 && i < 100; i++) {
+        // grab a randomized affix from the list and make sure it isn't already selected
+        const affix =
+          artifactAffixes[Math.floor(Math.random() * artifactAffixes.length)];
+        if (!selectedAffixes.find((a) => a.type === affix.type)) {
+          selectedAffixes.push(affix);
+        }
+      }
+
+      item.imbue = {
+        artifact,
+        affixes: selectedAffixes.map((a) => a.type),
+      };
+
+      await context.db.hero.put(hero);
+
+      const account = await context.db.account.get(context.auth.id);
+
+      return {
+        hero,
+        account,
+      };
+    },
     async dismissTrade(parent, args, context): Promise<LevelUpResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");

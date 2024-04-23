@@ -424,33 +424,33 @@ const resolvers: Resolvers = {
         } else if (currentTavern.name === "Wyverns Holm") {
           equipment = {
             leftHand: {
-              level: monster.level + 2,
-              enchantment: randomEnchantment(2, false),
+              level: monster.level + 3,
+              enchantment: randomEnchantment(3, false),
             },
             rightHand: {
-              level: monster.level + 2,
-              enchantment: randomEnchantment(2, false),
+              level: monster.level + 3,
+              enchantment: randomEnchantment(3, false),
             },
 
             bodyArmor: {
-              level: monster.level + 2,
-              enchantment: randomEnchantment(2, false),
+              level: monster.level + 3,
+              enchantment: randomEnchantment(3, false),
             },
             handArmor: {
-              level: monster.level + 2,
-              enchantment: randomEnchantment(2, false),
+              level: monster.level + 3,
+              enchantment: randomEnchantment(3, false),
             },
             legArmor: {
-              level: monster.level + 2,
-              enchantment: randomEnchantment(2, false),
+              level: monster.level + 3,
+              enchantment: randomEnchantment(3, false),
             },
             headArmor: {
-              level: monster.level + 2,
-              enchantment: randomEnchantment(2, false),
+              level: monster.level + 3,
+              enchantment: randomEnchantment(3, false),
             },
             footArmor: {
-              level: monster.level + 2,
-              enchantment: randomEnchantment(2, false),
+              level: monster.level + 3,
+              enchantment: randomEnchantment(3, false),
             },
           };
         }

@@ -23,6 +23,11 @@ export default gql`
     enchantItem(item: ID!, enchantment: EnchantmentType!): LevelUpResponse!
       @auth
       @delay(delay: 1000)
+    imbueItem(
+      item: String!
+      artifact: String!
+      affixes: [ArtifactAttributeType!]!
+    ): LevelUpResponse! @auth @delay(delay: 1000)
   }
 
   type ShopItem {
@@ -42,7 +47,12 @@ export default gql`
     type: InventoryItemType!
     level: Int!
     enchantment: EnchantmentType
-    imbue: ArtifactItem
+    imbue: InventoryItemImbue
+  }
+
+  type InventoryItemImbue {
+    artifact: ArtifactItem!
+    affixes: [ArtifactAttributeType!]!
   }
 
   # artifacts are uniquely different than other items
