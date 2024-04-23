@@ -98,10 +98,8 @@ const resolvers: Resolvers = {
       const selectedAffixes = affixes
         .map((affix) => artifactAffixes.find((a) => a.type === affix))
         .filter((a): a is ArtifactAttribute => !!a);
-      const goalImbueLength = Math.min(
-        3,
-        Math.min(selectedAffixes.length + 1, artifactAffixes.length),
-      );
+
+      const goalImbueLength = Math.min(3, artifactAffixes.length);
 
       for (
         let i = 0;
