@@ -430,7 +430,7 @@ const resolvers: Resolvers = {
             },
             rightHand: {
               level: monster.level + 3,
-              enchantment: EnchantmentType.SuperCounterSpell,
+              enchantment: randomEnchantment(3, false),
             },
 
             bodyArmor: {
