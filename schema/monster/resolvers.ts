@@ -425,32 +425,32 @@ const resolvers: Resolvers = {
           monster = { ...monster, level: monster.level + 5 };
           equipment = {
             leftHand: {
-              level: monster.level + 3,
+              level: monster.level + 5,
               enchantment: EnchantmentType.SuperCounterSpell,
             },
             rightHand: {
-              level: monster.level + 3,
+              level: monster.level + 5,
               enchantment: randomEnchantment(3, false),
             },
 
             bodyArmor: {
-              level: monster.level + 3,
+              level: monster.level + 5,
               enchantment: randomEnchantment(3, false),
             },
             handArmor: {
-              level: monster.level + 3,
+              level: monster.level + 5,
               enchantment: randomEnchantment(3, false),
             },
             legArmor: {
-              level: monster.level + 3,
+              level: monster.level + 5,
               enchantment: randomEnchantment(3, false),
             },
             headArmor: {
-              level: monster.level + 3,
+              level: monster.level + 5,
               enchantment: randomEnchantment(3, false),
             },
             footArmor: {
-              level: monster.level + 3,
+              level: monster.level + 5,
               enchantment: randomEnchantment(3, false),
             },
           };
