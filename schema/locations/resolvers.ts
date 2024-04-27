@@ -1832,7 +1832,7 @@ const resolvers: Resolvers = {
 
           return results;
         },
-        maxLength:48,
+        maxLength: 48,
       });
 
       // Find the path

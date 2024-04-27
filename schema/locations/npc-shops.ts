@@ -278,6 +278,7 @@ async function executeTranscendenceTrade(
     );
 
     const newItem = createItemInstance(baseItem, hero);
+    newItem.imbue = pureAscendedItem.imbue;
     hero.inventory.push(newItem);
     await context.db.hero.put(hero);
 
