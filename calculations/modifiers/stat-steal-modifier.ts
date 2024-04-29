@@ -52,16 +52,31 @@ export class StatStealVictimModifier extends Modifier<StatStealVictimModifierOpt
     if (!("getModifiedValue" in attacker)) {
       return;
     }
+    // even though we get this as a modified value, it's a multiplier
+    // the "steal" part is a percentage of the value being stolen
+    // it stacks diminishingly, so a steal value of 10% is 0.9, 20% is 0.8, etc
+    // two 10% steals would be 0.9 * 0.9 = 0.81, not 0.8
+    // this means steal can never reach 100%, and it's impossible to steal more than the original value
     const stolenAmount = attacker.getModifiedValue(stealName);
-    if (!stolenAmount || stolenAmount <= 1) {
+    if (!stolenAmount || stolenAmount >= 1) {
       return;
     }
 
-    const multipliedValue = attacker.getMultiplierValue(prop);
-    const preStealAmount = multipliedValue / stolenAmount;
-    // preStealAmount is what the value would be if it weren't boosted from steals
-    // backwards because we actually want the negative number
-    return preStealAmount - multipliedValue;
+    // get the value of the stat before any steals or other extra bonuses
+    const attackerBaseValue = attacker.getMultiplierValue(prop);
+    const myBaseValue = this.parent.getMultiplierValue(prop);
+    // apply the steal percent to both and return the lesser one
+    // we're returning a fixed negative number here, because the value is being stolen
+    // the steal is a percent from 0 to 1, where 1 is nothing stolen and 0 is 100% steal
+    return (
+      0 -
+      Math.min(
+        (1 - stolenAmount) * attackerBaseValue,
+        (1 - stolenAmount) * myBaseValue,
+      )
+    );
+
+    // return 0 - (1 - stolenAmount) * attackerBaseValue;
   }
 }
 
@@ -97,7 +112,7 @@ export class StatStealModifier extends Modifier<StatStealModifierOptions> {
     }
     const withoutSteal = prop.substr(0, prop.length - 5);
     if (this.options[withoutSteal]) {
-      return 1 + this.options[withoutSteal];
+      return 1 - this.options[withoutSteal];
     }
     return;
   }

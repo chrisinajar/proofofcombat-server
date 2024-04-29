@@ -38,7 +38,7 @@ describe("createStatStealModifiers", () => {
     expect(victim.getModifiedValue("dexterity")).toEqual(1000);
   });
 
-  it("stacks multiplicitively", () => {
+  it("stacks multiplicitively for boost but diminishingly for reduction", () => {
     const attacker = new Unit();
     const victim = new Unit();
 
@@ -63,8 +63,12 @@ describe("createStatStealModifiers", () => {
     );
 
     const stealAmount = 320;
-    expect(attacker.getModifiedValue("strength")).toEqual(1000 + stealAmount);
-    expect(victim.getModifiedValue("strength")).toEqual(1000 - stealAmount);
+    expect(attacker.getModifiedValue("strength")).toEqual(
+      Math.round(1000 * 1.1 * 1.2),
+    );
+    expect(victim.getModifiedValue("strength")).toEqual(
+      Math.round(1000 * 0.9 * 0.8),
+    );
   });
 });
 
