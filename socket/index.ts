@@ -15,7 +15,7 @@ type ExtendedSocket = Socket & {
 };
 
 type Notification = {
-  type: "drop" | "quest" | "artifact";
+  type: "drop" | "quest" | "artifact" | "settlement";
   message: string;
   item?: InventoryItem;
   artifactItem?: ArtifactItem;

@@ -68,13 +68,7 @@ export class StatStealVictimModifier extends Modifier<StatStealVictimModifierOpt
     // apply the steal percent to both and return the lesser one
     // we're returning a fixed negative number here, because the value is being stolen
     // the steal is a percent from 0 to 1, where 1 is nothing stolen and 0 is 100% steal
-    return (
-      0 -
-      Math.min(
-        (1 - stolenAmount) * attackerBaseValue,
-        (1 - stolenAmount) * myBaseValue,
-      )
-    );
+    return 0 - (1 - stolenAmount) * Math.min(attackerBaseValue, myBaseValue);
 
     // return 0 - (1 - stolenAmount) * attackerBaseValue;
   }

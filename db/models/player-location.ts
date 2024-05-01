@@ -788,20 +788,20 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         if (!queuedForRemoval) {
           io.sendNotification(location.owner, {
             message: `${location.location.x}, ${location.location.y} has no connection to your capital and is decaying`,
-            type: "quest",
+            type: "settlement",
           });
         } else {
           // queuedForRemoval
           io.sendNotification(location.owner, {
             message: `There is no connectin from your capital to ${location.location.x}, ${location.location.y}, the building there was lost to decay`,
-            type: "quest",
+            type: "settlement",
           });
         }
       } else if (!canAffordUpkeep) {
         if (location.type === PlayerLocationType.Camp) {
           io.sendNotification(location.owner, {
             message: `Could not pay upkeep at ${location.location.x}, ${location.location.y}, the camp was lost`,
-            type: "quest",
+            type: "settlement",
           });
           await this.del(location);
           return null;
@@ -810,14 +810,14 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           if (settlementDead) {
             io.sendNotification(location.owner, {
               message: `Your people at ${location.location.x}, ${location.location.y} have all starved to death`,
-              type: "quest",
+              type: "settlement",
             });
             await this.del(location);
             return null;
           } else {
             io.sendNotification(location.owner, {
               message: `Your people at ${location.location.x}, ${location.location.y} are starving`,
-              type: "quest",
+              type: "settlement",
             });
           }
         }
@@ -839,13 +839,13 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         if (location.type === PlayerLocationType.Camp) {
           io.sendNotification(location.owner, {
             message: `Your camp at ${location.location.x}, ${location.location.y} paid upkeep: ${upkeepString}`,
-            type: "quest",
+            type: "settlement",
           });
         }
         if (location.type === PlayerLocationType.Settlement) {
           io.sendNotification(location.owner, {
             message: `Your settlement at ${location.location.x}, ${location.location.y} paid upkeep: ${upkeepString}`,
-            type: "quest",
+            type: "settlement",
           });
           location.remainingAttacks = this.getAttacksPerHour(location);
         }
@@ -859,7 +859,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
               } gained ${(
                 endingBonds - startingBonds
               ).toLocaleString()} bonds.`,
-              type: "quest",
+              type: "settlement",
             });
           }
         }
@@ -881,7 +881,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
               } gained ${[cattleMsg, foodMsg]
                 .filter((a) => !!a)
                 .join(" and ")}.`,
-              type: "quest",
+              type: "settlement",
             });
           }
           if (foodProduction > 0 && !isDecaying) {
@@ -918,7 +918,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
               message: `Your apiary at ${location.location.x}, ${
                 location.location.y
               } gained ${parts.join(" and ")}.`,
-              type: "quest",
+              type: "settlement",
             });
           }
         }
@@ -942,7 +942,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
               message: `Your barracks at ${location.location.x}, ${
                 location.location.y
               } ${parts.join(" and ")}.`,
-              type: "quest",
+              type: "settlement",
             });
           }
         }
