@@ -12,6 +12,7 @@ export type SpecialLocationType =
   | "bridge"
   | "tavern"
   | "hermit"
+  | "altar"
   | "fortress";
 
 export type LocationData = {

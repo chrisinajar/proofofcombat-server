@@ -113,19 +113,56 @@
     ]
   },
   {
-    "x": 64,
-    "y": 44,
-    "name": "Altar of Transcendence",
-    "type": "hermit",
-    "description": [
-      "The runestones are confusing, but the power they possess is clear."
-    ]
-  },
-  {
     "x": 90,
     "y": 45,
     "name": "Palace of Rotherham",
     "type": "fortress",
     "description": ["A grand building with armored guards and busy nobles"]
+  },
+
+  {
+    "x": 64,
+    "y": 44,
+    "name": "Altar of Transcendence",
+    "type": "altar",
+    "description": [
+      "The runestones are confusing, but the power they possess is clear."
+    ]
+  },
+  {
+    "x": 0,
+    "y": 0,
+    "name": "Altar of Might",
+    "type": "altar",
+    "description": [
+      "The altar is adorned with a large ruby gemstone, it seems inactive."
+    ]
+  },
+  {
+    "x": 127,
+    "y": 0,
+    "name": "Altar of Agility",
+    "type": "altar",
+    "description": [
+      "The altar is adorned with a large emerald gemstone, it seems inactive."
+    ]
+  },
+  {
+    "x": 0,
+    "y": 95,
+    "name": "Altar of Magic",
+    "type": "altar",
+    "description": [
+      "The altar is adorned with a large sapphire gemstone, it seems inactive."
+    ]
+  },
+  {
+    "x": 127,
+    "y": 95,
+    "name": "Altar of Endurance",
+    "type": "altar",
+    "description": [
+      "The altar is adorned with a large diamond gemstone, it seems inactive."
+    ]
   }
 ]
