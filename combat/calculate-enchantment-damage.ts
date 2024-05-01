@@ -59,6 +59,8 @@ export function getOneSidedData(
   victimDamage = Math.round(victimDamage);
   attackerHeal = Math.round(attackerHeal);
 
+  attackerHeal = Math.min(1000000000, attackerHeal);
+
   return { damage: victimDamage, heal: attackerHeal };
 }
 

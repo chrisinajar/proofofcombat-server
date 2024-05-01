@@ -8,23 +8,23 @@ function generateArmorItems(itemNames: string[]): BaseItemMap {
   return {
     ...generateItems(
       InventoryItemType.BodyArmor,
-      itemNames.map((name) => `${name} Body Armor`)
+      itemNames.map((name) => `${name} Body Armor`),
     ),
     ...generateItems(
       InventoryItemType.HandArmor,
-      itemNames.map((name) => `${name} Gauntlets`)
+      itemNames.map((name) => `${name} Gauntlets`),
     ),
     ...generateItems(
       InventoryItemType.LegArmor,
-      itemNames.map((name) => `${name} Leggings`)
+      itemNames.map((name) => `${name} Leggings`),
     ),
     ...generateItems(
       InventoryItemType.HeadArmor,
-      itemNames.map((name) => `${name} Helmet`)
+      itemNames.map((name) => `${name} Helmet`),
     ),
     ...generateItems(
       InventoryItemType.FootArmor,
-      itemNames.map((name) => `${name} Greaves`)
+      itemNames.map((name) => `${name} Greaves`),
     ),
   };
 }
@@ -35,7 +35,7 @@ function nameToId(name: string): string {
 
 function generateItems(
   type: InventoryItemType,
-  itemNames: string[]
+  itemNames: string[],
 ): BaseItemMap {
   const results: BaseItemMap = {};
   itemNames.forEach((name, i) => {
@@ -278,7 +278,7 @@ export const BaseItems: BaseItemMap = {
     "Soulbound Charm",
   ]),
   ...generateArmorItems([
-    "Torn Cotten",
+    "Torn Cotton",
     "Padded Cloth",
     "Loose Hide",
     "Boiled Leather",
