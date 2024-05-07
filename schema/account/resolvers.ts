@@ -104,6 +104,13 @@ const resolvers: Resolvers = {
       }
     },
   },
+  BaseAccount: {
+    async timeRemaining(parent, args, context: BaseContext) {
+      // calculate time remaining based on nextAllowedAction
+
+      return Math.max(0, Number(parent.nextAllowedAction) - Date.now());
+    },
+  },
 };
 
 export default resolvers;

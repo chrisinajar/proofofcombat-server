@@ -1693,9 +1693,20 @@ const resolvers: Resolvers = {
 
       if (hero.location.map === "void") {
         await endVoidTravel(context, hero);
-        hero.location = { x: 64, y: 44, map: "default" };
       } else {
-        await startVoidTravel(context, hero, "glowingAberration");
+        const currentAltar = specialLocations(
+          hero.location.x,
+          hero.location.y,
+          hero.location.map as MapNames,
+        ).find((location) => location.type === "altar");
+        if (!currentAltar) {
+          throw new UserInputError("You must be at a void conduit to travel.");
+        }
+        if (currentAltar.name === "Altar of Transcendence") {
+          await startVoidTravel(context, hero, "glowingAberration");
+        } else {
+          throw new UserInputError("This altar does not seem to be active.");
+        }
         hero.location = {
           x: Math.floor(Math.random() * 128),
           y: Math.floor(Math.random() * 96),
@@ -1979,8 +1990,30 @@ const resolvers: Resolvers = {
       }
       const [location] = parent.specialLocations;
 
-      // more later probably
-      return location.name === "Altar of Transcendence";
+      if (location.name === "Altar of Transcendence") {
+        return true;
+      }
+      // todo:
+      // if (location.name === "Altar of Might") {
+      //   return true;
+      // }
+
+      // if (location.name === "Altar of Agility") {
+      //   return true;
+      // }
+
+      // if (location.name === "Altar of Magic") {
+      //   return true;
+      // }
+
+      // if (location.name === "Altar of Endurance") {
+      //   return true;
+      // }
+
+      return false;
+
+      // all altars
+      // return location.type === "altar";
     },
     async players(parent, args, context): Promise<PublicHero[]> {
       const heroList = await context.db.hero.getHeroesInLocation(

@@ -20,6 +20,7 @@ export default gql`
 
     banned: Boolean!
     nextAllowedAction: String
+    timeRemaining: Int
 
     hero: Hero
 
