@@ -34,6 +34,7 @@ import {
   hasQuestItem,
   checkCapital,
   giveBaseItemNotification,
+  takeOneQuestItem,
 } from "../quests/helpers";
 import { countEnchantments } from "../items/helpers";
 import { checkTeleport } from "../quests/staff-of-teleportation";
@@ -1017,7 +1018,7 @@ const resolvers: Resolvers = {
       const result = await context.db.playerLocation.spendResources(
         home,
         "honey",
-        args.greater ? 250 : 1,
+        args.greater ? 250 : 10,
       );
 
       if (!result) {
@@ -1201,7 +1202,31 @@ const resolvers: Resolvers = {
         hero.gold += cost;
         bondsResource.value -= amount;
       } else {
-        const cost = 1000000 * args.amount;
+        let cost = 1000000 * args.amount;
+
+        // if they're purchasing exactly the amount of an essence
+        // and they have an essence in their inventory
+        // then use that essence to pay for the bonds
+        // "greater-essence-of-gold" and "essence-of-gold",
+        if (args.amount === 1000000) {
+          // lesser essence of gold
+          if (
+            hasQuestItem(hero, "essence-of-gold") &&
+            takeOneQuestItem(hero, "essence-of-gold")
+          ) {
+            // item was taken as part of the conditional, we're good
+            cost = 0;
+          }
+        } else if (args.amount === 250000000) {
+          // greater essence of gold
+          if (
+            hasQuestItem(hero, "greater-essence-of-gold") &&
+            takeOneQuestItem(hero, "greater-essence-of-gold")
+          ) {
+            // item was taken as part of the conditional, we're good
+            cost = 0;
+          }
+        }
 
         if (cost > hero.gold) {
           const home = await context.db.playerLocation.getHome(hero.id);

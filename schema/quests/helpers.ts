@@ -94,7 +94,7 @@ export function takeQuestItem(hero: Hero, baseItemName: string): Hero {
   return hero;
 }
 
-export function takeOneQuestItem(hero: Hero, baseItemName: string): Hero {
+export function takeOneQuestItem(hero: Hero, baseItemName: string): boolean {
   let hasTaken = false;
   hero.inventory = hero.inventory.filter((item) => {
     if (!hasTaken && item.baseItem === baseItemName) {
@@ -104,7 +104,7 @@ export function takeOneQuestItem(hero: Hero, baseItemName: string): Hero {
     return true;
   });
 
-  return hero;
+  return hasTaken;
 }
 
 export function hasQuestItem(hero: Hero, baseItemName: string): boolean {
