@@ -54,15 +54,12 @@ export function delayDirectiveTransformer(
               });
             } else {
               const hero = await context.db.hero.get(account.id);
+              const heroUnit = context.db.hero.getUnit(hero);
+              const reducedDelay = heroUnit.stats.reducedDelay;
+
               let delay = delayDirective["delay"];
-              if (hero?.equipment?.artifact) {
-                const reducedDelay = context.db.artifact.getArtifactModifier(
-                  hero.equipment.artifact,
-                  ArtifactAttributeType.ReducedDelay,
-                );
-                if (reducedDelay) {
-                  delay = delay * (1 / reducedDelay.magnitude);
-                }
+              if (reducedDelay < 1) {
+                delay *= reducedDelay;
               }
               delay = Math.round(delay);
               context.delay = delay;

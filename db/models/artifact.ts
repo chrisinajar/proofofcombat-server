@@ -12,15 +12,6 @@ import DatabaseInterface from "../interface";
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 type PartialArtifactItem = ArtifactItem; // Optional<ArtifactItem, "banned" | "nextAllowedAction">;
 
-export function getArtifactModifier(
-  artifact: ArtifactItem,
-  type: ArtifactAttributeType,
-): ArtifactAttribute | undefined {
-  const modifiers = modifiersForArtifact(artifact);
-  const modifier = modifiers.find((mod) => mod.type === type);
-  return modifier;
-}
-
 export function modifiersForArtifact(
   artifact: ArtifactItem,
 ): ArtifactAttribute[] {
@@ -42,7 +33,6 @@ export function modifiersForArtifact(
 }
 
 export default class ArtifactItemModel extends DatabaseInterface<ArtifactItem> {
-  getArtifactModifier = getArtifactModifier;
   modifiersForArtifact = modifiersForArtifact;
 
   constructor() {

@@ -20,8 +20,6 @@ import { Hero as HeroUnit } from "../../calculations/units/hero";
 import { ModifierPersistancyData } from "../../calculations/modifiers/modifier";
 import DatabaseInterface from "../interface";
 
-import { getArtifactModifier } from "./artifact";
-
 const SkillDisplayNames: { [x in HeroSkill]: string } = {
   attackingAccuracy: "Attacking Accuracy",
   attackingDamage: "Attacking Damage",
@@ -300,14 +298,10 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   addExperience(context: BaseContext, hero: Hero, experience: number): Hero {
-    if (hero.equipment.artifact) {
-      const modifier = getArtifactModifier(
-        hero.equipment.artifact,
-        ArtifactAttributeType.BonusExperience,
-      );
-      if (modifier) {
-        experience *= modifier.magnitude;
-      }
+    const heroUnit = this.getUnit(hero);
+    const bonusExperience = heroUnit.stats.bonusExperience;
+    if (bonusExperience > 1) {
+      experience *= bonusExperience;
     }
 
     experience =
@@ -323,14 +317,10 @@ export default class HeroModel extends DatabaseInterface<Hero> {
           1,
           hero.skillPercent / Math.pow(1.8, currentSkillLevel),
         );
-        if (hero.equipment.artifact) {
-          const modifier = getArtifactModifier(
-            hero.equipment.artifact,
-            ArtifactAttributeType.BonusSkillChance,
-          );
-          if (modifier) {
-            odds *= modifier.magnitude;
-          }
+        const bonusSkillChance = heroUnit.stats.bonusSkillChance;
+
+        if (bonusSkillChance > 1) {
+          odds *= bonusSkillChance;
         }
         // odds are between 0-1, where 1 is 100%
         if (Math.random() < odds) {

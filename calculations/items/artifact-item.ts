@@ -130,9 +130,6 @@ export class ArtifactItem extends Item {
         break;
 
       case ArtifactAttributeType.BonusHealth:
-        // implemented in hero model health calculations //
-        // is it?
-        // no, it is not.
         return this.registerModifier({
           type: GenericStatsModifier,
           options: {
@@ -144,19 +141,38 @@ export class ArtifactItem extends Item {
         break;
 
       case ArtifactAttributeType.ReducedDelay:
-        // implemented at gql security layer //
-        // done
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            multiplier: {
+              // inverse scaling from 1 -> 0, 0% -> 100%
+              // makes it "diminishing"
+              reducedDelay: 2 - attribute.magnitude,
+            },
+          },
+        });
         break;
 
       case ArtifactAttributeType.BonusExperience:
-        // implemented in hero model //
-        // done
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            multiplier: {
+              bonusExperience: attribute.magnitude,
+            },
+          },
+        });
         break;
 
       case ArtifactAttributeType.BonusSkillChance:
-        // implement in skills chance system //
-        // lol where the fuck is that?
-        // done
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            multiplier: {
+              bonusSkillChance: attribute.magnitude,
+            },
+          },
+        });
         break;
 
       case ArtifactAttributeType.Lifesteal:
@@ -164,6 +180,9 @@ export class ArtifactItem extends Item {
           type: GenericStatsModifier,
           options: {
             bonus: {
+              // what's happening here?
+              // OH, it's "bonus"
+              // stacks "additively"
               lifesteal:
                 attribute.magnitude > 1
                   ? attribute.magnitude - 1

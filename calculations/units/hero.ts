@@ -23,6 +23,10 @@ export class Hero extends Unit {
     Object.assign(this.baseValues, hero.stats, hero.skills, {
       health: hero.combat.maxHealth,
       level: hero.level,
+
+      reducedDelay: 1,
+      bonusExperience: 1,
+      bonusSkillChance: 1,
     });
 
     this.hero = hero;
