@@ -31,7 +31,7 @@ export class BasicHeroModifier extends Modifier<undefined> {
             this.parent.stats.constitution / DIMINISHING_HEALTH_MAGNITUDE + 1,
           ) *
             DIMINISHING_HEALTH_MAGNITUDE +
-          194 -
+          190 -
           this.parent.baseValues.health
         );
       // Math.pow(1.08, this.parent.stats.vitality)
