@@ -90,11 +90,14 @@ const resolvers: Resolvers = {
             case HeroClasses.Zealot:
             case HeroClasses.Archer:
             case HeroClasses.Vampire:
+              throw new UserInputError(
+                "You cannot touch the aberration for you already possess it's essence",
+              );
             // fuck these two too
             case HeroClasses.JackOfAllTrades:
             case HeroClasses.Adventurer:
               throw new UserInputError(
-                "You cannot touch the aberration for you already possess it's essence",
+                "The aberration cannot be approached by your kind.",
               );
           }
         } else {

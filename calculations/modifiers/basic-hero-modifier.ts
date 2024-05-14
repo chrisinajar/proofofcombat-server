@@ -22,9 +22,11 @@ export class BasicHeroModifier extends Modifier<undefined> {
         // hero.combat.health = Math.round(
         //   (hero.stats.constitution * 20 + hero.level * 20) * bonusHealth
         // );
+        // maybe log(x/magnitude+1)*magnitude
         return (
           this.parent.baseValues.constitution * this.parent.stats.level +
-          this.parent.stats.constitution / 8 +
+          Math.log(this.parent.stats.constitution / 1000000000 + 1) *
+            1000000000 +
           194 -
           this.parent.baseValues.health
         );
