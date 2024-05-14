@@ -58,6 +58,7 @@
   "scripts": {
     "prepare": "husky install",
     "generate": "graphql-codegen",
-    "dev": "nodemon --exec ts-node ./index.ts"
+    "dev": "nodemon --exec ts-node ./index.ts",
+    "test": "jest"
   }
 }

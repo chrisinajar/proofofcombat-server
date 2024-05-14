@@ -7,6 +7,7 @@ import { attributesForAttack } from "../../combat/constants";
 import type { Hero } from "../units/hero";
 
 const DIMINISHING_HEALTH_MAGNITUDE = 100000000;
+const MODIFIED_HEALTH_FACTOR = 2;
 
 export class BasicHeroModifier extends Modifier<undefined> {
   parent: Hero;
@@ -27,11 +28,12 @@ export class BasicHeroModifier extends Modifier<undefined> {
         // maybe log(x/magnitude+1)*magnitude
         return (
           this.parent.baseValues.constitution * this.parent.stats.level +
-          Math.log(
+          (Math.log(
             this.parent.stats.constitution / DIMINISHING_HEALTH_MAGNITUDE + 1,
           ) *
-            DIMINISHING_HEALTH_MAGNITUDE +
-          190 -
+            DIMINISHING_HEALTH_MAGNITUDE) /
+            MODIFIED_HEALTH_FACTOR +
+          193 -
           this.parent.baseValues.health
         );
       // Math.pow(1.08, this.parent.stats.vitality)
