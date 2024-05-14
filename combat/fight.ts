@@ -69,6 +69,7 @@ export async function executeFight(
   const attackerIsMesmerized = !attackerDidFocus && victimDidMesmerize;
   const victimIsMesmerized = !victimDidFocus && attackerDidMesmerize;
 
+  // negate enchantment battle if they were mesmerized
   if (attackerIsMesmerized) {
     battleResults.push({
       attackType: victimCombatant.attackType,
@@ -96,6 +97,146 @@ export async function executeFight(
     });
     enchantmentBattle.attackerDamage = 0;
     enchantmentBattle.victimHeal = 0;
+  }
+
+  let attackerIsDead =
+    enchantmentBattle.attackerDamage - enchantmentBattle.attackerHeal >=
+    attackerCombatant.health;
+
+  let victimIsDead =
+    enchantmentBattle.victimDamage - enchantmentBattle.victimHeal >=
+    victimCombatant.health;
+
+  let victimDamage = 0;
+  let attackerAttack: AttackCombcatantResult | false = false;
+  let victimAttack: AttackCombcatantResult | false = false;
+  let secondAttackerAttack: AttackCombcatantResult | false = false;
+  let secondVictimAttack: AttackCombcatantResult | false = false;
+
+  // attacker attacks victim first
+  if (!attackerIsMesmerized && !attackerIsDead) {
+    attackerAttack = attackCombatant(attackerCombatant, victimCombatant);
+
+    attackerDamage += attackerAttack.damage;
+    if (attackerAttack.overDamage > 0 && enchantmentBattle.victimHeal > 0) {
+      // reduce healing with overdamage
+      enchantmentBattle.victimHeal = Math.max(
+        0,
+        enchantmentBattle.victimHeal -
+          Math.round(attackerAttack.overDamage / 2),
+      );
+    }
+
+    const bloodMageDamage =
+      attackerCombatant.class === HeroClasses.BloodMage ||
+      attackerCombatant.class === HeroClasses.Vampire
+        ? attackerCombatant.health * 0.01
+        : attackerCombatant.health * 0.05;
+
+    victimDamage +=
+      attackerCombatant.attackType === AttackType.Blood ? bloodMageDamage : 0;
+  }
+
+  victimIsDead =
+    enchantmentBattle.victimDamage -
+      enchantmentBattle.victimHeal +
+      attackerDamage >=
+    victimCombatant.health;
+
+  if (!victimIsMesmerized && !victimIsDead) {
+    victimAttack = attackCombatant(victimCombatant, attackerCombatant);
+
+    victimDamage += victimAttack.damage;
+    if (victimAttack.overDamage > 0 && enchantmentBattle.attackerHeal > 0) {
+      // reduce healing with overdamage
+      enchantmentBattle.attackerHeal = Math.max(
+        0,
+        enchantmentBattle.attackerHeal -
+          Math.round(victimAttack.overDamage / 2),
+      );
+    }
+
+    if (victimCombatant.class !== HeroClasses.Monster) {
+      const bloodMageDamage =
+        victimCombatant.class === HeroClasses.BloodMage ||
+        victimCombatant.class === HeroClasses.Vampire
+          ? victimCombatant.health * 0.01
+          : victimCombatant.health * 0.05;
+
+      attackerDamage +=
+        victimCombatant.attackType === AttackType.Blood ? bloodMageDamage : 0;
+    }
+  }
+
+  attackerIsDead =
+    enchantmentBattle.attackerDamage -
+      enchantmentBattle.attackerHeal +
+      victimDamage >=
+    attackerCombatant.health;
+
+  if (
+    !attackerIsMesmerized &&
+    !attackerIsDead &&
+    hasTwoAttacks(attackerCombatant)
+  ) {
+    secondAttackerAttack = attackCombatant(
+      attackerCombatant,
+      victimCombatant,
+      true,
+    );
+
+    attackerDamage += secondAttackerAttack.damage;
+    if (
+      secondAttackerAttack.overDamage > 0 &&
+      enchantmentBattle.victimHeal > 0
+    ) {
+      // reduce healing with overdamage
+      enchantmentBattle.victimHeal = Math.max(
+        0,
+        enchantmentBattle.victimHeal -
+          Math.round(secondAttackerAttack.overDamage / 2),
+      );
+    }
+  }
+
+  victimIsDead =
+    enchantmentBattle.victimDamage -
+      enchantmentBattle.victimHeal +
+      attackerDamage >=
+    victimCombatant.health;
+
+  if (!victimIsMesmerized && !victimIsDead && hasTwoAttacks(victimCombatant)) {
+    secondVictimAttack = attackCombatant(
+      victimCombatant,
+      attackerCombatant,
+      true,
+    );
+
+    victimDamage += secondVictimAttack.damage;
+    if (
+      secondVictimAttack.overDamage > 0 &&
+      enchantmentBattle.attackerHeal > 0
+    ) {
+      // reduce healing with overdamage
+      enchantmentBattle.attackerHeal = Math.max(
+        0,
+        enchantmentBattle.attackerHeal -
+          Math.round(secondVictimAttack.overDamage / 2),
+      );
+    }
+  }
+
+  if (attackerAttack) {
+    battleResults = battleResults.concat(attackerAttack.combatLog);
+  }
+  if (victimAttack) {
+    battleResults = battleResults.concat(victimAttack.combatLog);
+  }
+  if (secondAttackerAttack) {
+    battleResults = battleResults.concat(secondAttackerAttack.combatLog);
+  }
+  if (secondVictimAttack) {
+    battleResults = battleResults.concat(secondVictimAttack.combatLog);
   }
 
   if (enchantmentBattle.victimDamage > 0) {
@@ -146,72 +287,6 @@ export async function executeFight(
     });
   }
 
-  if (
-    !attackerIsMesmerized &&
-    enchantmentBattle.attackerDamage - enchantmentBattle.attackerHeal <
-      attackerCombatant.health
-  ) {
-    const attackerAttack = attackCombatant(attackerCombatant, victimCombatant);
-    attackerDamage += attackerAttack.damage;
-    battleResults = battleResults.concat(attackerAttack.combatLog);
-  }
-
-  const bloodMageDamage =
-    attackerCombatant.class === HeroClasses.BloodMage ||
-    attackerCombatant.class === HeroClasses.Vampire
-      ? attackerCombatant.health * 0.01
-      : attackerCombatant.health * 0.05;
-
-  let victimDamage =
-    attackerCombatant.attackType === AttackType.Blood ? bloodMageDamage : 0;
-
-  if (
-    !victimIsMesmerized &&
-    enchantmentBattle.victimDamage -
-      enchantmentBattle.victimHeal +
-      attackerDamage <
-      victimCombatant.health
-  ) {
-    const victimAttack = attackCombatant(victimCombatant, attackerCombatant);
-
-    victimDamage += victimAttack.damage;
-    battleResults = battleResults.concat(victimAttack.combatLog);
-  }
-
-  if (
-    !attackerIsMesmerized &&
-    enchantmentBattle.attackerDamage -
-      enchantmentBattle.attackerHeal +
-      victimDamage <
-      attackerCombatant.health &&
-    hasTwoAttacks(attackerCombatant)
-  ) {
-    const secondAttackerAttack = attackCombatant(
-      attackerCombatant,
-      victimCombatant,
-      true,
-    );
-    attackerDamage += secondAttackerAttack.damage;
-    battleResults = battleResults.concat(secondAttackerAttack.combatLog);
-  }
-
-  if (
-    !victimIsMesmerized &&
-    enchantmentBattle.victimDamage -
-      enchantmentBattle.victimHeal +
-      attackerDamage <
-      victimCombatant.health &&
-    hasTwoAttacks(victimCombatant)
-  ) {
-    const secondVictimAttack = attackCombatant(
-      victimCombatant,
-      attackerCombatant,
-      true,
-    );
-    victimDamage += secondVictimAttack.damage;
-    battleResults = battleResults.concat(secondVictimAttack.combatLog);
-  }
-
   // do not allow overhealing
   victimDamage = Math.max(
     victimDamage,
@@ -245,17 +320,20 @@ export async function executeFight(
   };
 }
 
+type AttackCombcatantResult = {
+  hit: boolean;
+  damage: number;
+  overDamage: number;
+  critical: boolean;
+  doubleCritical: boolean;
+  combatLog: CombatEntry[];
+};
+
 export function attackCombatant(
   attacker: Combatant,
   victim: Combatant,
   isSecondAttack: boolean = false,
-): {
-  hit: boolean;
-  damage: number;
-  critical: boolean;
-  doubleCritical: boolean;
-  combatLog: CombatEntry[];
-} {
+): AttackCombcatantResult {
   let { attackType } = attacker;
   if (
     isSecondAttack &&
@@ -272,6 +350,7 @@ export function attackCombatant(
 
   const hit = calculateHit(attacker, victim, isSecondAttack);
   let damage = 0;
+  let overDamage = 0;
   let critical = false;
   let doubleCritical = false;
   const combatLog: CombatEntry[] = [];
@@ -279,6 +358,7 @@ export function attackCombatant(
   if (hit) {
     const damageResult = calculateDamage(attacker, victim, isSecondAttack);
     damage = damageResult.damage;
+    overDamage = damageResult.overDamage;
     critical = damageResult.critical;
     doubleCritical = damageResult.doubleCritical;
 
@@ -318,6 +398,7 @@ export function attackCombatant(
   return {
     hit,
     damage,
+    overDamage,
     critical,
     doubleCritical,
     combatLog,

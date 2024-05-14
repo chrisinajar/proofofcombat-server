@@ -178,7 +178,12 @@ export function calculateDamage(
   victimInput: Combatant,
   isSecondAttack: boolean = false,
   debug: boolean = false,
-): { damage: number; critical: boolean; doubleCritical: boolean } {
+): {
+  damage: number;
+  overDamage: number;
+  critical: boolean;
+  doubleCritical: boolean;
+} {
   const {
     baseDamage,
     variation,
@@ -211,13 +216,15 @@ export function calculateDamage(
     console.log("final damage", damage);
   }
   damage *= multiplier;
-  damage = Math.round(Math.max(1, Math.min(1000000000, damage)));
+  const uncappedDamage = Math.round(Math.max(1, damage));
+  damage = Math.min(1000000000, uncappedDamage);
 
   if (canOnlyTakeOneDamage) {
     damage = 1;
   }
 
   return {
+    overDamage: uncappedDamage - damage,
     damage,
     critical,
     doubleCritical,
