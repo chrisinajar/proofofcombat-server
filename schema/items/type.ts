@@ -32,6 +32,7 @@ export default gql`
 
   type ShopItem {
     id: ID!
+    alias: String!
     name: String!
     type: InventoryItemType!
     cost: Int

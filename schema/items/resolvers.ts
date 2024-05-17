@@ -32,16 +32,17 @@ type SlotNameType =
 const resolvers: Resolvers = {
   Query: {
     async shopItems(parent, args, context: BaseContext): Promise<ShopItem[]> {
-      return Object.values<BaseItem>(BaseItems)
-        .filter((item) => item.canBuy)
-        .sort((a, b) => a.level - b.level)
-        .map((baseItem) => ({
-          id: baseItem.id,
-          name: baseItem.name,
-          type: baseItem.type,
-          cost: baseItem.cost,
-          level: baseItem.level,
-        }));
+      return Object.keys(BaseItems)
+        .filter((id) => BaseItems[id].canBuy)
+        .map((id) => ({
+          id: BaseItems[id].id,
+          alias: id,
+          name: BaseItems[id].name,
+          type: BaseItems[id].type,
+          cost: BaseItems[id].cost,
+          level: BaseItems[id].level,
+        }))
+        .sort((a, b) => a.level - b.level);
     },
   },
   Mutation: {
