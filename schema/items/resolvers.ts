@@ -35,8 +35,8 @@ const resolvers: Resolvers = {
       return Object.keys(BaseItems)
         .filter((id) => BaseItems[id].canBuy)
         .map((id) => ({
-          id: BaseItems[id].id,
-          alias: id,
+          id: id,
+          alias: BaseItems[id].id,
           name: BaseItems[id].name,
           type: BaseItems[id].type,
           cost: BaseItems[id].cost,
