@@ -314,3 +314,9 @@ export const BaseItems: BaseItemMap = {
   ...getNonDropGear(),
   ...getQuestRewards(),
 };
+
+BaseItems["Torn Cotten Body Armor"] = BaseItems["Torn Cotton Body Armor"];
+BaseItems["Torn Cotten Gauntlets"] = BaseItems["Torn Cotton Gauntlets"];
+BaseItems["Torn Cotten Leggings"] = BaseItems["Torn Cotton Leggings"];
+BaseItems["Torn Cotten Helmet"] = BaseItems["Torn Cotton Helmet"];
+BaseItems["Torn Cotten Greaves"] = BaseItems["Torn Cotton Greaves"];
