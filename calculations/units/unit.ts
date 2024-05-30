@@ -391,14 +391,18 @@ export class Unit {
     // hero.combat.health = Math.round(
     //   (hero.stats.constitution * 20 + hero.level * 20) * bonusHealth
     // );
-    return new Proxy<Unit, BaseValues>(this, {
-      get(obj, prop: string) {
-        return obj.getModifiedValue(prop);
+    const unit = this;
+    return new Proxy<{}, BaseValues>(
+      {},
+      {
+        get(obj, prop: string) {
+          return unit.getModifiedValue(prop);
+        },
+        set(obj, prop: string, value) {
+          console.log("What are you trying to do?", prop);
+          return false;
+        },
       },
-      set(obj, prop: string, value) {
-        console.log("What are you trying to do?", prop);
-        return false;
-      },
-    });
+    );
   }
 }
