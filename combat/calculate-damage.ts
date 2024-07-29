@@ -3,6 +3,7 @@ import {
   InventoryItemType,
   HeroClasses,
   EnchantmentType,
+  DamageType,
 } from "types/graphql";
 
 import { Combatant } from "./types";
@@ -26,6 +27,19 @@ export function calculateDamageValues(
   );
 
   const attributeTypes = attributesForAttack(attackType);
+  let damageType = DamageType.Physical;
+
+  switch (attackType) {
+    case AttackType.Melee:
+    case AttackType.Ranged:
+      break;
+
+    case AttackType.Cast:
+    case AttackType.Smite:
+    case AttackType.Blood:
+      damageType = DamageType.Magical;
+      break;
+  }
 
   let percentageDamageReduction = victim.percentageDamageReduction;
   let percentageDamageIncrease = attacker.percentageDamageIncrease;
@@ -164,6 +178,7 @@ export function calculateDamageValues(
 
   return {
     baseDamage,
+    damageType,
     variation,
     criticalChance,
     doubleCriticalChance,
@@ -183,10 +198,12 @@ export function calculateDamage(
   overDamage: number;
   critical: boolean;
   doubleCritical: boolean;
+  damageType: DamageType;
 } {
   const {
     baseDamage,
     variation,
+    damageType,
     criticalChance,
     doubleCriticalChance,
     trippleCriticalChance,
@@ -228,5 +245,6 @@ export function calculateDamage(
     damage,
     critical,
     doubleCritical,
+    damageType,
   };
 }

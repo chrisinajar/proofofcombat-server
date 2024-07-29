@@ -364,6 +364,7 @@ export function attackCombatant(
 
     combatLog.push({
       attackType: attackType,
+      damageType: damageResult.damageType,
       success: true,
       isEnchantment: false,
       from: attacker.name,

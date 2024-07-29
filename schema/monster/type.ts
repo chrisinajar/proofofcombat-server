@@ -69,6 +69,7 @@ export default gql`
   type CombatEntry {
     damage: Float!
     attackType: AttackType!
+    damageType: DamageType
     isEnchantment: Boolean!
     success: Boolean!
     from: String!
@@ -83,5 +84,11 @@ export default gql`
     CAST
     SMITE
     BLOOD
+  }
+
+  enum DamageType {
+    PHYSICAL
+    MAGICAL
+    ENCHANTMENT
   }
 `;
