@@ -717,9 +717,14 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     }
 
     hero.class = getClass(hero);
+    data.availableStances = this.getAvailableStances(hero);
 
     // return this.recalculateStats(data as Hero);
     return hero;
+  }
+
+  getAvailableStances(hero: Hero): HeroStance[] {
+    return [HeroStance.Normal];
   }
 
   async create(account: BaseAccount): Promise<Hero> {

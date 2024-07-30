@@ -486,7 +486,7 @@ const resolvers: Resolvers = {
 
       cleanStats(enchantedStats.attacker.attributes);
       cleanStats(enchantedStats.victim.attributes);
-
+      ("");
       return {
         damageAmplification: enchantedStats.attacker.percentageDamageIncrease,
         damageReduction: enchantedStats.attacker.percentageDamageReduction,
@@ -543,6 +543,9 @@ const resolvers: Resolvers = {
           .map((item) => findItem(hero, item) as InventoryItem),
         artifact: hero.equipment.artifact,
       };
+    },
+    async availableStances(parent, args, context): Promise<HeroStance[]> {
+      return context.db.hero.getAvailableStances(parent);
     },
   },
 };

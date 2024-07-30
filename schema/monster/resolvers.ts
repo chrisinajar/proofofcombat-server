@@ -110,7 +110,11 @@ const resolvers: Resolvers = {
       const startLevel = hero.level;
       const attackType: AttackType = args.attackType || AttackType.Melee;
       const stance: HeroStance = args.stance || hero.activeStance;
-      // hero.activeStance = stance;
+
+      const availableStances = context.db.hero.getAvailableStances(hero);
+      if (availableStances.indexOf(stance) !== -1) {
+        hero.activeStance = stance;
+      }
 
       const monsterMaxHealth = monster.monster.combat.maxHealth;
       // big nerf, curves values close to or above 1b to always be below maxBaseGoldReward
