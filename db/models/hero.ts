@@ -725,11 +725,12 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
   getAvailableStances(hero: Hero): HeroStance[] {
     return [HeroStance.Normal];
+    // return [HeroStance.Normal, HeroStance.Reckless];
   }
 
   async create(account: BaseAccount): Promise<Hero> {
     if (account.hero) {
-      return account.hero;
+      return this.upgrade(account.hero);
     }
     // get first
     try {
