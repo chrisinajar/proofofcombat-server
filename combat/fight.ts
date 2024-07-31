@@ -357,21 +357,21 @@ export function attackCombatant(
 
   if (hit) {
     const damageResult = calculateDamage(attacker, victim, isSecondAttack);
-    damage = damageResult.damage;
     overDamage = damageResult.overDamage;
     critical = damageResult.critical;
     doubleCritical = damageResult.doubleCritical;
 
-    combatLog.push({
-      attackType: attackType,
-      damageType: damageResult.damageType,
-      success: true,
-      isEnchantment: false,
-      from: attacker.name,
-      to: victim.name,
-      damage,
-      critical,
-    });
+    for (let damage of damageResult.damages) {
+      combatLog.push({
+        attackType: attackType,
+        success: true,
+        isEnchantment: false,
+        from: attacker.name,
+        to: victim.name,
+        critical,
+        ...damage,
+      });
+    }
 
     // console.log(
     //   attacker.name,

@@ -10,6 +10,7 @@ import {
   Quest,
   HeroSkill,
   HeroStance,
+  HeroClasses,
 } from "types/graphql";
 import { startingLevelCap } from "../../schema/quests/rebirth";
 import { hasQuestItem, takeQuestItem } from "../../schema/quests/helpers";
@@ -724,6 +725,10 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   getAvailableStances(hero: Hero): HeroStance[] {
+    switch (hero.class) {
+      case HeroClasses.Berserker:
+        return [HeroStance.Normal, HeroStance.Reckless];
+    }
     return [HeroStance.Normal];
     // return [HeroStance.Normal, HeroStance.Reckless];
   }

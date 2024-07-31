@@ -28,37 +28,18 @@ export class HeroStanceModifier extends Modifier<undefined> {
       case HeroStance.Combat:
         break;
       case HeroStance.Reckless:
-        if (prop === attackAttributes.toHit) {
-          return 0.8;
+        if (prop === "bonusAccuracy") {
+          return 2;
         }
-        if (prop === attackAttributes.damage) {
-          return 0.8;
+        if (prop === "bonusDodge") {
+          return 0.5;
         }
-        ///@TODO bleed
         break;
+
+      ///@TODO the rest
       case HeroStance.Aggressive:
-        if (prop === attackAttributes.toHit) {
-          return 1 / 1.2;
-        }
-        if (prop === attackAttributes.damage) {
-          return 1.2;
-        }
         break;
       case HeroStance.Defensive:
-        if (prop === attackAttributes.toHit) {
-          return 0.9;
-        }
-        if (prop === attackAttributes.damage) {
-          return 0.9;
-        }
-        if (prop === victimAttributes.dodge) {
-          return 1.2;
-        }
-        if (prop === victimAttributes.damageReduction) {
-          return 1.2;
-        }
-
-        // do rest later... i don't feel like working on stances right now
         break;
       case HeroStance.NecroticBeam:
         break;

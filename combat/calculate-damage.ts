@@ -10,6 +10,11 @@ import { Combatant } from "./types";
 import { attributesForAttack, getItemPassiveUpgradeTier } from "./helpers";
 import { getEnchantedAttributes } from "./enchantments";
 
+type DamageInstance = {
+  damage: number;
+  damageType: DamageType;
+};
+
 export function calculateDamageValues(
   attackerInput: Combatant,
   victimInput: Combatant,
@@ -194,11 +199,10 @@ export function calculateDamage(
   isSecondAttack: boolean = false,
   debug: boolean = false,
 ): {
-  damage: number;
+  damages: DamageInstance[];
   overDamage: number;
   critical: boolean;
   doubleCritical: boolean;
-  damageType: DamageType;
 } {
   const {
     baseDamage,
@@ -210,6 +214,13 @@ export function calculateDamage(
     canOnlyTakeOneDamage,
     multiplier,
   } = calculateDamageValues(attackerInput, victimInput, isSecondAttack, debug);
+  const damages: DamageInstance[] = [];
+
+  const { attacker, victim } = getEnchantedAttributes(
+    attackerInput,
+    victimInput,
+  );
+
   let damage = baseDamage - variation * Math.random();
 
   let critical = false;
@@ -233,18 +244,63 @@ export function calculateDamage(
     console.log("final damage", damage);
   }
   damage *= multiplier;
-  const uncappedDamage = Math.round(Math.max(1, damage));
-  damage = Math.min(1000000000, uncappedDamage);
+
+  // unit can have stats of damageAsType where type is any of these
+  // they'll be any value between 0 and 1, and they'll be used to convert damage to other types
+  // since they're splitting up damage, we need to make sure all the multipliers add up to no more than 1
+  // we also ignore damage conversion for the type of damage we're dealing
+  const possibleDamageTypes = [DamageType.Magical, DamageType.Physical];
+
+  const damageByType: { [x in DamageType]?: number } = {};
+
+  let totalDamageConversion = 0;
+  for (let type of possibleDamageTypes) {
+    if (type === damageType) {
+      continue;
+    }
+    totalDamageConversion += attacker.unit.stats[`damageAs${type}`];
+  }
+  for (let type of possibleDamageTypes) {
+    if (type === damageType) {
+      continue;
+    }
+    let conversion = attacker.unit.stats[`damageAs${type}`];
+    if (conversion > 0) {
+      if (totalDamageConversion > 1) {
+        conversion /= totalDamageConversion;
+      }
+      const converted = damage * conversion;
+      damage -= converted;
+      damageByType[type] = converted;
+    }
+  }
+
+  let uncappedDamage = Math.round(Math.max(1, damage));
+
+  // add basic damage to damages and subtract it from damage
+  const standardDamage = Math.min(1000000000, uncappedDamage);
+  uncappedDamage -= standardDamage;
+  damageByType[damageType] = standardDamage;
+
+  for (let type of possibleDamageTypes) {
+    const damage = Math.round(Math.min(1000000000, damageByType[type] ?? 0));
+    if (damage) {
+      damages.push({ damage, damageType: type });
+    }
+  }
+  // damages.push({ damage: standardDamage, damageType });
 
   if (canOnlyTakeOneDamage) {
-    damage = 1;
+    for (let damage of damages) {
+      damage.damage = 1;
+    }
+    uncappedDamage = 0;
   }
 
   return {
-    overDamage: uncappedDamage - damage,
-    damage,
+    overDamage: uncappedDamage,
+    damages,
     critical,
     doubleCritical,
-    damageType,
   };
 }
