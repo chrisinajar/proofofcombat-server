@@ -87,6 +87,10 @@ export async function executeNpcTrade(
   if (tradeId.startsWith("transcendence")) {
     return executeTranscendenceTrade(context, hero, tradeId);
   }
+  // altar blessings
+  if (tradeId.startsWith("altar-blessing-")) {
+    return executeAltarBlessing(context, hero, tradeId);
+  }
 
   return { success: false, message: "not implemented" };
 }
@@ -105,9 +109,105 @@ export function getShopData(
     return getAmixeaTrades(context, hero);
   } else if (location.name === "Altar of Transcendence") {
     return getTranscendenceTrades(context, hero);
+  } else if (location.name === "Ruby Altar") {
+    return getAltarBlessings(context, hero, location.name);
+  } else if (location.name === "Emerald Altar") {
+    return getAltarBlessings(context, hero, location.name);
+  } else if (location.name === "Sapphire Altar") {
+    return getAltarBlessings(context, hero, location.name);
+  } else if (location.name === "Diamond Altar") {
+    return getAltarBlessings(context, hero, location.name);
   }
 
   return null;
+}
+
+function getAltarBlessings(
+  context: BaseContext,
+  hero: Hero,
+  location: string,
+): NpcShop | null {
+  const shop: NpcShop = {
+    name: location,
+
+    trades: [],
+  };
+
+  // each altar gives a mutually exclusive blessing
+  // so if you already have that blessing, don't offer it to them
+  // each one gives a bonus to a specific resistance or type of resistances
+  // ruby: physical
+  // emerald: magical
+  // sapphire: elemental
+  // diamond: all, but less
+
+  if (location === "Ruby Altar") {
+    if (hero.buffs.blessing === EnchantmentType.RubyBlessing) {
+      return null;
+    }
+    shop.trades.push({
+      id: "altar-blessing-ruby",
+      price: {
+        gold: 1000000000,
+        description: "a small fee",
+      },
+      offer: {
+        enchantments: [EnchantmentType.RubyBlessing],
+        description: "a blessing of physical resistance",
+      },
+    });
+  } else if (location === "Emerald Altar") {
+    if (hero.buffs.blessing === EnchantmentType.EmeraldBlessing) {
+      return null;
+    }
+    shop.trades.push({
+      id: "altar-blessing-emerald",
+      price: {
+        gold: 1000000000,
+        description: "a small fee",
+      },
+      offer: {
+        enchantments: [EnchantmentType.EmeraldBlessing],
+        description: "a blessing of magical resistance",
+      },
+    });
+  } else if (location === "Sapphire Altar") {
+    if (hero.buffs.blessing === EnchantmentType.SapphireBlessing) {
+      return null;
+    }
+    shop.trades.push({
+      id: "altar-blessing-sapphire",
+      price: {
+        gold: 1000000000,
+        description: "a small fee",
+      },
+      offer: {
+        enchantments: [EnchantmentType.SapphireBlessing],
+        description: "a blessing of elemental resistance",
+      },
+    });
+  } else if (location === "Diamond Altar") {
+    if (hero.buffs.blessing === EnchantmentType.DiamondBlessing) {
+      return null;
+    }
+    shop.trades.push({
+      id: "altar-blessing-diamond",
+      price: {
+        gold: 1000000000,
+        description: "a small fee",
+      },
+      offer: {
+        enchantments: [EnchantmentType.DiamondBlessing],
+        description: "a blessing of all resistances",
+      },
+    });
+  }
+
+  if (!shop.trades.length) {
+    return null;
+  }
+
+  return shop;
 }
 
 function getTranscendenceTrades(
@@ -168,6 +268,68 @@ function getTranscendenceTrades(
     return null;
   }
   return shop;
+}
+
+async function executeAltarBlessing(
+  context: BaseContext,
+  hero: Hero,
+  tradeId: string,
+): Promise<NpcTradeResult> {
+  // each altar gives a mutually exclusive blessing
+  // just take the money and give them the blessing they asked for
+  if (tradeId === "altar-blessing-ruby") {
+    if (hero.buffs.blessing === EnchantmentType.RubyBlessing) {
+      return { success: false, message: "You already have this blessing" };
+    }
+    if (hero.gold < 1000000000) {
+      return { success: false, message: "You do not have enough gold" };
+    }
+    hero.gold -= 1000000000;
+    hero.buffs.blessing = EnchantmentType.RubyBlessing;
+    await context.db.hero.put(hero);
+    return { success: true, message: "You have been blessed" };
+  }
+
+  if (tradeId === "altar-blessing-emerald") {
+    if (hero.buffs.blessing === EnchantmentType.EmeraldBlessing) {
+      return { success: false, message: "You already have this blessing" };
+    }
+    if (hero.gold < 1000000000) {
+      return { success: false, message: "You do not have enough gold" };
+    }
+    hero.gold -= 1000000000;
+    hero.buffs.blessing = EnchantmentType.EmeraldBlessing;
+    await context.db.hero.put(hero);
+    return { success: true, message: "You have been blessed" };
+  }
+
+  if (tradeId === "altar-blessing-emerald") {
+    if (hero.buffs.blessing === EnchantmentType.EmeraldBlessing) {
+      return { success: false, message: "You already have this blessing" };
+    }
+    if (hero.gold < 1000000000) {
+      return { success: false, message: "You do not have enough gold" };
+    }
+    hero.gold -= 1000000000;
+    hero.buffs.blessing = EnchantmentType.EmeraldBlessing;
+    await context.db.hero.put(hero);
+    return { success: true, message: "You have been blessed" };
+  }
+
+  if (tradeId === "altar-blessing-diamond") {
+    if (hero.buffs.blessing === EnchantmentType.DiamondBlessing) {
+      return { success: false, message: "You already have this blessing" };
+    }
+    if (hero.gold < 1000000000) {
+      return { success: false, message: "You do not have enough gold" };
+    }
+    hero.gold -= 1000000000;
+    hero.buffs.blessing = EnchantmentType.DiamondBlessing;
+    await context.db.hero.put(hero);
+    return { success: true, message: "You have been blessed" };
+  }
+
+  return { success: false, message: "not implemented" };
 }
 
 async function executeTranscendenceTrade(

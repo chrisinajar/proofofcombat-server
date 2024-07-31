@@ -61,6 +61,7 @@ type PartialHero = Optional<
   | "activeSkill"
   | "activeStance"
   | "availableStances"
+  | "buffs"
 >;
 
 const inMemoryLeaderboardLength = 50;
@@ -705,6 +706,12 @@ export default class HeroModel extends DatabaseInterface<Hero> {
         data.questLog.meetTheQueen = null;
       }
       data.version = 10;
+    }
+
+    if (!data.buffs) {
+      data.buffs = {
+        blessing: null,
+      };
     }
 
     // recalculate stats and turn it into a real hero object

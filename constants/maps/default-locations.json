@@ -132,7 +132,7 @@
   {
     "x": 0,
     "y": 0,
-    "name": "Altar of Might",
+    "name": "Ruby Altar",
     "type": "altar",
     "description": [
       "The altar is adorned with a large ruby gemstone, it seems inactive."
@@ -141,7 +141,7 @@
   {
     "x": 127,
     "y": 0,
-    "name": "Altar of Agility",
+    "name": "Emerald Altar",
     "type": "altar",
     "description": [
       "The altar is adorned with a large emerald gemstone, it seems inactive."
@@ -150,7 +150,7 @@
   {
     "x": 0,
     "y": 95,
-    "name": "Altar of Magic",
+    "name": "Sapphire Altar",
     "type": "altar",
     "description": [
       "The altar is adorned with a large sapphire gemstone, it seems inactive."
@@ -159,7 +159,7 @@
   {
     "x": 127,
     "y": 95,
-    "name": "Altar of Endurance",
+    "name": "Diamond Altar",
     "type": "altar",
     "description": [
       "The altar is adorned with a large diamond gemstone, it seems inactive."

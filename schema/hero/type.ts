@@ -63,6 +63,14 @@ export default gql`
 
     activeStance: HeroStance!
     availableStances: [HeroStance!]!
+
+    buffs: HeroBuffs!
+  }
+
+  # various buffs like blessings, curses, etc not bound to quest items
+  # effectively "buff slots" of sorts
+  type HeroBuffs {
+    blessing: EnchantmentType
   }
 
   enum HeroStance {

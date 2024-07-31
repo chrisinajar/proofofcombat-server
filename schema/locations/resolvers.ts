@@ -2019,21 +2019,7 @@ const resolvers: Resolvers = {
         return true;
       }
       // todo:
-      // if (location.name === "Altar of Might") {
-      //   return true;
-      // }
-
-      // if (location.name === "Altar of Agility") {
-      //   return true;
-      // }
-
-      // if (location.name === "Altar of Magic") {
-      //   return true;
-      // }
-
-      // if (location.name === "Altar of Endurance") {
-      //   return true;
-      // }
+      // others?
 
       return false;
 

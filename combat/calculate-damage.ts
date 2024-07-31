@@ -275,6 +275,10 @@ export function calculateDamage(
     }
   }
 
+  const resistance =
+    1 - victim.unit.stats[`${damageType.toLowerCase()}Resistance`];
+  damage *= resistance;
+
   let uncappedDamage = Math.round(Math.max(1, damage));
 
   // add basic damage to damages and subtract it from damage
@@ -283,7 +287,11 @@ export function calculateDamage(
   damageByType[damageType] = standardDamage;
 
   for (let type of possibleDamageTypes) {
-    const damage = Math.round(Math.min(1000000000, damageByType[type] ?? 0));
+    const resistance = 1 - victim.unit.stats[`${type.toLowerCase()}Resistance`];
+
+    const damage = Math.round(
+      Math.min(1000000000, (damageByType[type] ?? 0) * resistance),
+    );
     if (damage) {
       damages.push({ damage, damageType: type });
     }

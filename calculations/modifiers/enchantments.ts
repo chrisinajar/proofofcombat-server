@@ -1215,5 +1215,59 @@ export function genericStatsModifierForEnchantment(
         },
       };
       break;
+
+    case EnchantmentType.RubyBlessing:
+      return {
+        type: GenericStatsModifier,
+        enchantment: EnchantmentType.RubyBlessing,
+        options: {
+          bonus: {
+            physicalResistance: 0.2,
+          },
+        },
+      };
+      break;
+
+    case EnchantmentType.EmeraldBlessing:
+      return {
+        type: GenericStatsModifier,
+        enchantment: EnchantmentType.EmeraldBlessing,
+        options: {
+          bonus: {
+            magicalResistance: 0.2,
+          },
+        },
+      };
+      break;
+
+    case EnchantmentType.SapphireBlessing:
+      return {
+        type: GenericStatsModifier,
+        enchantment: EnchantmentType.SapphireBlessing,
+        options: {
+          bonus: {
+            fireResistance: 0.2,
+            iceResistance: 0.2,
+            lightningResistance: 0.2,
+          },
+        },
+      };
+      break;
+
+    case EnchantmentType.DiamondBlessing:
+      return {
+        type: GenericStatsModifier,
+        enchantment: EnchantmentType.DiamondBlessing,
+        options: {
+          bonus: {
+            physicalResistance: 0.1,
+            magicalResistance: 0.1,
+            fireResistance: 0.1,
+            iceResistance: 0.1,
+            lightningResistance: 0.1,
+          },
+        },
+      };
+      break;
   }
 }

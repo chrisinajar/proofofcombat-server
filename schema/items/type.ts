@@ -249,6 +249,12 @@ export default gql`
     UpgradedSettlement
     # End quest reward enchantments
 
+    # altar blessings
+    RubyBlessing
+    EmeraldBlessing
+    SapphireBlessing
+    DiamondBlessing
+
     # MOB ONLY enchantments
     CanOnlyTakeOneDamage
   }

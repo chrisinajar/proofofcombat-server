@@ -4,6 +4,7 @@ import {
   AttackType,
   InventoryItem as InventoryItemData,
   InventoryItemType,
+  EnchantmentType,
 } from "types/graphql";
 
 import { BasicHeroModifier } from "../modifiers/basic-hero-modifier";
@@ -91,6 +92,20 @@ export class Hero extends Unit {
 
     // artifact which totally works right definitely complete feature
     this.equipArtifact(this.hero.equipment.artifact);
+
+    if (this.hero.buffs.blessing) {
+      this.equipEnchantment(this.hero.buffs.blessing);
+    }
+  }
+
+  equipEnchantment(blessing: EnchantmentType) {
+    this.equipItem({
+      level: 1,
+      enchantment: blessing,
+      type: InventoryItemType.Quest,
+      baseItem: "blessing",
+      name: "Blessing",
+    });
   }
 
   isHero(): boolean {

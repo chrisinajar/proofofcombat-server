@@ -141,6 +141,12 @@ export class Unit {
       wisdomSteal: [0, 1],
       willpowerSteal: [0, 1],
       luckSteal: [0, 1],
+
+      physicalResistance: [-Infinity, 0.8],
+      magicalResistance: [-Infinity, 0.8],
+      fireResistance: [-Infinity, 0.8],
+      iceResistance: [-Infinity, 0.8],
+      lightningResistance: [-Infinity, 0.8],
     };
 
     this.applyModifier(BasicUnitModifier, undefined);
