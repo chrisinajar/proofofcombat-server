@@ -361,7 +361,8 @@ export function attackCombatant(
     critical = damageResult.critical;
     doubleCritical = damageResult.doubleCritical;
 
-    for (let damage of damageResult.damages) {
+    for (let damageEntry of damageResult.damages) {
+      damage += damageEntry.damage;
       combatLog.push({
         attackType: attackType,
         success: true,
@@ -369,7 +370,7 @@ export function attackCombatant(
         from: attacker.name,
         to: victim.name,
         critical,
-        ...damage,
+        ...damageEntry,
       });
     }
 
