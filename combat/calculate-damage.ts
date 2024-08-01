@@ -291,8 +291,13 @@ export function calculateDamage(
   const standardDamage = Math.min(1000000000, uncappedDamage);
   uncappedDamage -= standardDamage;
   damageByType[damageType] = standardDamage;
+  damages.push({ damage: standardDamage, damageType });
 
   for (let type of possibleDamageTypes) {
+    if (type === damageType) {
+      continue;
+    }
+
     const resistance = 1 - victim.unit.stats[`${type.toLowerCase()}Resistance`];
 
     const damage = Math.round(
@@ -302,7 +307,6 @@ export function calculateDamage(
       damages.push({ damage, damageType: type });
     }
   }
-  // damages.push({ damage: standardDamage, damageType });
 
   if (canOnlyTakeOneDamage) {
     for (let damage of damages) {
