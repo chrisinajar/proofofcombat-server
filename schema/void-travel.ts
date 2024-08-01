@@ -22,7 +22,7 @@ export async function endVoidTravel(context: BaseContext, hero: Hero) {
   );
   // move the player back to the default map but preserve their x,y coordinates
   hero.location.map = "default";
-  // hero = rebirth(context, hero);
+  hero = rebirth(context, hero);
 }
 
 export async function startVoidTravel(
