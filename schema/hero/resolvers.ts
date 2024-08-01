@@ -493,6 +493,14 @@ const resolvers: Resolvers = {
         armorReduction: enchantedStats.victim.percentageDamageReduction,
         enemyStats: enchantedStats.victim.attributes,
         stats: enchantedStats.attacker.attributes,
+
+        physicalResistance:
+          enchantedStats.attacker.unit.stats.physicalResistance,
+        magicalResistance: enchantedStats.attacker.unit.stats.magicalResistance,
+        fireResistance: enchantedStats.attacker.unit.stats.fireResistance,
+        iceResistance: enchantedStats.attacker.unit.stats.iceResistance,
+        lightningResistance:
+          enchantedStats.attacker.unit.stats.lightningResistance,
       };
     },
     async equipment(
