@@ -76,31 +76,13 @@ export default gql`
   enum HeroStance {
     Normal
 
-    Combat
+    # berserler
     Reckless
-    Aggressive
-    Defensive
 
-    NecroticBeam
-    CloudofKnives
-    FrozenOrb
-    MageArmor
-
-    NormalArrow
-    BarbedArrow
-
-    BloodHunter
-    DarkPresence
-    AuraoftheLifeless
-
-    ShieldSmash
-    ShieldSlash
-    HolySmite
-    VengefulSmite
-
-    WarriorsStance
-    Hexblade
-    Focus
+    # wizard
+    Fire
+    Ice
+    Lightning
   }
 
   enum HeroSkill {

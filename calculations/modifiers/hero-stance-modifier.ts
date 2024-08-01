@@ -14,7 +14,28 @@ export class HeroStanceModifier extends Modifier<undefined> {
     this.parent = options.parent as Hero;
   }
 
-  getBonus(prop: string): number | void {}
+  getBonus(prop: string): number | void {
+    const { activeStance } = this.parent.hero;
+
+    switch (activeStance) {
+      case HeroStance.Fire:
+        if (prop === "damageAsFire") {
+          return 0.2;
+        }
+        break;
+      case HeroStance.Ice:
+        if (prop === "damageAsIce") {
+          return 0.2;
+        }
+        break;
+      case HeroStance.Lightning:
+        if (prop === "damageAsLightning") {
+          return 0.2;
+        }
+        break;
+    }
+  }
+
   getMultiplier(prop: string): number | void {
     const victimAttributes = attributesForAttack(
       this.parent.opponent?.attackType ?? this.parent.attackType,
@@ -25,8 +46,6 @@ export class HeroStanceModifier extends Modifier<undefined> {
     switch (activeStance) {
       case HeroStance.Normal:
         break;
-      case HeroStance.Combat:
-        break;
       case HeroStance.Reckless:
         if (prop === "bonusAccuracy") {
           return 2;
@@ -34,44 +53,6 @@ export class HeroStanceModifier extends Modifier<undefined> {
         if (prop === "bonusDodge") {
           return 0.5;
         }
-        break;
-
-      ///@TODO the rest
-      case HeroStance.Aggressive:
-        break;
-      case HeroStance.Defensive:
-        break;
-      case HeroStance.NecroticBeam:
-        break;
-      case HeroStance.CloudofKnives:
-        break;
-      case HeroStance.FrozenOrb:
-        break;
-      case HeroStance.MageArmor:
-        break;
-      case HeroStance.NormalArrow:
-        break;
-      case HeroStance.BarbedArrow:
-        break;
-      case HeroStance.BloodHunter:
-        break;
-      case HeroStance.DarkPresence:
-        break;
-      case HeroStance.AuraoftheLifeless:
-        break;
-      case HeroStance.ShieldSmash:
-        break;
-      case HeroStance.ShieldSlash:
-        break;
-      case HeroStance.HolySmite:
-        break;
-      case HeroStance.VengefulSmite:
-        break;
-      case HeroStance.WarriorsStance:
-        break;
-      case HeroStance.Hexblade:
-        break;
-      case HeroStance.Focus:
         break;
     }
   }

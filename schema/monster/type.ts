@@ -87,8 +87,12 @@ export default gql`
   }
 
   enum DamageType {
-    PHYSICAL
-    MAGICAL
-    ENCHANTMENT
+    Physical
+    Magical
+    Enchantment
+
+    Fire
+    Ice
+    Lightning
   }
 `;

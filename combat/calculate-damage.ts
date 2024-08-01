@@ -249,7 +249,13 @@ export function calculateDamage(
   // they'll be any value between 0 and 1, and they'll be used to convert damage to other types
   // since they're splitting up damage, we need to make sure all the multipliers add up to no more than 1
   // we also ignore damage conversion for the type of damage we're dealing
-  const possibleDamageTypes = [DamageType.Magical, DamageType.Physical];
+  const possibleDamageTypes = [
+    DamageType.Magical,
+    DamageType.Physical,
+    DamageType.Fire,
+    DamageType.Ice,
+    DamageType.Lightning,
+  ];
 
   const damageByType: { [x in DamageType]?: number } = {};
 
