@@ -10,17 +10,18 @@ import { BaseContext } from "../context";
 
 import { BaseItem } from "./";
 import { BaseItems } from "./base-items";
+import { type NamedItem, NamedItems } from "./named-items";
 
 export function countEnchantments(
   hero: Hero,
-  enchantment: EnchantmentType
+  enchantment: EnchantmentType,
 ): number {
   return hero.inventory.reduce<number>((memo, item) => {
     let count = item.enchantment === enchantment ? 1 : 0;
     const baseItem = BaseItems[item.baseItem];
     if (baseItem && baseItem.passiveEnchantments) {
       count += baseItem.passiveEnchantments.filter(
-        (e) => e === enchantment
+        (e) => e === enchantment,
       ).length;
     }
     return count + memo;
@@ -29,7 +30,7 @@ export function countEnchantments(
 
 export function enchantItem(
   item: InventoryItem,
-  enchantment: EnchantmentType
+  enchantment: EnchantmentType,
 ): InventoryItem {
   item.enchantment = enchantment;
   return item;
@@ -120,7 +121,7 @@ export function getEnchantmentTier(enchantment: EnchantmentType): number {
 
 export function getEnchantments(
   level: number,
-  includeLowerTiers: boolean
+  includeLowerTiers: boolean,
 ): EnchantmentType[] {
   // current max tier, to prevent extra iterations from overly aggressive proceedural code
   level = Math.min(3, level);
@@ -153,7 +154,7 @@ export function getEnchantments(
 
 export function randomEnchantment(
   level: number,
-  includeLowerTiers: boolean = true
+  includeLowerTiers: boolean = true,
 ): EnchantmentType {
   const options = getEnchantments(level, includeLowerTiers);
 
@@ -172,7 +173,8 @@ export function randomUpgradedBaseItem(level: number): BaseItem {
 
   if (!options.length) {
     options = Object.values(BaseItems).filter(
-      (item) => item.type !== InventoryItemType.Quest && item.level === maxLevel
+      (item) =>
+        item.type !== InventoryItemType.Quest && item.level === maxLevel,
     );
   }
 
@@ -197,7 +199,7 @@ export function randomBaseItem(level: number): BaseItem {
         item.canBuy &&
         item.cost &&
         item.type !== InventoryItemType.Quest &&
-        item.level === maxLevel
+        item.level === maxLevel,
     );
   }
 
@@ -218,13 +220,30 @@ export function createItemInstance(item: BaseItem, owner: Hero): InventoryItem {
   };
 }
 
+export function createNamedItemInstance(
+  item: NamedItem,
+  owner: Hero,
+): InventoryItem {
+  const id = uuidv4();
+  return {
+    id,
+    owner: owner.id,
+    baseItem: item.id,
+
+    name: item.name,
+    type: item.type,
+    level: item.level,
+    enchantment: null,
+  };
+}
+
 export function giveHeroRandomDrop(
   context: BaseContext,
   hero: Hero,
   itemLevel: number,
   enchantmentLevel: number,
   allowUpgraded: boolean,
-  includeLowerTiers: boolean = true
+  includeLowerTiers: boolean = true,
 ) {
   const baseItem = allowUpgraded
     ? randomUpgradedBaseItem(itemLevel)
@@ -238,10 +257,16 @@ export function giveHeroRandomDrop(
 export function giveHeroItem(
   context: BaseContext,
   hero: Hero,
-  baseItem: BaseItem,
-  enchantment?: EnchantmentType
+  baseItem: BaseItem | NamedItem,
+  enchantment?: EnchantmentType,
 ) {
-  let itemInstance = createItemInstance(baseItem, hero);
+  let itemInstance;
+
+  if ("affixes" in baseItem) {
+    itemInstance = createNamedItemInstance(baseItem, hero);
+  } else {
+    itemInstance = createItemInstance(baseItem, hero);
+  }
 
   if (enchantment) {
     itemInstance = enchantItem(itemInstance, enchantment);

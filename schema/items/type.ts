@@ -110,6 +110,9 @@ export default gql`
     # stun / stun dodge
     Mesmerize
     Focus
+
+    # resistances
+    AllResistances
   }
 
   enum EnchantmentType {

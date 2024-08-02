@@ -4,6 +4,7 @@ import { Resolvers, BaseAccount, AccountListResponse } from "types/graphql";
 
 import { giveHeroItem } from "../items/helpers";
 import { BaseItems } from "../items/base-items";
+import { NamedItems } from "../items/named-items";
 import { spawnRandomAberration } from "../aberration";
 
 const resolvers: Resolvers = {
@@ -116,12 +117,21 @@ const resolvers: Resolvers = {
       }
       const hero = await context.db.hero.get(args.id);
 
-      giveHeroItem(
-        context,
-        hero,
-        BaseItems[args.baseItem],
-        args.enchantment || undefined,
-      );
+      if (BaseItems[args.baseItem]) {
+        giveHeroItem(
+          context,
+          hero,
+          BaseItems[args.baseItem],
+          args.enchantment || undefined,
+        );
+      } else if (NamedItems[args.baseItem]) {
+        giveHeroItem(
+          context,
+          hero,
+          NamedItems[args.baseItem],
+          args.enchantment || undefined,
+        );
+      }
 
       await context.db.hero.put(hero);
 
