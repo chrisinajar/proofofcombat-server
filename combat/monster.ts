@@ -132,6 +132,7 @@ export function createMonsterCombatant(
 
   const unit = new Mob(combatData);
   return {
+    // pointless spread, why did i do that?
     ...combatData,
     unit,
   };

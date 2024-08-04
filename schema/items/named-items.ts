@@ -33,6 +33,29 @@ export const NamedItems: { [x in string]: NamedItem } = {
       },
     ],
   },
+  "inferno-blade": {
+    id: "inferno-blade",
+    type: InventoryItemType.MeleeWeapon,
+    name: "Inferno Blade",
+    level: 33,
+    affixes: [
+      {
+        attributeType: ArtifactAttributeType.DamageAsFire,
+        magnitude: [0.5, 0.5],
+        step: 0.1,
+      },
+      {
+        attributeType: ArtifactAttributeType.BonusStrength,
+        magnitude: [0.3, 0.3],
+        step: 0.1,
+      },
+      {
+        attributeType: ArtifactAttributeType.EnemyFireResistance,
+        magnitude: [0.1, 0.2],
+        step: 0.01,
+      },
+    ],
+  },
 };
 
 for (let id in NamedItems) {

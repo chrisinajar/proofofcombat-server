@@ -5,6 +5,7 @@ import {
   InventoryItemType,
 } from "types/graphql";
 import { Unit } from "./unit";
+import { BasicMobModifier } from "../modifiers/basic-mob-modifier";
 import { CombatantGear, CombatGear, QuestItem } from "../../combat/types";
 
 type MonsterData = {
@@ -25,6 +26,8 @@ export class Mob extends Unit {
     this.attackType = monsterData.attackType;
 
     Object.assign(this.baseValues, monsterData, monsterData.attributes);
+
+    this.applyModifier(BasicMobModifier, undefined);
 
     // class: HeroClasses.Monster,
     // attackType: monster.attackType,

@@ -113,6 +113,31 @@ export default gql`
 
     # resistances
     AllResistances
+
+    # damage type specific values
+    DamageAsPhysical
+    DamageAsMagical
+    DamageAsFire
+    DamageAsIce
+    DamageAsLightning
+
+    PhysicalResistance
+    MagicalResistance
+    FireResistance
+    IceResistance
+    LightningResistance
+
+    BonusPhysicalDamage
+    BonusMagicalDamage
+    BonusFireDamage
+    BonusIceDamage
+    BonusLightningDamage
+
+    EnemyPhysicalResistance
+    EnemyMagicalResistance
+    EnemyFireResistance
+    EnemyIceResistance
+    EnemyLightningResistance
   }
 
   enum EnchantmentType {

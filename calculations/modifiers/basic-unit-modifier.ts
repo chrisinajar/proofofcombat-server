@@ -3,6 +3,15 @@ import { Modifier } from "./modifier";
 
 export class BasicUnitModifier extends Modifier<undefined> {
   getBonus(prop: string): number | void {
+    switch (prop) {
+      case "physicalResistance":
+      case "magicalResistance":
+      case "fireResistance":
+      case "iceResistance":
+      case "lightningResistance":
+        return this.parent.stats.allResistances;
+    }
+
     return;
   }
   getMultiplier(prop: string): number | void {
@@ -14,6 +23,7 @@ export class BasicUnitModifier extends Modifier<undefined> {
     // if (victim.attackType === AttackType.Blood) {
     //   attacker.percentageEnchantmentDamageReduction *= 0.75;
     // }
+
     if (prop === "percentageEnchantmentDamageReduction") {
       if (
         this.parent.opponent &&
