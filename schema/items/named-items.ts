@@ -23,7 +23,7 @@ export const NamedItems: { [x in string]: NamedItem } = {
     affixes: [
       {
         attributeType: ArtifactAttributeType.BonusHealth,
-        magnitude: [1, 1],
+        magnitude: [2, 2],
         step: 1,
       },
       {
@@ -75,6 +75,52 @@ export const NamedItems: { [x in string]: NamedItem } = {
       {
         attributeType: ArtifactAttributeType.AllResistances,
         magnitude: [0.25, 0.5],
+        step: 0.01,
+      },
+      {
+        attributeType: ArtifactAttributeType.BonusDexterity,
+        magnitude: [1.8, 2.5],
+        step: 0.01,
+      },
+    ],
+  },
+  "searing-headcage": {
+    id: "searing-headcage",
+    type: InventoryItemType.HeadArmor,
+    name: "Searing Headcage",
+    level: 31,
+    affixes: [
+      {
+        attributeType: ArtifactAttributeType.DamageAsFire,
+        magnitude: [0.2, 0.2],
+        step: 0.01,
+      },
+      {
+        attributeType: ArtifactAttributeType.EnemyFireResistance,
+        magnitude: [0.3, 0.4],
+        step: 0.01,
+      },
+      {
+        attributeType: ArtifactAttributeType.AllResistances,
+        magnitude: [-0.5, -0.5],
+        step: 0.01,
+      },
+    ],
+  },
+  "unwieldy-hammer": {
+    id: "unwieldy-hammer",
+    type: InventoryItemType.MeleeWeapon,
+    name: "Unwieldy Hammer",
+    level: 40,
+    affixes: [
+      {
+        attributeType: ArtifactAttributeType.EnhancedDamage,
+        magnitude: [-0.3, -0.3],
+        step: 0.01,
+      },
+      {
+        attributeType: ArtifactAttributeType.AllResistances,
+        magnitude: [-0.5, -0.5],
         step: 0.01,
       },
     ],

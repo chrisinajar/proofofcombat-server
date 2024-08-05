@@ -46,18 +46,20 @@ export class BasicHeroModifier extends Modifier<undefined> {
           this.parent.hero.skills.resilience / 100 - this.resistancePenalty()
         );
 
+      // base damage types
+      case "magicalResistance":
       case "physicalResistance":
-      case "blightResistance":
         return Math.log(this.parent.stats.constitution) / 50;
 
-      case "magicalResistance":
+      // elemental types scale off willpower..
       case "fireResistance":
       case "iceResistance":
       case "lightningResistance":
-        return Math.log(this.parent.stats.willpower) / 50;
+        return Math.log(this.parent.stats.willpower) / 60;
 
+      case "blightResistance":
       case "holyResistance":
-        return Math.log(this.parent.stats.wisdom) / 50;
+        return Math.log(this.parent.stats.wisdom) / 100;
         break;
 
       case "health":

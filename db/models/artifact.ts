@@ -687,4 +687,27 @@ const ArtifactAffixes: ArtifactAffix[] = [
     magnitude: [1.05, 1.2],
     step: 0.01,
   },
+
+  // resistances
+  // all resistances
+  {
+    namePrefix: "Diamond",
+    namePostfix: "diamond",
+    titlePrefix: "Diamond",
+    titlePostfix: "Diamond",
+    levelRequirement: 10,
+    attributeType: ArtifactAttributeType.AllResistances,
+    magnitude: [0.05, 0.2],
+    step: 0.01,
+  },
+  {
+    namePrefix: "Spectral",
+    namePostfix: "spectrum",
+    titlePrefix: "Quartz",
+    titlePostfix: "Quartz",
+    levelRequirement: 40,
+    attributeType: ArtifactAttributeType.AllResistances,
+    magnitude: [0.2, 0.3],
+    step: 0.01,
+  },
 ];
