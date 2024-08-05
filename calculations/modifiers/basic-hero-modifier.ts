@@ -42,20 +42,22 @@ export class BasicHeroModifier extends Modifier<undefined> {
     switch (prop) {
       // passive resistances
       case "allResistances":
-        return this.parent.hero.skills.resilience - this.resistancePenalty();
+        return (
+          this.parent.hero.skills.resilience / 100 - this.resistancePenalty()
+        );
 
       case "physicalResistance":
       case "blightResistance":
-        return Math.log(this.parent.stats.constitution) / 40;
+        return Math.log(this.parent.stats.constitution) / 50;
 
       case "magicalResistance":
       case "fireResistance":
       case "iceResistance":
       case "lightningResistance":
-        return Math.log(this.parent.stats.willpower) / 40;
+        return Math.log(this.parent.stats.willpower) / 50;
 
       case "holyResistance":
-        return Math.log(this.parent.stats.wisdom) / 40;
+        return Math.log(this.parent.stats.wisdom) / 50;
         break;
 
       case "health":
