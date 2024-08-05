@@ -4,13 +4,7 @@ import { Modifier } from "./modifier";
 export class BasicMobModifier extends Modifier<undefined> {
   getBonus(prop: string): number | void {
     switch (prop) {
-      case "physicalResistance":
-      case "magicalResistance":
-      case "fireResistance":
-      case "iceResistance":
-      case "lightningResistance":
-      case "holyResistance":
-      case "blightResistance":
+      case "allResistances":
         return 0.01 * this.parent.stats.level;
     }
     return;

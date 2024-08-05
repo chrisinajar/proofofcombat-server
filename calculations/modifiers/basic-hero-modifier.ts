@@ -20,6 +20,21 @@ export class BasicHeroModifier extends Modifier<undefined> {
 
   getBonus(prop: string): number | void {
     switch (prop) {
+      // passive resistances
+      case "physicalResistance":
+      case "blightResistance":
+        return Math.log(this.parent.stats.constitution) / 40;
+
+      case "magicalResistance":
+      case "fireResistance":
+      case "iceResistance":
+      case "lightningResistance":
+        return Math.log(this.parent.stats.willpower) / 40;
+
+      case "holyResistance":
+        return Math.log(this.parent.stats.wisdom) / 40;
+        break;
+
       case "health":
         // old code:
         // hero.combat.health = Math.round(
