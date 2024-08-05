@@ -3,6 +3,7 @@ import { HeroClasses, AttackType, HeroStance } from "types/graphql";
 import { Modifier, ModifierOptions } from "./modifier";
 
 import { attributesForAttack } from "../../combat/constants";
+import { LocationData, MapNames } from "../../constants";
 
 import type { Hero } from "../units/hero";
 
@@ -18,9 +19,31 @@ export class BasicHeroModifier extends Modifier<undefined> {
     this.parent = options.parent as Hero;
   }
 
+  resistancePenalty() {
+    const location =
+      LocationData[this.parent.hero.location.map as MapNames]?.locations[
+        this.parent.hero.location.x
+      ][this.parent.hero.location.y];
+
+    switch (location.terrain) {
+      // "land" | "water" | "forbidden" | "void"
+      case "water":
+        return 0.2;
+      case "forbidden":
+        return 0.4;
+      case "void":
+        return 0.6;
+    }
+
+    return 0;
+  }
+
   getBonus(prop: string): number | void {
     switch (prop) {
       // passive resistances
+      case "allResistances":
+        return this.parent.hero.skills.resilience - this.resistancePenalty();
+
       case "physicalResistance":
       case "blightResistance":
         return Math.log(this.parent.stats.constitution) / 40;
