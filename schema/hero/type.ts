@@ -141,6 +141,8 @@ export default gql`
     fireResistance: Float!
     iceResistance: Float!
     lightningResistance: Float!
+    holyResistance: Float!
+    blightResistance: Float!
   }
 
   enum HeroClasses {

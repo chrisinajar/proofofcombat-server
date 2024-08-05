@@ -501,6 +501,8 @@ const resolvers: Resolvers = {
         iceResistance: enchantedStats.attacker.unit.stats.iceResistance,
         lightningResistance:
           enchantedStats.attacker.unit.stats.lightningResistance,
+        holyResistance: enchantedStats.attacker.unit.stats.holyResistance,
+        blightResistance: enchantedStats.attacker.unit.stats.blightResistance,
       };
     },
     async equipment(

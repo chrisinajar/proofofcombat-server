@@ -19,7 +19,7 @@ export const NamedItems: { [x in string]: NamedItem } = {
     id: "tortoise-shell",
     type: InventoryItemType.Shield,
     name: "Tortoise Shell",
-    level: 1,
+    level: 5,
     affixes: [
       {
         attributeType: ArtifactAttributeType.BonusHealth,
@@ -56,8 +56,27 @@ export const NamedItems: { [x in string]: NamedItem } = {
       },
     ],
   },
+  "argus-spear-of-caecus": {
+    id: "argus-spear-of-caecus",
+    type: InventoryItemType.SpellFocus,
+    name: "Argus, spear of Caecus",
+    level: 34,
+    affixes: [
+      {
+        attributeType: ArtifactAttributeType.DamageAsPhysical,
+        magnitude: [0.2, 0.3],
+        step: 0.01,
+      },
+      {
+        attributeType: ArtifactAttributeType.DamageAsHoly,
+        magnitude: [0.2, 0.3],
+        step: 0.01,
+      },
+      {
+        attributeType: ArtifactAttributeType.AllResistances,
+        magnitude: [0.25, 0.5],
+        step: 0.01,
+      },
+    ],
+  },
 };
-
-for (let id in NamedItems) {
-  NamedItems[id].id = id;
-}

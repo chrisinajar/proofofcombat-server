@@ -40,9 +40,12 @@ export function calculateDamageValues(
       break;
 
     case AttackType.Cast:
-    case AttackType.Smite:
     case AttackType.Blood:
       damageType = DamageType.Magical;
+      break;
+
+    case AttackType.Smite:
+      damageType = DamageType.Holy;
       break;
   }
 
@@ -255,6 +258,8 @@ export function calculateDamage(
     DamageType.Fire,
     DamageType.Ice,
     DamageType.Lightning,
+    DamageType.Holy,
+    DamageType.Blight,
   ];
 
   const damageByType: { [x in DamageType]?: number } = {};

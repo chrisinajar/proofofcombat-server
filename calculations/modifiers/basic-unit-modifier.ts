@@ -9,6 +9,8 @@ export class BasicUnitModifier extends Modifier<undefined> {
       case "fireResistance":
       case "iceResistance":
       case "lightningResistance":
+      case "holyResistance":
+      case "blightResistance":
         return this.parent.stats.allResistances;
     }
 

@@ -94,5 +94,8 @@ export default gql`
     Fire
     Ice
     Lightning
+
+    Holy
+    Blight
   }
 `;

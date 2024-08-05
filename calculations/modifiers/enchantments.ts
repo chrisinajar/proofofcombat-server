@@ -1223,6 +1223,7 @@ export function genericStatsModifierForEnchantment(
         options: {
           bonus: {
             physicalResistance: 0.2,
+            blightResistance: 0.2,
           },
         },
       };
@@ -1235,6 +1236,7 @@ export function genericStatsModifierForEnchantment(
         options: {
           bonus: {
             magicalResistance: 0.2,
+            holyResistance: 0.2,
           },
         },
       };
@@ -1265,6 +1267,8 @@ export function genericStatsModifierForEnchantment(
             fireResistance: 0.1,
             iceResistance: 0.1,
             lightningResistance: 0.1,
+            holyResistance: 0.1,
+            blightResistance: 0.1,
           },
         },
       };

@@ -147,6 +147,8 @@ export class Unit {
       fireResistance: [-Infinity, 0.8],
       iceResistance: [-Infinity, 0.8],
       lightningResistance: [-Infinity, 0.8],
+      holyResistance: [-Infinity, 0.8],
+      blightResistance: [-Infinity, 0.8],
     };
 
     this.applyModifier(BasicUnitModifier, undefined);

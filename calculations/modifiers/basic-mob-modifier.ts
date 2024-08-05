@@ -9,6 +9,8 @@ export class BasicMobModifier extends Modifier<undefined> {
       case "fireResistance":
       case "iceResistance":
       case "lightningResistance":
+      case "holyResistance":
+      case "blightResistance":
         return 0.01 * this.parent.stats.level;
     }
     return;

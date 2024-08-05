@@ -120,24 +120,32 @@ export default gql`
     DamageAsFire
     DamageAsIce
     DamageAsLightning
+    DamageAsHoly
+    DamageAsBlight
 
     PhysicalResistance
     MagicalResistance
     FireResistance
     IceResistance
     LightningResistance
+    HolyResistance
+    BlightResistance
 
     BonusPhysicalDamage
     BonusMagicalDamage
     BonusFireDamage
     BonusIceDamage
     BonusLightningDamage
+    BonusHolyDamage
+    BonusBlightDamage
 
     EnemyPhysicalResistance
     EnemyMagicalResistance
     EnemyFireResistance
     EnemyIceResistance
     EnemyLightningResistance
+    EnemyHolyResistance
+    EnemyBlightResistance
   }
 
   enum EnchantmentType {
