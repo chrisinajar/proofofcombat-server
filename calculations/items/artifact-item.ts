@@ -213,6 +213,297 @@ export class ArtifactItem extends Item {
           },
         });
         break;
+
+      case ArtifactAttributeType.AllResistances:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              allResistances: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.DamageAsPhysical:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              damageAsPhysical: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.DamageAsMagical:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              damageAsMagical: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.DamageAsFire:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              damageAsFire: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.DamageAsIce:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              damageAsIce: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.DamageAsLightning:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              damageAsLightning: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.DamageAsHoly:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              damageAsHoly: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.DamageAsBlight:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              damageAsBlight: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.PhysicalResistance:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              physicalResistance: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.MagicalResistance:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              magicalResistance: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.FireResistance:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              fireResistance: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.IceResistance:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              iceResistance: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.LightningResistance:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              lightningResistance: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.HolyResistance:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              holyResistance: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.BlightResistance:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              blightResistance: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.BonusPhysicalDamage:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              bonusPhysicalDamage: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.BonusMagicalDamage:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              bonusMagicalDamage: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.BonusFireDamage:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              bonusFireDamage: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.BonusIceDamage:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              bonusIceDamage: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.BonusLightningDamage:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              bonusLightningDamage: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.BonusHolyDamage:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              bonusHolyDamage: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.BonusBlightDamage:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              bonusBlightDamage: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.EnemyPhysicalResistance:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              enemyPhysicalResistance: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.EnemyMagicalResistance:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              enemyMagicalResistance: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.EnemyFireResistance:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              enemyFireResistance: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.EnemyIceResistance:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              enemyIceResistance: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.EnemyLightningResistance:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              enemyLightningResistance: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.EnemyHolyResistance:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              enemyHolyResistance: attribute.magnitude,
+            },
+          },
+        });
+        break;
+      case ArtifactAttributeType.EnemyBlightResistance:
+        return this.registerModifier({
+          type: GenericStatsModifier,
+          options: {
+            bonus: {
+              enemyBlightResistance: attribute.magnitude,
+            },
+          },
+        });
+        break;
     }
   }
 }
