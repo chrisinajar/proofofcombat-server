@@ -4,16 +4,24 @@ import {
   HeroClasses,
   EnchantmentType,
   DamageType,
+  HeroStance,
 } from "types/graphql";
 
 import { Combatant } from "./types";
 import { attributesForAttack, getItemPassiveUpgradeTier } from "./helpers";
 import { getEnchantedAttributes } from "./enchantments";
 
+import { Hero } from "../calculations/units/hero";
+import { Unit } from "../calculations/units/unit";
+
 type DamageInstance = {
   damage: number;
   damageType: DamageType;
 };
+
+function isHeroUnit(unit: Unit): unit is Hero {
+  return "hero" in unit;
+}
 
 export function calculateDamageValues(
   attackerInput: Combatant,
@@ -45,7 +53,15 @@ export function calculateDamageValues(
       break;
 
     case AttackType.Smite:
+      // default holy
       damageType = DamageType.Holy;
+      // override with stance
+      const unit = attacker.unit;
+      if (isHeroUnit(unit)) {
+        if (unit.hero.activeStance === HeroStance.Blight) {
+          damageType = DamageType.Blight;
+        }
+      }
       break;
   }
 

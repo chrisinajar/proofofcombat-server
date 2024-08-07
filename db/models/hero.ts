@@ -733,6 +733,11 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
   getAvailableStances(hero: Hero): HeroStance[] {
     switch (hero.class) {
+      case HeroClasses.Zealot:
+        return [HeroStance.Normal, HeroStance.Sunder, HeroStance.Blight];
+        break;
+
+      case HeroClasses.MasterWarlock:
       case HeroClasses.MasterWizard:
         return [HeroStance.Fire, HeroStance.Ice, HeroStance.Lightning];
         break;

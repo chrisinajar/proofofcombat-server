@@ -18,6 +18,13 @@ export class HeroStanceModifier extends Modifier<undefined> {
     const { activeStance } = this.parent.hero;
 
     switch (activeStance) {
+      case HeroStance.Sunder:
+        if (prop === "damageAsPhysical") {
+          return 0.5;
+        }
+        break;
+
+      // spells
       case HeroStance.Fire:
         if (prop === "damageAsFire") {
           return 0.2;

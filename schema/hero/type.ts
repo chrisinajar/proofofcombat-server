@@ -83,6 +83,10 @@ export default gql`
     Fire
     Ice
     Lightning
+
+    # paladin
+    Sunder
+    Blight
   }
 
   enum HeroSkill {
