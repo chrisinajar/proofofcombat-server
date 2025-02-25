@@ -3,6 +3,7 @@ import {
   InventoryItem,
   Hero,
   EnchantmentType,
+  ArtifactItem,
 } from "types/graphql";
 import { v4 as uuidv4 } from "uuid";
 
@@ -260,23 +261,39 @@ export function giveHeroItem(
   baseItem: BaseItem | NamedItem,
   enchantment?: EnchantmentType,
 ) {
-  let itemInstance;
-
-  if ("affixes" in baseItem) {
-    itemInstance = createNamedItemInstance(baseItem, hero);
-  } else {
-    itemInstance = createItemInstance(baseItem, hero);
-  }
+  const item =
+    baseItem.id in BaseItems
+      ? createItemInstance(baseItem as BaseItem, hero)
+      : createNamedItemInstance(baseItem as NamedItem, hero);
 
   if (enchantment) {
-    itemInstance = enchantItem(itemInstance, enchantment);
+    enchantItem(item, enchantment);
   }
 
-  hero.inventory.push(itemInstance);
+  hero.inventory.push(item);
 
   context.io.sendNotification(hero.id, {
     type: "drop",
-    message: `You found {{item}}`,
-    item: itemInstance,
+    message: `You found ${item.name}`,
+    item: item,
   });
+}
+
+export function giveHeroArtifact(
+  context: BaseContext,
+  hero: Hero,
+  artifact: ArtifactItem,
+  message?: string
+) {
+  // Store in pending slot
+  hero.pendingArtifact = artifact;
+
+  // Send notification
+  context.io.sendNotification(hero.id, {
+    type: "artifact",
+    artifactItem: artifact,
+    message: message ?? `You found ${artifact.name}. Compare it with your current artifact and choose which to keep.`,
+  });
+
+  return hero;
 }

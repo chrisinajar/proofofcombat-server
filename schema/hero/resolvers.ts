@@ -363,6 +363,78 @@ const resolvers: Resolvers = {
         account,
       };
     },
+    async acceptArtifact(
+      parent: unknown,
+      args: Record<string, never>,
+      context: BaseContext
+    ): Promise<LevelUpResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      if (!hero.pendingArtifact) {
+        throw new UserInputError("No pending artifact to accept");
+      }
+
+      // Store the old artifact if it exists
+      const oldArtifact = hero.equipment.artifact;
+
+      // Equip the new artifact
+      hero.equipment.artifact = hero.pendingArtifact;
+      hero.pendingArtifact = null;
+
+      // If there was an old artifact, send a notification about it being replaced
+      if (oldArtifact) {
+        context.io.sendNotification(hero.id, {
+          type: "artifact",
+          artifactItem: oldArtifact,
+          message: `Your ${oldArtifact.name} was replaced.`,
+        });
+      }
+
+      await context.db.hero.put(hero);
+
+      return {
+        hero,
+        account,
+      };
+    },
+    async rejectArtifact(
+      parent: unknown,
+      args: Record<string, never>,
+      context: BaseContext
+    ): Promise<LevelUpResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      if (!hero.pendingArtifact) {
+        throw new UserInputError("No pending artifact to reject");
+      }
+
+      const rejectedArtifact = hero.pendingArtifact;
+      hero.pendingArtifact = null;
+
+      // Send a notification about rejecting the artifact
+      context.io.sendNotification(hero.id, {
+        type: "artifact",
+        artifactItem: rejectedArtifact,
+        message: `You rejected the ${rejectedArtifact.name}.`,
+      });
+
+      await context.db.hero.put(hero);
+
+      return {
+        hero,
+        account,
+      };
+    },
   },
   BaseAccount: {
     async hero(parent, args, context: BaseContext): Promise<Hero> {

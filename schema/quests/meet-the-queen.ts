@@ -9,7 +9,7 @@ import {
 import { BaseContext } from "../context";
 
 import { questEvents } from "./text/meet-the-queen-text";
-import { giveHeroRandomDrop, createItemInstance } from "../items/helpers";
+import { giveHeroRandomDrop, createItemInstance, giveHeroArtifact } from "../items/helpers";
 import { BaseItems } from "../items/base-items";
 import {
   hasQuestItem,
@@ -221,13 +221,13 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
 
   context.db.artifact.put(artifactReward);
 
-  hero.equipment.artifact = artifactReward;
-
-  context.io.sendNotification(hero.id, {
-    type: "artifact",
-    artifactItem: artifactReward,
-    message: `You leave the palace with ${artifactReward.name} in hand.`,
-  });
+  // Give the hero the artifact using our helper with a palace-specific message
+  hero = giveHeroArtifact(
+    context,
+    hero,
+    artifactReward,
+    `You leave the palace with ${artifactReward.name}. Compare it with your current artifact and choose which to keep.`
+  );
 
   hero = takeQuestItem(hero, "bloody-rag");
   hero = setQuestLogProgress(

@@ -6,7 +6,6 @@ import {
   NpcShop,
   Hero,
   MonsterInstance,
-  AttackType,
   InventoryItem,
   EnchantmentType,
   NpcShopItems,

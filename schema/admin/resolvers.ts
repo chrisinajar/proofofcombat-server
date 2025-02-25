@@ -1,8 +1,9 @@
 import { ForbiddenError, UserInputError } from "apollo-server";
 
 import { Resolvers, BaseAccount, AccountListResponse } from "types/graphql";
+import { BaseContext } from "../context";
 
-import { giveHeroItem } from "../items/helpers";
+import { giveHeroItem, giveHeroArtifact } from "../items/helpers";
 import { BaseItems } from "../items/base-items";
 import { NamedItems } from "../items/named-items";
 import { spawnRandomAberration } from "../aberration";
@@ -132,6 +133,31 @@ const resolvers: Resolvers = {
           args.enchantment || undefined,
         );
       }
+
+      await context.db.hero.put(hero);
+
+      return context.db.account.get(args.id);
+    },
+    async generateArtifact(
+      parent: unknown,
+      args: { id: string; level: number },
+      context: BaseContext
+    ): Promise<BaseAccount> {
+      let hero = await context.db.hero.get(args.id);
+
+      if (isNaN(args.level) || !Number.isFinite(args.level)) {
+        throw new UserInputError("Bad level");
+      }
+
+      const artifact = context.db.artifact.rollArtifact(args.level, hero);
+      await context.db.artifact.put(artifact);
+
+      hero = giveHeroArtifact(
+        context,
+        hero,
+        artifact,
+        `Admin generated artifact: ${artifact.name}`
+      );
 
       await context.db.hero.put(hero);
 

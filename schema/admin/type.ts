@@ -22,6 +22,9 @@ export default gql`
     deleteAccount(id: ID!): AdminActionResponse! @auth @admin
 
     spawnRandomBoss: AdminActionResponse! @auth @admin
+
+    # Generate an artifact for testing
+    generateArtifact(id: ID!, level: Float!): BaseAccount! @auth @admin
   }
 
   type AccountListResponse {

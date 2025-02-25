@@ -25,6 +25,10 @@ export default gql`
 
     changeActiveSkill(skill: HeroSkill!): LevelUpResponse! @auth
     changeSkillPercent(percent: Int!): LevelUpResponse! @auth
+
+    # artifact management
+    acceptArtifact: LevelUpResponse! @auth
+    rejectArtifact: LevelUpResponse! @auth
   }
 
   type Hero implements BaseModel {
@@ -65,6 +69,7 @@ export default gql`
     availableStances: [HeroStance!]!
 
     buffs: HeroBuffs!
+    pendingArtifact: ArtifactItem
   }
 
   # various buffs like blessings, curses, etc not bound to quest items
