@@ -7,6 +7,7 @@ import {
   HeroClasses,
   EquipmentSlots,
   InventoryItemType,
+  DamageType,
 } from "types/graphql";
 import {
   calculateOdds,
@@ -17,10 +18,15 @@ import {
   attributesForAttack,
   calculateDamageValues,
   CombatantGear,
+  calculateDamage,
 } from "./";
 import Databases from "../db";
 import { getEnchantedAttributes } from "./enchantments";
 import { calculateEnchantmentDamage } from "./calculate-enchantment-damage";
+import { Modifier } from "../calculations/modifiers/modifier";
+import { GenericStatsModifier } from "../calculations/modifiers/generic-stats-modifier";
+import type { ModifierOptions } from "../calculations/modifiers/modifier";
+import { createTestHero } from "../test-helpers";
 
 type Attribute = keyof HeroStats;
 
@@ -618,52 +624,6 @@ describe("builds", () => {
           willpower: attacker.unit.stats.willpower,
           luck: attacker.unit.stats.luck,
         });
-
-        // console.log(
-        //   attacker.attributes,
-        //   {
-        //     strength: attacker.unit.stats.strength,
-        //     dexterity: attacker.unit.stats.dexterity,
-        //     constitution: attacker.unit.stats.constitution,
-        //     intelligence: attacker.unit.stats.intelligence,
-        //     wisdom: attacker.unit.stats.wisdom,
-        //     willpower: attacker.unit.stats.willpower,
-        //     luck: attacker.unit.stats.luck,
-        //   },
-        //   {
-        //     strengthSteal: attacker.unit.stats.strengthSteal,
-        //     dexteritySteal: attacker.unit.stats.dexteritySteal,
-        //     constitutionSteal: attacker.unit.stats.constitutionSteal,
-        //     intelligenceSteal: attacker.unit.stats.intelligenceSteal,
-        //     wisdomSteal: attacker.unit.stats.wisdomSteal,
-        //     willpowerSteal: attacker.unit.stats.willpowerSteal,
-        //     luckSteal: attacker.unit.stats.luckSteal,
-        //   },
-        // );
-
-        // console.log(victim.unit);
-
-        // console.log(
-        //   victim.attributes,
-        //   {
-        //     strength: victim.unit.stats.strength,
-        //     dexterity: victim.unit.stats.dexterity,
-        //     constitution: victim.unit.stats.constitution,
-        //     intelligence: victim.unit.stats.intelligence,
-        //     wisdom: victim.unit.stats.wisdom,
-        //     willpower: victim.unit.stats.willpower,
-        //     luck: victim.unit.stats.luck,
-        //   },
-        //   {
-        //     strengthSteal: victim.unit.stats.strengthSteal,
-        //     dexteritySteal: victim.unit.stats.dexteritySteal,
-        //     constitutionSteal: victim.unit.stats.constitutionSteal,
-        //     intelligenceSteal: victim.unit.stats.intelligenceSteal,
-        //     wisdomSteal: victim.unit.stats.wisdomSteal,
-        //     willpowerSteal: victim.unit.stats.willpowerSteal,
-        //     luckSteal: victim.unit.stats.luckSteal,
-        //   },
-        // );
       });
     });
   }
@@ -672,18 +632,6 @@ describe("builds", () => {
   // start builds
   describe("archer", () => {
     const trashGear = () => ({
-      // leftHand: InventoryItem
-      // rightHand: InventoryItem
-      // bodyArmor: InventoryItem
-      // handArmor: InventoryItem
-      // legArmor: InventoryItem
-      // headArmor: InventoryItem
-      // footArmor: InventoryItem
-      // accessories: [InventoryItem!]!
-
-      // type: InventoryItemType!
-      // level: Int!
-      // enchantment: EnchantmentType
       leftHand: { level: 1, type: InventoryItemType.RangedWeapon },
       bodyArmor: { level: 1, type: InventoryItemType.BodyArmor },
       handArmor: { level: 1, type: InventoryItemType.HandArmor },
@@ -1051,5 +999,90 @@ describe("calculateEnchantmentDamage", () => {
     hero.skills.regeneration = 20;
     hero.skills.resilience = 20;
     checkForSymmetry();
+  });
+});
+
+describe("damage conversion", () => {
+  it("should convert damage to lightning and fire", () => {
+    const hero = generateHero();
+    const hero2 = generateHero();
+    
+    // Give the hero some basic stats and equipment
+    hero.equipment.leftHand = {
+      id: "test-weapon",
+      level: 10,
+      type: InventoryItemType.MeleeWeapon
+    };
+    hero.stats.strength = 100; // Add some strength for melee damage
+
+    // Create a modifier to apply the damage conversion
+    class DamageConversionModifier extends GenericStatsModifier {
+      constructor(options: ModifierOptions<GenericStatsModifierOptions>) {
+        super({
+          source: options.source,
+          parent: options.parent,
+          options: {
+            bonus: {
+              damageAsLightning: 0.5,
+              damageAsFire: 0.5
+            }
+          }
+        });
+      }
+    }
+
+    // Add damage conversion stats to the hero's unit
+    const heroCombatant = createHeroCombatant(hero, AttackType.Melee);
+    heroCombatant.unit.baseValues.damageAsLightning = 0;
+    heroCombatant.unit.baseValues.damageAsFire = 0;
+    heroCombatant.unit.applyModifier(DamageConversionModifier, {
+      source: heroCombatant.unit,
+      parent: heroCombatant.unit
+    });
+
+    const hero2Combatant = createHeroCombatant(hero2, AttackType.Melee);
+
+    const result = calculateDamage(heroCombatant, hero2Combatant);
+
+    console.log("Damage instances:", result.damages);
+    console.log("Damage types:", result.damages.map(d => d.damageType));
+
+    // Should have 2 damage instances: Lightning and Fire (fully converted)
+    expect(result.damages.length).toBe(2);
+
+    // Find each damage type
+    const fireDamage = result.damages.find(d => d.damageType === DamageType.Fire)?.damage ?? 0;
+    const lightningDamage = result.damages.find(d => d.damageType === DamageType.Lightning)?.damage ?? 0;
+
+    // Both converted damages should be roughly equal since we're converting 50% to each
+    expect(fireDamage).toBeGreaterThan(0);
+    expect(lightningDamage).toBeGreaterThan(0);
+    expect(Math.abs(fireDamage - lightningDamage)).toBeLessThan(10);
+  });
+
+  it("should do minimum 1 damage without conversion against high resistance", () => {
+    const hero = generateHero();
+    const hero2 = generateHero();
+    
+    // Give the hero minimal stats and no equipment
+    hero.stats.strength = 1; // Minimal strength
+
+    // Give the victim very high physical resistance
+    const hero2Combatant = createHeroCombatant(hero2, AttackType.Melee);
+    hero2Combatant.unit.applyModifier(GenericStatsModifier, {
+      bonus: {
+        physicalResistance: 0.99 // 99% physical resistance
+      }
+    });
+
+    const result = calculateDamage(createHeroCombatant(hero, AttackType.Melee), hero2Combatant);
+
+    console.log("Damage instances:", result.damages);
+    console.log("Damage types:", result.damages.map(d => d.damageType));
+
+    // Should have 1 damage instance of type Physical
+    expect(result.damages.length).toBe(1);
+    expect(result.damages[0].damageType).toBe(DamageType.Physical);
+    expect(result.damages[0].damage).toBe(1);
   });
 });

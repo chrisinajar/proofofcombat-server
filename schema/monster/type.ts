@@ -59,6 +59,7 @@ export default gql`
   type MonsterItem {
     level: Float!
     enchantment: EnchantmentType
+    imbue: InventoryItemImbue
   }
 
   type MonsterCombatStats implements ComatStats {

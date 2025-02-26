@@ -5,7 +5,7 @@ import {
   giveQuestItemNotification,
   takeQuestItem,
 } from "../quests/helpers";
-import { giveHeroRandomDrop, randomEnchantment } from "../items/helpers";
+import { giveHeroRandomDrop, randomEnchantment, giveHeroArtifact } from "../items/helpers";
 import { rebirth } from "../quests/rebirth";
 import { endVoidTravel } from "../void-travel";
 
@@ -28,7 +28,9 @@ export async function checkAberrationDrop(
     case "random-aberration-moving-mountain":
       return movingMountainReward(context, hero);
       break;
-
+    case "random-aberration-artificer":
+      return artificerReward(context, hero);
+      break;
     case "void-monster":
       return voidMonsterReward(context, hero);
       break;
@@ -130,6 +132,42 @@ async function unholyPaladinReward(
       type: "quest",
     });
     hero = giveQuestItemNotification(context, hero, "essence-of-darkness");
+  }
+}
+
+async function artificerReward(
+  context: BaseContext,
+  hero: Hero,
+): Promise<void> {
+  context.io.sendGlobalNotification({
+    message: `The mechanical contraptions at ${hero.location.x}, ${hero.location.y} fall silent as ${hero.name} stands victorious`,
+    type: "quest",
+  });
+  genericAberrationReward(context, hero);
+
+  // Roll an artifact with high magic find, 30+
+  const artifactMagicFind = Math.floor(30 + Math.random() * 20);
+  const artifactReward = context.db.artifact.rollArtifact(artifactMagicFind, hero);
+  context.db.artifact.put(artifactReward);
+
+  // Give the hero the artifact
+  hero = giveHeroArtifact(
+    context,
+    hero,
+    artifactReward,
+    `You discover ${artifactReward.name} among The Artificer's creations.`
+  );
+
+  if (artifactMagicFind >= 45) {
+    context.io.sendGlobalNotification({
+      message: `${hero.name} has discovered a legendary artifact from The Artificer`,
+      type: "quest",
+    });
+  } else {
+    context.io.sendGlobalNotification({
+      message: `${hero.name} has claimed one of The Artificer's mysterious artifacts`,
+      type: "quest",
+    });
   }
 }
 

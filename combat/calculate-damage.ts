@@ -297,22 +297,26 @@ export function calculateDamage(
         conversion /= totalDamageConversion;
       }
       const converted = damage * conversion;
-      damage -= converted;
       damageByType[type] = converted;
     }
   }
+
+  // Reduce the original damage by the total conversion amount
+  damage *= Math.max(0, 1 - totalDamageConversion);
 
   const resistance =
     1 - victim.unit.stats[`${damageType.toLowerCase()}Resistance`];
   damage *= resistance;
 
-  let uncappedDamage = Math.round(Math.max(1, damage));
+  let uncappedDamage = Math.round(damage);
 
   // add basic damage to damages and subtract it from damage
   const standardDamage = Math.min(1000000000, uncappedDamage);
   uncappedDamage -= standardDamage;
-  damageByType[damageType] = standardDamage;
-  damages.push({ damage: standardDamage, damageType });
+  if (damage > 0) {
+    damageByType[damageType] = Math.max(1, standardDamage);
+    damages.push({ damage: Math.max(1, standardDamage), damageType });
+  }
 
   for (let type of possibleDamageTypes) {
     if (type === damageType) {
@@ -324,8 +328,8 @@ export function calculateDamage(
     const damage = Math.round(
       Math.min(1000000000, (damageByType[type] ?? 0) * resistance),
     );
-    if (damage) {
-      damages.push({ damage, damageType: type });
+    if (damage > 0) {
+      damages.push({ damage: Math.max(1, damage), damageType: type });
     }
   }
 

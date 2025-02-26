@@ -38,7 +38,7 @@ import {
 const MonsterLockoutItems: { [x in string]?: string } = {
   "domari-aberration-1": "essence-of-ash",
   "random-aberration-unholy-paladin": "essence-of-darkness",
-  "random-aberration-thornbrute": "essence-of-thorns",
+  "random-aberration-thornbrute": "essence-of-thorns"
 };
 
 const resolvers: Resolvers = {

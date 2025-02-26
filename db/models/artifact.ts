@@ -54,6 +54,11 @@ export default class ArtifactItemModel extends DatabaseInterface<ArtifactItem> {
     return "";
   }
 
+  // rag farming rates:
+  // aberrations = lvl 30-40
+  // demilichs = lvl 39
+  // void boss = lvl 45
+  // Shai'taan = 60
   rollArtifact(magicFind: number, owner: Hero): ArtifactItem {
     const baseLevel = Math.max(1, Math.floor(magicFind));
 
@@ -708,6 +713,27 @@ const ArtifactAffixes: ArtifactAffix[] = [
     levelRequirement: 40,
     attributeType: ArtifactAttributeType.AllResistances,
     magnitude: [0.2, 0.3],
+    step: 0.01,
+  },
+  // Damage conversion affixes
+  {
+    namePrefix: "Storm",
+    namePostfix: "tempest",
+    titlePrefix: "Lightning",
+    titlePostfix: "Storm",
+    levelRequirement: 40,
+    attributeType: ArtifactAttributeType.DamageAsLightning,
+    magnitude: [0.5, 0.5],
+    step: 0.01,
+  },
+  {
+    namePrefix: "Infernal",
+    namePostfix: "blaze",
+    titlePrefix: "Burning",
+    titlePostfix: "Flame",
+    levelRequirement: 40,
+    attributeType: ArtifactAttributeType.DamageAsFire,
+    magnitude: [0.5, 0.5],
     step: 0.01,
   },
 ];

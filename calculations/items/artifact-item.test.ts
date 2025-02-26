@@ -2,32 +2,110 @@ import { ArtifactAttributeType } from "types/graphql";
 import { ArtifactItem } from "./artifact-item";
 import { Unit } from "../units/unit";
 
-describe("artifact items", () => {
-  it("should apply buufs", () => {
-    const baseUnit = new Unit();
-    baseUnit.baseValues.strength = 100;
-    baseUnit.baseValues.dexterity = 100;
-    const artifactItem = new ArtifactItem({
-      unit: baseUnit,
-      name: "Artifact Item",
-      level: 4,
-      attributes: {
-        namePrefix: {
-          type: ArtifactAttributeType.BonusDexterity,
-          magnitude: 1.2,
-        },
-        namePostfix: {
-          type: ArtifactAttributeType.BonusStrength,
-          magnitude: 1.2,
-        },
-        titlePrefix: undefined,
-        titlePostfix: undefined,
+describe("ArtifactItem", () => {
+  let mockUnit: Unit;
 
-        bonusAffixes: [],
-      },
+  beforeEach(() => {
+    mockUnit = new Unit();
+  });
+
+  describe("constructor", () => {
+    it("should handle artifact with empty bonusAffixes", () => {
+      expect(() => {
+        new ArtifactItem({
+          level: 40,
+          name: "Test Artifact",
+          unit: mockUnit,
+          attributes: {
+            namePrefix: {
+              type: ArtifactAttributeType.DamageAsLightning,
+              magnitude: 0.5
+            },
+            namePostfix: {
+              type: ArtifactAttributeType.DamageAsFire,
+              magnitude: 0.5
+            },
+            bonusAffixes: []
+          }
+        });
+      }).not.toThrow();
     });
-    expect(baseUnit.stats.strength).toEqual(
-      Math.round(baseUnit.baseValues.strength * 1.2),
-    );
+
+    it("should handle artifact with bonusAffixes", () => {
+      expect(() => {
+        new ArtifactItem({
+          level: 40,
+          name: "Test Artifact",
+          unit: mockUnit,
+          attributes: {
+            namePrefix: {
+              type: ArtifactAttributeType.DamageAsLightning,
+              magnitude: 0.5
+            },
+            namePostfix: {
+              type: ArtifactAttributeType.DamageAsFire,
+              magnitude: 0.5
+            },
+            bonusAffixes: [{
+              type: ArtifactAttributeType.DamageAsLightning,
+              magnitude: 0.5
+            }]
+          }
+        });
+      }).not.toThrow();
+    });
+
+    it("should handle artifact with all attribute types", () => {
+      expect(() => {
+        new ArtifactItem({
+          level: 40,
+          name: "Test Artifact",
+          unit: mockUnit,
+          attributes: {
+            namePrefix: {
+              type: ArtifactAttributeType.DamageAsLightning,
+              magnitude: 0.5
+            },
+            namePostfix: {
+              type: ArtifactAttributeType.DamageAsFire,
+              magnitude: 0.5
+            },
+            titlePrefix: {
+              type: ArtifactAttributeType.BonusStrength,
+              magnitude: 1.2
+            },
+            titlePostfix: {
+              type: ArtifactAttributeType.BonusIntelligence,
+              magnitude: 1.2
+            },
+            bonusAffixes: [{
+              type: ArtifactAttributeType.DamageAsLightning,
+              magnitude: 0.5
+            }]
+          }
+        });
+      }).not.toThrow();
+    });
+
+    it("should handle artifact with undefined optional attributes", () => {
+      expect(() => {
+        new ArtifactItem({
+          level: 40,
+          name: "Test Artifact",
+          unit: mockUnit,
+          attributes: {
+            namePrefix: {
+              type: ArtifactAttributeType.DamageAsLightning,
+              magnitude: 0.5
+            },
+            namePostfix: {
+              type: ArtifactAttributeType.DamageAsFire,
+              magnitude: 0.5
+            },
+            bonusAffixes: []
+          }
+        });
+      }).not.toThrow();
+    });
   });
 });

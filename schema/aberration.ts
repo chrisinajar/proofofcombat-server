@@ -52,6 +52,7 @@ export async function spawnRandomAberration(context: BaseContext) {
   console.log("ABERRATION SPAWN EVENT!?", aberration);
   let spawnMessage = "A forgotten aberration is rampaging near {{loc}}";
 
+  // always use wording like "near" because we don't give the exact location, we give a spot near it.
   switch (aberration.id) {
     case "random-aberration-unholy-paladin":
       spawnMessage = "It's dark near {{loc}}. Something unholy lurks there.";
@@ -64,6 +65,9 @@ export async function spawnRandomAberration(context: BaseContext) {
       break;
     case "random-aberration-moving-mountain":
       spawnMessage = "The ground trembles as the mountains rise near {{loc}}";
+      break;
+    case "random-aberration-artificer":
+      spawnMessage = "Strange mechanical sounds echo from somewhere near {{loc}}";
       break;
   }
 
@@ -177,6 +181,11 @@ const Aberrations = [
     id: "random-aberration-moving-mountain",
     weight: 1,
     ...AberrationStats["random-aberration-moving-mountain"],
+  },
+  {
+    id: "random-aberration-artificer",
+    weight: 1,
+    ...AberrationStats["random-aberration-artificer"],
   },
   // {
   //   id: "random-aberration-void-keeper",

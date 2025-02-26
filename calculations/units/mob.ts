@@ -69,10 +69,11 @@ export class Mob extends Unit {
 
   equipMonsterItem(item: CombatGear | QuestItem, type: InventoryItemType) {
     return this.equipItem({
-      level: 0,
+      level: 'level' in item ? item.level : 0,
       baseItem: "",
       name: "",
       type,
+      imbue: 'imbue' in item ? item.imbue : undefined,
       ...item,
     });
   }

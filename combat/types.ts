@@ -10,6 +10,7 @@ import {
   HeroClasses,
   HeroSkills,
   ArtifactItem,
+  InventoryItemImbue,
 } from "types/graphql";
 
 import type { Unit } from "../calculations/units/unit";
@@ -76,6 +77,7 @@ export type CombatGear = {
   level: number;
   baseItem?: string;
   enchantment?: EnchantmentType | null;
+  imbue?: InventoryItemImbue | null;
 };
 
 export type QuestItem = {

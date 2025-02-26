@@ -1,4 +1,4 @@
-import { AttackType, EnchantmentType } from "types/graphql";
+import { AttackType, EnchantmentType, ArtifactAttributeType } from "types/graphql";
 
 export const AberrationStats = {
   "domari-aberration-1": {
@@ -128,6 +128,67 @@ export const AberrationStats = {
 
       leftHand: { level: 60 },
       rightHand: { level: 60 },
+    },
+  },
+
+  "random-aberration-artificer": {
+    monster: {
+      name: "The Artificer",
+      id: "random-aberration-artificer",
+      attackType: AttackType.Cast,
+      level: 33,
+      combat: {
+        maxHealth: 4000000000,
+        health: 4000000000,
+      },
+    },
+    equipment: {
+      bodyArmor: { 
+        level: 34,
+        enchantment: EnchantmentType.SuperCounterSpell
+      },
+      handArmor: { 
+        level: 34,
+        enchantment: EnchantmentType.SuperCaster,
+      },
+      legArmor: { 
+        level: 34,
+        enchantment: EnchantmentType.SuperWisdom,
+      },
+      headArmor: {
+        level: 34,
+        enchantment: EnchantmentType.SuperCaster
+      },
+      footArmor: { 
+        level: 34,
+        enchantment: EnchantmentType.BonusArmor
+      },
+      leftHand: { 
+        level: 45,
+        enchantment: EnchantmentType.SuperCaster,
+        imbue: {
+          artifact: {
+            id: "artificer-fire-tempest",
+            name: "Fire Tempest",
+            level: 40,
+            attributes: {
+              namePrefix: {
+                type: ArtifactAttributeType.DamageAsLightning,
+                magnitude: 0.5
+              },
+              namePostfix: {
+                type: ArtifactAttributeType.DamageAsFire,
+                magnitude: 0.5
+              },
+              bonusAffixes: []
+            }
+          }
+        }
+      },
+      rightHand: { 
+        level: 45,
+        enchantment: EnchantmentType.SuperWillpower
+      },
     },
   },
 };
