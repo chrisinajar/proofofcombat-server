@@ -4,7 +4,9 @@ import LRU from "lru-cache";
 // import { uuid } from 'uuidv4';
 import { BaseModel } from "types/graphql";
 
-const rootDataPath = process.env.NODE_ENV === "test" ? "./test-data" : "./data";
+// Allow custom DB path for E2E tests
+const rootDataPath = process.env.DB_PATH || 
+  (process.env.NODE_ENV === "test" ? "./test-data" : "./data");
 
 export default class DatabaseInterface<Model extends BaseModel> {
   db: Level<Model>;

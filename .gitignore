@@ -10,4 +10,5 @@ types/graphql.ts
 .DS_Store
 test-data/
 dist/
+e2e-data/
 
