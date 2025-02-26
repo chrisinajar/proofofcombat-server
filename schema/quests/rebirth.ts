@@ -97,27 +97,19 @@ function isMaxTierItem(item?: InventoryItem | null): boolean {
 }
 
 export function checkHero(context: BaseContext, hero: Hero): Hero {
-  console.log('checkHero called for', hero.name);
-  console.log('Hero state:', {
-    level: hero.level,
-    levelCap: hero.levelCap,
-    currentQuest: hero.currentQuest,
-    questLog: hero.questLog
-  });
-
   // wait for them to dismiss any previous quest messages
   if (hero.currentQuest) {
-    console.log('Hero has current quest:', hero.currentQuest);
+    // console.log('Hero has current quest:', hero.currentQuest);
     return hero;
   }
 
   // we only care if they're currently sitting at a level cap
   if (!isAtLevelCap(hero)) {
-    console.log('Hero is not at level cap:', hero.level, hero.levelCap);
+    // console.log('Hero is not at level cap:', hero.level, hero.levelCap);
     return hero;
   }
 
-  console.log('Hero is at level cap:', hero.level, hero.levelCap);
+  // console.log('Hero is at level cap:', hero.level, hero.levelCap);
 
   // amixea can help, grants void travel
   if (
