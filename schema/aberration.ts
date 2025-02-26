@@ -182,11 +182,11 @@ const Aberrations = [
     weight: 1,
     ...AberrationStats["random-aberration-moving-mountain"],
   },
-  {
-    id: "random-aberration-artificer",
-    weight: 1,
-    ...AberrationStats["random-aberration-artificer"],
-  },
+  // {
+  //   id: "random-aberration-artificer",
+  //   weight: 1,
+  //   ...AberrationStats["random-aberration-artificer"],
+  // },
   // {
   //   id: "random-aberration-void-keeper",
   //   weight: 1,
