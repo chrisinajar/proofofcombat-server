@@ -456,7 +456,7 @@ const resolvers: Resolvers = {
               location,
               home,
             );
-            if (range > length) {
+            if (length && range > length) {
               hasNeighbor = true;
             }
           }
