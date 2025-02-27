@@ -65,6 +65,7 @@
     "generate": "graphql-codegen",
     "dev": "nodemon --exec ts-node ./index.ts",
     "test": "jest",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "generate-quest-text": "ts-node scripts/generate-quest-text.ts"
   }
 }

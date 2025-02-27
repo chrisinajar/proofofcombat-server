@@ -3,6 +3,14 @@ import { InventoryItemType, EnchantmentType } from "types/graphql";
 
 export function getQuestRewards() {
   return {
+    // "taste for business" quest line
+    "small-wrapped-package": {
+      id: "small-wrapped-package",
+      name: "Small Wrapped Package",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
     // "washed up" quest line mundane items
     "old-boot": {
       id: "old-boot",

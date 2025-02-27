@@ -11,6 +11,7 @@ export default gql`
   }
 
   enum Quest {
+    TasteForBusiness # deliver packages for a shopkeeper
     WashedUp # hero is on water but can't swim, gets message about washing ashore
     Rebirth # initial level cap progression
     DroopsQuest # kill hobgoblins to find a hidden location
@@ -26,6 +27,7 @@ export default gql`
   type QuestLog {
     id: ID!
 
+    tasteForBusiness: QuestProgress
     washedUp: QuestProgress
     rebirth: QuestProgress
     droop: QuestProgress
