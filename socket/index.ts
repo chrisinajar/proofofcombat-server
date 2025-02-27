@@ -9,10 +9,14 @@ import { confirm, ChatTokenData } from "../security";
 import { getChatCache, addChatMessage } from "./cache";
 export { loadChatCache } from "./cache";
 
-type ExtendedSocket = Socket & {
+interface ExtendedSocket extends Socket {
   name?: string;
   heroId?: string;
-};
+}
+
+interface ChatEventData {
+  message: string;
+}
 
 type Notification = {
   type: "drop" | "quest" | "artifact" | "settlement";
@@ -71,7 +75,7 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
       console.log(socket.name, "left the game");
       listClients();
     });
-    socket.on("chat", async (data, callback) => {
+    socket.on("chat", async (data: ChatEventData, callback?: (message: ChatMessage) => void) => {
       if (!socket.name) {
         return;
       }
@@ -85,9 +89,11 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
         heroId: socket.heroId,
         type: "chat",
       });
-      socket.broadcast.emit("chat", message);
+      io.emit("chat", message);
 
-      callback(message);
+      if (typeof callback === 'function') {
+        callback(message);
+      }
     });
 
     socket.on("private-chat", async (data, callback) => {
