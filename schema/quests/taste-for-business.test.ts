@@ -29,6 +29,7 @@ describe("Taste for Business Quest", () => {
       finished: false,
       progress: 100,
       lastEvent: null,
+      events: [],
     });
   });
 
@@ -58,6 +59,8 @@ describe("Taste for Business Quest", () => {
 
   it("should not trigger second event between 1000 and 2000", () => {
     let hero = checkHeroPurchase(mockContext, mockHero, mockItem, 1000); // First event
+    // clear current quest dialog
+    mockHero.currentQuest = null;
     hero = checkHeroPurchase(mockContext, hero, mockItem, 500);
 
     expect(hero.questLog.tasteForBusiness?.progress).toBe(1501);
@@ -66,6 +69,8 @@ describe("Taste for Business Quest", () => {
 
   it("should trigger second event at 2000", () => {
     let hero = checkHeroPurchase(mockContext, mockHero, mockItem, 1000); // First event
+    // clear current quest dialog
+    mockHero.currentQuest = null;
     hero = checkHeroPurchase(mockContext, hero, mockItem, 1000); // Second event
 
     expect(hero.questLog.tasteForBusiness?.progress).toBe(2001);
@@ -80,6 +85,7 @@ describe("Taste for Business Quest", () => {
       finished: true,
       progress: 2001,
       lastEvent: null,
+      events: [],
     };
 
     const hero = checkHeroPurchase(mockContext, mockHero, mockItem, 500);
