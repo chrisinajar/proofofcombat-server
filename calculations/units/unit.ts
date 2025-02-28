@@ -110,6 +110,33 @@ export class Unit {
       health: 0, // calculated by basic unit/hero modifier
 
       counterSpell: 0,
+
+      // Blight = 'Blight',
+      // Enchantment = 'Enchantment',
+      // Fire = 'Fire',
+      // Holy = 'Holy',
+      // Ice = 'Ice',
+      // Lightning = 'Lightning',
+      // Magical = 'Magical',
+      // Physical = 'Physical'
+      
+      // damage conversion
+      damageAsBlight: 0,
+      damageAsFire: 0,
+      damageAsHoly: 0,
+      damageAsIce: 0,
+      damageAsLightning: 0,
+      damageAsMagical: 0,
+      damageAsPhysical: 0,
+
+      // damage resistance
+      blightResistance: 0,
+      fireResistance: 0,
+      holyResistance: 0,
+      iceResistance: 0,
+      lightningResistance: 0,
+      magicalResistance: 0,
+      physicalResistance: 0,
     };
 
     this.precisions = {

@@ -1,8 +1,6 @@
 import { Modifier, ModifierOptions } from "./modifier";
 
-type StatsEntry = {
-  [x in string]: number;
-};
+type StatsEntry = Record<string, number>;
 
 export type GenericStatsModifierOptions = {
   multiplier?: StatsEntry;
@@ -19,19 +17,19 @@ export class GenericStatsModifier extends Modifier<GenericStatsModifierOptions> 
 
     this.options = options.options;
   }
-  getBonus(prop: string): number | void {
+  getBonus(prop: string): number | undefined {
     if (this.options.bonus && this.options.bonus[prop]) {
       return this.options.bonus[prop];
     }
     return;
   }
-  getMultiplier(prop: string): number | void {
+  getMultiplier(prop: string): number | undefined {
     if (this.options.multiplier && this.options.multiplier[prop]) {
       return this.options.multiplier[prop];
     }
     return;
   }
-  getExtraBonus(prop: string): number | void {
+  getExtraBonus(prop: string): number | undefined {
     if (this.options.extraBonus && this.options.extraBonus[prop]) {
       return this.options.extraBonus[prop];
     }

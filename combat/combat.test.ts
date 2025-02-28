@@ -1,7 +1,6 @@
 import {
   AttackType,
   Hero,
-  AttributeType,
   HeroStats,
   EnchantmentType,
   HeroClasses,
@@ -11,22 +10,18 @@ import {
 } from "types/graphql";
 import {
   calculateOdds,
-  calculateHit,
   createHeroCombatant,
   createMonsterCombatant,
   Combatant,
   attributesForAttack,
   calculateDamageValues,
-  CombatantGear,
   calculateDamage,
 } from "./";
 import Databases from "../db";
 import { getEnchantedAttributes } from "./enchantments";
 import { calculateEnchantmentDamage } from "./calculate-enchantment-damage";
-import { Modifier } from "../calculations/modifiers/modifier";
-import { GenericStatsModifier } from "../calculations/modifiers/generic-stats-modifier";
+import { GenericStatsModifier, GenericStatsModifierOptions } from "../calculations/modifiers/generic-stats-modifier";
 import type { ModifierOptions } from "../calculations/modifiers/modifier";
-import { createTestHero } from "../test-helpers";
 
 type Attribute = keyof HeroStats;
 
@@ -41,7 +36,6 @@ function generateHero(): Hero {
     },
   });
   hero.combat.health = hero.combat.maxHealth;
-  hero.attributes = { ...hero.attributes };
 
   return hero;
 }
@@ -175,7 +169,7 @@ function snapshotUnitAttributes(attributes: { [x in string]: number }) {
 }
 
 describe("combat", () => {
-  const combatTypes: { attackType: AttackType }[] = [
+  const combatTypes: { attackType: AttackType, weapons: InventoryItemType[] }[] = [
     {
       attackType: AttackType.Melee,
       weapons: [InventoryItemType.MeleeWeapon],
@@ -242,9 +236,23 @@ describe("combat", () => {
         const hero = generateHero();
         const hero2 = generateHero();
         const hero2Combatant = createHeroCombatant(hero2, entry.attackType);
-        hero.equipment.leftHand = { level: 32, type: entry.weapons[0] };
+        hero.equipment.leftHand = {
+          level: 32,
+          type: entry.weapons[0],
+          id: "test-weapon",
+          baseItem: "test-weapon",
+          name: "test-weapon",
+          owner: "test-hero",
+        };
         if (entry.weapons[1]) {
-          hero.equipment.rightHand = { level: 32, type: entry.weapons[1] };
+          hero.equipment.rightHand = {
+            level: 32,
+            type: entry.weapons[1],
+            id: "test-weapon",
+            baseItem: "test-weapon",
+            name: "test-weapon",
+            owner: "test-hero",
+          };
         }
         const damageBefore = getAverageDamage(
           createHeroCombatant(hero, entry.attackType),
@@ -286,19 +294,27 @@ describe("combat", () => {
     it("works with huge numbers", () => {
       const hero = levelUpHero(generateHero(), 5000, { constitution: 1 });
 
-      hero.class = "Vampire";
-      hero.attackType = AttackType.Blood;
+      hero.class = HeroClasses.Vampire;
+      // hero.attackType = AttackType.Blood;
       hero.skills.regeneration = 25;
 
       hero.equipment.footArmor = {
+        id: "test-foot-armor",
         type: InventoryItemType.FootArmor,
         level: 34,
         enchantment: EnchantmentType.SuperVamp,
+        baseItem: "test-foot-armor",
+        name: "test-foot-armor",
+        owner: hero.id,
       };
       hero.equipment.bodyArmor = {
+        id: "test-body-armor",
         type: InventoryItemType.BodyArmor,
         level: 34,
         enchantment: EnchantmentType.SuperVamp,
+        baseItem: "test-body-armor",
+        name: "test-body-armor",
+        owner: hero.id,
       };
 
       let heroCombatant = createHeroCombatant(hero, AttackType.Melee);
@@ -615,7 +631,7 @@ describe("builds", () => {
           }),
         );
 
-        snapshotUnitAttributes(attacker.attributes, {
+        snapshotUnitAttributes({
           strength: attacker.unit.stats.strength,
           dexterity: attacker.unit.stats.dexterity,
           constitution: attacker.unit.stats.constitution,
@@ -750,10 +766,10 @@ describe("builds", () => {
       "archer",
       AttackType.Ranged,
       HeroClasses.Ranger,
-      trashGear,
-      normalGear,
-      greatGear,
-      uberGear,
+      trashGear as unknown as gearFunction,
+      normalGear as unknown as gearFunction,
+      greatGear as unknown as gearFunction,
+      uberGear as unknown as gearFunction,
       { dexterity: 0.8, luck: 0.2 },
     );
   });
@@ -883,10 +899,10 @@ describe("builds", () => {
       "melee",
       AttackType.Melee,
       HeroClasses.Fighter,
-      trashGear,
-      normalGear,
-      greatGear,
-      uberGear,
+      trashGear as unknown as gearFunction,
+      normalGear as unknown as gearFunction,
+      greatGear as unknown as gearFunction,
+      uberGear as unknown as gearFunction,
       { strength: 0.6, dexterity: 0.3, luck: 0.1 },
     );
   });
@@ -906,6 +922,10 @@ describe("calculateEnchantmentDamage", () => {
       level: 1,
       type: InventoryItemType.MeleeWeapon,
       enchantment: EnchantmentType.SuperVampStats,
+      id: "test-weapon",
+      baseItem: "test-weapon",
+      name: "test-weapon",
+      owner: hero.id,
     };
     // hero.equipment.rightHand = {
     //   level: 1,
@@ -924,6 +944,10 @@ describe("calculateEnchantmentDamage", () => {
       level: 1,
       type: InventoryItemType.MeleeWeapon,
       enchantment: EnchantmentType.SuperVampStats,
+      id: "test-weapon",
+      baseItem: "test-weapon",
+      name: "test-weapon",
+      owner: hero.id,
     };
 
     result = calculateEnchantmentDamage(
@@ -969,6 +993,10 @@ describe("calculateEnchantmentDamage", () => {
       level: 34,
       type: InventoryItemType.Shield,
       enchantment: EnchantmentType.SuperVampStats,
+      id: "test-weapon",
+      baseItem: "test-weapon",
+      name: "test-weapon",
+      owner: hero2.id,
     };
 
     checkForSymmetry();
@@ -977,6 +1005,10 @@ describe("calculateEnchantmentDamage", () => {
       level: 34,
       type: InventoryItemType.Shield,
       enchantment: EnchantmentType.SuperVampStats,
+      id: "test-weapon",
+      baseItem: "test-weapon",
+      name: "test-weapon",
+      owner: hero2.id,
     };
 
     checkForSymmetry();
@@ -985,11 +1017,17 @@ describe("calculateEnchantmentDamage", () => {
       level: 0,
       baseItem: "vampire-ring",
       type: InventoryItemType.Quest,
+      id: "test-weapon",
+      name: "test-weapon",
+      owner: hero2.id,
     });
     hero2.inventory.push({
       level: 0,
       baseItem: "heros-guidance",
       type: InventoryItemType.Quest,
+      id: "test-weapon",
+      name: "test-weapon",
+      owner: hero2.id,
     });
 
     checkForSymmetry();
@@ -1011,33 +1049,25 @@ describe("damage conversion", () => {
     hero.equipment.leftHand = {
       id: "test-weapon",
       level: 10,
-      type: InventoryItemType.MeleeWeapon
+      type: InventoryItemType.MeleeWeapon,
+      baseItem: "test-weapon",
+      name: "test-weapon",
+      owner: hero.id,
     };
     hero.stats.strength = 100; // Add some strength for melee damage
 
-    // Create a modifier to apply the damage conversion
-    class DamageConversionModifier extends GenericStatsModifier {
-      constructor(options: ModifierOptions<GenericStatsModifierOptions>) {
-        super({
-          source: options.source,
-          parent: options.parent,
-          options: {
-            bonus: {
-              damageAsLightning: 0.5,
-              damageAsFire: 0.5
-            }
-          }
-        });
-      }
-    }
-
     // Add damage conversion stats to the hero's unit
     const heroCombatant = createHeroCombatant(hero, AttackType.Melee);
-    heroCombatant.unit.baseValues.damageAsLightning = 0;
-    heroCombatant.unit.baseValues.damageAsFire = 0;
-    heroCombatant.unit.applyModifier(DamageConversionModifier, {
-      source: heroCombatant.unit,
-      parent: heroCombatant.unit
+
+    heroCombatant.unit.applyModifier<GenericStatsModifier, GenericStatsModifierOptions>({
+      type: GenericStatsModifier,
+      enchantment: EnchantmentType.DiamondBlessing,
+      options: {
+        bonus: {
+          damageAsLightning: 0.5,
+          damageAsFire: 0.5
+        },
+      },
     });
 
     const hero2Combatant = createHeroCombatant(hero2, AttackType.Melee);
