@@ -32,12 +32,18 @@ export function checkHeroPurchase(context: BaseContext, hero: Hero, item: Invent
       hero,
       Quest.TasteForBusiness,
       "tasteForBusiness",
-      hero.questLog.tasteForBusiness?.progress ?? 0
+      1001,
     );
   }
 
-  if (hero.questLog.tasteForBusiness && hero.questLog.tasteForBusiness.progress >= 2000) {
+  if (hero.questLog.tasteForBusiness && hero.questLog.tasteForBusiness.lastEvent?.id === `TasteForBusiness-${hero.id}-aFineCustomer` && hero.questLog.tasteForBusiness.progress >= 2000) {
     hero = setQuestEvent(hero, Quest.TasteForBusiness, "aLittleOpportunity", questEvents.aLittleOpportunity);
+    hero = setQuestLogProgress(
+      hero,
+      Quest.TasteForBusiness,
+      "tasteForBusiness",
+      2001,
+    );
   }
 
   return hero;
