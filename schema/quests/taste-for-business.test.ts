@@ -29,7 +29,6 @@ describe("Taste for Business Quest", () => {
       finished: false,
       progress: 100,
       lastEvent: null,
-      events: [],
     });
   });
 
@@ -85,7 +84,6 @@ describe("Taste for Business Quest", () => {
       finished: true,
       progress: 2001,
       lastEvent: null,
-      events: [],
     };
 
     const hero = checkHeroPurchase(mockContext, mockHero, mockItem, 500);
