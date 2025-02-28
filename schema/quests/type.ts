@@ -57,6 +57,7 @@ export default gql`
     finished: Boolean!
     progress: Int!
     lastEvent: QuestEvent
+    eventHistory: [QuestEvent!]
   }
 
   type TalkResponse {

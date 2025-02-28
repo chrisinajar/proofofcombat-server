@@ -260,6 +260,10 @@ export function setQuestLogProgress(
     finished,
     progress: progress || (hero.questLog[entryName]?.progress ?? 0),
     lastEvent,
+    eventHistory: [
+      ...(hero.questLog[entryName]?.eventHistory ?? []),
+      ...(lastEvent ? [lastEvent] : []),
+    ],
   };
 
   return hero;
