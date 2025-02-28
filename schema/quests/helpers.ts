@@ -37,6 +37,7 @@ import { checkHeroDrop as checkHeroDropForDroop } from "./droop";
 import { checkHeroDrop as checkHeroDropForTavernChamp } from "./tavern-champion";
 import { checkHeroDrop as checkHeroDropForMinorClasses } from "./minor-class-upgrades";
 import { checkCapital as checkCapitalForSettlements } from "./settlements";
+import { checkHeroPurchase as checkHeroPurchaseForTasteForBusiness } from "./taste-for-business";
 
 export async function checkSkipDrop(
   context: BaseContext,
@@ -82,6 +83,12 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   hero = checkHeroForNagaScale(context, hero);
   hero = checkHeroForClockwork(context, hero);
   hero = checkHeroForMeetTheQueen(context, hero);
+
+  return hero;
+}
+
+export function checkHeroPurchase(context: BaseContext, hero: Hero, item: InventoryItem, price: number): Hero {
+  hero = checkHeroPurchaseForTasteForBusiness(context, hero, item, price);
 
   return hero;
 }

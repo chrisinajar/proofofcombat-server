@@ -18,7 +18,7 @@ import { createHeroCombatant } from "../../combat/hero";
 import { BaseItems } from "../items/base-items";
 import { createItemInstance, countEnchantments } from "../items/helpers";
 import type { BaseItem } from "../items";
-import { hasQuestItem, takeQuestItem } from "../quests/helpers";
+import { hasQuestItem, takeQuestItem, checkHeroPurchase } from "../quests/helpers";
 
 type SlotNameType =
   | "leftHand"
@@ -524,6 +524,8 @@ const resolvers: Resolvers = {
       const itemInstance = createItemInstance(baseItem, hero);
 
       hero.inventory.push(itemInstance);
+
+      checkHeroPurchase(context, hero, itemInstance, baseItem.cost);
 
       await context.db.hero.put(hero);
 
