@@ -88,7 +88,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
 }
 
 export function checkHeroPurchase(context: BaseContext, hero: Hero, item: InventoryItem, price: number): Hero {
-  hero = checkHeroPurchaseForTasteForBusiness(context, hero, item, price);
+  // hero = checkHeroPurchaseForTasteForBusiness(context, hero, item, price);
 
   return hero;
 }
