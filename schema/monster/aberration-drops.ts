@@ -5,7 +5,11 @@ import {
   giveQuestItemNotification,
   takeQuestItem,
 } from "../quests/helpers";
-import { giveHeroRandomDrop, randomEnchantment, giveHeroArtifact } from "../items/helpers";
+import {
+  giveHeroRandomDrop,
+  randomEnchantment,
+  giveHeroArtifact,
+} from "../items/helpers";
 import { rebirth } from "../quests/rebirth";
 import { endVoidTravel } from "../void-travel";
 
@@ -147,7 +151,10 @@ async function artificerReward(
 
   // Roll an artifact with high magic find, 30+
   const artifactMagicFind = Math.floor(30 + Math.random() * 20);
-  const artifactReward = context.db.artifact.rollArtifact(artifactMagicFind, hero);
+  const artifactReward = context.db.artifact.rollArtifact(
+    artifactMagicFind,
+    hero,
+  );
   context.db.artifact.put(artifactReward);
 
   // Give the hero the artifact
@@ -155,7 +162,7 @@ async function artificerReward(
     context,
     hero,
     artifactReward,
-    `You discover ${artifactReward.name} among The Artificer's creations.`
+    `You discover ${artifactReward.name} among The Artificer's creations.`,
   );
 
   if (artifactMagicFind >= 45) {

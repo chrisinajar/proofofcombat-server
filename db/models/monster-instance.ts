@@ -19,12 +19,13 @@ export default class MonsterInstanceModel extends DatabaseInterface<MonsterInsta
         data.location.y,
         data.location.map,
         data.monster.id,
-      ].join("\n")
+      ].join("\n"),
     );
 
     return this.put({
       ...data,
       id,
+      lastActive: Date.now(),
     });
   }
 

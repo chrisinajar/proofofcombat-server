@@ -1,4 +1,8 @@
-import { AttackType, EnchantmentType, ArtifactAttributeType } from "types/graphql";
+import {
+  AttackType,
+  EnchantmentType,
+  ArtifactAttributeType,
+} from "types/graphql";
 
 export const AberrationStats = {
   "domari-aberration-1": {
@@ -143,27 +147,27 @@ export const AberrationStats = {
       },
     },
     equipment: {
-      bodyArmor: { 
+      bodyArmor: {
         level: 34,
-        enchantment: EnchantmentType.SuperCounterSpell
+        enchantment: EnchantmentType.SuperCounterSpell,
       },
-      handArmor: { 
+      handArmor: {
         level: 34,
-        enchantment: EnchantmentType.SuperCaster,
+        enchantment: EnchantmentType.SuperSorcVampStats,
       },
-      legArmor: { 
+      legArmor: {
         level: 34,
         enchantment: EnchantmentType.SuperWisdom,
       },
       headArmor: {
         level: 34,
-        enchantment: EnchantmentType.SuperCaster
+        enchantment: EnchantmentType.SuperCaster,
       },
-      footArmor: { 
+      footArmor: {
         level: 34,
-        enchantment: EnchantmentType.BonusArmor
+        enchantment: EnchantmentType.SuperSorcVampStats,
       },
-      leftHand: { 
+      leftHand: {
         level: 45,
         enchantment: EnchantmentType.SuperCaster,
         imbue: {
@@ -174,20 +178,25 @@ export const AberrationStats = {
             attributes: {
               namePrefix: {
                 type: ArtifactAttributeType.DamageAsLightning,
-                magnitude: 0.5
+                magnitude: 0.5,
               },
               namePostfix: {
                 type: ArtifactAttributeType.DamageAsFire,
-                magnitude: 0.5
+                magnitude: 0.5,
               },
-              bonusAffixes: []
-            }
-          }
-        }
+              bonusAffixes: [
+                {
+                  type: ArtifactAttributeType.AllResistances,
+                  magnitude: 0.8,
+                },
+              ],
+            },
+          },
+        },
       },
-      rightHand: { 
+      rightHand: {
         level: 45,
-        enchantment: EnchantmentType.SuperWillpower
+        enchantment: EnchantmentType.SuperWillpower,
       },
     },
   },
