@@ -34,6 +34,11 @@ export type LocationDataType = {
   };
 };
 
+export const MAP_DIMENSIONS = {
+  WIDTH: 128,
+  HEIGHT: 96
+} as const;
+
 export const LocationData: LocationDataType = {
   default: {
     locations: DefaultTerrain as LocationData[][],

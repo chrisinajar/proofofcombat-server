@@ -2,6 +2,7 @@ import { AttackType, EnchantmentType } from "types/graphql";
 
 import { AberrationStats } from "./monster/aberration-stats";
 import { BaseContext } from "./context";
+import { roamAberrations } from "./monster/aberration-roam";
 
 import Databases from "../db";
 import { getRandomizer } from "../random";
@@ -105,20 +106,26 @@ export async function spawnRandomAberration(context: BaseContext) {
 }
 
 export async function runAberrationCheck(context: BaseContext) {
-  if (!runOdds()) {
-    return;
-  }
-  spawnRandomAberration(context);
-}
-
-export function runOdds(): boolean {
   const now = Date.now();
   const seed = Math.round(now / changeWindow);
+
+  // If we found and roamed an aberration, skip the spawn check
+  if (await roamAberrations(context, seed)) {
+    return;
+  }
+
+  if (!runOdds(seed)) {
+    return;
+  }
+  await spawnRandomAberration(context);
+}
+
+export function runOdds(seed: number): boolean {
   const random = getRandomizer(`aberration-${seed}`);
 
   const success = random() < getCurrentOdds();
   if (success) {
-    lastAberrationSpawn = now;
+    lastAberrationSpawn = Date.now();
     setNextMinTime();
     save();
   }
