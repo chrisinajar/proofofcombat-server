@@ -1,8 +1,53 @@
 import { BaseContext } from "../context";
 import { getRandomizer } from "../../random";
 import { LocationData, MapNames, MAP_DIMENSIONS } from "../../constants";
-import { MonsterInstance } from "types/graphql";
+import {
+  MonsterInstance,
+  PlayerLocation,
+  PlayerLocationType,
+  Location,
+} from "types/graphql";
 import { io } from "../../index";
+
+async function handleAberrationSettlementBattle(
+  context: BaseContext,
+  aberration: MonsterInstance,
+  settlement: PlayerLocation,
+): Promise<void> {
+  // calculate both army and defensive power
+
+  if (settlement.health === 0) {
+    await context.db.playerLocation.del(settlement);
+    io.sendGlobalMessage({
+      color: "error",
+      message: `The aberration at ${aberration.location.x}, ${aberration.location.y} has destroyed the settlement!`,
+    });
+  } else {
+    await context.db.playerLocation.put(settlement);
+    io.sendGlobalMessage({
+      color: "primary",
+      message: `The aberration at ${aberration.location.x}, ${aberration.location.y} is attacking a settlement!`,
+    });
+  }
+}
+
+async function checkSettlementOwnership(
+  context: BaseContext,
+  location: Location,
+): Promise<PlayerLocation | null> {
+  try {
+    const settlement = await context.db.playerLocation.get(
+      context.db.playerLocation.locationId(location),
+    );
+
+    if (settlement?.type === PlayerLocationType.Settlement) {
+      return settlement;
+    }
+  } catch (e) {
+    // No settlement found at this location
+  }
+  return null;
+}
 
 export async function roamAberrations(
   context: BaseContext,
@@ -11,8 +56,8 @@ export async function roamAberrations(
   const random = getRandomizer(`aberration-roam-${seed}`);
 
   // Generate a random location on the map
-  const location = {
-    map: "default" as MapNames,
+  const location: Location = {
+    map: "default",
     x: Math.floor(random() * MAP_DIMENSIONS.WIDTH),
     y: Math.floor(random() * MAP_DIMENSIONS.HEIGHT),
   };
@@ -34,12 +79,15 @@ export async function roamAberrations(
 async function handleAberrationRoam(
   context: BaseContext,
   aberrations: MonsterInstance[],
-  location: { map: MapNames; x: number; y: number },
+  location: Location,
   random: () => number,
 ) {
   // grab the first aberration for single monster events, use the array in multi-monster events
   const aberration = aberrations[0];
   const { x, y } = location;
+
+  // Check if current location has a settlement
+  const currentSettlement = await checkSettlementOwnership(context, location);
 
   let roamMessage = `A forgotten aberration stirs at ${x}, ${y}...`;
 
@@ -98,6 +146,19 @@ async function handleAberrationRoam(
       message: `The aberration at ${x}, ${y} has wandered into the unknown...`,
     });
     return;
+  }
+
+  // Check if new location has a settlement
+  const newSettlement = await checkSettlementOwnership(context, newLocation);
+
+  // If we're moving from non-settlement to settlement, or between settlements with different owners
+  if (
+    (!currentSettlement && newSettlement) ||
+    (currentSettlement &&
+      newSettlement &&
+      currentSettlement.owner !== newSettlement.owner)
+  ) {
+    await handleAberrationSettlementBattle(context, aberration, newSettlement);
   }
 
   // Otherwise, update their location

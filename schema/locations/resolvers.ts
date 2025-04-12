@@ -1328,9 +1328,8 @@ const resolvers: Resolvers = {
       const locationCoords = {
         [locationHash(capital.location)]: capital.location,
       };
-      capital.connections = await context.db.playerLocation.getConnections(
-        capital,
-      );
+      capital.connections =
+        await context.db.playerLocation.getConnections(capital);
       capital.connections.forEach((loc) => {
         locationCoords[locationHash(loc.location)] = loc.location;
       });
@@ -1460,35 +1459,38 @@ const resolvers: Resolvers = {
       let canAfford = true;
       let resourceName = "";
 
-      await upgrade.cost.reduce<Promise<void>>(async (memo, cost) => {
-        // let previous run fully first
-        await memo;
-        if (!canAfford) {
-          return;
-        }
-
-        const resources = await context.db.playerLocation.getResourceData(
-          camp,
-          cost.name,
-        );
-
-        const total = resources.reduce((memo, val) => {
-          return memo + val.resource.value;
-        }, 0);
-
-        if (cost.name === "gold") {
-          canAfford = cost.value <= hero.gold;
+      await upgrade.cost.reduce<Promise<void>>(
+        async (memo, cost) => {
+          // let previous run fully first
+          await memo;
           if (!canAfford) {
-            resourceName = cost.name;
+            return;
           }
-          return;
-        }
-        if (total < cost.value) {
-          canAfford = false;
-          resourceName = cost.name;
-          return;
-        }
-      }, new Promise((resolve) => resolve()));
+
+          const resources = await context.db.playerLocation.getResourceData(
+            camp,
+            cost.name,
+          );
+
+          const total = resources.reduce((memo, val) => {
+            return memo + val.resource.value;
+          }, 0);
+
+          if (cost.name === "gold") {
+            canAfford = cost.value <= hero.gold;
+            if (!canAfford) {
+              resourceName = cost.name;
+            }
+            return;
+          }
+          if (total < cost.value) {
+            canAfford = false;
+            resourceName = cost.name;
+            return;
+          }
+        },
+        new Promise((resolve) => resolve()),
+      );
 
       if (!canAfford) {
         throw new UserInputError(
