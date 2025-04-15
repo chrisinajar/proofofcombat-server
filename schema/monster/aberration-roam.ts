@@ -8,6 +8,7 @@ import {
   Location,
 } from "types/graphql";
 import { io } from "../../index";
+import { gatherTargetResources, calculateCombatAttributes } from "../locations/helpers";
 
 async function handleAberrationSettlementBattle(
   context: BaseContext,
@@ -18,13 +19,27 @@ async function handleAberrationSettlementBattle(
   // get base power as health * level
   const armyPower = aberration.monster.combat.health * aberration.monster.level;
 
-  if (settlement.health === 0) {
+  // Calculate defensive resources and power
+  const defensiveResources = await gatherTargetResources(
+    context,
+    settlement.location,
+    settlement, // targetHome
+    settlement, // targetPlayerLocation
+    0, // builtInFortifications - assuming none for now
+  );
+
+  const defensiveAttributes = calculateCombatAttributes(defensiveResources, settlement.health);
+
+  // Determine battle outcome
+  if (armyPower > defensiveAttributes.health) {
+    // Aberration wins
     await context.db.playerLocation.del(settlement);
     io.sendGlobalMessage({
       color: "error",
       message: `The aberration at ${aberration.location.x}, ${aberration.location.y} has destroyed the settlement!`,
     });
   } else {
+    // Settlement survives
     await context.db.playerLocation.put(settlement);
     io.sendGlobalMessage({
       color: "primary",

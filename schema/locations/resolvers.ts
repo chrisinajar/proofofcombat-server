@@ -53,33 +53,10 @@ import {
   validBuildingLocationType,
   DescribedBuildings,
 } from "./settlement-buildings";
-import { gatherTargetResources } from "./helpers";
+import { gatherTargetResources, calculateCombatAttributes, CombatResources } from "./helpers";
 
 export const attackingIsDisabled = false;
 export const attackingIsEnabledAt = 1709337600000;
-
-const combatStats = {
-  enlisted: {
-    health: 2,
-    damage: 1,
-  },
-  soldier: {
-    health: 8,
-    damage: 4,
-  },
-  veteran: {
-    health: 32,
-    damage: 16,
-  },
-  ghost: {
-    health: 256,
-    damage: 64,
-  },
-  fortifications: {
-    health: 150,
-    damage: 6,
-  },
-};
 
 function isCloseToSpecialLocation(location: Location): boolean {
   return !!LocationData[location.map as MapNames].specialLocations.find(
@@ -601,61 +578,22 @@ const resolvers: Resolvers = {
         builtInFortifications,
       );
 
-      // start calculating units and go from here....
-      const attackerAttributes = {
-        enlisted: {
-          health: (args.units.enlisted ?? 0) * combatStats.enlisted.health,
-          damage: (args.units.enlisted ?? 0) * combatStats.enlisted.damage,
-          count: args.units.enlisted ?? 0,
-        },
-        soldier: {
-          health: (args.units.soldier ?? 0) * combatStats.soldier.health,
-          damage: (args.units.soldier ?? 0) * combatStats.soldier.damage,
-          count: args.units.soldier ?? 0,
-        },
-        veteran: {
-          health: (args.units.veteran ?? 0) * combatStats.veteran.health,
-          damage: (args.units.veteran ?? 0) * combatStats.veteran.damage,
-          count: args.units.veteran ?? 0,
-        },
-        ghost: {
-          health: (args.units.ghost ?? 0) * combatStats.ghost.health,
-          damage: (args.units.ghost ?? 0) * combatStats.ghost.damage,
-          count: args.units.ghost ?? 0,
-        },
+      // Calculate attacker attributes
+      const attackerResources: CombatResources = {
+        enlisted: { resource: [], total: args.units.enlisted ?? 0 },
+        soldier: { resource: [], total: args.units.soldier ?? 0 },
+        veteran: { resource: [], total: args.units.veteran ?? 0 },
+        ghost: { resource: [], total: args.units.ghost ?? 0 },
       };
-      const defenderAttributes = calculateDefenderAttributes(
-        targetResources,
-        combatStats,
-      );
 
-      const totalAttackerDamage =
-        attackerAttributes.enlisted.damage +
-        attackerAttributes.soldier.damage +
-        attackerAttributes.veteran.damage +
-        attackerAttributes.ghost.damage;
-      const totalDefenderDamage =
-        defenderAttributes.enlisted.damage +
-        defenderAttributes.soldier.damage +
-        defenderAttributes.veteran.damage +
-        defenderAttributes.fortifications.damage +
-        defenderAttributes.ghost.damage +
-        context.db.playerLocation.defensiveDamage(targetPlayerLocation.type);
+      const attackerAttributes = calculateCombatAttributes(attackerResources);
+      const defenderAttributes = calculateCombatAttributes(targetResources);
 
-      const totalAttackerHealth =
-        attackerAttributes.enlisted.health +
-        attackerAttributes.soldier.health +
-        attackerAttributes.veteran.health +
-        attackerAttributes.ghost.health;
-      const totalDefenderHealth = Math.max(
-        1,
-        1.5 *
-          (defenderAttributes.enlisted.health +
-            defenderAttributes.soldier.health +
-            defenderAttributes.veteran.health +
-            defenderAttributes.fortifications.health +
-            defenderAttributes.ghost.health),
-      );
+      const totalAttackerDamage = attackerAttributes.damage;
+      const totalDefenderDamage = defenderAttributes.damage + context.db.playerLocation.defensiveDamage(targetPlayerLocation.type);
+
+      const totalAttackerHealth = attackerAttributes.health;
+      const totalDefenderHealth = Math.max(1, 1.5 * defenderAttributes.health);
 
       const totalRemainingDefenderHealth = Math.max(
         0,
@@ -679,25 +617,25 @@ const resolvers: Resolvers = {
 
       const defenderCasualties = {
         enlisted: applyDamage(
-          defenderAttributes.enlisted.count,
+          targetResources.enlisted?.total ?? 0,
           percentRemainingDefenderHealth * 0.9 + 0.1,
         ),
         soldier: applyDamage(
-          defenderAttributes.soldier.count,
+          targetResources.soldier?.total ?? 0,
           percentRemainingDefenderHealth * 0.9 + 0.1,
         ),
         veteran: applyDamage(
-          defenderAttributes.veteran.count,
+          targetResources.veteran?.total ?? 0,
           percentRemainingDefenderHealth * 0.9 + 0.1,
         ),
         ghost: applyDamage(
-          defenderAttributes.ghost.count,
+          targetResources.ghost?.total ?? 0,
           percentRemainingDefenderHealth * 0.9 + 0.1,
         ),
         fortifications: Math.round(
           0.2 *
             applyDamage(
-              defenderAttributes.fortifications.count -
+              (targetResources.fortifications?.total ?? 0) -
                 (targetResources.fortifications?.resource.length ?? 0) *
                   builtInFortifications,
               percentRemainingDefenderHealth,
@@ -706,7 +644,7 @@ const resolvers: Resolvers = {
               Math.max(
                 0,
                 applyDamage(
-                  defenderAttributes.fortifications.count,
+                  targetResources.fortifications?.total ?? 0,
                   percentRemainingDefenderHealth,
                 ) -
                   (targetResources.fortifications?.resource.length ?? 0) *
@@ -717,19 +655,19 @@ const resolvers: Resolvers = {
 
       const attackerCasualties = {
         enlisted: applyDamage(
-          attackerAttributes.enlisted.count,
+          attackerResources.enlisted?.total ?? 0,
           percentRemainingAttackerHealth,
         ),
         soldier: applyDamage(
-          attackerAttributes.soldier.count,
+          attackerResources.soldier?.total ?? 0,
           percentRemainingAttackerHealth,
         ),
         veteran: applyDamage(
-          attackerAttributes.veteran.count,
+          attackerResources.veteran?.total ?? 0,
           percentRemainingAttackerHealth,
         ),
         ghost: applyDamage(
-          attackerAttributes.ghost.count,
+          attackerResources.ghost?.total ?? 0,
           percentRemainingAttackerHealth,
         ),
       };

@@ -7,6 +7,7 @@ import {
 import { BaseContext } from "../context";
 import { gatherTargetResources } from "./helpers";
 import { ResourceDataEntry } from "../../db/models/player-location";
+import { calculateCombatAttributes, combatStats } from "./helpers";
 
 describe("gatherTargetResources", () => {
   let mockContext: BaseContext;
@@ -228,6 +229,106 @@ describe("gatherTargetResources", () => {
       expect(result.soldier).toBeUndefined();
       expect(result.veteran).toBeUndefined();
       expect(result.ghost).toBeUndefined();
+    });
+  });
+});
+
+describe("Combat System", () => {
+  describe("calculateCombatAttributes", () => {
+    it("should calculate attributes for empty resources", () => {
+      const result = calculateCombatAttributes({});
+      expect(result).toEqual({ health: 0, damage: 0 });
+    });
+
+    it("should calculate attributes for enlisted units", () => {
+      const resources = {
+        enlisted: { resource: [], total: 10 },
+      };
+      const result = calculateCombatAttributes(resources);
+      expect(result).toEqual({
+        health: 10 * combatStats.enlisted.health,
+        damage: 10 * combatStats.enlisted.damage,
+      });
+    });
+
+    it("should calculate attributes for multiple unit types", () => {
+      const resources = {
+        enlisted: { resource: [], total: 10 },
+        soldier: { resource: [], total: 5 },
+        veteran: { resource: [], total: 2 },
+      };
+      const result = calculateCombatAttributes(resources);
+      expect(result).toEqual({
+        health:
+          10 * combatStats.enlisted.health +
+          5 * combatStats.soldier.health +
+          2 * combatStats.veteran.health,
+        damage:
+          10 * combatStats.enlisted.damage +
+          5 * combatStats.soldier.damage +
+          2 * combatStats.veteran.damage,
+      });
+    });
+
+    it("should include base health when provided", () => {
+      const resources = {
+        enlisted: { resource: [], total: 10 },
+      };
+      const baseHealth = 100;
+      const result = calculateCombatAttributes(resources, baseHealth);
+      expect(result).toEqual({
+        health: baseHealth + 10 * combatStats.enlisted.health,
+        damage: 10 * combatStats.enlisted.damage,
+      });
+    });
+
+    it("should handle fortifications", () => {
+      const resources = {
+        fortifications: { resource: [], total: 3 },
+      };
+      const result = calculateCombatAttributes(resources);
+      expect(result).toEqual({
+        health: 3 * combatStats.fortifications.health,
+        damage: 3 * combatStats.fortifications.damage,
+      });
+    });
+
+    it("should handle ghost units", () => {
+      const resources = {
+        ghost: { resource: [], total: 2 },
+      };
+      const result = calculateCombatAttributes(resources);
+      expect(result).toEqual({
+        health: 2 * combatStats.ghost.health,
+        damage: 2 * combatStats.ghost.damage,
+      });
+    });
+
+    it("should handle all unit types together", () => {
+      const resources = {
+        enlisted: { resource: [], total: 10 },
+        soldier: { resource: [], total: 5 },
+        veteran: { resource: [], total: 2 },
+        ghost: { resource: [], total: 1 },
+        fortifications: { resource: [], total: 3 },
+      };
+      const baseHealth = 100;
+      const result = calculateCombatAttributes(resources, baseHealth);
+      expect(result).toEqual({
+        health:
+          baseHealth +
+          10 * combatStats.enlisted.health +
+          5 * combatStats.soldier.health +
+          2 * combatStats.veteran.health +
+          1 * combatStats.ghost.health +
+          3 * combatStats.fortifications.health,
+        damage:
+          10 * combatStats.enlisted.damage +
+          5 * combatStats.soldier.damage +
+          2 * combatStats.veteran.damage +
+          1 * combatStats.ghost.damage +
+          3 * combatStats.fortifications.damage,
+      });
     });
   });
 });
