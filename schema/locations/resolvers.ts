@@ -152,7 +152,7 @@ function calculateDefenderAttributes(
       health: number;
       damage: number;
     };
-  }
+  },
 ): {
   [x in keyof MilitaryUnitInput | "fortifications"]: {
     health: number;
@@ -162,18 +162,24 @@ function calculateDefenderAttributes(
 } {
   return {
     enlisted: {
-      health: (targetResources.enlisted?.total ?? 0) * combatStats.enlisted.health,
-      damage: (targetResources.enlisted?.total ?? 0) * combatStats.enlisted.damage,
+      health:
+        (targetResources.enlisted?.total ?? 0) * combatStats.enlisted.health,
+      damage:
+        (targetResources.enlisted?.total ?? 0) * combatStats.enlisted.damage,
       count: targetResources.enlisted?.total ?? 0,
     },
     soldier: {
-      health: (targetResources.soldier?.total ?? 0) * combatStats.soldier.health,
-      damage: (targetResources.soldier?.total ?? 0) * combatStats.soldier.damage,
+      health:
+        (targetResources.soldier?.total ?? 0) * combatStats.soldier.health,
+      damage:
+        (targetResources.soldier?.total ?? 0) * combatStats.soldier.damage,
       count: targetResources.soldier?.total ?? 0,
     },
     veteran: {
-      health: (targetResources.veteran?.total ?? 0) * combatStats.veteran.health,
-      damage: (targetResources.veteran?.total ?? 0) * combatStats.veteran.damage,
+      health:
+        (targetResources.veteran?.total ?? 0) * combatStats.veteran.health,
+      damage:
+        (targetResources.veteran?.total ?? 0) * combatStats.veteran.damage,
       count: targetResources.veteran?.total ?? 0,
     },
     ghost: {
@@ -182,8 +188,12 @@ function calculateDefenderAttributes(
       count: targetResources.ghost?.total ?? 0,
     },
     fortifications: {
-      health: (targetResources.fortifications?.total ?? 0) * combatStats.fortifications.health,
-      damage: (targetResources.fortifications?.total ?? 0) * combatStats.fortifications.damage,
+      health:
+        (targetResources.fortifications?.total ?? 0) *
+        combatStats.fortifications.health,
+      damage:
+        (targetResources.fortifications?.total ?? 0) *
+        combatStats.fortifications.damage,
       count: targetResources.fortifications?.total ?? 0,
     },
   };
@@ -192,7 +202,7 @@ function calculateDefenderAttributes(
 async function validateAttackerUnits(
   context: BaseContext,
   home: PlayerLocation,
-  args: { units: MilitaryUnitInput }
+  args: { units: MilitaryUnitInput },
 ): Promise<void> {
   const unitTypes: (keyof MilitaryUnitInput)[] = [
     "enlisted",
@@ -221,9 +231,7 @@ async function validateAttackerUnits(
         isNaN(inputValue) ||
         !isFinite(inputValue)
       ) {
-        throw new UserInputError(
-          `Invalid number of ${unitType} specified`,
-        );
+        throw new UserInputError(`Invalid number of ${unitType} specified`);
       }
     }),
   );
@@ -590,7 +598,7 @@ const resolvers: Resolvers = {
         targetLocation,
         targetHome,
         targetPlayerLocation,
-        builtInFortifications
+        builtInFortifications,
       );
 
       // start calculating units and go from here....
@@ -616,7 +624,10 @@ const resolvers: Resolvers = {
           count: args.units.ghost ?? 0,
         },
       };
-      const defenderAttributes = calculateDefenderAttributes(targetResources, combatStats);
+      const defenderAttributes = calculateDefenderAttributes(
+        targetResources,
+        combatStats,
+      );
 
       const totalAttackerDamage =
         attackerAttributes.enlisted.damage +

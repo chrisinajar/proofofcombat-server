@@ -1,4 +1,9 @@
-import { Location, PlayerLocation, MilitaryUnitInput, UpkeepCosts } from "types/graphql";
+import {
+  Location,
+  PlayerLocation,
+  MilitaryUnitInput,
+  UpkeepCosts,
+} from "types/graphql";
 import { BaseContext } from "../context";
 import { gatherTargetResources } from "./helpers";
 import { ResourceDataEntry } from "../../db/models/player-location";
@@ -110,17 +115,18 @@ describe("gatherTargetResources", () => {
         },
       ];
 
-      (mockContext.db.playerLocation.getResourceData as jest.Mock)
-        .mockImplementation(async (home, resourceType) => {
-          return mockResources.filter(r => r.resource.name === resourceType);
-        });
+      (
+        mockContext.db.playerLocation.getResourceData as jest.Mock
+      ).mockImplementation(async (home, resourceType) => {
+        return mockResources.filter((r) => r.resource.name === resourceType);
+      });
 
       const result = await gatherTargetResources(
         mockContext,
         targetLocation,
         targetHome,
         targetPlayerLocation,
-        builtInFortifications
+        builtInFortifications,
       );
 
       expect(result.fortifications?.total).toBe(1200); // 200 + 1000 built-in
@@ -141,15 +147,16 @@ describe("gatherTargetResources", () => {
         },
       ];
 
-      (mockContext.db.playerLocation.getResourceData as jest.Mock)
-        .mockResolvedValue(mockResources);
+      (
+        mockContext.db.playerLocation.getResourceData as jest.Mock
+      ).mockResolvedValue(mockResources);
 
       const result = await gatherTargetResources(
         mockContext,
         targetLocation,
         targetHome,
         targetPlayerLocation,
-        builtInFortifications
+        builtInFortifications,
       );
 
       expect(result.fortifications?.total).toBe(0); // No resources within range
@@ -167,15 +174,16 @@ describe("gatherTargetResources", () => {
         },
       ];
 
-      (mockContext.db.playerLocation.getResourceData as jest.Mock)
-        .mockResolvedValue(mockResources);
+      (
+        mockContext.db.playerLocation.getResourceData as jest.Mock
+      ).mockResolvedValue(mockResources);
 
       const result = await gatherTargetResources(
         mockContext,
         targetLocation,
         targetHome,
         targetPlayerLocation,
-        builtInFortifications
+        builtInFortifications,
       );
 
       // Should have just the built-in fortifications since the resource has value 0
@@ -191,7 +199,7 @@ describe("gatherTargetResources", () => {
         targetLocation,
         null,
         targetPlayerLocation,
-        builtInFortifications
+        builtInFortifications,
       );
 
       expect(result.fortifications?.total).toBe(1500); // 500 + 1000 built-in
@@ -204,9 +212,7 @@ describe("gatherTargetResources", () => {
     it("should handle missing resource types", async () => {
       const locationWithoutResources = {
         ...targetPlayerLocation,
-        resources: [
-          { name: "fortifications", value: 500 },
-        ],
+        resources: [{ name: "fortifications", value: 500 }],
       };
 
       const result = await gatherTargetResources(
@@ -214,7 +220,7 @@ describe("gatherTargetResources", () => {
         targetLocation,
         null,
         locationWithoutResources,
-        builtInFortifications
+        builtInFortifications,
       );
 
       expect(result.fortifications?.total).toBe(1500);
@@ -224,4 +230,4 @@ describe("gatherTargetResources", () => {
       expect(result.ghost).toBeUndefined();
     });
   });
-}); 
+});

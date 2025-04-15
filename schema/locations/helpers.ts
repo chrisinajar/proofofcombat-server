@@ -9,7 +9,7 @@ export async function gatherTargetResources(
   targetLocation: Location,
   targetHome: PlayerLocation | null,
   targetPlayerLocation: PlayerLocation,
-  builtInFortifications: number
+  builtInFortifications: number,
 ): Promise<{
   [x in keyof MilitaryUnitInput | "fortifications"]?: {
     resource: ResourceDataEntry[];
@@ -68,10 +68,7 @@ export async function gatherTargetResources(
     unitTypes.map(async (unitType: keyof MilitaryUnitInput) => {
       if (targetHome) {
         const targetResource = (
-          await context.db.playerLocation.getResourceData(
-            targetHome,
-            unitType,
-          )
+          await context.db.playerLocation.getResourceData(targetHome, unitType)
         ).filter((entry) => {
           return (
             Math.abs(entry.location.location.x - targetLocation.x) +
@@ -103,4 +100,4 @@ export async function gatherTargetResources(
   );
 
   return targetResources;
-} 
+}

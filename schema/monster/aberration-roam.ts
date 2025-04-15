@@ -15,6 +15,8 @@ async function handleAberrationSettlementBattle(
   settlement: PlayerLocation,
 ): Promise<void> {
   // calculate both army and defensive power
+  // get base power as health * level
+  const armyPower = aberration.monster.combat.health * aberration.monster.level;
 
   if (settlement.health === 0) {
     await context.db.playerLocation.del(settlement);
