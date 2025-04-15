@@ -1,0 +1,227 @@
+import { Location, PlayerLocation, MilitaryUnitInput, UpkeepCosts } from "types/graphql";
+import { BaseContext } from "../context";
+import { gatherTargetResources } from "./helpers";
+import { ResourceDataEntry } from "../../db/models/player-location";
+
+describe("gatherTargetResources", () => {
+  let mockContext: BaseContext;
+  let targetLocation: Location;
+  let targetHome: PlayerLocation;
+  let targetPlayerLocation: PlayerLocation;
+  const builtInFortifications = 1000;
+
+  beforeEach(() => {
+    // Setup mock context
+    mockContext = {
+      db: {
+        playerLocation: {
+          getResourceData: jest.fn(),
+        },
+      },
+    } as unknown as BaseContext;
+
+    // Setup test locations
+    targetLocation = {
+      x: 10,
+      y: 10,
+      map: "test-map",
+    };
+
+    targetHome = {
+      id: "home-1",
+      owner: "player-1",
+      type: "Settlement",
+      location: { x: 10, y: 10, map: "test-map" },
+      resources: [],
+      connections: [],
+      upgrades: [],
+      availableUpgrades: [],
+      health: 1000,
+      maxHealth: 1000,
+      remainingAttacks: 3,
+      upkeep: {
+        gold: 0,
+        bonds: 0,
+        honey: 0,
+        enlisted: 0,
+        soldier: 0,
+        veteran: 0,
+        ghost: 0,
+        fortifications: 0,
+        food: 0,
+        stone: 0,
+        water: 0,
+        wood: 0,
+      } as UpkeepCosts,
+    } as PlayerLocation;
+
+    targetPlayerLocation = {
+      id: "location-1",
+      owner: "player-1",
+      type: "Garrison",
+      location: { x: 10, y: 10, map: "test-map" },
+      resources: [
+        { name: "fortifications", value: 500 },
+        { name: "enlisted", value: 100 },
+        { name: "soldier", value: 50 },
+        { name: "veteran", value: 25 },
+        { name: "ghost", value: 10 },
+      ],
+      connections: [],
+      upgrades: [],
+      availableUpgrades: [],
+      health: 1000,
+      maxHealth: 1000,
+      remainingAttacks: 3,
+      upkeep: {
+        gold: 0,
+        bonds: 0,
+        honey: 0,
+        enlisted: 0,
+        soldier: 0,
+        veteran: 0,
+        ghost: 0,
+        fortifications: 0,
+        food: 0,
+        stone: 0,
+        water: 0,
+        wood: 0,
+      } as UpkeepCosts,
+    } as PlayerLocation;
+  });
+
+  describe("when target has a home", () => {
+    it("should gather resources from nearby locations", async () => {
+      // Mock nearby resources
+      const mockResources: ResourceDataEntry[] = [
+        {
+          resource: { name: "fortifications", value: 200 },
+          location: {
+            ...targetHome,
+            location: { x: 9, y: 10, map: "test-map" },
+          },
+        },
+        {
+          resource: { name: "enlisted", value: 50 },
+          location: {
+            ...targetHome,
+            location: { x: 10, y: 9, map: "test-map" },
+          },
+        },
+      ];
+
+      (mockContext.db.playerLocation.getResourceData as jest.Mock)
+        .mockImplementation(async (home, resourceType) => {
+          return mockResources.filter(r => r.resource.name === resourceType);
+        });
+
+      const result = await gatherTargetResources(
+        mockContext,
+        targetLocation,
+        targetHome,
+        targetPlayerLocation,
+        builtInFortifications
+      );
+
+      expect(result.fortifications?.total).toBe(1200); // 200 + 1000 built-in
+      expect(result.enlisted?.total).toBe(50);
+      expect(result.soldier?.total).toBe(0);
+      expect(result.veteran?.total).toBe(0);
+      expect(result.ghost?.total).toBe(0);
+    });
+
+    it("should filter out resources that are too far away", async () => {
+      const mockResources: ResourceDataEntry[] = [
+        {
+          resource: { name: "fortifications", value: 200 },
+          location: {
+            ...targetHome,
+            location: { x: 13, y: 10, map: "test-map" }, // Too far (distance = 3)
+          },
+        },
+      ];
+
+      (mockContext.db.playerLocation.getResourceData as jest.Mock)
+        .mockResolvedValue(mockResources);
+
+      const result = await gatherTargetResources(
+        mockContext,
+        targetLocation,
+        targetHome,
+        targetPlayerLocation,
+        builtInFortifications
+      );
+
+      expect(result.fortifications?.total).toBe(0); // No resources within range
+    });
+
+    it("should include built-in fortifications when target is within range", async () => {
+      // Mock a single resource within range
+      const mockResources: ResourceDataEntry[] = [
+        {
+          resource: { name: "fortifications", value: 0 }, // No actual fortifications, just testing built-in
+          location: {
+            ...targetHome,
+            location: { x: 9, y: 10, map: "test-map" }, // Within range (distance = 1)
+          },
+        },
+      ];
+
+      (mockContext.db.playerLocation.getResourceData as jest.Mock)
+        .mockResolvedValue(mockResources);
+
+      const result = await gatherTargetResources(
+        mockContext,
+        targetLocation,
+        targetHome,
+        targetPlayerLocation,
+        builtInFortifications
+      );
+
+      // Should have just the built-in fortifications since the resource has value 0
+      expect(result.fortifications?.total).toBe(1000);
+      expect(result.fortifications?.resource.length).toBe(1);
+    });
+  });
+
+  describe("when target has no home", () => {
+    it("should gather resources from the target location only", async () => {
+      const result = await gatherTargetResources(
+        mockContext,
+        targetLocation,
+        null,
+        targetPlayerLocation,
+        builtInFortifications
+      );
+
+      expect(result.fortifications?.total).toBe(1500); // 500 + 1000 built-in
+      expect(result.enlisted?.total).toBe(100);
+      expect(result.soldier?.total).toBe(50);
+      expect(result.veteran?.total).toBe(25);
+      expect(result.ghost?.total).toBe(10);
+    });
+
+    it("should handle missing resource types", async () => {
+      const locationWithoutResources = {
+        ...targetPlayerLocation,
+        resources: [
+          { name: "fortifications", value: 500 },
+        ],
+      };
+
+      const result = await gatherTargetResources(
+        mockContext,
+        targetLocation,
+        null,
+        locationWithoutResources,
+        builtInFortifications
+      );
+
+      expect(result.fortifications?.total).toBe(1500);
+      expect(result.enlisted).toBeUndefined();
+      expect(result.soldier).toBeUndefined();
+      expect(result.veteran).toBeUndefined();
+      expect(result.ghost).toBeUndefined();
+    });
+  });
+}); 

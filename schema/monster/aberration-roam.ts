@@ -82,6 +82,11 @@ async function handleAberrationRoam(
   location: Location,
   random: () => number,
 ) {
+  if (!aberrations.length) {
+    // do nothing, method was called wrong
+    return;
+  }
+
   // grab the first aberration for single monster events, use the array in multi-monster events
   const aberration = aberrations[0];
   const { x, y } = location;
@@ -143,10 +148,13 @@ async function handleAberrationRoam(
     await context.db.monsterInstances.del(aberration);
     io.sendGlobalMessage({
       color: "primary",
-      message: `The aberration at ${x}, ${y} has wandered into the unknown...`,
+      message: `The aberration at ${x}, ${y} has wandered into the unknown and disappeared...`,
     });
     return;
   }
+
+  // update their location regardless
+  aberration.location = newLocation;
 
   // Check if new location has a settlement
   const newSettlement = await checkSettlementOwnership(context, newLocation);
@@ -161,7 +169,5 @@ async function handleAberrationRoam(
     await handleAberrationSettlementBattle(context, aberration, newSettlement);
   }
 
-  // Otherwise, update their location
-  aberration.location = newLocation;
   await context.db.monsterInstances.put(aberration);
 }

@@ -53,6 +53,7 @@ import {
   validBuildingLocationType,
   DescribedBuildings,
 } from "./settlement-buildings";
+import { gatherTargetResources } from "./helpers";
 
 export const attackingIsDisabled = false;
 export const attackingIsEnabledAt = 1709337600000;
@@ -137,6 +138,95 @@ function createSettlementManager(
     availableBuildings: [],
     adjacentTiles: [],
   };
+}
+
+function calculateDefenderAttributes(
+  targetResources: {
+    [x in keyof MilitaryUnitInput | "fortifications"]?: {
+      resource: ResourceDataEntry[];
+      total: number;
+    };
+  },
+  combatStats: {
+    [x in keyof MilitaryUnitInput | "fortifications"]: {
+      health: number;
+      damage: number;
+    };
+  }
+): {
+  [x in keyof MilitaryUnitInput | "fortifications"]: {
+    health: number;
+    damage: number;
+    count: number;
+  };
+} {
+  return {
+    enlisted: {
+      health: (targetResources.enlisted?.total ?? 0) * combatStats.enlisted.health,
+      damage: (targetResources.enlisted?.total ?? 0) * combatStats.enlisted.damage,
+      count: targetResources.enlisted?.total ?? 0,
+    },
+    soldier: {
+      health: (targetResources.soldier?.total ?? 0) * combatStats.soldier.health,
+      damage: (targetResources.soldier?.total ?? 0) * combatStats.soldier.damage,
+      count: targetResources.soldier?.total ?? 0,
+    },
+    veteran: {
+      health: (targetResources.veteran?.total ?? 0) * combatStats.veteran.health,
+      damage: (targetResources.veteran?.total ?? 0) * combatStats.veteran.damage,
+      count: targetResources.veteran?.total ?? 0,
+    },
+    ghost: {
+      health: (targetResources.ghost?.total ?? 0) * combatStats.ghost.health,
+      damage: (targetResources.ghost?.total ?? 0) * combatStats.ghost.damage,
+      count: targetResources.ghost?.total ?? 0,
+    },
+    fortifications: {
+      health: (targetResources.fortifications?.total ?? 0) * combatStats.fortifications.health,
+      damage: (targetResources.fortifications?.total ?? 0) * combatStats.fortifications.damage,
+      count: targetResources.fortifications?.total ?? 0,
+    },
+  };
+}
+
+async function validateAttackerUnits(
+  context: BaseContext,
+  home: PlayerLocation,
+  args: { units: MilitaryUnitInput }
+): Promise<void> {
+  const unitTypes: (keyof MilitaryUnitInput)[] = [
+    "enlisted",
+    "soldier",
+    "veteran",
+    "ghost",
+  ];
+
+  await Promise.all(
+    unitTypes.map(async (unitType: keyof MilitaryUnitInput) => {
+      const resources = await context.db.playerLocation.getResourceData(
+        home,
+        unitType,
+      );
+
+      const total = resources.reduce(
+        (memo, val) => memo + (val.resource?.value ?? 0),
+        0,
+      );
+
+      const inputValue = args.units[unitType];
+
+      if (
+        inputValue == null ||
+        inputValue > total ||
+        isNaN(inputValue) ||
+        !isFinite(inputValue)
+      ) {
+        throw new UserInputError(
+          `Invalid number of ${unitType} specified`,
+        );
+      }
+    }),
+  );
 }
 
 const resolvers: Resolvers = {
@@ -488,123 +578,20 @@ const resolvers: Resolvers = {
         throw new UserInputError("Invalid target location");
       }
 
-      const unitTypes: (keyof MilitaryUnitInput)[] = [
-        "enlisted",
-        "soldier",
-        "veteran",
-        "ghost",
-      ];
-
-      const targetResources: {
-        [x in keyof MilitaryUnitInput | "fortifications"]?: {
-          resource: ResourceDataEntry[];
-          total: number;
-        };
-      } = {};
-
-      if (targetHome) {
-        const targetResource = (
-          await context.db.playerLocation.getResourceData(
-            targetHome,
-            "fortifications",
-          )
-        ).filter((entry) => {
-          return (
-            Math.abs(entry.location.location.x - targetLocation.x) +
-              Math.abs(entry.location.location.y - targetLocation.y) <
-            3
-          );
-        });
-        const total = targetResource.reduce((memo, val) => {
-          return memo + val.resource.value;
-        }, targetResource.length * builtInFortifications);
-        targetResources.fortifications = { resource: targetResource, total };
-      } else {
-        const fortificationsResource = targetPlayerLocation.resources.find(
-          (res) => res.name === "fortifications",
-        );
-        if (fortificationsResource) {
-          targetResources.fortifications = {
-            resource: [
-              {
-                resource: fortificationsResource,
-                location: targetPlayerLocation,
-              },
-            ],
-            total: fortificationsResource.value + builtInFortifications,
-          };
-        }
-      }
-
-      await Promise.all(
-        unitTypes.map(
-          async (unitType: keyof MilitaryUnitInput, unitRank: number) => {
-            const resources = await context.db.playerLocation.getResourceData(
-              home,
-              unitType,
-            );
-
-            if (targetHome) {
-              const targetResource = (
-                await context.db.playerLocation.getResourceData(
-                  targetHome,
-                  unitType,
-                )
-              ).filter((entry) => {
-                return (
-                  Math.abs(entry.location.location.x - targetLocation.x) +
-                    Math.abs(entry.location.location.y - targetLocation.y) <
-                  3
-                );
-              });
-              const total = targetResource.reduce((memo, val) => {
-                return memo + val.resource.value;
-              }, 0);
-              targetResources[unitType] = { resource: targetResource, total };
-            } else {
-              const unitTypeResource = targetPlayerLocation.resources.find(
-                (res) => res.name === unitType,
-              );
-              if (unitTypeResource) {
-                targetResources[unitType] = {
-                  resource: [
-                    {
-                      resource: unitTypeResource,
-                      location: targetPlayerLocation,
-                    },
-                  ],
-                  total: unitTypeResource.value,
-                };
-              }
-            }
-
-            const total = resources.reduce(
-              (memo, val) => memo + (val.resource?.value ?? 0),
-              0,
-            );
-
-            const inputValue = args.units[unitType];
-
-            if (
-              inputValue == null ||
-              inputValue > total ||
-              isNaN(inputValue) ||
-              !isFinite(inputValue)
-            ) {
-              throw new UserInputError(
-                `Invalid number of ${unitType} specified`,
-              );
-            }
-          },
-        ),
-      );
-
-      // all inputs are verified and ready to go
-      // start actual attack code
+      // Validate attacker's units before proceeding
+      await validateAttackerUnits(context, home, args);
 
       // decrease the attack count since we're starting an attack
       home.remainingAttacks -= 1;
       await context.db.playerLocation.put(home);
+
+      const targetResources = await gatherTargetResources(
+        context,
+        targetLocation,
+        targetHome,
+        targetPlayerLocation,
+        builtInFortifications
+      );
 
       // start calculating units and go from here....
       const attackerAttributes = {
@@ -629,47 +616,7 @@ const resolvers: Resolvers = {
           count: args.units.ghost ?? 0,
         },
       };
-      const defenderAttributes = {
-        enlisted: {
-          health:
-            (targetResources.enlisted?.total ?? 0) *
-            combatStats.enlisted.health,
-          damage:
-            (targetResources.enlisted?.total ?? 0) *
-            combatStats.enlisted.damage,
-          count: targetResources.enlisted?.total ?? 0,
-        },
-        soldier: {
-          health:
-            (targetResources.soldier?.total ?? 0) * combatStats.soldier.health,
-          damage:
-            (targetResources.soldier?.total ?? 0) * combatStats.soldier.damage,
-          count: targetResources.soldier?.total ?? 0,
-        },
-        veteran: {
-          health:
-            (targetResources.veteran?.total ?? 0) * combatStats.veteran.health,
-          damage:
-            (targetResources.veteran?.total ?? 0) * combatStats.veteran.damage,
-          count: targetResources.veteran?.total ?? 0,
-        },
-        ghost: {
-          health:
-            (targetResources.ghost?.total ?? 0) * combatStats.ghost.health,
-          damage:
-            (targetResources.ghost?.total ?? 0) * combatStats.ghost.damage,
-          count: targetResources.ghost?.total ?? 0,
-        },
-        fortifications: {
-          health:
-            (targetResources.fortifications?.total ?? 0) *
-            combatStats.fortifications.health,
-          damage:
-            (targetResources.fortifications?.total ?? 0) *
-            combatStats.fortifications.damage,
-          count: targetResources.fortifications?.total ?? 0,
-        },
-      };
+      const defenderAttributes = calculateDefenderAttributes(targetResources, combatStats);
 
       const totalAttackerDamage =
         attackerAttributes.enlisted.damage +
