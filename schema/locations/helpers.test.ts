@@ -11,8 +11,6 @@ import { calculateCombatAttributes, combatStats } from "./helpers";
 
 describe("gatherTargetResources", () => {
   let mockContext: BaseContext;
-  let targetLocation: Location;
-  let targetHome: PlayerLocation;
   let targetPlayerLocation: PlayerLocation;
   const builtInFortifications = 1000;
 
@@ -22,44 +20,36 @@ describe("gatherTargetResources", () => {
       db: {
         playerLocation: {
           getResourceData: jest.fn(),
+          getHome: jest.fn().mockResolvedValue({
+            id: "home-1",
+            owner: "player-1",
+            type: "Settlement",
+            location: { x: 10, y: 10, map: "test-map" },
+            resources: [],
+            connections: [],
+            upgrades: [],
+            availableUpgrades: [],
+            health: 1000,
+            maxHealth: 1000,
+            remainingAttacks: 3,
+            upkeep: {
+              gold: 0,
+              bonds: 0,
+              honey: 0,
+              enlisted: 0,
+              soldier: 0,
+              veteran: 0,
+              ghost: 0,
+              fortifications: 0,
+              food: 0,
+              stone: 0,
+              water: 0,
+              wood: 0,
+            } as UpkeepCosts,
+          } as PlayerLocation),
         },
       },
     } as unknown as BaseContext;
-
-    // Setup test locations
-    targetLocation = {
-      x: 10,
-      y: 10,
-      map: "test-map",
-    };
-
-    targetHome = {
-      id: "home-1",
-      owner: "player-1",
-      type: "Settlement",
-      location: { x: 10, y: 10, map: "test-map" },
-      resources: [],
-      connections: [],
-      upgrades: [],
-      availableUpgrades: [],
-      health: 1000,
-      maxHealth: 1000,
-      remainingAttacks: 3,
-      upkeep: {
-        gold: 0,
-        bonds: 0,
-        honey: 0,
-        enlisted: 0,
-        soldier: 0,
-        veteran: 0,
-        ghost: 0,
-        fortifications: 0,
-        food: 0,
-        stone: 0,
-        water: 0,
-        wood: 0,
-      } as UpkeepCosts,
-    } as PlayerLocation;
 
     targetPlayerLocation = {
       id: "location-1",
@@ -103,14 +93,14 @@ describe("gatherTargetResources", () => {
         {
           resource: { name: "fortifications", value: 200 },
           location: {
-            ...targetHome,
+            ...targetPlayerLocation,
             location: { x: 9, y: 10, map: "test-map" },
           },
         },
         {
           resource: { name: "enlisted", value: 50 },
           location: {
-            ...targetHome,
+            ...targetPlayerLocation,
             location: { x: 10, y: 9, map: "test-map" },
           },
         },
@@ -124,8 +114,6 @@ describe("gatherTargetResources", () => {
 
       const result = await gatherTargetResources(
         mockContext,
-        targetLocation,
-        targetHome,
         targetPlayerLocation,
         builtInFortifications,
       );
@@ -142,7 +130,7 @@ describe("gatherTargetResources", () => {
         {
           resource: { name: "fortifications", value: 200 },
           location: {
-            ...targetHome,
+            ...targetPlayerLocation,
             location: { x: 13, y: 10, map: "test-map" }, // Too far (distance = 3)
           },
         },
@@ -154,8 +142,6 @@ describe("gatherTargetResources", () => {
 
       const result = await gatherTargetResources(
         mockContext,
-        targetLocation,
-        targetHome,
         targetPlayerLocation,
         builtInFortifications,
       );
@@ -169,7 +155,7 @@ describe("gatherTargetResources", () => {
         {
           resource: { name: "fortifications", value: 0 }, // No actual fortifications, just testing built-in
           location: {
-            ...targetHome,
+            ...targetPlayerLocation,
             location: { x: 9, y: 10, map: "test-map" }, // Within range (distance = 1)
           },
         },
@@ -181,8 +167,6 @@ describe("gatherTargetResources", () => {
 
       const result = await gatherTargetResources(
         mockContext,
-        targetLocation,
-        targetHome,
         targetPlayerLocation,
         builtInFortifications,
       );
@@ -194,11 +178,15 @@ describe("gatherTargetResources", () => {
   });
 
   describe("when target has no home", () => {
+    beforeEach(() => {
+      (mockContext.db.playerLocation.getHome as jest.Mock).mockResolvedValue(
+        null,
+      );
+    });
+
     it("should gather resources from the target location only", async () => {
       const result = await gatherTargetResources(
         mockContext,
-        targetLocation,
-        null,
         targetPlayerLocation,
         builtInFortifications,
       );
@@ -218,8 +206,6 @@ describe("gatherTargetResources", () => {
 
       const result = await gatherTargetResources(
         mockContext,
-        targetLocation,
-        null,
         locationWithoutResources,
         builtInFortifications,
       );

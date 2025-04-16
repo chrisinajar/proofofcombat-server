@@ -576,8 +576,6 @@ const resolvers: Resolvers = {
 
       const targetResources = await gatherTargetResources(
         context,
-        targetLocation,
-        targetHome,
         targetPlayerLocation,
         builtInFortifications,
       );

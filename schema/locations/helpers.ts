@@ -115,8 +115,6 @@ export function calculateCombatAttributes(
 
 export async function gatherTargetResources(
   context: BaseContext,
-  targetLocation: Location,
-  targetHome: PlayerLocation | null,
   targetPlayerLocation: PlayerLocation,
   builtInFortifications: number,
 ): Promise<{
@@ -125,6 +123,11 @@ export async function gatherTargetResources(
     total: number;
   };
 }> {
+  const targetLocation = targetPlayerLocation.location;
+  const targetHome = await context.db.playerLocation.getHome(
+    targetPlayerLocation.owner,
+  );
+
   const targetResources: {
     [x in keyof MilitaryUnitInput | "fortifications"]?: {
       resource: ResourceDataEntry[];
