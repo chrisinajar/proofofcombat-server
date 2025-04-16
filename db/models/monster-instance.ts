@@ -38,7 +38,7 @@ export default class MonsterInstanceModel extends DatabaseInterface<MonsterInsta
   // Convert old monster instance data to current format
   upgrade(data: PartialMonsterInstance): MonsterInstance {
     if (!data.lastActive) {
-      data.lastActive = Date.now();
+      data.lastActive = 1;
     }
     const monsterInstance = data as MonsterInstance;
 

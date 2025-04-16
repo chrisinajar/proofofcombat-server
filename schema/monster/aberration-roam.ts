@@ -97,6 +97,9 @@ export async function roamAberrations(
       if (aberration.lastActive < Date.now() - 1000 * 60 * 60 * 24 * 7) {
         if (Math.random() > 0.5) {
           // 50/50 chance for the aberration to just disappear
+          console.log(
+            `Purged aberration at: ${aberration.location.x}, ${aberration.location.y}`,
+          );
           await context.db.monsterInstances.del(aberration);
           didPurge = true;
         }
