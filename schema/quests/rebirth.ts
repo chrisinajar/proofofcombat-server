@@ -118,7 +118,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     !hasQuestItem(hero, "void-vessel") &&
     heroLocationName(hero) === "Amixea's Hut"
   ) {
-    console.log('Amixea can help');
+    console.log("Amixea can help");
     hero = rebirthMessage(hero, "amixeaCanHelp", questEvents.amixeaCanHelp);
     giveQuestItemNotification(context, hero, "void-vessel");
 
@@ -130,7 +130,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     hasQuestItem(hero, "essence-of-void") &&
     heroLocationName(hero) === "Amixea's Hut"
   ) {
-    console.log('Amixea did help');
+    console.log("Amixea did help");
     hero = rebirthMessage(hero, "amixeaDidHelp", questEvents.amixeaDidHelp);
     takeQuestItem(hero, "cracked-orb-of-forbidden-power");
     takeQuestItem(hero, "essence-of-void");
@@ -151,7 +151,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
       isMaxTierItem(hero.equipment.headArmor) &&
       isMaxTierItem(hero.equipment.footArmor)
     ) {
-      console.log('Forbidden cap');
+      console.log("Forbidden cap");
       hero = rebirthMessage(hero, "forbiddenCap", questEvents.forbiddenCap);
       takeQuestItem(hero, "orb-of-forbidden-power");
       giveQuestItemNotification(
@@ -171,7 +171,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     hero.questLog?.rebirth?.progress &&
     hero.questLog?.rebirth?.progress >= hero.levelCap
   ) {
-    console.log('Already has rebirth progress:', hero.questLog?.rebirth?.progress);
+    // console.log('Already has rebirth progress:', hero.questLog?.rebirth?.progress);
     return hero;
   }
 
@@ -179,12 +179,12 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   // in case somehow a bug causes overleveling, we want to switch on cap
   switch (hero.levelCap) {
     case 10:
-      console.log('First birth');
+      console.log("First birth");
       hero = rebirthMessage(hero, "first", questEvents.firstBirth);
       giveQuestItemNotification(context, hero, "totem-of-rebirth");
       break;
     case 100:
-      console.log('Second cap');
+      console.log("Second cap");
       hero = rebirthMessage(hero, "second", questEvents.secondCap);
       takeQuestItem(hero, "totem-of-champion");
       giveQuestItemNotification(context, hero, "totem-of-champion-rebirth");
@@ -195,9 +195,9 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
         hasQuestItem(hero, "cracked-orb-of-forbidden-power")
       ) {
         // repetitive rebirth in void phase
-        console.log('Void phase');
+        console.log("Void phase");
       } else {
-        console.log('Third cap');
+        console.log("Third cap");
         hero = rebirthMessage(hero, "third", questEvents.thirdCap);
         takeQuestItem(hero, "totem-of-hero");
         giveQuestItemNotification(context, hero, "totem-of-hero-rebirth");
@@ -205,7 +205,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
       break;
   }
 
-  console.log('Setting rebirth quest log');
+  console.log("Setting rebirth quest log");
   hero.questLog.rebirth = {
     id: `Rebirth-${hero.id}`,
     started: true,
