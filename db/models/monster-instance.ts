@@ -5,7 +5,7 @@ import { hash } from "../../hash";
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
-export type MonsterInstanceInput = Omit<MonsterInstance, "id">;
+export type MonsterInstanceInput = Omit<MonsterInstance, "id" | "lastActive">;
 
 // Define PartialMonsterInstance type where lastActive is optional since it's new
 type PartialMonsterInstance = Optional<MonsterInstance, "lastActive">;

@@ -91,10 +91,7 @@ export async function roamAberrations(
 
   if (aberrations.length > 0) {
     // special handling for really old aberrations
-    if (
-      !aberrations[0].lastActive ||
-      aberrations[0].lastActive < Date.now() - 1000 * 60 * 60 * 24 * 7
-    ) {
+    if (aberrations[0].lastActive < Date.now() - 1000 * 60 * 60 * 24 * 7) {
       if (Math.random() > 0.5) {
         // 50/50 chance for the aberration to just disappear
         await context.db.monsterInstances.del(aberrations[0]);

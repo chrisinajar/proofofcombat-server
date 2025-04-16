@@ -16,12 +16,12 @@ import { InventoryItem } from "../items/inventory-item";
 import { EnchantmentCounterSpellOrder } from "../../combat/enchantment-order";
 import { expandEnchantmentList } from "../../combat/enchantment-groups";
 
-export type ModifierDefinition<T, O> = {
+export type ModifierDefinition<T extends Modifier<O>, O> = {
   type: ModifierClass<T, O>;
   enchantment?: EnchantmentType;
   options: O;
 };
-type AttackerModifierDefinition<T> = {
+type AttackerModifierDefinition<T extends Modifier<unknown>> = {
   attacker: ModifierDefinition<T, any>[];
   victim: ModifierDefinition<T, any>[];
 };

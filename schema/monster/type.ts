@@ -34,7 +34,7 @@ export default gql`
     location: Location!
     monster: Monster!
     equipment: MonsterEquipment
-    lastActive: Int
+    lastActive: Int!
   }
 
   type Monster {

@@ -1377,9 +1377,10 @@ const domariAberrationCosts: SummoningCost[] = [
   },
 ];
 
-const domariAberrations: Omit<MonsterInstance, "id" | "location">[] = [
-  AberrationStats["domari-aberration-1"],
-];
+const domariAberrations: Omit<
+  MonsterInstance,
+  "id" | "location" | "lastActive"
+>[] = [AberrationStats["domari-aberration-1"]];
 
 // domari the aberration hunter
 function getDomariTrades(context: BaseContext, hero: Hero): NpcShop {
