@@ -153,10 +153,12 @@ async function handleAberrationRoam(
       break;
   }
 
-  io.sendGlobalMessage({
-    color: "primary",
-    message: roamMessage,
-  });
+  if (Math.random() > 0.75) {
+    io.sendGlobalMessage({
+      color: "primary",
+      message: roamMessage,
+    });
+  }
 
   // Pick a random direction: 0 = north, 1 = east, 2 = south, 3 = west
   const direction = Math.floor(random() * 4);
