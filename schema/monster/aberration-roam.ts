@@ -209,5 +209,5 @@ async function handleAberrationRoam(
     // await handleAberrationSettlementBattle(context, aberration, newSettlement);
   }
 
-  await context.db.monsterInstances.put(aberration);
+  await context.db.monsterInstances.put(aberration, true);
 }

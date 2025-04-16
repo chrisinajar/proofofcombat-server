@@ -51,9 +51,14 @@ export default class MonsterInstanceModel extends DatabaseInterface<MonsterInsta
     return this.upgrade(data);
   }
 
-  async put(data: MonsterInstance): Promise<MonsterInstance> {
-    // when saving monster instances store when they were last active
-    data.lastActive = Date.now();
+  async put(
+    data: MonsterInstance,
+    skipActivity: boolean = false,
+  ): Promise<MonsterInstance> {
+    if (!skipActivity) {
+      // when saving monster instances store when they were last active
+      data.lastActive = Date.now();
+    }
     return super.put(data);
   }
 
