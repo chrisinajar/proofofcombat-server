@@ -20,7 +20,8 @@ async function handleAberrationSettlementBattle(
 ): Promise<void> {
   // calculate both army and defensive power
   // get base power as health * level
-  const armyPower = aberration.monster.combat.health * aberration.monster.level;
+  const aberrationAttackPower =
+    (aberration.monster.combat.health * aberration.monster.level) / 1000;
 
   // Calculate defensive resources and power
   const defensiveResources = await gatherTargetResources(
@@ -35,7 +36,7 @@ async function handleAberrationSettlementBattle(
   );
 
   // Determine battle outcome
-  if (armyPower > defensiveAttributes.health) {
+  if (aberrationAttackPower > defensiveAttributes.health) {
     // Aberration wins
     await context.db.playerLocation.del(settlement);
     io.sendGlobalMessage({
@@ -91,12 +92,18 @@ export async function roamAberrations(
 
   if (aberrations.length > 0) {
     // special handling for really old aberrations
-    if (aberrations[0].lastActive < Date.now() - 1000 * 60 * 60 * 24 * 7) {
-      if (Math.random() > 0.5) {
-        // 50/50 chance for the aberration to just disappear
-        await context.db.monsterInstances.del(aberrations[0]);
-        return true;
+    let didPurge = false;
+    for (let aberration of aberrations) {
+      if (aberration.lastActive < Date.now() - 1000 * 60 * 60 * 24 * 7) {
+        if (Math.random() > 0.5) {
+          // 50/50 chance for the aberration to just disappear
+          await context.db.monsterInstances.del(aberration);
+          didPurge = true;
+        }
       }
+    }
+    if (didPurge) {
+      return true;
     }
     await handleAberrationRoam(context, aberrations, location, random);
     return true;
@@ -195,7 +202,8 @@ async function handleAberrationRoam(
       newSettlement &&
       currentSettlement.owner !== newSettlement.owner)
   ) {
-    await handleAberrationSettlementBattle(context, aberration, newSettlement);
+    // don't attack yet, the mechanic isn't done
+    // await handleAberrationSettlementBattle(context, aberration, newSettlement);
   }
 
   await context.db.monsterInstances.put(aberration);

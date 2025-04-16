@@ -51,6 +51,12 @@ export default class MonsterInstanceModel extends DatabaseInterface<MonsterInsta
     return this.upgrade(data);
   }
 
+  async put(data: MonsterInstance): Promise<MonsterInstance> {
+    // when saving monster instances store when they were last active
+    data.lastActive = Date.now();
+    return super.put(data);
+  }
+
   async getInLocation(location: Location): Promise<MonsterInstance[]> {
     const monsters = await this.db.iterateFilter((value, key) => {
       return (
