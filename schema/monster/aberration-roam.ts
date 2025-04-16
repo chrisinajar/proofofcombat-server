@@ -8,7 +8,10 @@ import {
   Location,
 } from "types/graphql";
 import { io } from "../../index";
-import { gatherTargetResources, calculateCombatAttributes } from "../locations/helpers";
+import {
+  gatherTargetResources,
+  calculateCombatAttributes,
+} from "../locations/helpers";
 
 async function handleAberrationSettlementBattle(
   context: BaseContext,
@@ -28,7 +31,10 @@ async function handleAberrationSettlementBattle(
     0, // builtInFortifications - assuming none for now
   );
 
-  const defensiveAttributes = calculateCombatAttributes(defensiveResources, settlement.health);
+  const defensiveAttributes = calculateCombatAttributes(
+    defensiveResources,
+    settlement.health,
+  );
 
   // Determine battle outcome
   if (armyPower > defensiveAttributes.health) {

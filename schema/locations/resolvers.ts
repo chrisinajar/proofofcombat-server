@@ -53,7 +53,11 @@ import {
   validBuildingLocationType,
   DescribedBuildings,
 } from "./settlement-buildings";
-import { gatherTargetResources, calculateCombatAttributes, CombatResources } from "./helpers";
+import {
+  gatherTargetResources,
+  calculateCombatAttributes,
+  CombatResources,
+} from "./helpers";
 
 export const attackingIsDisabled = false;
 export const attackingIsEnabledAt = 1709337600000;
@@ -590,7 +594,9 @@ const resolvers: Resolvers = {
       const defenderAttributes = calculateCombatAttributes(targetResources);
 
       const totalAttackerDamage = attackerAttributes.damage;
-      const totalDefenderDamage = defenderAttributes.damage + context.db.playerLocation.defensiveDamage(targetPlayerLocation.type);
+      const totalDefenderDamage =
+        defenderAttributes.damage +
+        context.db.playerLocation.defensiveDamage(targetPlayerLocation.type);
 
       const totalAttackerHealth = attackerAttributes.health;
       const totalDefenderHealth = Math.max(1, 1.5 * defenderAttributes.health);

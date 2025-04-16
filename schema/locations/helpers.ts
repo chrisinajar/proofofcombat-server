@@ -6,11 +6,11 @@ import { MilitaryUnitInput } from "types/graphql";
 
 /**
  * Combat Statistics for different unit types
- * 
+ *
  * Each unit type has:
  * - health: Base health points per unit
  * - damage: Base damage points per unit
- * 
+ *
  * Unit progression:
  * - enlisted: Basic unit (2 health, 1 damage)
  * - soldier: 4x stronger than enlisted (8 health, 4 damage)
@@ -64,11 +64,11 @@ export type CombatAttributes = {
 
 /**
  * Calculates total combat attributes (health and damage) for a set of resources
- * 
+ *
  * @param resources - Combat resources to calculate attributes for
  * @param baseHealth - Additional base health to add (e.g. settlement health)
  * @returns CombatAttributes containing total health and damage
- * 
+ *
  * @example
  * const resources = {
  *   enlisted: { resource: [], total: 10 },
@@ -85,8 +85,10 @@ export function calculateCombatAttributes(
   let totalDamage = 0;
 
   if (resources.fortifications) {
-    totalHealth += resources.fortifications.total * combatStats.fortifications.health;
-    totalDamage += resources.fortifications.total * combatStats.fortifications.damage;
+    totalHealth +=
+      resources.fortifications.total * combatStats.fortifications.health;
+    totalDamage +=
+      resources.fortifications.total * combatStats.fortifications.damage;
   }
   if (resources.enlisted) {
     totalHealth += resources.enlisted.total * combatStats.enlisted.health;
