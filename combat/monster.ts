@@ -50,31 +50,31 @@ export function createMonsterEquipment(
           level: equipmentOverride.bodyArmor.level,
           enchantment: equipmentOverride.bodyArmor.enchantment,
           type: InventoryItemType.BodyArmor,
-          imbue: equipmentOverride.bodyArmor.imbue
+          imbue: equipmentOverride.bodyArmor.imbue,
         }, // bodyArmor
         {
           level: equipmentOverride.handArmor.level,
           enchantment: equipmentOverride.handArmor.enchantment,
           type: InventoryItemType.HandArmor,
-          imbue: equipmentOverride.handArmor.imbue
+          imbue: equipmentOverride.handArmor.imbue,
         }, // handArmor
         {
           level: equipmentOverride.legArmor.level,
           enchantment: equipmentOverride.legArmor.enchantment,
           type: InventoryItemType.LegArmor,
-          imbue: equipmentOverride.legArmor.imbue
+          imbue: equipmentOverride.legArmor.imbue,
         }, // legArmor
         {
           level: equipmentOverride.headArmor.level,
           enchantment: equipmentOverride.headArmor.enchantment,
           type: InventoryItemType.HeadArmor,
-          imbue: equipmentOverride.headArmor.imbue
+          imbue: equipmentOverride.headArmor.imbue,
         }, // headArmor
         {
           level: equipmentOverride.footArmor.level,
           enchantment: equipmentOverride.footArmor.enchantment,
           type: InventoryItemType.FootArmor,
-          imbue: equipmentOverride.footArmor.imbue
+          imbue: equipmentOverride.footArmor.imbue,
         }, // footArmor
       ],
       weapons: [

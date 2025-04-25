@@ -784,6 +784,7 @@ export function genericStatsModifierForEnchantment(
         type: GenericStatsModifier,
         enchantment: EnchantmentType.Mesmerize,
         options: {
+          stackMultiplicatively: true,
           multiplier: {
             mesmerizeChance: 0.5,
           },
@@ -795,6 +796,7 @@ export function genericStatsModifierForEnchantment(
         type: GenericStatsModifier,
         enchantment: EnchantmentType.Focus,
         options: {
+          stackMultiplicatively: true,
           multiplier: {
             focusChance: 0.5,
           },
@@ -1209,6 +1211,7 @@ export function genericStatsModifierForEnchantment(
         type: GenericStatsModifier,
         enchantment: EnchantmentType.RangedSecondAttackChance,
         options: {
+          stackMultiplicatively: true,
           multiplier: {
             rangedSecondAttackChance: 0.5,
           },
