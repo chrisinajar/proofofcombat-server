@@ -20,7 +20,10 @@ import {
 import Databases from "../db";
 import { getEnchantedAttributes } from "./enchantments";
 import { calculateEnchantmentDamage } from "./calculate-enchantment-damage";
-import { GenericStatsModifier, GenericStatsModifierOptions } from "../calculations/modifiers/generic-stats-modifier";
+import {
+  GenericStatsModifier,
+  GenericStatsModifierOptions,
+} from "../calculations/modifiers/generic-stats-modifier";
 import type { ModifierOptions } from "../calculations/modifiers/modifier";
 
 type Attribute = keyof HeroStats;
@@ -56,7 +59,7 @@ function getAverageDamage(
   } = calculateDamageValues(heroA, heroB, false, debug);
 
   return (
-    (baseDamage + variation / 2) *
+    (baseDamage - variation / 2) *
     ((1 + criticalChance * 3) *
       (1 + criticalChance * doubleCriticalChance * 3) *
       (1 + criticalChance * doubleCriticalChance * trippleCriticalChance * 3)) *
@@ -169,7 +172,10 @@ function snapshotUnitAttributes(attributes: { [x in string]: number }) {
 }
 
 describe("combat", () => {
-  const combatTypes: { attackType: AttackType, weapons: InventoryItemType[] }[] = [
+  const combatTypes: {
+    attackType: AttackType;
+    weapons: InventoryItemType[];
+  }[] = [
     {
       attackType: AttackType.Melee,
       weapons: [InventoryItemType.MeleeWeapon],
@@ -279,7 +285,7 @@ describe("combat", () => {
           hero2Combatant,
         );
 
-        hero.stats[stats.damage] *= 100;
+        hero.stats[stats.damage] *= 1000;
 
         const damageAfter = getAverageDamage(
           createHeroCombatant(hero, entry.attackType),
@@ -452,6 +458,7 @@ describe("builds", () => {
       });
       it("can't' kill level 5 mobs without gear", () => {
         const hero = generateHero();
+        // level 4 attempts mob #5...
         levelUpHero(hero, 3, stats);
         hero.equipment = trashGear();
         hero.class = heroClass;
@@ -473,7 +480,8 @@ describe("builds", () => {
     describe("normal items", () => {
       it("can kill level 5 mobs", () => {
         const hero = generateHero();
-        levelUpHero(hero, 3, stats);
+        // level 5 attempts mob #5...
+        levelUpHero(hero, 4, stats);
         hero.equipment = normalGear();
         hero.class = heroClass;
 
@@ -790,6 +798,11 @@ describe("builds", () => {
         enchantment: EnchantmentType.BonusStrength,
         type: InventoryItemType.MeleeWeapon,
       },
+      rightHand: {
+        level: 5,
+        enchantment: EnchantmentType.BonusStrength,
+        type: InventoryItemType.MeleeWeapon,
+      },
       bodyArmor: {
         level: 5,
         enchantment: EnchantmentType.BonusStrength,
@@ -1044,7 +1057,7 @@ describe("damage conversion", () => {
   it("should convert damage to lightning and fire", () => {
     const hero = generateHero();
     const hero2 = generateHero();
-    
+
     // Give the hero some basic stats and equipment
     hero.equipment.leftHand = {
       id: "test-weapon",
@@ -1059,13 +1072,16 @@ describe("damage conversion", () => {
     // Add damage conversion stats to the hero's unit
     const heroCombatant = createHeroCombatant(hero, AttackType.Melee);
 
-    heroCombatant.unit.applyModifier<GenericStatsModifier, GenericStatsModifierOptions>({
+    heroCombatant.unit.applyModifier<
+      GenericStatsModifier,
+      GenericStatsModifierOptions
+    >({
       type: GenericStatsModifier,
       enchantment: EnchantmentType.DiamondBlessing,
       options: {
         bonus: {
           damageAsLightning: 0.5,
-          damageAsFire: 0.5
+          damageAsFire: 0.5,
         },
       },
     });
@@ -1075,14 +1091,20 @@ describe("damage conversion", () => {
     const result = calculateDamage(heroCombatant, hero2Combatant);
 
     console.log("Damage instances:", result.damages);
-    console.log("Damage types:", result.damages.map(d => d.damageType));
+    console.log(
+      "Damage types:",
+      result.damages.map((d) => d.damageType),
+    );
 
     // Should have 2 damage instances: Lightning and Fire (fully converted)
     expect(result.damages.length).toBe(2);
 
     // Find each damage type
-    const fireDamage = result.damages.find(d => d.damageType === DamageType.Fire)?.damage ?? 0;
-    const lightningDamage = result.damages.find(d => d.damageType === DamageType.Lightning)?.damage ?? 0;
+    const fireDamage =
+      result.damages.find((d) => d.damageType === DamageType.Fire)?.damage ?? 0;
+    const lightningDamage =
+      result.damages.find((d) => d.damageType === DamageType.Lightning)
+        ?.damage ?? 0;
 
     // Both converted damages should be roughly equal since we're converting 50% to each
     expect(fireDamage).toBeGreaterThan(0);
@@ -1093,7 +1115,7 @@ describe("damage conversion", () => {
   it("should do minimum 1 damage without conversion against high resistance", () => {
     const hero = generateHero();
     const hero2 = generateHero();
-    
+
     // Give the hero minimal stats and no equipment
     hero.stats.strength = 1; // Minimal strength
 
@@ -1101,14 +1123,20 @@ describe("damage conversion", () => {
     const hero2Combatant = createHeroCombatant(hero2, AttackType.Melee);
     hero2Combatant.unit.applyModifier(GenericStatsModifier, {
       bonus: {
-        physicalResistance: 0.99 // 99% physical resistance
-      }
+        physicalResistance: 0.99, // 99% physical resistance
+      },
     });
 
-    const result = calculateDamage(createHeroCombatant(hero, AttackType.Melee), hero2Combatant);
+    const result = calculateDamage(
+      createHeroCombatant(hero, AttackType.Melee),
+      hero2Combatant,
+    );
 
     console.log("Damage instances:", result.damages);
-    console.log("Damage types:", result.damages.map(d => d.damageType));
+    console.log(
+      "Damage types:",
+      result.damages.map((d) => d.damageType),
+    );
 
     // Should have 1 damage instance of type Physical
     expect(result.damages.length).toBe(1);

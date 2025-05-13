@@ -14,13 +14,13 @@ exports[`builds archer great items can destroy 28's 1`] = `
 
 exports[`builds archer normal items can kill level 5 mobs 1`] = `
 {
-  "constitution": 8,
-  "dexterity": 174,
-  "intelligence": 8,
-  "luck": 13,
-  "strength": 8,
-  "willpower": 8,
-  "wisdom": 8,
+  "constitution": 9,
+  "dexterity": 102,
+  "intelligence": 9,
+  "luck": 15,
+  "strength": 9,
+  "willpower": 9,
+  "wisdom": 9,
 }
 `;
 
@@ -39,34 +39,34 @@ exports[`builds archer trash items can kill level 1 mobs 1`] = `
 exports[`builds archer uber items can deal destroy 32s at max level 1`] = `
 {
   "constitution": 8458,
-  "dexterity": 321418,
+  "dexterity": 172913,
   "intelligence": 8458,
   "luck": 20288,
   "strength": 8458,
-  "willpower": 32494,
-  "wisdom": 32494,
+  "willpower": 21992,
+  "wisdom": 21992,
 }
 `;
 
 exports[`builds melee great items can destroy 28's 1`] = `
 {
-  "constitution": 7207,
-  "dexterity": 95653,
-  "intelligence": 7207,
+  "constitution": 7007,
+  "dexterity": 84139,
+  "intelligence": 7007,
   "luck": 8505,
-  "strength": 185111,
-  "willpower": 8649,
-  "wisdom": 7207,
+  "strength": 162829,
+  "willpower": 8408,
+  "wisdom": 7007,
 }
 `;
 
 exports[`builds melee normal items can kill level 5 mobs 1`] = `
 {
   "constitution": 8,
-  "dexterity": 60,
+  "dexterity": 44,
   "intelligence": 8,
   "luck": 11,
-  "strength": 99,
+  "strength": 72,
   "willpower": 10,
   "wisdom": 8,
 }
@@ -86,13 +86,13 @@ exports[`builds melee trash items can kill level 1 mobs 1`] = `
 
 exports[`builds melee uber items can deal destroy 32s at max level 1`] = `
 {
-  "constitution": 15834,
-  "dexterity": 262472,
-  "intelligence": 15834,
+  "constitution": 15394,
+  "dexterity": 230878,
+  "intelligence": 15394,
   "luck": 18685,
-  "strength": 1480887,
-  "willpower": 19001,
-  "wisdom": 15834,
+  "strength": 419927,
+  "willpower": 18473,
+  "wisdom": 15394,
 }
 `;
 
@@ -117,8 +117,8 @@ exports[`calculateEnchantmentDamage should calculate damage correctly 2`] = `
 exports[`calculateEnchantmentDamage should calculate damage correctly 3`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 727,
-  "victimDamage": 727,
+  "attackerHeal": 729,
+  "victimDamage": 729,
   "victimHeal": 0,
 }
 `;
@@ -126,8 +126,8 @@ exports[`calculateEnchantmentDamage should calculate damage correctly 3`] = `
 exports[`calculateEnchantmentDamage should calculate damage correctly 4`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 969,
-  "victimDamage": 969,
+  "attackerHeal": 874,
+  "victimDamage": 874,
   "victimHeal": 0,
 }
 `;

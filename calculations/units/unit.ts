@@ -94,6 +94,14 @@ export class Unit {
       willpowerSteal: 1,
       luckSteal: 1,
 
+      strengthMultiplier: 0,
+      dexterityMultiplier: 0,
+      constitutionMultiplier: 0,
+      intelligenceMultiplier: 0,
+      wisdomMultiplier: 0,
+      willpowerMultiplier: 0,
+      luckMultiplier: 0,
+
       percentageDamageIncrease: 1,
       percentageDamageReduction: 1,
       percentageEnchantmentDamageReduction: 1,
@@ -119,7 +127,7 @@ export class Unit {
       // Lightning = 'Lightning',
       // Magical = 'Magical',
       // Physical = 'Physical'
-      
+
       // damage conversion
       damageAsBlight: 0,
       damageAsFire: 0,
@@ -137,6 +145,12 @@ export class Unit {
       lightningResistance: 0,
       magicalResistance: 0,
       physicalResistance: 0,
+
+      // armor manipulation
+      percentageArmorReduction: 1,
+
+      // base damage shenanigans
+      increasedBaseDamage: 20,
     };
 
     this.precisions = {

@@ -376,8 +376,9 @@ export function genericStatsAttackModifierForEnchantment(
         enchantment: EnchantmentType.MinusEnemyArmor,
         options: {
           isDebuff: true,
+          stackMultiplicatively: true,
           multiplier: {
-            percentageDamageReduction: 0.5,
+            percentageArmorReduction: 0.5,
           },
         },
       };
@@ -539,8 +540,9 @@ export function genericStatsAttackModifierForEnchantment(
           enchantment: EnchantmentType.RangedArmorPiercing,
           options: {
             isDebuff: true,
+            stackMultiplicatively: true,
             multiplier: {
-              percentageDamageReduction: 0.5,
+              percentageArmorReduction: 0.5,
             },
           },
         };
@@ -553,8 +555,9 @@ export function genericStatsAttackModifierForEnchantment(
           enchantment: EnchantmentType.MeleeArmorPiercing,
           options: {
             isDebuff: true,
+            stackMultiplicatively: true,
             multiplier: {
-              percentageDamageReduction: 0.5,
+              percentageArmorReduction: 0.5,
             },
           },
         };
@@ -567,8 +570,9 @@ export function genericStatsAttackModifierForEnchantment(
           enchantment: EnchantmentType.CasterArmorPiercing,
           options: {
             isDebuff: true,
+            stackMultiplicatively: true,
             multiplier: {
-              percentageDamageReduction: 0.5,
+              percentageArmorReduction: 0.5,
             },
           },
         };
@@ -581,8 +585,9 @@ export function genericStatsAttackModifierForEnchantment(
           enchantment: EnchantmentType.SmiteArmorPiercing,
           options: {
             isDebuff: true,
+            stackMultiplicatively: true,
             multiplier: {
-              percentageDamageReduction: 0.5,
+              percentageArmorReduction: 0.5,
             },
           },
         };
@@ -739,7 +744,7 @@ export function genericStatsModifierForEnchantment(
         enchantment: EnchantmentType.BonusArmor,
         options: {
           multiplier: {
-            percentageDamageReduction: 2,
+            bonusArmorPercentage: 2,
           },
         },
       };
