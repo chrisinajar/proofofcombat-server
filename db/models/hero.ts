@@ -317,7 +317,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       return hero;
     }
     const skillToRoll = skills[Math.floor(Math.random() * skills.length)];
-    return this.rollSkill(context, hero, skillToRoll, 0.1);
+    return this.rollSkill(context, hero, skillToRoll, 0.01);
   }
 
   getSkillsForAction(hero: Hero, action: SkillActions): HeroSkill[] {
