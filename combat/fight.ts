@@ -105,6 +105,9 @@ export function executeFight(
     result.victimDamage + result.victimEnchantmentDamage - result.victimHeal >=
     victimCombatant.health;
 
+  if (duration <= 0) {
+    return result;
+  }
   if (result.attackerIsDead || result.victimIsDead) {
     // one of them is dead, no need to continue
     attackerCombatant.attackSpeedRemainder = 0;
@@ -235,7 +238,7 @@ export function executeFight(
     return executeFight(attackerCombatant, victimCombatant, duration, result);
   }
 
-  if (attackerNextAttack > 0 && attackerNextAttack <= victimNextAttack) {
+  if (attackerNextAttack >= 0 && attackerNextAttack <= victimNextAttack) {
     // do attacker attack
 
     if (!result.attackerIsMesmerized && !result.attackerIsDead) {
@@ -273,7 +276,7 @@ export function executeFight(
       ? 0
       : 0 - attackerCombatant.attackSpeed;
     victimCombatant.attackSpeedRemainder += attackerNextAttack;
-  } else if (victimNextAttack > 0) {
+  } else if (victimNextAttack >= 0) {
     // do victim attack
     if (!result.victimIsMesmerized && !result.victimIsDead) {
       const victimAttack = attackCombatant(victimCombatant, attackerCombatant);
