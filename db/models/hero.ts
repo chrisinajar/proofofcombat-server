@@ -67,6 +67,7 @@ type PartialHero = Optional<
   | "activeStance"
   | "availableStances"
   | "buffs"
+  | "attackSpeedRemainder"
 >;
 
 // actions as strings or enums to represent any given action that might increase a skill
@@ -596,6 +597,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.gold = data.gold ?? 0;
     data.level = data.level ?? 1;
     data.experience = data.experience ?? 0;
+    data.attackSpeedRemainder = data.attackSpeedRemainder ?? 0;
 
     data.skillPercent = data.skillPercent ?? 0;
     data.skills = data.skills ?? {

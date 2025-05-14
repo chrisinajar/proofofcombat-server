@@ -127,6 +127,11 @@ const resolvers: Resolvers = {
       let experienceRewards =
         (monster.monster.level + Math.pow(1.4, monster.monster.level)) * 10;
 
+      hero.attackSpeedRemainder =
+        fightResult.attackerCombatant.attackSpeedRemainder;
+      monster.attackSpeedRemainder =
+        fightResult.victimCombatant.attackSpeedRemainder;
+
       const xpDoublers = context.db.hero.countEnchantments(
         hero,
         EnchantmentType.DoubleExperience,

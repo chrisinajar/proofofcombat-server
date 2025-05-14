@@ -52,14 +52,10 @@ export function executeFight(
   duration: number = 4000,
   result?: CombatResult,
 ): CombatResult {
-  let attackerNextAttack =
-    attackerCombatant.attackSpeed - attackerCombatant.attackSpeedRemainder;
-  let victimNextAttack =
-    victimCombatant.attackSpeed - victimCombatant.attackSpeedRemainder;
-  const enchantmentNextAttack = duration % ENCHANTMENT_INTERVAL;
-
   if (!result) {
     result = {
+      attackerCombatant,
+      victimCombatant,
       // enchantment damage dealt to attacker
       attackerEnchantmentDamage: 0,
       // enchantment damage dealt to victim
@@ -82,6 +78,22 @@ export function executeFight(
       log: [],
     };
   }
+
+  // clean up just in case
+  if (attackerCombatant.attackSpeedRemainder > attackerCombatant.attackSpeed) {
+    attackerCombatant.attackSpeedRemainder =
+      attackerCombatant.attackSpeedRemainder % attackerCombatant.attackSpeed;
+  }
+  if (victimCombatant.attackSpeedRemainder > victimCombatant.attackSpeed) {
+    victimCombatant.attackSpeedRemainder =
+      victimCombatant.attackSpeedRemainder % victimCombatant.attackSpeed;
+  }
+
+  let attackerNextAttack =
+    attackerCombatant.attackSpeed - attackerCombatant.attackSpeedRemainder;
+  let victimNextAttack =
+    victimCombatant.attackSpeed - victimCombatant.attackSpeedRemainder;
+  const enchantmentNextAttack = duration % ENCHANTMENT_INTERVAL;
 
   result.attackerIsDead =
     result.attackerDamage +

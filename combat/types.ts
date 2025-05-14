@@ -61,6 +61,8 @@ export type AttackAttributes = {
 };
 
 export type CombatResult = {
+  attackerCombatant: Combatant;
+  victimCombatant: Combatant;
   victimDamage: number;
   attackerDamage: number;
   victimEnchantmentDamage: number;

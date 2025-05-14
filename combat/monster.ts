@@ -108,35 +108,27 @@ export function createMonsterEquipment(
 }
 
 export function createMonsterCombatant(
-  monster: Omit<
-    Partial<Monster>,
-    "level" | "combat" | "name" | "attackType"
-  > & {
-    level: number;
-    combat: { health: number; maxHealth: number };
-    name: string;
-    attackType: AttackType;
-  },
+  monster: MonsterInstance,
   equipment?: MonsterEquipment | null,
 ): Combatant {
-  const monsterAttributes = createMonsterStatsByLevel(monster.level);
+  const monsterAttributes = createMonsterStatsByLevel(monster.monster.level);
 
   const combatData = {
     class: HeroClasses.Monster,
-    attackType: monster.attackType,
-    level: monster.level,
-    name: monster.name,
+    attackType: monster.monster.attackType,
+    level: monster.monster.level,
+    name: monster.monster.name,
     equipment: equipment
-      ? createMonsterEquipment({ level: monster.level }, equipment)
-      : createMonsterEquipment({ level: monster.level }),
+      ? createMonsterEquipment({ level: monster.monster.level }, equipment)
+      : createMonsterEquipment({ level: monster.monster.level }),
     damageReduction: monsterAttributes.constitution / 2,
     attributes: monsterAttributes,
     luck: createLuck(monsterAttributes.luck),
-    health: monster.combat.health,
-    maxHealth: monster.combat.maxHealth,
+    health: monster.monster.combat.health,
+    maxHealth: monster.monster.combat.maxHealth,
 
     attackSpeed: BASE_MONSTER_SPEED,
-    attackSpeedRemainder: 0,
+    attackSpeedRemainder: monster.attackSpeedRemainder,
   };
 
   const unit = new Mob(combatData);

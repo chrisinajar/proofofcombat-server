@@ -70,6 +70,8 @@ export default gql`
 
     buffs: HeroBuffs!
     pendingArtifact: ArtifactItem
+
+    attackSpeedRemainder: Int!
   }
 
   # various buffs like blessings, curses, etc not bound to quest items

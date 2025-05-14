@@ -154,7 +154,7 @@ export function createHeroCombatant(
     unit: heroUnit,
 
     attackSpeed: BASE_ATTACK_SPEED,
-    attackSpeedRemainder: 0,
+    attackSpeedRemainder: hero.attackSpeedRemainder,
   };
 
   if (hero.equipment.leftHand) {
