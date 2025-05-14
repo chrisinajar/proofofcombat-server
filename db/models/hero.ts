@@ -364,7 +364,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     if (bonusSkillChance > 1) {
       odds *= bonusSkillChance;
     }
-    console.log("rolling skill", skillName, odds);
+    // this happens kind of a lot
+    // console.log("rolling skill", skillName, odds);
     // odds are between 0-1, where 1 is 100%
     if (Math.random() < odds) {
       hero = this.levelUpSkill(context, hero, skillName);

@@ -12,6 +12,7 @@ import { CombatantGear, Combatant } from "./types";
 import { createLuck, attributesForAttack } from "./helpers";
 
 import { Mob } from "../calculations/units/mob";
+import { BASE_MONSTER_SPEED } from "./constants";
 
 function createMonsterStatsByLevel(level: number): HeroStats {
   return {
@@ -133,6 +134,9 @@ export function createMonsterCombatant(
     luck: createLuck(monsterAttributes.luck),
     health: monster.combat.health,
     maxHealth: monster.combat.maxHealth,
+
+    attackSpeed: BASE_MONSTER_SPEED,
+    attackSpeedRemainder: 0,
   };
 
   const unit = new Mob(combatData);

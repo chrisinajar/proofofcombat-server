@@ -3,24 +3,24 @@
 exports[`builds archer great items can destroy 28's 1`] = `
 {
   "constitution": 5005,
-  "dexterity": 238963,
+  "dexterity": 575094,
   "intelligence": 5005,
   "luck": 12005,
   "strength": 5005,
-  "willpower": 5005,
+  "willpower": 7764,
   "wisdom": 5005,
 }
 `;
 
 exports[`builds archer normal items can kill level 5 mobs 1`] = `
 {
-  "constitution": 9,
-  "dexterity": 102,
-  "intelligence": 9,
-  "luck": 15,
-  "strength": 9,
-  "willpower": 9,
-  "wisdom": 9,
+  "constitution": 10,
+  "dexterity": 152,
+  "intelligence": 10,
+  "luck": 17,
+  "strength": 10,
+  "willpower": 11,
+  "wisdom": 10,
 }
 `;
 
@@ -39,11 +39,11 @@ exports[`builds archer trash items can kill level 1 mobs 1`] = `
 exports[`builds archer uber items can deal destroy 32s at max level 1`] = `
 {
   "constitution": 8458,
-  "dexterity": 172913,
+  "dexterity": 416136,
   "intelligence": 8458,
   "luck": 20288,
   "strength": 8458,
-  "willpower": 21992,
+  "willpower": 34117,
   "wisdom": 21992,
 }
 `;
@@ -51,24 +51,24 @@ exports[`builds archer uber items can deal destroy 32s at max level 1`] = `
 exports[`builds melee great items can destroy 28's 1`] = `
 {
   "constitution": 7007,
-  "dexterity": 84139,
+  "dexterity": 130528,
   "intelligence": 7007,
   "luck": 8505,
-  "strength": 162829,
-  "willpower": 8408,
+  "strength": 252601,
+  "willpower": 13044,
   "wisdom": 7007,
 }
 `;
 
 exports[`builds melee normal items can kill level 5 mobs 1`] = `
 {
-  "constitution": 8,
-  "dexterity": 44,
-  "intelligence": 8,
-  "luck": 11,
-  "strength": 72,
-  "willpower": 10,
-  "wisdom": 8,
+  "constitution": 10,
+  "dexterity": 60,
+  "intelligence": 10,
+  "luck": 14,
+  "strength": 108,
+  "willpower": 13,
+  "wisdom": 10,
 }
 `;
 
@@ -87,11 +87,11 @@ exports[`builds melee trash items can kill level 1 mobs 1`] = `
 exports[`builds melee uber items can deal destroy 32s at max level 1`] = `
 {
   "constitution": 15394,
-  "dexterity": 230878,
+  "dexterity": 358168,
   "intelligence": 15394,
   "luck": 18685,
-  "strength": 419927,
-  "willpower": 18473,
+  "strength": 651445,
+  "willpower": 28658,
   "wisdom": 15394,
 }
 `;
@@ -99,35 +99,35 @@ exports[`builds melee uber items can deal destroy 32s at max level 1`] = `
 exports[`calculateEnchantmentDamage should calculate damage correctly 1`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 0,
+  "attackerHeal": 473749,
   "victimDamage": 0,
-  "victimHeal": 0,
+  "victimHeal": 473749,
 }
 `;
 
 exports[`calculateEnchantmentDamage should calculate damage correctly 2`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 192,
+  "attackerHeal": 474130,
   "victimDamage": 192,
-  "victimHeal": 0,
+  "victimHeal": 473749,
 }
 `;
 
 exports[`calculateEnchantmentDamage should calculate damage correctly 3`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 729,
+  "attackerHeal": 475007,
   "victimDamage": 729,
-  "victimHeal": 0,
+  "victimHeal": 473749,
 }
 `;
 
 exports[`calculateEnchantmentDamage should calculate damage correctly 4`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 874,
-  "victimDamage": 874,
-  "victimHeal": 0,
+  "attackerHeal": 476760,
+  "victimDamage": 1731,
+  "victimHeal": 473749,
 }
 `;

@@ -2,6 +2,10 @@ import { AttackType } from "types/graphql";
 
 import { AttackAttributes } from "./types";
 
+export const ENCHANTMENT_INTERVAL = 3000; // 1.5 seconds
+export const BASE_ATTACK_SPEED = 1500; // 1.5 seconds
+export const BASE_MONSTER_SPEED = 1600; // just barely slower
+
 export function attributesForAttack(attackType: AttackType): AttackAttributes {
   switch (attackType) {
     case AttackType.Blood:

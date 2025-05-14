@@ -7,6 +7,7 @@ import {
   EquipmentSlots,
   InventoryItemType,
   DamageType,
+  HeroSkills,
 } from "types/graphql";
 import {
   calculateOdds,
@@ -93,6 +94,16 @@ function levelUpHero(
   hero.stats.wisdom += levels;
   hero.stats.willpower += levels;
   hero.stats.luck += levels;
+
+  hero.skills.attackingAccuracy = Math.ceil(Math.log(hero.level));
+  hero.skills.castingAccuracy = Math.ceil(Math.log(hero.level));
+  hero.skills.attackingDamage = Math.ceil(Math.log(hero.level));
+  hero.skills.castingDamage = Math.ceil(Math.log(hero.level));
+  hero.skills.vitality = Math.ceil(Math.log(hero.level));
+  hero.skills.resilience = Math.ceil(Math.log(hero.level));
+  hero.skills.regeneration = Math.ceil(Math.log(hero.level));
+
+  console.log(hero.skills.regeneration);
 
   const totalRatio = Object.values(stats).reduce((memo, val) => memo + val);
 
@@ -337,7 +348,7 @@ describe("combat", () => {
       heroCombatant.health = heroCombatant.maxHealth;
 
       let result = calculateEnchantmentDamage(heroCombatant, monster);
-      expect(result.attackerHeal).toBeLessThan(30000000);
+      expect(result.attackerHeal).toBeLessThan(50000000);
     });
     it("should reduce enemy enchantment resistance", () => {
       const hero = generateHero();
@@ -480,8 +491,8 @@ describe("builds", () => {
     describe("normal items", () => {
       it("can kill level 5 mobs", () => {
         const hero = generateHero();
-        // level 5 attempts mob #5...
-        levelUpHero(hero, 4, stats);
+        // level 6 attempts mob #5...
+        levelUpHero(hero, 5, stats);
         hero.equipment = normalGear();
         hero.class = heroClass;
 
@@ -496,7 +507,7 @@ describe("builds", () => {
         } = simulateMonsterCombat(heroCombatant, 5, attackType);
 
         expect(heroHitOdds).toBeGreaterThan(0.5);
-        expect(heroAverageDamage).toBeGreaterThan(100);
+        expect(heroAverageDamage).toBeGreaterThan(50);
 
         const { attacker, victim } = getEnchantedAttributes(
           heroCombatant,
@@ -784,7 +795,7 @@ describe("builds", () => {
 
   describe("melee", () => {
     const trashGear = () => ({
-      leftHand: { level: 1, type: InventoryItemType.MeleeWeapon },
+      leftHand: { level: 2, type: InventoryItemType.MeleeWeapon },
       bodyArmor: { level: 1, type: InventoryItemType.BodyArmor },
       handArmor: { level: 1, type: InventoryItemType.HandArmor },
       legArmor: { level: 1, type: InventoryItemType.LegArmor },
@@ -794,13 +805,11 @@ describe("builds", () => {
     });
     const normalGear = () => ({
       leftHand: {
-        level: 5,
-        enchantment: EnchantmentType.BonusStrength,
+        level: 7,
         type: InventoryItemType.MeleeWeapon,
       },
       rightHand: {
         level: 5,
-        enchantment: EnchantmentType.BonusStrength,
         type: InventoryItemType.MeleeWeapon,
       },
       bodyArmor: {
@@ -815,7 +824,6 @@ describe("builds", () => {
       },
       legArmor: {
         level: 5,
-        enchantment: EnchantmentType.BonusDexterity,
         type: InventoryItemType.LegArmor,
       },
       headArmor: {

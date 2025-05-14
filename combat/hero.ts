@@ -8,8 +8,8 @@ import {
 import { Combatant } from "./types";
 import { createLuck } from "./helpers";
 
-import { Hero as HeroUnit } from "../calculations/units/hero";
 import Databases from "../db";
+import { BASE_ATTACK_SPEED } from "./constants";
 
 export function addItemToCombatant(
   combatant: Combatant,
@@ -152,6 +152,9 @@ export function createHeroCombatant(
     luck: createLuck(heroUnit.baseValues.luck),
     skills: hero.skills,
     unit: heroUnit,
+
+    attackSpeed: BASE_ATTACK_SPEED,
+    attackSpeedRemainder: 0,
   };
 
   if (hero.equipment.leftHand) {

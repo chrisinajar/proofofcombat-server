@@ -103,6 +103,7 @@ export default gql`
     resilience
     regeneration
   }
+
   type HeroSkills {
     attackingAccuracy: Int!
     castingAccuracy: Int!
