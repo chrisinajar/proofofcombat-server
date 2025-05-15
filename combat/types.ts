@@ -1,7 +1,4 @@
 import {
-  Hero,
-  MonsterInstance,
-  Monster,
   CombatEntry,
   AttackType,
   HeroStats,
@@ -34,6 +31,10 @@ export type Combatant = {
     ultraModifier: number;
   };
   unit: Unit;
+
+  // attack speed
+  attackSpeed: number;
+  attackSpeedRemainder: number;
 };
 
 export type EnchantedCombatant = Combatant & {
@@ -60,6 +61,8 @@ export type AttackAttributes = {
 };
 
 export type CombatResult = {
+  attackerCombatant: Combatant;
+  victimCombatant: Combatant;
   victimDamage: number;
   attackerDamage: number;
   victimEnchantmentDamage: number;
@@ -69,6 +72,10 @@ export type CombatResult = {
 
   victimDied: boolean;
   attackerDied: boolean;
+  victimIsMesmerized: boolean;
+  attackerIsMesmerized: boolean;
+  victimIsDead: boolean;
+  attackerIsDead: boolean;
   log: CombatEntry[];
 };
 

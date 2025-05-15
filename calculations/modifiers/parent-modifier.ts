@@ -2,12 +2,12 @@ import { Modifier, ModifierOptions } from "./modifier";
 import { ModifierDefinition } from "./enchantments";
 
 export type ParentModifierOptions = {
-  modifiers: ModifierDefinition<Modifier<any>, any>[];
+  modifiers: ModifierDefinition<Modifier<any>>[];
   id: string;
 };
 
 export class ParentModifier extends Modifier<ParentModifierOptions> {
-  modifiers: ModifierDefinition<Modifier<any>, any>[];
+  modifiers: ModifierDefinition<Modifier<any>>[];
   id: string;
 
   constructor(options: ModifierOptions<ParentModifierOptions>) {

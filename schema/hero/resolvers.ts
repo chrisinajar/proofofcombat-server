@@ -356,6 +356,8 @@ const resolvers: Resolvers = {
         hero = rebirth(context, hero, true);
       }
 
+      hero = context.db.hero.rollSkillsForAction(context, hero, "heal");
+
       await context.db.hero.put(hero);
 
       return {
@@ -366,7 +368,7 @@ const resolvers: Resolvers = {
     async acceptArtifact(
       parent: unknown,
       args: Record<string, never>,
-      context: BaseContext
+      context: BaseContext,
     ): Promise<LevelUpResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -405,7 +407,7 @@ const resolvers: Resolvers = {
     async rejectArtifact(
       parent: unknown,
       args: Record<string, never>,
-      context: BaseContext
+      context: BaseContext,
     ): Promise<LevelUpResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -544,6 +546,8 @@ const resolvers: Resolvers = {
       const enchantedStats = getEnchantedAttributes(attacker, {
         ...victim,
         unit: new Mob(victim),
+        attackSpeed: 1000,
+        attackSpeedRemainder: 0,
       });
 
       function cleanStats(stats: HeroStats) {

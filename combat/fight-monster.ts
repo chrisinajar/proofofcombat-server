@@ -7,13 +7,13 @@ import { createMonsterCombatant } from "./monster";
 export async function fightMonster(
   attacker: Hero,
   monsterInstance: MonsterInstance,
-  attackType: AttackType
+  attackType: AttackType,
 ): Promise<CombatResult> {
   const { monster, equipment } = monsterInstance;
   const attackerAttackType = attackType;
   const attackerCombatant = createHeroCombatant(attacker, attackerAttackType);
 
-  const victimCombatant = createMonsterCombatant(monster, equipment);
+  const victimCombatant = createMonsterCombatant(monsterInstance, equipment);
 
   return executeFight(attackerCombatant, victimCombatant);
 }

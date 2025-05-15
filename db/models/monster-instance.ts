@@ -5,10 +5,13 @@ import { hash } from "../../hash";
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
-export type MonsterInstanceInput = Omit<MonsterInstance, "id" | "lastActive">;
-
 // Define PartialMonsterInstance type where lastActive is optional since it's new
-type PartialMonsterInstance = Optional<MonsterInstance, "lastActive">;
+type PartialMonsterInstance = Optional<
+  MonsterInstance,
+  "lastActive" | "attackSpeedRemainder"
+>;
+// input is partial unupgraded monster minus id
+export type MonsterInstanceInput = Omit<PartialMonsterInstance, "id">;
 
 export default class MonsterInstanceModel extends DatabaseInterface<MonsterInstance> {
   constructor() {
@@ -40,6 +43,7 @@ export default class MonsterInstanceModel extends DatabaseInterface<MonsterInsta
     if (!data.lastActive) {
       data.lastActive = 1;
     }
+    data.attackSpeedRemainder = data.attackSpeedRemainder ?? 0;
     const monsterInstance = data as MonsterInstance;
 
     return monsterInstance;

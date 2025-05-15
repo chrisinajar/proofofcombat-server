@@ -19,9 +19,6 @@ export function calculateOdds(
   let attackerAccStat = attacker.attributes[attackAttributes.toHit];
   let victimDodgeStat = victim.attributes[attackAttributes.dodge];
 
-  let inputAttackerAccStat = attackerInput.attributes[attackAttributes.toHit];
-  let inputVictimDodgeStat = victimInput.attributes[attackAttributes.dodge];
-
   if (
     attacker.class === HeroClasses.DemonHunter ||
     attacker.class === HeroClasses.BattleMage
@@ -29,10 +26,10 @@ export function calculateOdds(
     let otherAccStat = 0;
     if (attackType === AttackType.Melee) {
       const otherAttackAttributes = attributesForAttack(AttackType.Cast);
-      otherAccStat = attacker.attributes[attackAttributes.toHit];
+      otherAccStat = attacker.attributes[otherAttackAttributes.toHit];
     } else if (attackType === AttackType.Cast) {
       const otherAttackAttributes = attributesForAttack(AttackType.Melee);
-      otherAccStat = attacker.attributes[attackAttributes.toHit];
+      otherAccStat = attacker.attributes[otherAttackAttributes.toHit];
     }
     attackerAccStat += 0.5 * otherAccStat;
   }
@@ -54,9 +51,10 @@ export function calculateOdds(
   attackerAccStat *= attacker.bonusAccuracy;
 
   victim.equipment.armor.forEach((armor) => {
-    // if (armor.type === InventoryItemType.Shield) {
-    // } else {
-    // }
+    // shields always give more dodge
+    if (armor.type === InventoryItemType.Shield) {
+      victimDodgeStat *= 1.5;
+    }
     if (getItemPassiveUpgradeTier(armor) > 1) {
       victimDodgeStat *= 2;
     } else if (getItemPassiveUpgradeTier(armor) > 0) {
@@ -83,8 +81,6 @@ export function calculateOdds(
     ? attacker.equipment.weapons[1]
     : attacker.equipment.weapons[0];
 
-  const weaponLevel = weapon?.level ?? 0;
-
   if (weapon) {
     if (getItemPassiveUpgradeTier(weapon) > 1) {
       attackerAccStat *= 4;
@@ -95,7 +91,8 @@ export function calculateOdds(
 
   // rarely massive, 1 when even, 0.5 when dodge is double, etc
   // "how many times bigger is attack than dodge"
-  const baseChange = attackerAccStat / victimDodgeStat;
+  const baseChange =
+    (Math.log(attackerAccStat + 1) * attackerAccStat) / victimDodgeStat;
   const oddBase = baseChange / (baseChange + 1);
 
   return oddBase;

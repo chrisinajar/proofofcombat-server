@@ -127,6 +127,11 @@ const resolvers: Resolvers = {
       let experienceRewards =
         (monster.monster.level + Math.pow(1.4, monster.monster.level)) * 10;
 
+      hero.attackSpeedRemainder =
+        fightResult.attackerCombatant.attackSpeedRemainder;
+      monster.attackSpeedRemainder =
+        fightResult.victimCombatant.attackSpeedRemainder;
+
       const xpDoublers = context.db.hero.countEnchantments(
         hero,
         EnchantmentType.DoubleExperience,
@@ -179,6 +184,11 @@ const resolvers: Resolvers = {
         ),
       );
 
+      // if we did net positive damage with our attack, run skill rolls
+      if (fightResult.victimDamage > fightResult.victimHeal) {
+        hero = context.db.hero.rollSkillsForAction(context, hero, attackType);
+      }
+
       // i am undeath
       fightResult.victimDied = monster.monster.combat.health < 1;
 
@@ -223,9 +233,11 @@ const resolvers: Resolvers = {
         if (location.terrain === "forbidden") {
           bonusDropRate *= 3;
           experienceRewards *= 3;
+          goldReward /= 2;
         }
 
         experienceRewards = Math.round(experienceRewards);
+        goldReward = Math.round(goldReward);
         goldReward = Math.min(1000000000, Math.round(goldReward));
 
         await checkAberrationDrop(context, hero, monster.monster.id);

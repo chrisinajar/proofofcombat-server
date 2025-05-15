@@ -7,6 +7,7 @@ export type GenericStatsModifierOptions = {
   bonus?: StatsEntry;
   extraBonus?: StatsEntry;
   isDebuff?: boolean;
+  stackMultiplicatively?: boolean;
 };
 
 export class GenericStatsModifier extends Modifier<GenericStatsModifierOptions> {
@@ -21,9 +22,21 @@ export class GenericStatsModifier extends Modifier<GenericStatsModifierOptions> 
     if (this.options.bonus && this.options.bonus[prop]) {
       return this.options.bonus[prop];
     }
+    if (this.options.stackMultiplicatively) {
+      return;
+    }
+    if (prop.endsWith("Multiplier")) {
+      const baseProp = prop.slice(0, -"Multiplier".length);
+      if (this.options.multiplier && this.options.multiplier[baseProp]) {
+        return this.options.multiplier[baseProp] - 1;
+      }
+    }
     return;
   }
   getMultiplier(prop: string): number | undefined {
+    if (!this.options.stackMultiplicatively) {
+      return;
+    }
     if (this.options.multiplier && this.options.multiplier[prop]) {
       return this.options.multiplier[prop];
     }

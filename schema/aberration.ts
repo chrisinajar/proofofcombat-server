@@ -68,7 +68,8 @@ export async function spawnRandomAberration(context: BaseContext) {
       spawnMessage = "The ground trembles as the mountains rise near {{loc}}";
       break;
     case "random-aberration-artificer":
-      spawnMessage = "Strange mechanical sounds echo from somewhere near {{loc}}";
+      spawnMessage =
+        "Strange mechanical sounds echo from somewhere near {{loc}}";
       break;
   }
 

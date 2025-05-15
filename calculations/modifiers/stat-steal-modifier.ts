@@ -47,6 +47,9 @@ export class StatStealVictimModifier extends Modifier<StatStealVictimModifierOpt
     if (prop.endsWith("Steal")) {
       return;
     }
+    if (prop.endsWith("Multiplier")) {
+      return;
+    }
     const stealName = `${prop}Steal`;
     const attacker = this.source;
     if (!("getModifiedValue" in attacker)) {
