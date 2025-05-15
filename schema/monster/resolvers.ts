@@ -117,11 +117,14 @@ const resolvers: Resolvers = {
       }
 
       const monsterMaxHealth = monster.monster.combat.maxHealth;
-      // big nerf, curves values close to or above 1b to always be below maxBaseGoldReward
-      const maxBaseGoldReward = 1100000000;
+      // curves values to always be below maxBaseGoldReward
+      const maxBaseGoldReward = 1200 * 1000000;
       let goldReward =
         (1 - monsterMaxHealth / (monsterMaxHealth + maxBaseGoldReward)) *
         monsterMaxHealth;
+
+      // divide after the curving
+      goldReward /= 2;
 
       const fightResult = await fightMonster(hero, monster, attackType);
       let experienceRewards =
@@ -233,7 +236,6 @@ const resolvers: Resolvers = {
         if (location.terrain === "forbidden") {
           bonusDropRate *= 3;
           experienceRewards *= 3;
-          goldReward /= 2;
         }
 
         experienceRewards = Math.round(experienceRewards);
