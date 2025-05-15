@@ -3,7 +3,7 @@
 exports[`builds archer great items can destroy 28's 1`] = `
 {
   "constitution": 5005,
-  "dexterity": 575094,
+  "dexterity": 262121,
   "intelligence": 5005,
   "luck": 12005,
   "strength": 5005,
@@ -38,23 +38,23 @@ exports[`builds archer trash items can kill level 1 mobs 1`] = `
 
 exports[`builds archer uber items can deal destroy 32s at max level 1`] = `
 {
-  "constitution": 8458,
-  "dexterity": 416136,
-  "intelligence": 8458,
-  "luck": 20288,
-  "strength": 8458,
-  "willpower": 34117,
-  "wisdom": 21992,
+  "constitution": 8008,
+  "dexterity": 293893,
+  "intelligence": 8008,
+  "luck": 19208,
+  "strength": 8008,
+  "willpower": 24846,
+  "wisdom": 16016,
 }
 `;
 
 exports[`builds melee great items can destroy 28's 1`] = `
 {
   "constitution": 7007,
-  "dexterity": 130528,
+  "dexterity": 87554,
   "intelligence": 7007,
   "luck": 8505,
-  "strength": 252601,
+  "strength": 169438,
   "willpower": 13044,
   "wisdom": 7007,
 }
@@ -86,13 +86,13 @@ exports[`builds melee trash items can kill level 1 mobs 1`] = `
 
 exports[`builds melee uber items can deal destroy 32s at max level 1`] = `
 {
-  "constitution": 15394,
-  "dexterity": 358168,
-  "intelligence": 15394,
-  "luck": 18685,
-  "strength": 651445,
-  "willpower": 28658,
-  "wisdom": 15394,
+  "constitution": 11512,
+  "dexterity": 125077,
+  "intelligence": 11512,
+  "luck": 16160,
+  "strength": 350978,
+  "willpower": 21430,
+  "wisdom": 11512,
 }
 `;
 
@@ -117,8 +117,8 @@ exports[`calculateEnchantmentDamage should calculate damage correctly 2`] = `
 exports[`calculateEnchantmentDamage should calculate damage correctly 3`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 475007,
-  "victimDamage": 729,
+  "attackerHeal": 474712,
+  "victimDamage": 585,
   "victimHeal": 473749,
 }
 `;
@@ -126,8 +126,8 @@ exports[`calculateEnchantmentDamage should calculate damage correctly 3`] = `
 exports[`calculateEnchantmentDamage should calculate damage correctly 4`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 476760,
-  "victimDamage": 1731,
+  "attackerHeal": 476119,
+  "victimDamage": 1389,
   "victimHeal": 473749,
 }
 `;

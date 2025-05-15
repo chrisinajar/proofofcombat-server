@@ -107,10 +107,7 @@ export function createMonsterEquipment(
   };
 }
 
-export function createMonsterCombatant(
-  monster: MonsterInstance,
-  equipment?: MonsterEquipment | null,
-): Combatant {
+export function createMonsterCombatant(monster: MonsterInstance): Combatant {
   const monsterAttributes = createMonsterStatsByLevel(monster.monster.level);
 
   const combatData = {
@@ -118,8 +115,11 @@ export function createMonsterCombatant(
     attackType: monster.monster.attackType,
     level: monster.monster.level,
     name: monster.monster.name,
-    equipment: equipment
-      ? createMonsterEquipment({ level: monster.monster.level }, equipment)
+    equipment: monster.equipment
+      ? createMonsterEquipment(
+          { level: monster.monster.level },
+          monster.equipment,
+        )
       : createMonsterEquipment({ level: monster.monster.level }),
     damageReduction: monsterAttributes.constitution / 2,
     attributes: monsterAttributes,

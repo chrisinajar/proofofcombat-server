@@ -97,13 +97,15 @@ export class StatStealModifier extends Modifier<StatStealModifierOptions> {
   }
 
   getBonus(prop: string): number | void {
+    if (prop.endsWith("Multiplier")) {
+      const baseProp = prop.slice(0, -"Multiplier".length);
+      if (this.options[baseProp]) {
+        return this.options[baseProp];
+      }
+    }
     return;
   }
   getMultiplier(prop: string): number | void {
-    // give boost here..?
-    if (this.options[prop]) {
-      return 1 + this.options[prop];
-    }
     if (!prop.endsWith("Steal")) {
       return;
     }

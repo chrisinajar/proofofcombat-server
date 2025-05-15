@@ -33,8 +33,8 @@ function generateHero(): Hero {
 }
 
 function generateMonster(level: number, equipment?: MonsterEquipment | null) {
-  return createMonsterCombatant(
-    {
+  return createMonsterCombatant({
+    monster: {
       level,
       name: `Level ${level} Mob`,
       attackType: AttackType.Melee,
@@ -44,7 +44,7 @@ function generateMonster(level: number, equipment?: MonsterEquipment | null) {
       },
     },
     equipment,
-  );
+  });
 }
 
 describe("getEnchantedAttributes", () => {

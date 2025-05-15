@@ -13,7 +13,7 @@ export async function fightMonster(
   const attackerAttackType = attackType;
   const attackerCombatant = createHeroCombatant(attacker, attackerAttackType);
 
-  const victimCombatant = createMonsterCombatant(monsterInstance, equipment);
+  const victimCombatant = createMonsterCombatant(monsterInstance);
 
   return executeFight(attackerCombatant, victimCombatant);
 }

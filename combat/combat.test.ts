@@ -103,8 +103,6 @@ function levelUpHero(
   hero.skills.resilience = Math.ceil(Math.log(hero.level));
   hero.skills.regeneration = Math.ceil(Math.log(hero.level));
 
-  console.log(hero.skills.regeneration);
-
   const totalRatio = Object.values(stats).reduce((memo, val) => memo + val);
 
   const singleWeight = pointsToSpend / totalRatio;
@@ -147,12 +145,14 @@ function simulateMonsterCombat(
   debug: boolean = false,
 ) {
   const monster = createMonsterCombatant({
-    level,
-    name: `Level ${level} Mob`,
-    attackType: AttackType.Melee,
-    combat: {
-      health: Math.round(Math.pow(1.4, level) * 8),
-      maxHealth: Math.round(Math.pow(1.4, level) * 8),
+    monster: {
+      level,
+      name: `Level ${level} Mob`,
+      attackType: AttackType.Melee,
+      combat: {
+        health: Math.round(Math.pow(1.4, level) * 8),
+        maxHealth: Math.round(Math.pow(1.4, level) * 8),
+      },
     },
   });
 
@@ -336,12 +336,14 @@ describe("combat", () => {
 
       let heroCombatant = createHeroCombatant(hero, AttackType.Melee);
       const monster = createMonsterCombatant({
-        level: 60,
-        name: `Level ${60} Mob`,
-        attackType: AttackType.Melee,
-        combat: {
-          health: Math.round(Math.pow(1.4, 60) * 8),
-          maxHealth: Math.round(Math.pow(1.4, 60) * 8),
+        monster: {
+          level: 60,
+          name: `Level ${60} Mob`,
+          attackType: AttackType.Melee,
+          combat: {
+            health: Math.round(Math.pow(1.4, 60) * 8),
+            maxHealth: Math.round(Math.pow(1.4, 60) * 8),
+          },
         },
       });
 
@@ -407,12 +409,14 @@ describe("builds", () => {
         const { attacker, victim } = getEnchantedAttributes(
           heroCombatant,
           createMonsterCombatant({
-            level: 32,
-            name: `Level ${32} Mob`,
-            attackType: AttackType.Melee,
-            combat: {
-              health: Math.round(Math.pow(1.4, 32) * 8),
-              maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+            monster: {
+              level: 32,
+              name: `Level ${32} Mob`,
+              attackType: AttackType.Melee,
+              combat: {
+                health: Math.round(Math.pow(1.4, 32) * 8),
+                maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+              },
             },
           }),
         );
@@ -512,12 +516,14 @@ describe("builds", () => {
         const { attacker, victim } = getEnchantedAttributes(
           heroCombatant,
           createMonsterCombatant({
-            level: 32,
-            name: `Level ${32} Mob`,
-            attackType: AttackType.Melee,
-            combat: {
-              health: Math.round(Math.pow(1.4, 32) * 8),
-              maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+            monster: {
+              level: 32,
+              name: `Level ${32} Mob`,
+              attackType: AttackType.Melee,
+              combat: {
+                health: Math.round(Math.pow(1.4, 32) * 8),
+                maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+              },
             },
           }),
         );
@@ -576,12 +582,14 @@ describe("builds", () => {
         const { attacker, victim } = getEnchantedAttributes(
           heroCombatant,
           createMonsterCombatant({
-            level: 32,
-            name: `Level ${32} Mob`,
-            attackType: AttackType.Melee,
-            combat: {
-              health: Math.round(Math.pow(1.4, 32) * 8),
-              maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+            monster: {
+              level: 32,
+              name: `Level ${32} Mob`,
+              attackType: AttackType.Melee,
+              combat: {
+                health: Math.round(Math.pow(1.4, 32) * 8),
+                maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+              },
             },
           }),
         );
@@ -640,12 +648,14 @@ describe("builds", () => {
         const { attacker, victim } = getEnchantedAttributes(
           heroCombatant,
           createMonsterCombatant({
-            level: 32,
-            name: `Level ${32} Mob`,
-            attackType: AttackType.Melee,
-            combat: {
-              health: Math.round(Math.pow(1.4, 32) * 8),
-              maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+            monster: {
+              level: 32,
+              name: `Level ${32} Mob`,
+              attackType: AttackType.Melee,
+              combat: {
+                health: Math.round(Math.pow(1.4, 32) * 8),
+                maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+              },
             },
           }),
         );
