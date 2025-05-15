@@ -2,7 +2,8 @@ import { AttackType } from "types/graphql";
 
 import { AttackAttributes } from "./types";
 
-export const ENCHANTMENT_INTERVAL = 3000; // 1.5 seconds
+export const COMBAT_DURATION = 4000;
+export const ENCHANTMENT_INTERVAL = 3950; // enchantment timing is from the end instead of the beginning
 export const BASE_ATTACK_SPEED = 1500; // 1.5 seconds
 export const BASE_MONSTER_SPEED = 1600; // just barely slower
 

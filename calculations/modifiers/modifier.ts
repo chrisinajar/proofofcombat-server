@@ -9,6 +9,8 @@ export type ModifierPersistancyData<O> = {
   options: O;
 };
 
+export type OptionsForModifier<T> = T extends Modifier<infer O> ? O : never;
+
 export type ModifierOptions<O> = {
   parent: Unit;
   source: Unit | Item;
@@ -80,7 +82,7 @@ export abstract class Modifier<O> {
     }
   }
 
-  createChildren(modifiers: ModifierDefinition<Modifier<any>, any>[]) {
+  createChildren(modifiers: ModifierDefinition<Modifier<any>>[]) {
     modifiers.forEach((modifierDefinition) => {
       const modifier = this.parent.applyModifier(
         modifierDefinition,

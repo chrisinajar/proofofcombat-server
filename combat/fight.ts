@@ -11,7 +11,7 @@ import { calculateHit } from "./calculate-hit";
 import { calculateDamage } from "./calculate-damage";
 import { calculateEnchantmentDamage } from "./calculate-enchantment-damage";
 import { getEnchantedAttributes } from "./enchantments";
-import { ENCHANTMENT_INTERVAL } from "./constants";
+import { ENCHANTMENT_INTERVAL, COMBAT_DURATION } from "./constants";
 
 function hasTwoAttacks(combatant: Combatant): boolean {
   let hasTwoAttacks = false;
@@ -49,7 +49,7 @@ function hasTwoAttacks(combatant: Combatant): boolean {
 export function executeFight(
   attackerCombatant: Combatant,
   victimCombatant: Combatant,
-  duration: number = 4000,
+  duration: number = COMBAT_DURATION,
   result?: CombatResult,
 ): CombatResult {
   if (!result) {

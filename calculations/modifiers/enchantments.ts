@@ -16,14 +16,18 @@ import { InventoryItem } from "../items/inventory-item";
 import { EnchantmentCounterSpellOrder } from "../../combat/enchantment-order";
 import { expandEnchantmentList } from "../../combat/enchantment-groups";
 
-export type ModifierDefinition<T extends Modifier<O>, O> = {
-  type: ModifierClass<T, O>;
-  enchantment?: EnchantmentType;
-  options: O;
-};
+export type ModifierDefinition<T> =
+  T extends Modifier<infer O>
+    ? {
+        type: ModifierClass<T, O>;
+        enchantment?: EnchantmentType;
+        options: O;
+      }
+    : never;
+
 type AttackerModifierDefinition<T extends Modifier<unknown>> = {
-  attacker: ModifierDefinition<T, any>[];
-  victim: ModifierDefinition<T, any>[];
+  attacker: ModifierDefinition<T>[];
+  victim: ModifierDefinition<T>[];
 };
 export function modifiersForEnchantment(
   enchantment: EnchantmentType,
@@ -81,7 +85,7 @@ export function modifiersForEnchantment(
   return { attacker, victim };
 }
 
-type ModifierDefinitionList = ModifierDefinition<Modifier<any>, any>[];
+type ModifierDefinitionList = ModifierDefinition<Modifier<any>>[];
 
 export function applyAttackModifiers(attackerUnit: Unit, victimUnit: Unit) {
   victimUnit.modifiers.forEach((modifier) => {
@@ -174,7 +178,7 @@ export function applyCounterSpells(attackerUnit: Unit, victimUnit: Unit) {
 export function statStealAttackModifierForEnchantment(
   enchantment: EnchantmentType,
   attackType: AttackType,
-): ModifierDefinition<StatStealModifier, StatStealModifierOptions> | void {
+): ModifierDefinition<StatStealModifier> | void {
   switch (enchantment) {
     case EnchantmentType.StrengthSteal:
       return {
@@ -365,10 +369,7 @@ export function statStealAttackModifierForEnchantment(
 export function genericStatsAttackModifierForEnchantment(
   enchantment: EnchantmentType,
   attackType: AttackType,
-): ModifierDefinition<
-  GenericStatsModifier,
-  GenericStatsModifierOptions
-> | void {
+): ModifierDefinition<GenericStatsModifier> | void {
   switch (enchantment) {
     case EnchantmentType.MinusEnemyArmor:
       return {
@@ -613,10 +614,7 @@ export function genericStatsAttackModifierForEnchantment(
 export function genericStatsModifierForEnchantment(
   enchantment: EnchantmentType,
   attackType: AttackType,
-): ModifierDefinition<
-  GenericStatsModifier,
-  GenericStatsModifierOptions
-> | void {
+): ModifierDefinition<GenericStatsModifier> | void {
   switch (enchantment) {
     case EnchantmentType.BonusStrength:
       return {

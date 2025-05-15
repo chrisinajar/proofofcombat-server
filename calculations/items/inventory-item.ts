@@ -26,7 +26,7 @@ export class InventoryItem extends Item {
   type: InventoryItemType;
   baseItem: string;
   enchantment?: EnchantmentType | null;
-  victimModifiers: ModifierDefinition<Modifier<any>, any>[] = [];
+  victimModifiers: ModifierDefinition<Modifier<any>>[] = [];
 
   constructor(options: InventoryItemOptions) {
     super(options);

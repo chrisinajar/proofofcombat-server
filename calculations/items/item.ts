@@ -20,7 +20,7 @@ export class Item {
   }
 
   registerModifier<T extends Modifier<O>, O>(
-    modifierDefinition: ModifierDefinition<T, O>,
+    modifierDefinition: ModifierDefinition<T>,
     _unused?: void,
   ): T;
   registerModifier<T extends Modifier<O>, O>(
@@ -39,7 +39,7 @@ export class Item {
       const options = sourceOrOptions as O;
       return this.unit.applyModifier(ModifierType, options, this);
     }
-    const modifierDefinition = definitionOrClass as ModifierDefinition<T, O>;
+    const modifierDefinition = definitionOrClass as ModifierDefinition<T>;
     return this.unit.applyModifier(modifierDefinition, this);
   }
 
