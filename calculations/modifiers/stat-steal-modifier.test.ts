@@ -4,7 +4,6 @@ import {
   StatStealModifierOptions,
 } from "./stat-steal-modifier";
 import { Unit } from "../units/unit";
-import { ModifierDefinition } from "./enchantments";
 
 describe("createStatStealModifiers", () => {
   it("works", () => {
