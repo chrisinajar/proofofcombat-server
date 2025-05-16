@@ -49,6 +49,7 @@ export default gql`
     level: Int!
     enchantment: EnchantmentType
     imbue: InventoryItemImbue
+    builtIns: [ArtifactAttribute!]
   }
 
   type InventoryItemImbue {
