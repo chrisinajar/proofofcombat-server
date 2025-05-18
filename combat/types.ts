@@ -70,6 +70,8 @@ export type CombatResult = {
   victimHeal: number;
   attackerHeal: number;
 
+  isAttackerSecondHit: boolean;
+  isVictimSecondHit: boolean;
   victimDied: boolean;
   attackerDied: boolean;
   victimIsMesmerized: boolean;

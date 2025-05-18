@@ -43,10 +43,10 @@ export class InventoryItem extends Item {
       this.type === InventoryItemType.HeadArmor ||
       this.type === InventoryItemType.Shield
     ) {
-      // this.registerModifier(GenericArmorModifier, {
-      //   tier: this.level,
-      //   shield: this.type === InventoryItemType.Shield,
-      // });
+      this.registerModifier(GenericArmorModifier, {
+        tier: this.level,
+        type: this.type,
+      });
     }
 
     if (this.enchantment) {

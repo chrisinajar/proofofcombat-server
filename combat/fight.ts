@@ -69,6 +69,8 @@ export function executeFight(
       // how much damage was dealt to the victim
       victimDamage: 0,
 
+      isAttackerSecondHit: false,
+      isVictimSecondHit: false,
       victimDied: false,
       attackerDied: false,
       victimIsMesmerized: false,
@@ -245,7 +247,9 @@ export function executeFight(
       const attackerAttack = attackCombatant(
         attackerCombatant,
         victimCombatant,
+        result.isAttackerSecondHit,
       );
+      result.isAttackerSecondHit = !result.isAttackerSecondHit;
 
       result.victimDamage += attackerAttack.damage;
       if (attackerAttack.overDamage > 0 && result.victimHeal > 0) {
@@ -279,7 +283,12 @@ export function executeFight(
   } else if (victimNextAttack >= 0) {
     // do victim attack
     if (!result.victimIsMesmerized && !result.victimIsDead) {
-      const victimAttack = attackCombatant(victimCombatant, attackerCombatant);
+      const victimAttack = attackCombatant(
+        victimCombatant,
+        attackerCombatant,
+        result.isVictimSecondHit,
+      );
+      result.isVictimSecondHit = !result.isVictimSecondHit;
 
       result.attackerDamage += victimAttack.damage;
       if (victimAttack.overDamage > 0 && result.attackerHeal > 0) {

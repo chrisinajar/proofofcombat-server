@@ -1,5 +1,10 @@
 import type { Unit } from "../units/unit";
-import type { Modifier, ModifierOptions } from "../modifiers/modifier";
+import type {
+  Modifier,
+  ModifierOptions,
+  OptionsForModifier,
+  ModifierConstructorFromType,
+} from "../modifiers/modifier";
 import type { ModifierDefinition } from "../modifiers/enchantments";
 
 export type ItemOptions = {
@@ -23,9 +28,9 @@ export class Item {
     modifierDefinition: ModifierDefinition<T>,
     _unused?: void,
   ): T;
-  registerModifier<T extends Modifier<O>, O>(
-    ModifierType: new (o: ModifierOptions<O>) => T,
-    options: O,
+  registerModifier<T extends Modifier<unknown>>(
+    ModifierType: ModifierConstructorFromType<T>,
+    options: OptionsForModifier<T>,
   ): T;
 
   registerModifier<T extends Modifier<O>, O>(

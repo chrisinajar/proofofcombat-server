@@ -3,11 +3,15 @@ import { EnchantmentType } from "types/graphql";
 import type { Unit } from "../units/unit";
 import type { Item } from "../items/item";
 import type { ModifierDefinition } from "./enchantments";
+import type { ModifierClass } from "./index";
 
 export type ModifierPersistancyData<O> = {
   expireTime: number;
   options: O;
 };
+
+export type ModifierConstructorFromType<T> =
+  T extends Modifier<infer O> ? ModifierClass<T, O> : never;
 
 export type OptionsForModifier<T> = T extends Modifier<infer O> ? O : never;
 
