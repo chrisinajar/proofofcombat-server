@@ -147,6 +147,12 @@ export default gql`
     EnemyLightningResistance
     EnemyHolyResistance
     EnemyBlightResistance
+
+    # item specific modifiers, these only affect the item they're attached to
+    ItemBonusArmor
+    ItemFlatArmor
+    ItemBonusDamage
+    ItemFlatDamage
   }
 
   enum EnchantmentType {

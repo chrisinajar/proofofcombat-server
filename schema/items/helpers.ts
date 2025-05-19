@@ -181,6 +181,7 @@ export function randomUpgradedBaseItem(level: number): BaseItem {
 
   return options[Math.floor(Math.random() * options.length)];
 }
+
 export function randomBaseItem(level: number): BaseItem {
   let maxLevel = 0;
 
@@ -205,6 +206,13 @@ export function randomBaseItem(level: number): BaseItem {
   }
 
   return options[Math.floor(Math.random() * options.length)];
+}
+
+export function addItemBuiltIns(item: InventoryItem): InventoryItem {
+  if (item.builtIns?.length) {
+    return item;
+  }
+  return item;
 }
 
 export function createItemInstance(item: BaseItem, owner: Hero): InventoryItem {
@@ -283,7 +291,7 @@ export function giveHeroArtifact(
   context: BaseContext,
   hero: Hero,
   artifact: ArtifactItem,
-  message?: string
+  message?: string,
 ) {
   // Store in pending slot
   hero.pendingArtifact = artifact;
@@ -292,7 +300,9 @@ export function giveHeroArtifact(
   context.io.sendNotification(hero.id, {
     type: "artifact",
     artifactItem: artifact,
-    message: message ?? `You found ${artifact.name}. Compare it with your current artifact and choose which to keep.`,
+    message:
+      message ??
+      `You found ${artifact.name}. Compare it with your current artifact and choose which to keep.`,
   });
 
   return hero;
