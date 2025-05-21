@@ -517,6 +517,7 @@ const resolvers: Resolvers = {
           attackType = AttackType.Smite;
           break;
       }
+
       const attacker = createHeroCombatant(parent, attackType);
       const victim = {
         class: HeroClasses.Adventurer,
@@ -562,7 +563,7 @@ const resolvers: Resolvers = {
 
       cleanStats(enchantedStats.attacker.attributes);
       cleanStats(enchantedStats.victim.attributes);
-      ("");
+
       return {
         damageAmplification: enchantedStats.attacker.percentageDamageIncrease,
         damageReduction: enchantedStats.attacker.percentageDamageReduction,
