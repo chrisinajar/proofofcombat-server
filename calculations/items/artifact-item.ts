@@ -5,7 +5,10 @@ import {
 } from "types/graphql";
 
 import { Item, ItemOptions } from "./item";
-import { GenericStatsModifier } from "../modifiers/generic-stats-modifier";
+import {
+  GenericStatsModifier,
+  GenericStatsModifierOptions,
+} from "../modifiers/generic-stats-modifier";
 
 export type ArtifactItemOptions = ItemOptions & {
   attributes: ArtifactAttributes;
@@ -51,7 +54,10 @@ export class ArtifactItem extends Item {
         break;
 
       case ArtifactAttributeType.BonusDexterity:
-        return this.registerModifier({
+        return this.registerModifier<
+          GenericStatsModifier,
+          GenericStatsModifierOptions
+        >({
           type: GenericStatsModifier,
           options: { multiplier: { dexterity: attribute.magnitude } },
         });

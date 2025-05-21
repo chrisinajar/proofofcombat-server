@@ -24,6 +24,7 @@ import type {
   Modifier,
   ModifierOptions,
   ModifierPersistancyData,
+  OptionsForModifier,
 } from "../modifiers/modifier";
 
 declare global {
@@ -94,6 +95,14 @@ export class Unit {
       willpowerSteal: 1,
       luckSteal: 1,
 
+      strengthMultiplier: 0,
+      dexterityMultiplier: 0,
+      constitutionMultiplier: 0,
+      intelligenceMultiplier: 0,
+      wisdomMultiplier: 0,
+      willpowerMultiplier: 0,
+      luckMultiplier: 0,
+
       percentageDamageIncrease: 1,
       percentageDamageReduction: 1,
       percentageEnchantmentDamageReduction: 1,
@@ -119,7 +128,7 @@ export class Unit {
       // Lightning = 'Lightning',
       // Magical = 'Magical',
       // Physical = 'Physical'
-      
+
       // damage conversion
       damageAsBlight: 0,
       damageAsFire: 0,
@@ -137,6 +146,12 @@ export class Unit {
       lightningResistance: 0,
       magicalResistance: 0,
       physicalResistance: 0,
+
+      // armor manipulation
+      percentageArmorReduction: 1,
+
+      // base damage shenanigans
+      increasedBaseDamage: 20,
     };
 
     this.precisions = {
@@ -249,7 +264,7 @@ export class Unit {
   }
 
   applyModifier<T extends Modifier<O>, O>(
-    modifierDefinition: ModifierDefinition<T, O>,
+    modifierDefinition: ModifierDefinition<T>,
     source?: Unit | Item,
     _unused?: void,
     _unused2?: void,
@@ -266,7 +281,7 @@ export class Unit {
     sourceOrOptions: unknown,
     voidOrSource: unknown,
     voidOrEnchantment: unknown,
-  ): T {
+  ): Modifier<O> {
     if (typeof definitionOrClass === "function") {
       const ModifierType = definitionOrClass as new (
         o: ModifierOptions<O>,
@@ -292,7 +307,7 @@ export class Unit {
       return modifier;
     }
 
-    const modifierDefinition = definitionOrClass as ModifierDefinition<T, O>;
+    const modifierDefinition = definitionOrClass as ModifierDefinition<T>;
     const source = sourceOrOptions as Unit | Item | undefined;
 
     return this.applyModifier(

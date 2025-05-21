@@ -7,6 +7,7 @@ import {
   EquipmentSlots,
   InventoryItemType,
   DamageType,
+  HeroSkills,
 } from "types/graphql";
 import {
   calculateOdds,
@@ -20,7 +21,10 @@ import {
 import Databases from "../db";
 import { getEnchantedAttributes } from "./enchantments";
 import { calculateEnchantmentDamage } from "./calculate-enchantment-damage";
-import { GenericStatsModifier, GenericStatsModifierOptions } from "../calculations/modifiers/generic-stats-modifier";
+import {
+  GenericStatsModifier,
+  GenericStatsModifierOptions,
+} from "../calculations/modifiers/generic-stats-modifier";
 import type { ModifierOptions } from "../calculations/modifiers/modifier";
 
 type Attribute = keyof HeroStats;
@@ -56,7 +60,7 @@ function getAverageDamage(
   } = calculateDamageValues(heroA, heroB, false, debug);
 
   return (
-    (baseDamage + variation / 2) *
+    (baseDamage - variation / 2) *
     ((1 + criticalChance * 3) *
       (1 + criticalChance * doubleCriticalChance * 3) *
       (1 + criticalChance * doubleCriticalChance * trippleCriticalChance * 3)) *
@@ -90,6 +94,14 @@ function levelUpHero(
   hero.stats.wisdom += levels;
   hero.stats.willpower += levels;
   hero.stats.luck += levels;
+
+  hero.skills.attackingAccuracy = Math.ceil(Math.log(hero.level));
+  hero.skills.castingAccuracy = Math.ceil(Math.log(hero.level));
+  hero.skills.attackingDamage = Math.ceil(Math.log(hero.level));
+  hero.skills.castingDamage = Math.ceil(Math.log(hero.level));
+  hero.skills.vitality = Math.ceil(Math.log(hero.level));
+  hero.skills.resilience = Math.ceil(Math.log(hero.level));
+  hero.skills.regeneration = Math.ceil(Math.log(hero.level));
 
   const totalRatio = Object.values(stats).reduce((memo, val) => memo + val);
 
@@ -133,12 +145,14 @@ function simulateMonsterCombat(
   debug: boolean = false,
 ) {
   const monster = createMonsterCombatant({
-    level,
-    name: `Level ${level} Mob`,
-    attackType: AttackType.Melee,
-    combat: {
-      health: Math.round(Math.pow(1.4, level) * 8),
-      maxHealth: Math.round(Math.pow(1.4, level) * 8),
+    monster: {
+      level,
+      name: `Level ${level} Mob`,
+      attackType: AttackType.Melee,
+      combat: {
+        health: Math.round(Math.pow(1.4, level) * 8),
+        maxHealth: Math.round(Math.pow(1.4, level) * 8),
+      },
     },
   });
 
@@ -169,7 +183,10 @@ function snapshotUnitAttributes(attributes: { [x in string]: number }) {
 }
 
 describe("combat", () => {
-  const combatTypes: { attackType: AttackType, weapons: InventoryItemType[] }[] = [
+  const combatTypes: {
+    attackType: AttackType;
+    weapons: InventoryItemType[];
+  }[] = [
     {
       attackType: AttackType.Melee,
       weapons: [InventoryItemType.MeleeWeapon],
@@ -279,7 +296,7 @@ describe("combat", () => {
           hero2Combatant,
         );
 
-        hero.stats[stats.damage] *= 100;
+        hero.stats[stats.damage] *= 1000;
 
         const damageAfter = getAverageDamage(
           createHeroCombatant(hero, entry.attackType),
@@ -319,19 +336,21 @@ describe("combat", () => {
 
       let heroCombatant = createHeroCombatant(hero, AttackType.Melee);
       const monster = createMonsterCombatant({
-        level: 60,
-        name: `Level ${60} Mob`,
-        attackType: AttackType.Melee,
-        combat: {
-          health: Math.round(Math.pow(1.4, 60) * 8),
-          maxHealth: Math.round(Math.pow(1.4, 60) * 8),
+        monster: {
+          level: 60,
+          name: `Level ${60} Mob`,
+          attackType: AttackType.Melee,
+          combat: {
+            health: Math.round(Math.pow(1.4, 60) * 8),
+            maxHealth: Math.round(Math.pow(1.4, 60) * 8),
+          },
         },
       });
 
       heroCombatant.health = heroCombatant.maxHealth;
 
       let result = calculateEnchantmentDamage(heroCombatant, monster);
-      expect(result.attackerHeal).toBeLessThan(30000000);
+      expect(result.attackerHeal).toBeLessThan(50000000);
     });
     it("should reduce enemy enchantment resistance", () => {
       const hero = generateHero();
@@ -390,12 +409,14 @@ describe("builds", () => {
         const { attacker, victim } = getEnchantedAttributes(
           heroCombatant,
           createMonsterCombatant({
-            level: 32,
-            name: `Level ${32} Mob`,
-            attackType: AttackType.Melee,
-            combat: {
-              health: Math.round(Math.pow(1.4, 32) * 8),
-              maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+            monster: {
+              level: 32,
+              name: `Level ${32} Mob`,
+              attackType: AttackType.Melee,
+              combat: {
+                health: Math.round(Math.pow(1.4, 32) * 8),
+                maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+              },
             },
           }),
         );
@@ -452,6 +473,7 @@ describe("builds", () => {
       });
       it("can't' kill level 5 mobs without gear", () => {
         const hero = generateHero();
+        // level 4 attempts mob #5...
         levelUpHero(hero, 3, stats);
         hero.equipment = trashGear();
         hero.class = heroClass;
@@ -473,7 +495,8 @@ describe("builds", () => {
     describe("normal items", () => {
       it("can kill level 5 mobs", () => {
         const hero = generateHero();
-        levelUpHero(hero, 3, stats);
+        // level 6 attempts mob #5...
+        levelUpHero(hero, 5, stats);
         hero.equipment = normalGear();
         hero.class = heroClass;
 
@@ -488,17 +511,19 @@ describe("builds", () => {
         } = simulateMonsterCombat(heroCombatant, 5, attackType);
 
         expect(heroHitOdds).toBeGreaterThan(0.5);
-        expect(heroAverageDamage).toBeGreaterThan(100);
+        expect(heroAverageDamage).toBeGreaterThan(50);
 
         const { attacker, victim } = getEnchantedAttributes(
           heroCombatant,
           createMonsterCombatant({
-            level: 32,
-            name: `Level ${32} Mob`,
-            attackType: AttackType.Melee,
-            combat: {
-              health: Math.round(Math.pow(1.4, 32) * 8),
-              maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+            monster: {
+              level: 32,
+              name: `Level ${32} Mob`,
+              attackType: AttackType.Melee,
+              combat: {
+                health: Math.round(Math.pow(1.4, 32) * 8),
+                maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+              },
             },
           }),
         );
@@ -557,12 +582,14 @@ describe("builds", () => {
         const { attacker, victim } = getEnchantedAttributes(
           heroCombatant,
           createMonsterCombatant({
-            level: 32,
-            name: `Level ${32} Mob`,
-            attackType: AttackType.Melee,
-            combat: {
-              health: Math.round(Math.pow(1.4, 32) * 8),
-              maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+            monster: {
+              level: 32,
+              name: `Level ${32} Mob`,
+              attackType: AttackType.Melee,
+              combat: {
+                health: Math.round(Math.pow(1.4, 32) * 8),
+                maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+              },
             },
           }),
         );
@@ -621,12 +648,14 @@ describe("builds", () => {
         const { attacker, victim } = getEnchantedAttributes(
           heroCombatant,
           createMonsterCombatant({
-            level: 32,
-            name: `Level ${32} Mob`,
-            attackType: AttackType.Melee,
-            combat: {
-              health: Math.round(Math.pow(1.4, 32) * 8),
-              maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+            monster: {
+              level: 32,
+              name: `Level ${32} Mob`,
+              attackType: AttackType.Melee,
+              combat: {
+                health: Math.round(Math.pow(1.4, 32) * 8),
+                maxHealth: Math.round(Math.pow(1.4, 32) * 8),
+              },
             },
           }),
         );
@@ -776,7 +805,7 @@ describe("builds", () => {
 
   describe("melee", () => {
     const trashGear = () => ({
-      leftHand: { level: 1, type: InventoryItemType.MeleeWeapon },
+      leftHand: { level: 2, type: InventoryItemType.MeleeWeapon },
       bodyArmor: { level: 1, type: InventoryItemType.BodyArmor },
       handArmor: { level: 1, type: InventoryItemType.HandArmor },
       legArmor: { level: 1, type: InventoryItemType.LegArmor },
@@ -786,8 +815,11 @@ describe("builds", () => {
     });
     const normalGear = () => ({
       leftHand: {
+        level: 7,
+        type: InventoryItemType.MeleeWeapon,
+      },
+      rightHand: {
         level: 5,
-        enchantment: EnchantmentType.BonusStrength,
         type: InventoryItemType.MeleeWeapon,
       },
       bodyArmor: {
@@ -802,7 +834,6 @@ describe("builds", () => {
       },
       legArmor: {
         level: 5,
-        enchantment: EnchantmentType.BonusDexterity,
         type: InventoryItemType.LegArmor,
       },
       headArmor: {
@@ -1044,7 +1075,7 @@ describe("damage conversion", () => {
   it("should convert damage to lightning and fire", () => {
     const hero = generateHero();
     const hero2 = generateHero();
-    
+
     // Give the hero some basic stats and equipment
     hero.equipment.leftHand = {
       id: "test-weapon",
@@ -1059,13 +1090,16 @@ describe("damage conversion", () => {
     // Add damage conversion stats to the hero's unit
     const heroCombatant = createHeroCombatant(hero, AttackType.Melee);
 
-    heroCombatant.unit.applyModifier<GenericStatsModifier, GenericStatsModifierOptions>({
+    heroCombatant.unit.applyModifier<
+      GenericStatsModifier,
+      GenericStatsModifierOptions
+    >({
       type: GenericStatsModifier,
       enchantment: EnchantmentType.DiamondBlessing,
       options: {
         bonus: {
           damageAsLightning: 0.5,
-          damageAsFire: 0.5
+          damageAsFire: 0.5,
         },
       },
     });
@@ -1075,14 +1109,20 @@ describe("damage conversion", () => {
     const result = calculateDamage(heroCombatant, hero2Combatant);
 
     console.log("Damage instances:", result.damages);
-    console.log("Damage types:", result.damages.map(d => d.damageType));
+    console.log(
+      "Damage types:",
+      result.damages.map((d) => d.damageType),
+    );
 
     // Should have 2 damage instances: Lightning and Fire (fully converted)
     expect(result.damages.length).toBe(2);
 
     // Find each damage type
-    const fireDamage = result.damages.find(d => d.damageType === DamageType.Fire)?.damage ?? 0;
-    const lightningDamage = result.damages.find(d => d.damageType === DamageType.Lightning)?.damage ?? 0;
+    const fireDamage =
+      result.damages.find((d) => d.damageType === DamageType.Fire)?.damage ?? 0;
+    const lightningDamage =
+      result.damages.find((d) => d.damageType === DamageType.Lightning)
+        ?.damage ?? 0;
 
     // Both converted damages should be roughly equal since we're converting 50% to each
     expect(fireDamage).toBeGreaterThan(0);
@@ -1093,7 +1133,7 @@ describe("damage conversion", () => {
   it("should do minimum 1 damage without conversion against high resistance", () => {
     const hero = generateHero();
     const hero2 = generateHero();
-    
+
     // Give the hero minimal stats and no equipment
     hero.stats.strength = 1; // Minimal strength
 
@@ -1101,14 +1141,20 @@ describe("damage conversion", () => {
     const hero2Combatant = createHeroCombatant(hero2, AttackType.Melee);
     hero2Combatant.unit.applyModifier(GenericStatsModifier, {
       bonus: {
-        physicalResistance: 0.99 // 99% physical resistance
-      }
+        physicalResistance: 0.99, // 99% physical resistance
+      },
     });
 
-    const result = calculateDamage(createHeroCombatant(hero, AttackType.Melee), hero2Combatant);
+    const result = calculateDamage(
+      createHeroCombatant(hero, AttackType.Melee),
+      hero2Combatant,
+    );
 
     console.log("Damage instances:", result.damages);
-    console.log("Damage types:", result.damages.map(d => d.damageType));
+    console.log(
+      "Damage types:",
+      result.damages.map((d) => d.damageType),
+    );
 
     // Should have 1 damage instance of type Physical
     expect(result.damages.length).toBe(1);

@@ -7,6 +7,7 @@ import {
   HeroClasses,
   EquipmentSlots,
   InventoryItemType,
+  MonsterEquipment,
 } from "types/graphql";
 
 import Databases from "../db";
@@ -31,9 +32,9 @@ function generateHero(): Hero {
   return hero;
 }
 
-function generateMonster(level: number, equipment) {
-  return createMonsterCombatant(
-    {
+function generateMonster(level: number, equipment?: MonsterEquipment | null) {
+  return createMonsterCombatant({
+    monster: {
       level,
       name: `Level ${level} Mob`,
       attackType: AttackType.Melee,
@@ -43,7 +44,7 @@ function generateMonster(level: number, equipment) {
       },
     },
     equipment,
-  );
+  });
 }
 
 describe("getEnchantedAttributes", () => {
@@ -59,7 +60,9 @@ describe("getEnchantedAttributes", () => {
 
   it("applies debuffs symmetrically", () => {
     const hero = generateHero();
+    // @ts-ignore
     hero.equipment.leftHand = {
+      id: "asdf",
       level: 1,
       type: InventoryItemType.MeleeWeapon,
       enchantment: EnchantmentType.MinusEnemyDexterity,
@@ -83,6 +86,7 @@ describe("getEnchantedAttributes", () => {
 
     const onceReducedValue = victim.attributes.dexterity;
 
+    // @ts-ignore
     hero.equipment.rightHand = {
       level: 1,
       type: InventoryItemType.MeleeWeapon,

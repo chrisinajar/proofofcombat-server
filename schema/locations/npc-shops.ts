@@ -1379,7 +1379,7 @@ const domariAberrationCosts: SummoningCost[] = [
 
 const domariAberrations: Omit<
   MonsterInstance,
-  "id" | "location" | "lastActive"
+  "id" | "location" | "lastActive" | "attackSpeedRemainder"
 >[] = [AberrationStats["domari-aberration-1"]];
 
 // domari the aberration hunter

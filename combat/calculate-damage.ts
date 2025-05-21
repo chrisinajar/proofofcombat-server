@@ -31,8 +31,6 @@ export function calculateDamageValues(
 ) {
   const { attackType } = attackerInput;
   let damage = 0;
-  let critical = false;
-  let doubleCritical = false;
 
   const { attacker, victim } = getEnchantedAttributes(
     attackerInput,
@@ -65,27 +63,18 @@ export function calculateDamageValues(
       break;
   }
 
-  let percentageDamageReduction = victim.percentageDamageReduction;
+  let { percentageArmorReduction, increasedBaseDamage } = victim.unit.stats;
   let percentageDamageIncrease = attacker.percentageDamageIncrease;
   let totalArmor = 0;
-  let totalArmorDamageReduction = 1;
   let baseDamageDecrease = 1;
   const attackerDamageStat = attacker.attributes[attributeTypes.damage];
   let victimReductionStat = victim.attributes[attributeTypes.damageReduction];
 
   victim.equipment.armor.forEach((armor) => {
     if (armor.type === InventoryItemType.Shield) {
-      totalArmorDamageReduction *= Math.pow(
-        0.98,
-        armor.level + victim.bonusShieldTiers + victim.bonusArmorTiers,
-      );
-    } else {
-      totalArmorDamageReduction *= Math.pow(
-        0.99,
-        armor.level + victim.bonusArmorTiers,
-      );
+      totalArmor += victim.bonusShieldTiers;
     }
-    totalArmor += Math.pow(1.3, armor.level + victim.bonusArmorTiers);
+    totalArmor += armor.level + victim.bonusArmorTiers;
 
     if (getItemPassiveUpgradeTier(armor) > 0) {
       baseDamageDecrease *= 0.8;
@@ -97,14 +86,8 @@ export function calculateDamageValues(
   // for paladins (or any other future reason that shields end up in weapon lists)
   victim.equipment.weapons.forEach((armor) => {
     if (armor.type === InventoryItemType.Shield) {
-      totalArmorDamageReduction *= Math.pow(
-        0.98,
-        armor.level + victim.bonusShieldTiers + victim.bonusArmorTiers,
-      );
-      totalArmor += Math.pow(
-        1.3,
-        armor.level + victim.bonusShieldTiers + victim.bonusArmorTiers,
-      );
+      totalArmor +=
+        armor.level + victim.bonusArmorTiers + victim.bonusShieldTiers;
 
       if (getItemPassiveUpgradeTier(armor) > 0) {
         baseDamageDecrease *= 0.75;
@@ -112,11 +95,10 @@ export function calculateDamageValues(
       }
     }
   });
-  totalArmor *= percentageDamageReduction;
 
   // vampires reduce enemy base damage by 1/2
   if (victim.class === HeroClasses.Vampire) {
-    baseDamageDecrease *= 0.5;
+    baseDamageDecrease *= 0.8;
   }
 
   const weapon =
@@ -135,28 +117,14 @@ export function calculateDamageValues(
     }
   }
 
+  totalArmor *= percentageArmorReduction;
+
   const baseDamage = Math.max(
     1,
-    (Math.pow(1.4, weaponLevel) + weaponLevel * 15 - totalArmor) *
-      baseDamageDecrease,
+    (Math.pow(1.01, weaponLevel) * weaponLevel * 8 - totalArmor) *
+      baseDamageDecrease +
+      increasedBaseDamage,
   );
-  // const baseDamage = Math.pow(1.4, weaponLevel) + weaponLevel * 15;
-
-  if (debug) {
-    console.log({
-      weaponDamage: Math.pow(1.4, weaponLevel) + weaponLevel * 15,
-      name: attacker.name,
-      baseDamage,
-      totalArmor,
-      weaponLevel,
-      totalArmorDamageReduction,
-      percentageDamageIncrease,
-    });
-  }
-
-  const variation = baseDamage * 0.4 * attacker.luck.smallModifier;
-  // damage spread based on small luck factor
-  damage = baseDamage - variation * Math.random();
 
   let criticalChance = 0;
   let doubleCriticalChance = 0;
@@ -182,23 +150,27 @@ export function calculateDamageValues(
       victimStat: victimReductionStat,
       dr: attackerDamageStat / (victimReductionStat / 2),
       percentageDamageIncrease,
-      totalArmorDamageReduction,
     });
   }
 
   const canOnlyTakeOneDamage = victim.unit.stats.canOnlyTakeOneDamage > 0;
 
-  let multiplier = 1;
+  let multiplier = 0.2;
 
   // apply contested stats rolls
-  multiplier *= attackerDamageStat / (victimReductionStat / 2);
+  multiplier += Math.max(1, attackerDamageStat - victimReductionStat / 8) / 100;
+  multiplier += attackerDamageStat / victimReductionStat / 10;
 
   // amp damage from weapon
   multiplier *= percentageDamageIncrease;
   // reduce / increase armor from enchantments
   // const drFromArmor = Math.pow(0.95, totalArmor);
   // multiplier *= drFromArmor;
-  multiplier *= totalArmorDamageReduction;
+
+  // up to 40% of damage as variation, larger luck = less variation
+  const variation = baseDamage * 0.4 * (1 - attacker.luck.smallModifier);
+  // it's used like this in damage calculations:
+  // let damage = baseDamage - variation * Math.random();
 
   return {
     baseDamage,

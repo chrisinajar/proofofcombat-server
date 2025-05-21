@@ -3,24 +3,24 @@
 exports[`builds archer great items can destroy 28's 1`] = `
 {
   "constitution": 5005,
-  "dexterity": 238963,
+  "dexterity": 262121,
   "intelligence": 5005,
   "luck": 12005,
   "strength": 5005,
-  "willpower": 5005,
+  "willpower": 7764,
   "wisdom": 5005,
 }
 `;
 
 exports[`builds archer normal items can kill level 5 mobs 1`] = `
 {
-  "constitution": 8,
-  "dexterity": 174,
-  "intelligence": 8,
-  "luck": 13,
-  "strength": 8,
-  "willpower": 8,
-  "wisdom": 8,
+  "constitution": 10,
+  "dexterity": 152,
+  "intelligence": 10,
+  "luck": 17,
+  "strength": 10,
+  "willpower": 11,
+  "wisdom": 10,
 }
 `;
 
@@ -38,37 +38,37 @@ exports[`builds archer trash items can kill level 1 mobs 1`] = `
 
 exports[`builds archer uber items can deal destroy 32s at max level 1`] = `
 {
-  "constitution": 8458,
-  "dexterity": 321418,
-  "intelligence": 8458,
-  "luck": 20288,
-  "strength": 8458,
-  "willpower": 32494,
-  "wisdom": 32494,
+  "constitution": 8008,
+  "dexterity": 293893,
+  "intelligence": 8008,
+  "luck": 19208,
+  "strength": 8008,
+  "willpower": 24846,
+  "wisdom": 16016,
 }
 `;
 
 exports[`builds melee great items can destroy 28's 1`] = `
 {
-  "constitution": 7207,
-  "dexterity": 95653,
-  "intelligence": 7207,
+  "constitution": 7007,
+  "dexterity": 87554,
+  "intelligence": 7007,
   "luck": 8505,
-  "strength": 185111,
-  "willpower": 8649,
-  "wisdom": 7207,
+  "strength": 169438,
+  "willpower": 13044,
+  "wisdom": 7007,
 }
 `;
 
 exports[`builds melee normal items can kill level 5 mobs 1`] = `
 {
-  "constitution": 8,
+  "constitution": 10,
   "dexterity": 60,
-  "intelligence": 8,
-  "luck": 11,
-  "strength": 99,
-  "willpower": 10,
-  "wisdom": 8,
+  "intelligence": 10,
+  "luck": 14,
+  "strength": 108,
+  "willpower": 13,
+  "wisdom": 10,
 }
 `;
 
@@ -86,48 +86,48 @@ exports[`builds melee trash items can kill level 1 mobs 1`] = `
 
 exports[`builds melee uber items can deal destroy 32s at max level 1`] = `
 {
-  "constitution": 15834,
-  "dexterity": 262472,
-  "intelligence": 15834,
-  "luck": 18685,
-  "strength": 1480887,
-  "willpower": 19001,
-  "wisdom": 15834,
+  "constitution": 11512,
+  "dexterity": 125077,
+  "intelligence": 11512,
+  "luck": 16160,
+  "strength": 350978,
+  "willpower": 21430,
+  "wisdom": 11512,
 }
 `;
 
 exports[`calculateEnchantmentDamage should calculate damage correctly 1`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 0,
+  "attackerHeal": 473749,
   "victimDamage": 0,
-  "victimHeal": 0,
+  "victimHeal": 473749,
 }
 `;
 
 exports[`calculateEnchantmentDamage should calculate damage correctly 2`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 192,
+  "attackerHeal": 474130,
   "victimDamage": 192,
-  "victimHeal": 0,
+  "victimHeal": 473749,
 }
 `;
 
 exports[`calculateEnchantmentDamage should calculate damage correctly 3`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 727,
-  "victimDamage": 727,
-  "victimHeal": 0,
+  "attackerHeal": 474712,
+  "victimDamage": 585,
+  "victimHeal": 473749,
 }
 `;
 
 exports[`calculateEnchantmentDamage should calculate damage correctly 4`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 969,
-  "victimDamage": 969,
-  "victimHeal": 0,
+  "attackerHeal": 476119,
+  "victimDamage": 1389,
+  "victimHeal": 473749,
 }
 `;

@@ -34,6 +34,12 @@ export class BasicUnitModifier extends Modifier<undefined> {
         return 0.75;
       }
     }
+    if (!prop.endsWith("Multiplier") && !prop.endsWith("Steal")) {
+      const multiplerName = `${prop}Multiplier`;
+      if (this.parent.stats[multiplerName]) {
+        return 1 + this.parent.stats[multiplerName];
+      }
+    }
     return;
   }
   getExtraBonus(prop: string): number | void {

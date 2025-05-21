@@ -1,6 +1,7 @@
 import {
   ArtifactAttribute,
   ArtifactAttributeType,
+  AttackType,
   Hero,
   BaseAccount,
   InventoryItemType,
@@ -13,7 +14,11 @@ import {
   HeroClasses,
 } from "types/graphql";
 import { startingLevelCap } from "../../schema/quests/rebirth";
-import { hasQuestItem, takeQuestItem } from "../../schema/quests/helpers";
+import {
+  hasQuestItem,
+  heroLocationName,
+  takeQuestItem,
+} from "../../schema/quests/helpers";
 import { BaseItems } from "../../schema/items/base-items";
 import { BaseContext } from "../../schema/context";
 import { LocationData } from "../../constants";
@@ -62,7 +67,11 @@ type PartialHero = Optional<
   | "activeStance"
   | "availableStances"
   | "buffs"
+  | "attackSpeedRemainder"
 >;
+
+// actions as strings or enums to represent any given action that might increase a skill
+export type SkillActions = AttackType | "heal";
 
 const inMemoryLeaderboardLength = 50;
 
@@ -299,6 +308,117 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     );
   }
 
+  rollSkillsForAction(
+    context: BaseContext,
+    hero: Hero,
+    action: SkillActions,
+  ): Hero {
+    const skills = this.getSkillsForAction(hero, action);
+    if (skills.length === 0) {
+      return hero;
+    }
+    const skillToRoll = skills[Math.floor(Math.random() * skills.length)];
+    return this.rollSkill(context, hero, skillToRoll, 0.01);
+  }
+
+  getSkillsForAction(hero: Hero, action: SkillActions): HeroSkill[] {
+    switch (action) {
+      case AttackType.Melee:
+        return [HeroSkill.AttackingAccuracy, HeroSkill.AttackingDamage];
+      case AttackType.Ranged:
+        return [HeroSkill.AttackingAccuracy, HeroSkill.AttackingDamage];
+      case AttackType.Cast:
+        return [HeroSkill.CastingAccuracy, HeroSkill.CastingDamage];
+      case AttackType.Blood:
+        return [
+          HeroSkill.CastingAccuracy,
+          HeroSkill.CastingDamage,
+          HeroSkill.Vitality,
+          HeroSkill.Regeneration,
+        ];
+      case AttackType.Smite:
+        return [HeroSkill.Resilience];
+      case "heal":
+        return [
+          HeroSkill.Regeneration,
+          HeroSkill.Resilience,
+          HeroSkill.Vitality,
+        ];
+    }
+  }
+
+  rollSkill(
+    context: BaseContext,
+    hero: Hero,
+    skillName: HeroSkill,
+    percent: number = 1,
+  ): Hero {
+    const heroUnit = this.getUnit(hero);
+
+    const currentSkillLevel = hero.skills[skillName];
+    let odds = Math.min(
+      1,
+      percent / Math.pow(1.8, (currentSkillLevel + 1) / 2),
+    );
+    const bonusSkillChance = heroUnit.stats.bonusSkillChance;
+
+    if (bonusSkillChance > 1) {
+      odds *= bonusSkillChance;
+    }
+    // this happens kind of a lot
+    // console.log("rolling skill", skillName, odds);
+    // odds are between 0-1, where 1 is 100%
+    if (Math.random() < odds) {
+      hero = this.levelUpSkill(context, hero, skillName);
+    }
+
+    return hero;
+  }
+  levelUpSkill(context: BaseContext, hero: Hero, skillName: HeroSkill): Hero {
+    const currentSkillLevel = hero.skills[skillName];
+    if (currentSkillLevel >= 99) {
+      return hero;
+    }
+
+    console.log(hero.name, "Skill leveled up!!", currentSkillLevel);
+
+    hero.skills[skillName] += 1;
+    if (hero.skillPercent === 69) {
+      if (hero.skills[skillName] === 69) {
+        context.io.sendNotification(hero.id, {
+          message: `Your skills in ${
+            SkillDisplayNames[skillName]
+          } has increased to level ${hero.skills[skillName]}. NOICE.`,
+          type: "quest",
+        });
+      } else {
+        context.io.sendNotification(hero.id, {
+          message: `Your skills in ${
+            SkillDisplayNames[skillName]
+          } has increased to level ${hero.skills[skillName]}. Nice.`,
+          type: "quest",
+        });
+      }
+    } else {
+      if (hero.skills[skillName] === 69) {
+        context.io.sendNotification(hero.id, {
+          message: `Your skills in ${
+            SkillDisplayNames[skillName]
+          } has increased to level ${hero.skills[skillName]}. Nice.`,
+          type: "quest",
+        });
+      } else {
+        context.io.sendNotification(hero.id, {
+          message: `Your skills in ${
+            SkillDisplayNames[skillName]
+          } has increased to level ${hero.skills[skillName]}`,
+          type: "quest",
+        });
+      }
+    }
+    return hero;
+  }
+
   addExperience(context: BaseContext, hero: Hero, experience: number): Hero {
     const heroUnit = this.getUnit(hero);
     const bonusExperience = heroUnit.stats.bonusExperience;
@@ -312,68 +432,12 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
     if (hero.skillPercent > 0) {
       // level up skills
-
-      const currentSkillLevel = hero.skills[hero.activeSkill];
-      if (currentSkillLevel < 50) {
-        let odds = Math.min(
-          1,
-          hero.skillPercent / Math.pow(1.8, currentSkillLevel),
-        );
-        const bonusSkillChance = heroUnit.stats.bonusSkillChance;
-
-        if (bonusSkillChance > 1) {
-          odds *= bonusSkillChance;
-        }
-        // odds are between 0-1, where 1 is 100%
-        if (Math.random() < odds) {
-          console.log(
-            hero.name,
-            "Skill leveled up!!",
-            currentSkillLevel,
-            odds * 100,
-          );
-          hero.skills[hero.activeSkill] += 1;
-          if (hero.skillPercent === 69) {
-            if (hero.skills[hero.activeSkill] === 69) {
-              context.io.sendNotification(hero.id, {
-                message: `Your skills in ${
-                  SkillDisplayNames[hero.activeSkill]
-                } has increased to level ${
-                  hero.skills[hero.activeSkill]
-                }. NOICE.`,
-                type: "quest",
-              });
-            } else {
-              context.io.sendNotification(hero.id, {
-                message: `Your skills in ${
-                  SkillDisplayNames[hero.activeSkill]
-                } has increased to level ${
-                  hero.skills[hero.activeSkill]
-                }. Nice.`,
-                type: "quest",
-              });
-            }
-          } else {
-            if (hero.skills[hero.activeSkill] === 69) {
-              context.io.sendNotification(hero.id, {
-                message: `Your skills in ${
-                  SkillDisplayNames[hero.activeSkill]
-                } has increased to level ${
-                  hero.skills[hero.activeSkill]
-                }. Nice.`,
-                type: "quest",
-              });
-            } else {
-              context.io.sendNotification(hero.id, {
-                message: `Your skills in ${
-                  SkillDisplayNames[hero.activeSkill]
-                } has increased to level ${hero.skills[hero.activeSkill]}`,
-                type: "quest",
-              });
-            }
-          }
-        }
-      }
+      hero = this.rollSkill(
+        context,
+        hero,
+        hero.activeSkill,
+        hero.skillPercent / 100,
+      );
     }
     experience = Math.floor(experience);
     if (experience <= 0) {
@@ -533,6 +597,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.gold = data.gold ?? 0;
     data.level = data.level ?? 1;
     data.experience = data.experience ?? 0;
+    data.attackSpeedRemainder = data.attackSpeedRemainder ?? 0;
 
     data.skillPercent = data.skillPercent ?? 0;
     data.skills = data.skills ?? {

@@ -26,7 +26,7 @@ export class InventoryItem extends Item {
   type: InventoryItemType;
   baseItem: string;
   enchantment?: EnchantmentType | null;
-  victimModifiers: ModifierDefinition<Modifier<any>, any>[] = [];
+  victimModifiers: ModifierDefinition<Modifier<any>>[] = [];
 
   constructor(options: InventoryItemOptions) {
     super(options);
@@ -43,10 +43,10 @@ export class InventoryItem extends Item {
       this.type === InventoryItemType.HeadArmor ||
       this.type === InventoryItemType.Shield
     ) {
-      // this.registerModifier(GenericArmorModifier, {
-      //   tier: this.level,
-      //   shield: this.type === InventoryItemType.Shield,
-      // });
+      this.registerModifier(GenericArmorModifier, {
+        tier: this.level,
+        type: this.type,
+      });
     }
 
     if (this.enchantment) {

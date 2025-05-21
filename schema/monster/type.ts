@@ -35,6 +35,7 @@ export default gql`
     monster: Monster!
     equipment: MonsterEquipment
     lastActive: Int!
+    attackSpeedRemainder: Int!
   }
 
   type Monster {

@@ -12,6 +12,7 @@ import { CombatantGear, Combatant } from "./types";
 import { createLuck, attributesForAttack } from "./helpers";
 
 import { Mob } from "../calculations/units/mob";
+import { BASE_MONSTER_SPEED } from "./constants";
 
 function createMonsterStatsByLevel(level: number): HeroStats {
   return {
@@ -50,31 +51,31 @@ export function createMonsterEquipment(
           level: equipmentOverride.bodyArmor.level,
           enchantment: equipmentOverride.bodyArmor.enchantment,
           type: InventoryItemType.BodyArmor,
-          imbue: equipmentOverride.bodyArmor.imbue
+          imbue: equipmentOverride.bodyArmor.imbue,
         }, // bodyArmor
         {
           level: equipmentOverride.handArmor.level,
           enchantment: equipmentOverride.handArmor.enchantment,
           type: InventoryItemType.HandArmor,
-          imbue: equipmentOverride.handArmor.imbue
+          imbue: equipmentOverride.handArmor.imbue,
         }, // handArmor
         {
           level: equipmentOverride.legArmor.level,
           enchantment: equipmentOverride.legArmor.enchantment,
           type: InventoryItemType.LegArmor,
-          imbue: equipmentOverride.legArmor.imbue
+          imbue: equipmentOverride.legArmor.imbue,
         }, // legArmor
         {
           level: equipmentOverride.headArmor.level,
           enchantment: equipmentOverride.headArmor.enchantment,
           type: InventoryItemType.HeadArmor,
-          imbue: equipmentOverride.headArmor.imbue
+          imbue: equipmentOverride.headArmor.imbue,
         }, // headArmor
         {
           level: equipmentOverride.footArmor.level,
           enchantment: equipmentOverride.footArmor.enchantment,
           type: InventoryItemType.FootArmor,
-          imbue: equipmentOverride.footArmor.imbue
+          imbue: equipmentOverride.footArmor.imbue,
         }, // footArmor
       ],
       weapons: [
@@ -106,33 +107,28 @@ export function createMonsterEquipment(
   };
 }
 
-export function createMonsterCombatant(
-  monster: Omit<
-    Partial<Monster>,
-    "level" | "combat" | "name" | "attackType"
-  > & {
-    level: number;
-    combat: { health: number; maxHealth: number };
-    name: string;
-    attackType: AttackType;
-  },
-  equipment?: MonsterEquipment | null,
-): Combatant {
-  const monsterAttributes = createMonsterStatsByLevel(monster.level);
+export function createMonsterCombatant(monster: MonsterInstance): Combatant {
+  const monsterAttributes = createMonsterStatsByLevel(monster.monster.level);
 
   const combatData = {
     class: HeroClasses.Monster,
-    attackType: monster.attackType,
-    level: monster.level,
-    name: monster.name,
-    equipment: equipment
-      ? createMonsterEquipment({ level: monster.level }, equipment)
-      : createMonsterEquipment({ level: monster.level }),
+    attackType: monster.monster.attackType,
+    level: monster.monster.level,
+    name: monster.monster.name,
+    equipment: monster.equipment
+      ? createMonsterEquipment(
+          { level: monster.monster.level },
+          monster.equipment,
+        )
+      : createMonsterEquipment({ level: monster.monster.level }),
     damageReduction: monsterAttributes.constitution / 2,
     attributes: monsterAttributes,
     luck: createLuck(monsterAttributes.luck),
-    health: monster.combat.health,
-    maxHealth: monster.combat.maxHealth,
+    health: monster.monster.combat.health,
+    maxHealth: monster.monster.combat.maxHealth,
+
+    attackSpeed: BASE_MONSTER_SPEED,
+    attackSpeedRemainder: monster.attackSpeedRemainder,
   };
 
   const unit = new Mob(combatData);
