@@ -289,11 +289,10 @@ describe("combat", () => {
       it(`having a ton of ${stats.damage} makes you do way more damage`, () => {
         const hero = generateHero();
         const hero2 = generateHero();
-        const hero2Combatant = createHeroCombatant(hero2, entry.attackType);
         const damageBefore = getAverageDamage(
           createHeroCombatant(hero, entry.attackType),
           entry.attackType,
-          hero2Combatant,
+          createHeroCombatant(hero2, entry.attackType),
         );
 
         hero.stats[stats.damage] *= 1000;
@@ -301,7 +300,7 @@ describe("combat", () => {
         const damageAfter = getAverageDamage(
           createHeroCombatant(hero, entry.attackType),
           entry.attackType,
-          hero2Combatant,
+          createHeroCombatant(hero2, entry.attackType),
         );
         expect(damageBefore * 50).toBeLessThan(damageAfter);
       });
@@ -1142,6 +1141,7 @@ describe("damage conversion", () => {
     hero2Combatant.unit.applyModifier(GenericStatsModifier, {
       bonus: {
         physicalResistance: 0.99, // 99% physical resistance
+        maxPhysicalResistance: 1, // 99% physical resistance
       },
     });
 

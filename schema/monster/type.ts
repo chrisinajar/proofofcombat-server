@@ -70,6 +70,7 @@ export default gql`
   }
 
   type CombatEntry {
+    time: Int!
     damage: Float!
     attackType: AttackType!
     damageType: DamageType

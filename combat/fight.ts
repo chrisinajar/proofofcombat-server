@@ -152,6 +152,7 @@ export function executeFight(
     // negate enchantment battle if they were mesmerized
     if (result.attackerIsMesmerized) {
       result.log.push({
+        time: duration,
         attackType: victimCombatant.attackType,
         success: true,
         isEnchantment: true,
@@ -166,6 +167,7 @@ export function executeFight(
     } else {
       if (enchantmentBattle.victimDamage > 0) {
         result.log.push({
+          time: duration,
           attackType: attackerCombatant.attackType,
           success: true,
           isEnchantment: true,
@@ -178,6 +180,7 @@ export function executeFight(
 
       if (enchantmentBattle.attackerHeal > 0) {
         result.log.push({
+          time: duration,
           attackType: attackerCombatant.attackType,
           success: true,
           isEnchantment: true,
@@ -190,6 +193,7 @@ export function executeFight(
     }
     if (result.victimIsMesmerized) {
       result.log.push({
+        time: duration,
         attackType: attackerCombatant.attackType,
         success: true,
         isEnchantment: true,
@@ -204,6 +208,7 @@ export function executeFight(
     } else {
       if (enchantmentBattle.attackerDamage > 0) {
         result.log.push({
+          time: duration,
           attackType: victimCombatant.attackType,
           success: true,
           isEnchantment: true,
@@ -216,6 +221,7 @@ export function executeFight(
 
       if (enchantmentBattle.victimHeal > 0) {
         result.log.push({
+          time: duration,
           attackType: victimCombatant.attackType,
           success: true,
           isEnchantment: true,
@@ -248,6 +254,7 @@ export function executeFight(
         attackerCombatant,
         victimCombatant,
         result.isAttackerSecondHit,
+        duration,
       );
       result.isAttackerSecondHit = !result.isAttackerSecondHit;
 
@@ -287,6 +294,7 @@ export function executeFight(
         victimCombatant,
         attackerCombatant,
         result.isVictimSecondHit,
+        duration,
       );
       result.isVictimSecondHit = !result.isVictimSecondHit;
 
@@ -345,6 +353,7 @@ export function attackCombatant(
   attacker: Combatant,
   victim: Combatant,
   isSecondAttack: boolean = false,
+  time: number = 0,
 ): AttackCombcatantResult {
   let { attackType } = attacker;
   if (
@@ -376,6 +385,7 @@ export function attackCombatant(
     for (let damageEntry of damageResult.damages) {
       damage += damageEntry.damage;
       combatLog.push({
+        time,
         attackType: attackType,
         success: true,
         isEnchantment: false,
@@ -399,6 +409,7 @@ export function attackCombatant(
     // );
   } else {
     combatLog.push({
+      time,
       attackType: attackType,
       damage: 0,
       success: false,

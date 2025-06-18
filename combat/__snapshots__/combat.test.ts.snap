@@ -99,35 +99,35 @@ exports[`builds melee uber items can deal destroy 32s at max level 1`] = `
 exports[`calculateEnchantmentDamage should calculate damage correctly 1`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 473749,
+  "attackerHeal": 59840,
   "victimDamage": 0,
-  "victimHeal": 473749,
+  "victimHeal": 59840,
 }
 `;
 
 exports[`calculateEnchantmentDamage should calculate damage correctly 2`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 474130,
+  "attackerHeal": 60221,
   "victimDamage": 192,
-  "victimHeal": 473749,
+  "victimHeal": 59840,
 }
 `;
 
 exports[`calculateEnchantmentDamage should calculate damage correctly 3`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 474712,
+  "attackerHeal": 60803,
   "victimDamage": 585,
-  "victimHeal": 473749,
+  "victimHeal": 59840,
 }
 `;
 
 exports[`calculateEnchantmentDamage should calculate damage correctly 4`] = `
 {
   "attackerDamage": 0,
-  "attackerHeal": 476119,
+  "attackerHeal": 62208,
   "victimDamage": 1389,
-  "victimHeal": 473749,
+  "victimHeal": 59840,
 }
 `;

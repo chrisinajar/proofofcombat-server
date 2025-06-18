@@ -121,9 +121,9 @@ export function calculateDamageValues(
 
   const baseDamage = Math.max(
     1,
-    (Math.pow(1.01, weaponLevel) * weaponLevel * 8 - totalArmor) *
-      baseDamageDecrease +
-      increasedBaseDamage,
+    Math.pow(1.01, weaponLevel) * weaponLevel * 8 * baseDamageDecrease +
+      increasedBaseDamage -
+      totalArmor,
   );
 
   let criticalChance = 0;
@@ -155,14 +155,13 @@ export function calculateDamageValues(
 
   const canOnlyTakeOneDamage = victim.unit.stats.canOnlyTakeOneDamage > 0;
 
-  let multiplier = 0.2;
+  let multiplier = 0;
 
   // apply contested stats rolls
-  multiplier += Math.max(1, attackerDamageStat - victimReductionStat / 8) / 100;
-  multiplier += attackerDamageStat / victimReductionStat / 10;
+  multiplier += Math.pow(attackerDamageStat, 0.65);
 
   // amp damage from weapon
-  multiplier *= percentageDamageIncrease;
+  multiplier += percentageDamageIncrease;
   // reduce / increase armor from enchantments
   // const drFromArmor = Math.pow(0.95, totalArmor);
   // multiplier *= drFromArmor;
@@ -171,6 +170,8 @@ export function calculateDamageValues(
   const variation = baseDamage * 0.4 * (1 - attacker.luck.smallModifier);
   // it's used like this in damage calculations:
   // let damage = baseDamage - variation * Math.random();
+
+  console.log({ multiplier, baseDamage, attackerDamageStat });
 
   return {
     baseDamage,
@@ -220,7 +221,7 @@ export function calculateDamage(
 
   if (Math.random() < criticalChance) {
     critical = true;
-    damage = damage * 3;
+    damage = damage * 2;
     if (Math.random() < doubleCriticalChance) {
       doubleCritical = true;
       damage = damage * 3;
@@ -273,21 +274,31 @@ export function calculateDamage(
     }
   }
 
+  let overDamage = 0;
   // Reduce the original damage by the total conversion amount
   damage *= Math.max(0, 1 - totalDamageConversion);
 
-  const resistance =
-    1 - victim.unit.stats[`${damageType.toLowerCase()}Resistance`];
-  damage *= resistance;
-
-  let uncappedDamage = Math.round(damage);
-
-  // add basic damage to damages and subtract it from damage
-  const standardDamage = Math.min(1000000000, uncappedDamage);
-  uncappedDamage -= standardDamage;
+  // if we dealt damage and didn't convert it all
   if (damage > 0) {
+    // apply resistances
+    const maxResistance = victim.unit.stats[`max${damageType}Resistance`];
+    const resistance =
+      1 - victim.unit.stats[`${damageType.toLowerCase()}Resistance`];
+
+    damage *= Math.min(resistance, maxResistance);
+    damage = Math.max(1, damage);
+
+    let uncappedDamage = Math.round(damage);
+
+    // add basic damage to damages and subtract it from damage
+    const standardDamage = Math.min(1000000000, uncappedDamage);
+    uncappedDamage -= standardDamage;
     damageByType[damageType] = Math.max(1, standardDamage);
     damages.push({ damage: Math.max(1, standardDamage), damageType });
+
+    if (uncappedDamage > 0) {
+      overDamage += uncappedDamage;
+    }
   }
 
   for (let type of possibleDamageTypes) {
@@ -295,10 +306,14 @@ export function calculateDamage(
       continue;
     }
 
+    const maxResistance = victim.unit.stats[`max${damageType}Resistance`];
     const resistance = 1 - victim.unit.stats[`${type.toLowerCase()}Resistance`];
 
     const damage = Math.round(
-      Math.min(1000000000, (damageByType[type] ?? 0) * resistance),
+      Math.min(
+        1000000000,
+        (damageByType[type] ?? 0) * Math.min(resistance, maxResistance),
+      ),
     );
     if (damage > 0) {
       damages.push({ damage: Math.max(1, damage), damageType: type });
@@ -309,11 +324,11 @@ export function calculateDamage(
     for (let damage of damages) {
       damage.damage = 1;
     }
-    uncappedDamage = 0;
+    overDamage = 0;
   }
 
   return {
-    overDamage: uncappedDamage,
+    overDamage,
     damages,
     critical,
     doubleCritical,

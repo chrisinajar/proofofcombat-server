@@ -147,6 +147,14 @@ export class Unit {
       magicalResistance: 0,
       physicalResistance: 0,
 
+      maxPhysicalResistance: 0.8,
+      maxMagicalResistance: 0.8,
+      maxFireResistance: 0.8,
+      maxIceResistance: 0.8,
+      maxLightningResistance: 0.8,
+      maxHolyResistance: 0.8,
+      maxBlightResistance: 0.8,
+
       // armor manipulation
       percentageArmorReduction: 1,
 
@@ -184,13 +192,21 @@ export class Unit {
       willpowerSteal: [0, 1],
       luckSteal: [0, 1],
 
-      physicalResistance: [-Infinity, 0.8],
-      magicalResistance: [-Infinity, 0.8],
-      fireResistance: [-Infinity, 0.8],
-      iceResistance: [-Infinity, 0.8],
-      lightningResistance: [-Infinity, 0.8],
-      holyResistance: [-Infinity, 0.8],
-      blightResistance: [-Infinity, 0.8],
+      physicalResistance: [-Infinity, 1],
+      magicalResistance: [-Infinity, 1],
+      fireResistance: [-Infinity, 1],
+      iceResistance: [-Infinity, 1],
+      lightningResistance: [-Infinity, 1],
+      holyResistance: [-Infinity, 1],
+      blightResistance: [-Infinity, 1],
+
+      maxPhysicalResistance: [0, 1],
+      maxMagicalResistance: [0, 1],
+      maxFireResistance: [0, 1],
+      maxIceResistance: [0, 1],
+      maxLightningResistance: [0, 1],
+      maxHolyResistance: [0, 1],
+      maxBlightResistance: [0, 1],
     };
 
     this.applyModifier(BasicUnitModifier, undefined);
