@@ -171,7 +171,7 @@ export function calculateDamageValues(
   // it's used like this in damage calculations:
   // let damage = baseDamage - variation * Math.random();
 
-  console.log({ multiplier, baseDamage, attackerDamageStat });
+  // console.log({ multiplier, baseDamage, attackerDamageStat });
 
   return {
     baseDamage,

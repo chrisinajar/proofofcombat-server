@@ -12,6 +12,7 @@ import { BaseContext } from "../context";
 import { BaseItem } from "./";
 import { BaseItems } from "./base-items";
 import { type NamedItem, NamedItems } from "./named-items";
+import { getBuiltInOptionsForItem } from "./item-built-ins";
 
 export function countEnchantments(
   hero: Hero,
@@ -212,6 +213,27 @@ export function addItemBuiltIns(item: InventoryItem): InventoryItem {
   if (item.builtIns?.length) {
     return item;
   }
+  item.builtIns = [];
+  // depending on the item type and tier, different built in modifiers are available
+  const options = getBuiltInOptionsForItem(item.baseItem);
+  if (!options.length) {
+    return item;
+  }
+  // pick a random option
+  const randomOption = options[Math.floor(Math.random() * options.length)];
+  // determine magnitude
+  const magnitude =
+    Math.round(
+      (Math.random() * (randomOption.maxValue - randomOption.minValue) +
+        randomOption.minValue) /
+        randomOption.step,
+    ) * randomOption.step;
+
+  item.builtIns.push({
+    type: randomOption.affix,
+    magnitude,
+  });
+
   return item;
 }
 

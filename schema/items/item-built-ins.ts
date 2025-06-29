@@ -1,5 +1,5 @@
 import { ArtifactAttributeType, InventoryItemType } from "types/graphql";
-import { BaseItems } from "schema/items/base-items";
+import { BaseItems } from "../../schema/items/base-items";
 
 type BuiltInOption = {
   affix: ArtifactAttributeType;
@@ -34,7 +34,7 @@ export type BaseItem = {
   SpellFocus = 'SpellFocus'
 
 */
-export function getBuiltInOptiobsForItem(baseItem: string): BuiltInOption[] {
+export function getBuiltInOptionsForItem(baseItem: string): BuiltInOption[] {
   const options: BuiltInOption[] = [];
   const item = BaseItems[baseItem];
   if (!item) {

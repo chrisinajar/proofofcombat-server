@@ -26,6 +26,8 @@ import type {
   ModifierPersistancyData,
   OptionsForModifier,
 } from "../modifiers/modifier";
+import { attributesForAttack } from "../../combat/helpers";
+import { calculateRating } from "../../maths";
 
 declare global {
   interface ProxyConstructor {
@@ -172,6 +174,9 @@ export class Unit {
       luck: 1,
 
       health: 1, // calculated by basic unit/hero modifier
+
+      attackRating: 1,
+      evasionRating: 1,
     };
 
     this.clamps = {
@@ -401,7 +406,49 @@ export class Unit {
   }
 
   getBaseValue(name: string): number {
-    return this.baseValues[name] || 0;
+    switch (name) {
+      case "attackRating":
+        const accuracyStatName = attributesForAttack(this.attackType).toHit;
+        let accuracyStat = this.stats[accuracyStatName];
+        if (
+          this.class === HeroClasses.DemonHunter ||
+          this.class === HeroClasses.BattleMage
+        ) {
+          let otherAccStat = 0;
+          if (this.attackType === AttackType.Melee) {
+            const otherAttackAttributes = attributesForAttack(AttackType.Cast);
+            otherAccStat = this.stats[otherAttackAttributes.toHit];
+          } else if (this.attackType === AttackType.Cast) {
+            const otherAttackAttributes = attributesForAttack(AttackType.Melee);
+            otherAccStat = this.stats[otherAttackAttributes.toHit];
+          }
+          accuracyStat += 0.5 * otherAccStat;
+        }
+
+        if (
+          this.class === HeroClasses.Gambler ||
+          this.class === HeroClasses.Daredevil
+        ) {
+          accuracyStat += Math.random() * this.stats.luck;
+        }
+
+        return calculateRating(accuracyStat);
+
+      case "evasionRating":
+        const evasionStatName = attributesForAttack(this.attackType).dodge;
+        let evasionStat = this.stats[evasionStatName];
+
+        if (
+          this.class === HeroClasses.Gambler ||
+          this.class === HeroClasses.Daredevil
+        ) {
+          evasionStat += Math.random() * this.stats.luck;
+        }
+
+        return calculateRating(evasionStat);
+    }
+
+    return this.baseValues[name] ?? 0;
   }
 
   getBonusValue(name: string): number {
