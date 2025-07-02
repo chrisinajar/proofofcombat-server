@@ -564,12 +564,31 @@ const resolvers: Resolvers = {
       cleanStats(enchantedStats.attacker.attributes);
       cleanStats(enchantedStats.victim.attributes);
 
+      const physicalEvasionRating =
+        enchantedStats.attacker.unit.stats.evasionRating;
+
+      enchantedStats.victim.unit.attackType = AttackType.Cast;
+
+      const magicEvasionRating =
+        enchantedStats.attacker.unit.stats.evasionRating;
+
       return {
         damageAmplification: enchantedStats.attacker.percentageDamageIncrease,
-        damageReduction: enchantedStats.attacker.percentageDamageReduction,
+        armor: enchantedStats.attacker.unit.stats.armor,
         armorReduction: enchantedStats.victim.percentageDamageReduction,
         enemyStats: enchantedStats.victim.attributes,
         stats: enchantedStats.attacker.attributes,
+
+        attackRating: enchantedStats.attacker.unit.stats.attackRating,
+        physicalEvasionRating,
+        magicEvasionRating,
+
+        baseDamage: Math.floor(
+          enchantedStats.attacker.unit.getBaseDamage(false),
+        ),
+        secondAttackBaseDamage: Math.floor(
+          enchantedStats.attacker.unit.getBaseDamage(true),
+        ),
 
         physicalResistance:
           enchantedStats.attacker.unit.stats.physicalResistance,

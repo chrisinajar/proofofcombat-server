@@ -3,6 +3,7 @@ import {
   InventoryItemType,
   EnchantmentType,
   ArtifactItem,
+  HeroClasses,
 } from "types/graphql";
 
 import { BaseItems } from "../../schema/items/base-items";
@@ -23,7 +24,6 @@ export type InventoryItemOptions = ItemOptions & {
 };
 
 export class InventoryItem extends Item {
-  type: InventoryItemType;
   baseItem: string;
   enchantment?: EnchantmentType | null;
   victimModifiers: ModifierDefinition<Modifier<any>>[] = [];
@@ -31,7 +31,6 @@ export class InventoryItem extends Item {
   constructor(options: InventoryItemOptions) {
     super(options);
 
-    this.type = options.type;
     this.baseItem = options.baseItem;
     this.enchantment = options.enchantment;
 

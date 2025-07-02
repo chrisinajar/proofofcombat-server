@@ -1,5 +1,6 @@
 import { AttackType } from "types/graphql";
 import { Modifier } from "./modifier";
+import { attributesForAttack } from "../../combat/helpers";
 
 export class BasicUnitModifier extends Modifier<undefined> {
   getBonus(prop: string): number | void {
@@ -12,6 +13,11 @@ export class BasicUnitModifier extends Modifier<undefined> {
       case "holyResistance":
       case "blightResistance":
         return this.parent.stats.allResistances;
+      case "percentageDamageIncrease":
+        const attackerDamageStat = attributesForAttack(
+          this.parent.attackType,
+        ).damage;
+        return Math.pow(this.parent.stats[attackerDamageStat], 0.65) / 100;
     }
 
     return;

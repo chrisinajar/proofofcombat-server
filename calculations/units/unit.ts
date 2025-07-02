@@ -5,6 +5,7 @@ import {
   InventoryItem as InventoryItemData,
   ArtifactItem as ArtifactItemType,
   EnchantmentType,
+  InventoryItemType,
 } from "types/graphql";
 
 import { BasicUnitModifier } from "../modifiers/basic-unit-modifier";
@@ -26,7 +27,10 @@ import type {
   ModifierPersistancyData,
   OptionsForModifier,
 } from "../modifiers/modifier";
-import { attributesForAttack } from "../../combat/helpers";
+import {
+  attributesForAttack,
+  getItemPassiveUpgradeTier,
+} from "../../combat/helpers";
 import { calculateRating } from "../../maths";
 
 declare global {
@@ -177,6 +181,7 @@ export class Unit {
 
       attackRating: 1,
       evasionRating: 1,
+      armor: 1,
     };
 
     this.clamps = {
@@ -405,6 +410,48 @@ export class Unit {
     );
   }
 
+  getBaseDamage(isSecondAttack: boolean = false): number {
+    let hasFoundFirstWeapon = false;
+    const weapon = this.equipment.find((item) => {
+      if (!item.isWeapon()) {
+        return false;
+      }
+      if (!isSecondAttack) {
+        return true;
+      } else if (!hasFoundFirstWeapon) {
+        hasFoundFirstWeapon = true;
+        return false;
+      }
+
+      // is second attack and has found first weapon
+      return true;
+    });
+
+    let weaponLevel = weapon?.level ?? 0;
+
+    if (isSecondAttack && !weapon) {
+      return 0;
+    }
+    if (weapon) {
+      // for now, each upper tier counts as 2 tiers
+      weaponLevel += getItemPassiveUpgradeTier(weapon);
+      weaponLevel += this.stats.bonusWeaponTiers;
+
+      if (weapon.type === InventoryItemType.Shield) {
+        weaponLevel += this.stats.bonusShieldTiers;
+      }
+    }
+
+    const increasedBaseDamage = this.stats.increasedBaseDamage;
+
+    let baseDamage = Math.max(
+      1,
+      Math.pow(1.05, weaponLevel) * weaponLevel * 8 + increasedBaseDamage,
+    );
+
+    return baseDamage;
+  }
+
   getBaseValue(name: string): number {
     switch (name) {
       case "attackRating":
@@ -435,7 +482,11 @@ export class Unit {
         return calculateRating(accuracyStat);
 
       case "evasionRating":
-        const evasionStatName = attributesForAttack(this.attackType).dodge;
+        const attackType = this.opponent
+          ? this.opponent.attackType
+          : this.attackType;
+
+        const evasionStatName = attributesForAttack(attackType).dodge;
         let evasionStat = this.stats[evasionStatName];
 
         if (

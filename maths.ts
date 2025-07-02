@@ -1,6 +1,6 @@
 // todo: move this somewhere else
 export function calculateRating(stat: number): number {
-  return diminishingReturn(stat, 8, 1.5);
+  return diminishingReturn(stat, 8, 1.8);
 }
 
 export function calculateHitChance(
@@ -9,7 +9,7 @@ export function calculateHitChance(
 ): number {
   const steepness = 2;
   const minHit = 0.1;
-  const maxHit = 0.98;
+  const maxHit = 0.99;
 
   return opposedSigmoidOdds(
     attackerRating,
@@ -37,7 +37,7 @@ export function opposedSigmoidOdds(
   min: number = 0,
   max: number = 1,
 ) {
-  const logRatio = Math.log10(attackerValue / defenderValue);
+  const logRatio = Math.log(attackerValue / defenderValue);
   const sigmoid = 1 / (1 + Math.exp(-logRatio * steepness));
 
   return min + (max - min) * sigmoid;

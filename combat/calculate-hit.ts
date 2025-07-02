@@ -16,6 +16,15 @@ export function calculateOdds(
     victimInput,
   );
 
+  console.log({
+    attackRating: attacker.unit.stats.attackRating,
+    evasionRating: victim.unit.stats.evasionRating,
+    odds: calculateHitChance(
+      attacker.unit.stats.attackRating,
+      victim.unit.stats.evasionRating,
+    ),
+  });
+
   return calculateHitChance(
     attacker.unit.stats.attackRating,
     victim.unit.stats.evasionRating,

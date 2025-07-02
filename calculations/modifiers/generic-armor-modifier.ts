@@ -39,10 +39,15 @@ export class GenericArmorModifier extends Modifier<GenericArmorModifierOptions> 
     }
   }
   armorForTier(tier: number): number {
+    if (tier < 1) {
+      return 0;
+    }
+
     return this.adjustForSlot(
-      Math.round((1 + Math.log(tier)) * Math.pow(tier, 1.3)),
+      Math.round((tier / 2 + Math.log(tier)) * Math.pow(tier, 1.3)),
     );
   }
+
   adjustForSlot(armor: number): number {
     const armorAdjustmentValue =
       ArmorSlotPenalties[this.type || InventoryItemType.BodyArmor];

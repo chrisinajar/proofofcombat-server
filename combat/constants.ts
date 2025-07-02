@@ -13,7 +13,7 @@ export function attributesForAttack(attackType: AttackType): AttackAttributes {
       return {
         toHit: "constitution",
         damage: "constitution",
-        dodge: "constitution",
+        dodge: "wisdom",
         damageReduction: "willpower",
       };
       break;

@@ -141,7 +141,7 @@ export default gql`
 
   type ExtendedCombatStats {
     damageAmplification: Float!
-    damageReduction: Float!
+    armor: Int!
     armorReduction: Float!
 
     enemyStats: HeroStats!
@@ -155,6 +155,13 @@ export default gql`
     lightningResistance: Float!
     holyResistance: Float!
     blightResistance: Float!
+
+    attackRating: Int!
+    physicalEvasionRating: Int!
+    magicEvasionRating: Int!
+
+    baseDamage: Int!
+    secondAttackBaseDamage: Int!
   }
 
   enum HeroClasses {

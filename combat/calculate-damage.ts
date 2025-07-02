@@ -63,68 +63,25 @@ export function calculateDamageValues(
       break;
   }
 
-  let { percentageArmorReduction, increasedBaseDamage } = victim.unit.stats;
-  let percentageDamageIncrease = attacker.percentageDamageIncrease;
-  let totalArmor = 0;
+  let {
+    percentageDamageIncrease,
+    percentageArmorReduction,
+    increasedBaseDamage,
+    armor,
+  } = victim.unit.stats;
   let baseDamageDecrease = 1;
   const attackerDamageStat = attacker.attributes[attributeTypes.damage];
   let victimReductionStat = victim.attributes[attributeTypes.damageReduction];
 
-  victim.equipment.armor.forEach((armor) => {
-    if (armor.type === InventoryItemType.Shield) {
-      totalArmor += victim.bonusShieldTiers;
-    }
-    totalArmor += armor.level + victim.bonusArmorTiers;
+  armor *= percentageArmorReduction;
 
-    if (getItemPassiveUpgradeTier(armor) > 0) {
-      baseDamageDecrease *= 0.8;
-      victimReductionStat *= 1.5;
-    }
-    // totalArmor += (armor.level + victim.bonusArmorTiers);
-  });
+  let baseDamage = attacker.unit.getBaseDamage(isSecondAttack);
 
-  // for paladins (or any other future reason that shields end up in weapon lists)
-  victim.equipment.weapons.forEach((armor) => {
-    if (armor.type === InventoryItemType.Shield) {
-      totalArmor +=
-        armor.level + victim.bonusArmorTiers + victim.bonusShieldTiers;
-
-      if (getItemPassiveUpgradeTier(armor) > 0) {
-        baseDamageDecrease *= 0.75;
-        victimReductionStat *= 2;
-      }
-    }
-  });
-
-  // vampires reduce enemy base damage by 1/2
-  if (victim.class === HeroClasses.Vampire) {
-    baseDamageDecrease *= 0.8;
+  if (armor >= baseDamage) {
+    baseDamage = baseDamage / armor;
+  } else {
+    baseDamage = baseDamage - armor;
   }
-
-  const weapon =
-    isSecondAttack && attacker.attackType !== AttackType.Ranged
-      ? attacker.equipment.weapons[1]
-      : attacker.equipment.weapons[0];
-  let weaponLevel = weapon?.level ?? 0;
-
-  if (weapon) {
-    // for now, each upper tier counts as 2 tiers
-    weaponLevel += getItemPassiveUpgradeTier(weapon);
-    weaponLevel += attacker.bonusWeaponTiers;
-
-    if (weapon.type === InventoryItemType.Shield) {
-      weaponLevel += attacker.bonusShieldTiers;
-    }
-  }
-
-  totalArmor *= percentageArmorReduction;
-
-  const baseDamage = Math.max(
-    1,
-    Math.pow(1.01, weaponLevel) * weaponLevel * 8 * baseDamageDecrease +
-      increasedBaseDamage -
-      totalArmor,
-  );
 
   let criticalChance = 0;
   let doubleCriticalChance = 0;
@@ -143,35 +100,19 @@ export function calculateDamageValues(
     }
   }
 
-  if (debug) {
-    console.log({
-      damage,
-      attackerStat: attackerDamageStat,
-      victimStat: victimReductionStat,
-      dr: attackerDamageStat / (victimReductionStat / 2),
-      percentageDamageIncrease,
-    });
-  }
-
   const canOnlyTakeOneDamage = victim.unit.stats.canOnlyTakeOneDamage > 0;
 
-  let multiplier = 0;
-
-  // apply contested stats rolls
-  multiplier += Math.pow(attackerDamageStat, 0.65);
-
-  // amp damage from weapon
-  multiplier += percentageDamageIncrease;
-  // reduce / increase armor from enchantments
-  // const drFromArmor = Math.pow(0.95, totalArmor);
-  // multiplier *= drFromArmor;
+  let multiplier = percentageDamageIncrease;
 
   // up to 40% of damage as variation, larger luck = less variation
-  const variation = baseDamage * 0.4 * (1 - attacker.luck.smallModifier);
+  const variation =
+    baseDamage * 0.2 * (1 - attacker.luck.smallModifier) +
+    baseDamage * 0.1 * (1 - attacker.luck.largeModifier) +
+    baseDamage * 0.1 * (1 - attacker.luck.ultraModifier);
   // it's used like this in damage calculations:
   // let damage = baseDamage - variation * Math.random();
 
-  // console.log({ multiplier, baseDamage, attackerDamageStat });
+  console.log({ multiplier, baseDamage });
 
   return {
     baseDamage,
@@ -196,6 +137,7 @@ export function calculateDamage(
   critical: boolean;
   doubleCritical: boolean;
 } {
+  console.log({ isSecondAttack });
   const {
     baseDamage,
     variation,
@@ -213,7 +155,7 @@ export function calculateDamage(
     victimInput,
   );
 
-  let damage = baseDamage - variation * Math.random();
+  let damage = Math.max(1, baseDamage - variation * Math.random());
 
   let critical = false;
   let doubleCritical = false;
