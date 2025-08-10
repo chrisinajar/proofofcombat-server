@@ -434,7 +434,7 @@ export class Unit {
     }
     if (weapon) {
       // for now, each upper tier counts as 2 tiers
-      weaponLevel += getItemPassiveUpgradeTier(weapon);
+      // weaponLevel += getItemPassiveUpgradeTier(weapon);
       weaponLevel += this.stats.bonusWeaponTiers;
 
       if (weapon.type === InventoryItemType.Shield) {

@@ -19,6 +19,7 @@ import {
   randomEnchantment,
   createItemInstance,
   enchantItem,
+  addItemBuiltIns,
 } from "../items/helpers";
 import { checkHeroDrop, hasQuestItem, checkSkipDrop } from "../quests/helpers";
 import { createMonsterEquipment } from "../../combat/monster";
@@ -51,6 +52,7 @@ const resolvers: Resolvers = {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
       }
+      context.delay = 1;
       const account = await context.db.account.get(context.auth.id);
       let hero = await context.db.hero.get(context.auth.id);
       let monster = null;
@@ -240,7 +242,7 @@ const resolvers: Resolvers = {
 
         experienceRewards = Math.round(experienceRewards);
         goldReward = Math.round(goldReward);
-        goldReward = Math.min(1000000000, Math.round(goldReward));
+        goldReward = Math.min(1000000000, goldReward);
 
         await checkAberrationDrop(context, hero, monster.monster.id);
 
@@ -279,6 +281,11 @@ const resolvers: Resolvers = {
                 createItemInstance(baseItem, hero),
                 enchantment,
               );
+
+              // roll for superior version of item
+              // if (Math.random() < 1 / 4) {
+              addItemBuiltIns(itemInstance);
+              // }
 
               droppedItem = itemInstance;
               hero.inventory.push(itemInstance);

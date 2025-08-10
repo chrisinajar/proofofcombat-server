@@ -35,7 +35,7 @@ export function delayDirectiveTransformer(
             throw new ForbiddenError("Missing auth");
           }
           const now = Date.now();
-          const account = await context.db.account.get(context.auth.id);
+          let account = await context.db.account.get(context.auth.id);
 
           if (account.banned) {
             if (!context?.auth?.id) {
@@ -68,7 +68,17 @@ export function delayDirectiveTransformer(
             }
           }
           runAberrationCheck(context);
-          return resolve(source, args, context, info);
+          const delay = context.delay || 0;
+          const result = resolve(source, args, context, info);
+          if (delay !== context.delay) {
+            // resolver edited the delay, persist the data
+            // first reload account just in case it changed in the resolver
+            account = await context.db.account.get(context.auth.id);
+            account.nextAllowedAction = `${now + delay}`;
+            context.auth.delay = account.nextAllowedAction;
+            await context.db.account.put(account);
+          }
+          return result;
         };
         return fieldConfig;
       }
