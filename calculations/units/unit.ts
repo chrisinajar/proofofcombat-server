@@ -27,10 +27,8 @@ import type {
   ModifierPersistancyData,
   OptionsForModifier,
 } from "../modifiers/modifier";
-import {
-  attributesForAttack,
-  getItemPassiveUpgradeTier,
-} from "../../combat/helpers";
+import { attributesForAttack } from "../../combat/constants";
+import { getItemPassiveUpgradeTier } from "../../combat/item-helpers";
 import { calculateRating } from "../../maths";
 
 declare global {

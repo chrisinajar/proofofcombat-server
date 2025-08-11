@@ -1,6 +1,6 @@
 import { AttackType } from "types/graphql";
 import { Modifier } from "./modifier";
-import { attributesForAttack } from "../../combat/helpers";
+import { attributesForAttack } from "../../combat/constants";
 
 export class BasicUnitModifier extends Modifier<undefined> {
   getBonus(prop: string): number | void {
