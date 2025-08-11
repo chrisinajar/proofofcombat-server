@@ -63,12 +63,9 @@ export function calculateDamageValues(
       break;
   }
 
-  let {
-    percentageDamageIncrease,
-    percentageArmorReduction,
-    increasedBaseDamage,
-    armor,
-  } = victim.unit.stats;
+  let { percentageArmorReduction, armor } = victim.unit.stats;
+  const attackerAmplification = attacker.unit.stats.percentageDamageIncrease;
+  const victimDamageReduction = victim.unit.stats.percentageDamageReduction;
   let baseDamageDecrease = 1;
   const attackerDamageStat = attacker.attributes[attributeTypes.damage];
   let victimReductionStat = victim.attributes[attributeTypes.damageReduction];
@@ -102,7 +99,7 @@ export function calculateDamageValues(
 
   const canOnlyTakeOneDamage = victim.unit.stats.canOnlyTakeOneDamage > 0;
 
-  let multiplier = percentageDamageIncrease;
+  let multiplier = attackerAmplification * victimDamageReduction;
 
   // up to 40% of damage as variation, larger luck = less variation
   const variation =
