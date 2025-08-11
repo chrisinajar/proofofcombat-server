@@ -105,10 +105,14 @@ const resolvers: Resolvers = {
     },
   },
   BaseAccount: {
+    async nextAllowedAction(parent, args, context: BaseContext) {
+      // prefer the value set during this request
+      return context.auth?.delay ?? parent.nextAllowedAction;
+    },
     async timeRemaining(parent, args, context: BaseContext) {
-      // calculate time remaining based on nextAllowedAction
-
-      return Math.max(0, Number(parent.nextAllowedAction) - Date.now());
+      // calculate time remaining based on the most up-to-date nextAllowedAction
+      const ts = context.auth?.delay ?? parent.nextAllowedAction;
+      return Math.max(0, Number(ts) - Date.now());
     },
   },
 };

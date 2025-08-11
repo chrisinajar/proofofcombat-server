@@ -45,14 +45,14 @@ const MonsterLockoutItems: { [x in string]?: string } = {
 const resolvers: Resolvers = {
   Mutation: {
     async fight(
-      paent,
+      parent,
       args,
       context: BaseContext,
     ): Promise<MonsterFightResult> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
       }
-      context.delay = 1;
+      // dynamic delay will be set based on simulated combat duration
       const account = await context.db.account.get(context.auth.id);
       let hero = await context.db.hero.get(context.auth.id);
       let monster = null;
@@ -314,6 +314,22 @@ const resolvers: Resolvers = {
       }
 
       await context.db.hero.put(hero);
+
+      // Set delay based on how much combat time elapsed, respecting reducedDelay
+      try {
+        const { COMBAT_DURATION } = await import("../../combat/constants");
+        const durationRemaining = fightResult.durationRemaining ?? COMBAT_DURATION;
+        let elapsed = COMBAT_DURATION - Math.max(0, durationRemaining);
+        // apply reducedDelay modifier
+        const heroUnit = context.db.hero.getUnit(hero);
+        const reducedDelay = heroUnit.stats.reducedDelay;
+        if (reducedDelay < 1) {
+          elapsed *= reducedDelay;
+        }
+        context.delay = Math.max(1, Math.round(elapsed));
+      } catch (e) {
+        // fallback to schema-configured delay if constants import fails
+      }
 
       if (droppedItem) {
         context.io.sendNotification(hero.id, {

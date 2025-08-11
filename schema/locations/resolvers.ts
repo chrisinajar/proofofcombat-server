@@ -1783,11 +1783,16 @@ const resolvers: Resolvers = {
 
       //Teleport them to the destination
       hero.location = desiredLocation;
-      //Set their delay to 500 * the length of the path
-      account.nextAllowedAction += `${now + 500 * path.path.length}`;
+      // Compute dynamic delay (respects reducedDelay) and let @delay persist it
+      const heroUnit = context.db.hero.getUnit(hero);
+      const reducedDelay = heroUnit.stats.reducedDelay;
+      let dynamicDelay = 500 * path.path.length;
+      if (reducedDelay < 1) {
+        dynamicDelay *= reducedDelay;
+      }
+      context.delay = Math.round(dynamicDelay);
 
       await context.db.hero.put(hero);
-      await context.db.account.put(account);
 
       return {
         hero,

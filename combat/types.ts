@@ -79,6 +79,8 @@ export type CombatResult = {
   victimIsDead: boolean;
   attackerIsDead: boolean;
   log: CombatEntry[];
+  // remaining time in the combat simulation (ms)
+  durationRemaining?: number;
 };
 
 export type CombatGear = {

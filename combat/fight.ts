@@ -108,12 +108,15 @@ export function executeFight(
     victimCombatant.health;
 
   if (duration <= 0) {
+    // no time left; report remaining duration
+    result.durationRemaining = duration;
     return result;
   }
   if (result.attackerIsDead || result.victimIsDead) {
     // one of them is dead, no need to continue
     attackerCombatant.attackSpeedRemainder = 0;
     victimCombatant.attackSpeedRemainder = 0;
+    result.durationRemaining = duration;
     return result;
   }
 
@@ -122,7 +125,7 @@ export function executeFight(
     // use the rest of the duration up
     attackerCombatant.attackSpeedRemainder += duration;
     victimCombatant.attackSpeedRemainder += duration;
-
+    result.durationRemaining = 0;
     return result;
   }
 

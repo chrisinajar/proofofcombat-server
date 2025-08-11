@@ -64,6 +64,7 @@ export function delayDirectiveTransformer(
               delay = Math.round(delay);
               context.delay = delay;
               account.nextAllowedAction = `${now + delay}`;
+              context.auth.delay = account.nextAllowedAction;
               await context.db.account.put(account);
             }
           }
@@ -74,7 +75,8 @@ export function delayDirectiveTransformer(
             // resolver edited the delay, persist the data
             // first reload account just in case it changed in the resolver
             account = await context.db.account.get(context.auth.id);
-            account.nextAllowedAction = `${now + delay}`;
+            const finalDelay = Math.round(context.delay || 0);
+            account.nextAllowedAction = `${now + finalDelay}`;
             context.auth.delay = account.nextAllowedAction;
             await context.db.account.put(account);
           }
