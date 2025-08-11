@@ -1,6 +1,4 @@
-import { AttackType, HeroClasses, InventoryItemType } from "types/graphql";
 import { Combatant } from "./types";
-import { attributesForAttack, getItemPassiveUpgradeTier } from "./helpers";
 import { getEnchantedAttributes } from "./enchantments";
 import { calculateHitChance } from "../maths";
 
@@ -15,15 +13,6 @@ export function calculateOdds(
     attackerInput,
     victimInput,
   );
-
-  console.log({
-    attackRating: attacker.unit.stats.attackRating,
-    evasionRating: victim.unit.stats.evasionRating,
-    odds: calculateHitChance(
-      attacker.unit.stats.attackRating,
-      victim.unit.stats.evasionRating,
-    ),
-  });
 
   return calculateHitChance(
     attacker.unit.stats.attackRating,

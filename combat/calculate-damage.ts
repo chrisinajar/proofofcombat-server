@@ -112,7 +112,9 @@ export function calculateDamageValues(
   // it's used like this in damage calculations:
   // let damage = baseDamage - variation * Math.random();
 
-  console.log({ multiplier, baseDamage });
+  if (debug) {
+    console.log({ multiplier, baseDamage });
+  }
 
   return {
     baseDamage,
@@ -137,7 +139,9 @@ export function calculateDamage(
   critical: boolean;
   doubleCritical: boolean;
 } {
-  console.log({ isSecondAttack });
+  if (debug) {
+    console.log({ isSecondAttack });
+  }
   const {
     baseDamage,
     variation,
@@ -248,7 +252,8 @@ export function calculateDamage(
       continue;
     }
 
-    const maxResistance = victim.unit.stats[`max${damageType}Resistance`];
+    // Use the correct cap for the converted type, not the original damage type
+    const maxResistance = victim.unit.stats[`max${type}Resistance`];
     const resistance = 1 - victim.unit.stats[`${type.toLowerCase()}Resistance`];
 
     const damage = Math.round(
