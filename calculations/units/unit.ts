@@ -118,7 +118,11 @@ export class Unit {
       mesmerizeChance: 1, // inverse percent
       focusChance: 1, // inverse percent
       lifesteal: 0,
-      rangedSecondAttackChance: 1, // inverse percent
+      // legacy: previously used to randomize ranged "second attack" chance
+      rangedSecondAttackChance: 1, // inverse percent (unused for combat now)
+      // new: multiplicative speed factor for ranged single-attack cadence
+      // 1 = base, higher = faster (clamped by combat to not exceed base cadence)
+      rangedAttackSpeedMultiplier: 1,
 
       health: 0, // calculated by basic unit/hero modifier
 
@@ -215,6 +219,9 @@ export class Unit {
       maxLightningResistance: [0, 1],
       maxHolyResistance: [0, 1],
       maxBlightResistance: [0, 1],
+
+      // ensure speed multiplier stays sane
+      rangedAttackSpeedMultiplier: [1, Infinity],
     };
 
     this.applyModifier(BasicUnitModifier, undefined);

@@ -38,9 +38,10 @@ function hasTwoAttacks(combatant: Combatant): boolean {
   }
 
   if (combatant.attackType === AttackType.Ranged) {
-    // 0 = 1, goes *DOWN* from there
-    hasTwoAttacks =
-      Math.random() > combatant.unit.stats.rangedSecondAttackChance;
+    // Ranged weapons are two-handed; no true second attack.
+    // Use single-attack cadence via attackSpeed. Treat as "has two attacks"
+    // to avoid doubling cooldown mechanics.
+    return true;
   }
 
   return hasTwoAttacks;
@@ -359,20 +360,34 @@ export function attackCombatant(
   time: number = 0,
 ): AttackCombcatantResult {
   let { attackType } = attacker;
+  // Ranged: always a single-shot attack; ignore the alternating "second hit" flag
+  const useSecondAttack =
+    attacker.attackType === AttackType.Ranged ? false : isSecondAttack;
+
+  // Determine effective attack type (for BattleMage/DemonHunter true alternation)
+  let effectiveAttackType: AttackType = attacker.attackType;
   if (
-    isSecondAttack &&
+    useSecondAttack &&
     (attacker.class === HeroClasses.BattleMage ||
       attacker.class === HeroClasses.DemonHunter)
   ) {
     if (attacker.equipment.weapons[1].type === InventoryItemType.MeleeWeapon) {
       attackType = AttackType.Melee;
+      effectiveAttackType = AttackType.Melee;
     }
     if (attacker.equipment.weapons[1].type === InventoryItemType.SpellFocus) {
       attackType = AttackType.Cast;
+      effectiveAttackType = AttackType.Cast;
     }
   }
 
-  const hit = calculateHit(attacker, victim, isSecondAttack);
+  // For true alternation, calculations must use the effective type
+  const originalUnitType = attacker.unit.attackType;
+  const originalAttackerType = attacker.attackType;
+  attacker.unit.attackType = effectiveAttackType;
+  attacker.attackType = effectiveAttackType;
+
+  const hit = calculateHit(attacker, victim, useSecondAttack);
   let damage = 0;
   let overDamage = 0;
   let critical = false;
@@ -380,7 +395,7 @@ export function attackCombatant(
   const combatLog: CombatEntry[] = [];
 
   if (hit) {
-    const damageResult = calculateDamage(attacker, victim, isSecondAttack);
+    const damageResult = calculateDamage(attacker, victim, useSecondAttack);
     overDamage = damageResult.overDamage;
     critical = damageResult.critical;
     doubleCritical = damageResult.doubleCritical;
@@ -422,6 +437,10 @@ export function attackCombatant(
       critical: false,
     });
   }
+
+  // Restore original attack types
+  attacker.unit.attackType = originalUnitType;
+  attacker.attackType = originalAttackerType;
 
   return {
     hit,

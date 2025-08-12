@@ -1210,13 +1210,16 @@ export function genericStatsModifierForEnchantment(
       };
       break;
     case EnchantmentType.RangedSecondAttackChance:
+      // repurposed: progressively increase ranged attack speed instead of 2nd attack chance
+      // multiplicatively scales a speed factor that combat clamps to a minimum interval
+      // 1.2 per stack approximates prior average cadence improvement without overshooting
       return {
         type: GenericStatsModifier,
         enchantment: EnchantmentType.RangedSecondAttackChance,
         options: {
           stackMultiplicatively: true,
           multiplier: {
-            rangedSecondAttackChance: 0.5,
+            rangedAttackSpeedMultiplier: 1.2,
           },
         },
       };

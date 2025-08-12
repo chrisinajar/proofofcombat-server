@@ -183,5 +183,22 @@ export function createHeroCombatant(
     (a, b) => b.level - a.level,
   );
 
+  // Archers/Rangers use single-attack speed instead of second-attack chance
+  if (
+    heroCombatant.class === HeroClasses.Ranger ||
+    heroCombatant.class === HeroClasses.Archer
+  ) {
+    const speedFactor = Math.max(
+      1,
+      heroUnit.stats.rangedAttackSpeedMultiplier || 1,
+    );
+    // Base single-attack cadence is double the base interval; multiply by factor and clamp to base
+    const singleAttackInterval = Math.round(
+      (BASE_ATTACK_SPEED * 2) / speedFactor,
+    );
+    // No clamp: balance decisions govern how low this can go
+    heroCombatant.attackSpeed = singleAttackInterval;
+  }
+
   return heroCombatant;
 }
