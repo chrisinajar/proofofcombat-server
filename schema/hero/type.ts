@@ -72,6 +72,9 @@ export default gql`
     pendingArtifact: ArtifactItem
 
     attackSpeedRemainder: Int!
+
+    # Which attack types are valid based on current equipment
+    availableAttacks: [AttackType!]!
   }
 
   # various buffs like blessings, curses, etc not bound to quest items

@@ -8,6 +8,7 @@ import {
   BaseAccount,
   LevelUpResponse,
   InventoryItem,
+  InventoryItemType,
   EquipmentSlots,
   ShopItem,
   LeadboardEntry,
@@ -477,6 +478,86 @@ const resolvers: Resolvers = {
     },
   },
   Hero: {
+    async availableAttacks(parent, args, context: BaseContext) {
+      // Determine valid attacks based on equipped weapons
+      // Reuse combat helper rules to avoid duplicating logic
+      const attacks: AttackType[] = [];
+
+      // Load a fresh, canonical hero from DB to ensure inventory/equipment consistency
+      const fullHero = await context.db.hero.get(parent.id);
+
+      // Gather equipped hand items (by object if present)
+      const equipped: (InventoryItem | undefined)[] = [];
+      function findEquippedItem(
+        hero: Hero,
+        item: string | InventoryItem | undefined | null,
+      ): InventoryItem | undefined {
+        if (!item) return undefined;
+        const itemId: string = typeof item === "string" ? item : item.id;
+        const inventoryItem = hero.inventory.find((i) => i.id === itemId);
+        if (!inventoryItem || inventoryItem.owner !== hero.id) return undefined;
+        return inventoryItem;
+      }
+      const left = findEquippedItem(fullHero as Hero, fullHero.equipment.leftHand);
+      const right = findEquippedItem(fullHero as Hero, fullHero.equipment.rightHand);
+      if (left) equipped.push(left);
+      if (right) equipped.push(right);
+
+      // If no weapons equipped at all, all attack types are available
+      if (equipped.length === 0) {
+        return [
+          AttackType.Melee,
+          AttackType.Ranged,
+          AttackType.Cast,
+          AttackType.Smite,
+          AttackType.Blood,
+        ];
+      }
+
+      const hasType = (t: InventoryItemType) =>
+        equipped.some((i) => i?.type === t);
+
+      const hasRanged = hasType(InventoryItemType.RangedWeapon);
+      const hasMelee = hasType(InventoryItemType.MeleeWeapon);
+      const hasFocus = hasType(InventoryItemType.SpellFocus);
+      const hasShield = hasType(InventoryItemType.Shield);
+
+      // If a ranged weapon is equipped, only Ranged is valid (two-handed)
+      if (hasRanged) {
+        return [AttackType.Ranged];
+      }
+
+      // Smite is always valid when not using a ranged weapon
+      attacks.push(AttackType.Smite);
+
+      // Melee valid if a melee weapon (or a shield for bashing) is present
+      if (hasMelee || hasShield) {
+        attacks.push(AttackType.Melee);
+      }
+
+      // Cast valid if a spell focus is present
+      if (hasFocus) {
+        attacks.push(AttackType.Cast);
+      }
+
+      // Blood is valid only when not holding melee or ranged weapons
+      if (!hasMelee && !hasRanged) {
+        attacks.push(AttackType.Blood);
+      }
+
+      // unique and ordered
+      const unique: AttackType[] = [];
+      for (const a of [
+        AttackType.Melee,
+        AttackType.Ranged,
+        AttackType.Cast,
+        AttackType.Smite,
+        AttackType.Blood,
+      ]) {
+        if (attacks.includes(a)) unique.push(a);
+      }
+      return unique;
+    },
     async home(parent, args, context): Promise<PlayerLocation | null> {
       return context.db.playerLocation.getHome(parent.id);
     },

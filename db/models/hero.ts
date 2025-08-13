@@ -66,6 +66,7 @@ type PartialHero = Optional<
   | "activeSkill"
   | "activeStance"
   | "availableStances"
+  | "availableAttacks"
   | "buffs"
   | "attackSpeedRemainder"
 >;
@@ -637,6 +638,15 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
     data.activeStance = data.activeStance ?? HeroStance.Normal;
     data.availableStances = data.availableStances ?? [HeroStance.Normal];
+    // New computed field; keep optional in model and default conservatively
+    // GraphQL resolver returns the authoritative, equipment-based list
+    // This default exists only to satisfy typing for legacy records
+    // and is not used by the API response resolver
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore tolerate absence at runtime when upgrading raw data
+    data.availableAttacks = (data as any).availableAttacks ?? [
+      AttackType.Melee,
+    ];
 
     if (!data.combat) {
       data.combat = {
