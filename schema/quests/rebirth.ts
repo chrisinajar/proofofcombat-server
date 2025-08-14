@@ -10,6 +10,8 @@ import {
   heroLocationName,
   takeQuestItem,
   hasQuestItem,
+  setQuestEvent,
+  setQuestLogProgress,
 } from "./helpers";
 
 export const startingLevelCap = 10;
@@ -206,13 +208,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   }
 
   console.log("Setting rebirth quest log");
-  hero.questLog.rebirth = {
-    id: `Rebirth-${hero.id}`,
-    started: true,
-    finished: false,
-    progress: hero.levelCap,
-    lastEvent: hero.currentQuest,
-  };
+  hero = setQuestLogProgress(hero, Quest.Rebirth, "rebirth", hero.levelCap);
 
   return hero;
 }
@@ -222,17 +218,7 @@ function rebirthMessage(
   uniqueName: string,
   message: string[],
 ): Hero {
-  hero.currentQuest = {
-    id: `Rebirth-${hero.id}-${uniqueName}`,
-    message: message,
-    quest: Quest.Rebirth,
-  };
-
-  if (hero.questLog.rebirth) {
-    hero.questLog.rebirth.lastEvent = hero.currentQuest;
-  }
-
-  return hero;
+  return setQuestEvent(hero, Quest.Rebirth, uniqueName, message);
 }
 
 function isAtLevelCap(hero: Hero): boolean {

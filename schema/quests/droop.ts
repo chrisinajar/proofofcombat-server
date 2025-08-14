@@ -15,6 +15,8 @@ import {
   giveQuestItemNotification,
   hasQuestItem,
   takeQuestItem,
+  setQuestEvent,
+  setQuestLogProgress,
 } from "./helpers";
 import { questEvents } from "./text/droop-text";
 
@@ -74,19 +76,18 @@ export function checkHeroDrop(
     m.replace("{{direction}}", direction),
   );
 
-  hero.currentQuest = {
-    id: `DroopsQuest-${hero.id}-hobgoblin-map-${Math.random()}`,
-    message: message,
-    quest: Quest.DroopsQuest,
-  };
-
-  hero.questLog.droop = {
-    id: `DroopsQuest-${hero.id}`,
-    started: true,
-    finished: false,
-    progress: (hero.questLog.droop?.progress ?? 0) + 1,
-    lastEvent: hero.currentQuest,
-  };
+  hero = setQuestEvent(
+    hero,
+    Quest.DroopsQuest,
+    `hobgoblin-map-${Math.random()}`,
+    message,
+  );
+  hero = setQuestLogProgress(
+    hero,
+    Quest.DroopsQuest,
+    "droop",
+    (hero.questLog.droop?.progress ?? 0) + 1,
+  );
   // const secret
   // const eastWest =
 
@@ -94,19 +95,19 @@ export function checkHeroDrop(
 }
 
 function weFoundDroop(context: BaseContext, hero: Hero): Hero {
-  hero.currentQuest = {
-    id: `DroopsQuest-${hero.id}-found`,
-    message: questEvents.foundDroop,
-    quest: Quest.DroopsQuest,
-  };
-
-  hero.questLog.droop = {
-    id: `DroopsQuest-${hero.id}`,
-    started: true,
-    finished: true,
-    progress: (hero.questLog.droop?.progress ?? 0) + 1,
-    lastEvent: hero.currentQuest,
-  };
+  hero = setQuestEvent(
+    hero,
+    Quest.DroopsQuest,
+    "found",
+    questEvents.foundDroop,
+  );
+  hero = setQuestLogProgress(
+    hero,
+    Quest.DroopsQuest,
+    "droop",
+    (hero.questLog.droop?.progress ?? 0) + 1,
+    true,
+  );
 
   hero = giveQuestItemNotification(context, hero, "dont-get-hit");
   hero.gold += 5000000;

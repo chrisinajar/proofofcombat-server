@@ -16,6 +16,8 @@ import {
   giveQuestItemNotification,
   takeQuestItem,
   hasQuestItem,
+  setQuestEvent,
+  setQuestLogProgress,
 } from "./helpers";
 
 const FleshMound = 0x01 << 0;
@@ -96,11 +98,12 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   ) {
     hero = takeQuestItem(hero, "lamp-oil");
     giveQuestItemNotification(context, hero, "bird-figurine");
-    hero.currentQuest = {
-      id: `NagaScale-${hero.id}-bird`,
-      message: questEvents.birdFigurine,
-      quest: Quest.NagaScale,
-    };
+    hero = setQuestEvent(
+      hero,
+      Quest.NagaScale,
+      "bird",
+      questEvents.birdFigurine,
+    );
     setProgress(hero, BirdFigurine);
     return hero;
   }
@@ -112,11 +115,12 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   ) {
     hero = takeQuestItem(hero, "mound-of-flesh");
     giveQuestItemNotification(context, hero, "chimera-hook");
-    hero.currentQuest = {
-      id: `NagaScale-${hero.id}-chimera`,
-      message: questEvents.chimeraHook,
-      quest: Quest.NagaScale,
-    };
+    hero = setQuestEvent(
+      hero,
+      Quest.NagaScale,
+      "chimera",
+      questEvents.chimeraHook,
+    );
     setProgress(hero, ChimeraHook);
     return hero;
   }
@@ -131,11 +135,12 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     hero = takeQuestItem(hero, "bird-figurine");
     hero = takeQuestItem(hero, "chimera-hook");
     giveQuestItemNotification(context, hero, "precious-flaying-knife");
-    hero.currentQuest = {
-      id: `NagaScale-${hero.id}-knife`,
-      message: questEvents.flayingKnife,
-      quest: Quest.NagaScale,
-    };
+    hero = setQuestEvent(
+      hero,
+      Quest.NagaScale,
+      "knife",
+      questEvents.flayingKnife,
+    );
     setProgress(hero, FlayingKnife);
     return hero;
   }
@@ -158,17 +163,10 @@ function heroLocationName(hero: Hero): string | null {
 }
 
 function setProgress(hero: Hero, progress: number): Hero {
-  const lastEvent =
-    hero.currentQuest?.quest === Quest.NagaScale
-      ? hero.currentQuest
-      : undefined;
-  hero.questLog.nagaScale = {
-    id: `NagaScale-${hero.id}`,
-    started: true,
-    finished: false,
-    progress: progress | (hero.questLog.nagaScale?.progress ?? 0),
-    lastEvent,
-  };
-
-  return hero;
+  return setQuestLogProgress(
+    hero,
+    Quest.NagaScale,
+    "nagaScale",
+    progress | (hero.questLog.nagaScale?.progress ?? 0),
+  );
 }

@@ -5,7 +5,7 @@ import { findTerrainType, specialLocations } from "../../helpers";
 import { BaseContext } from "../context";
 import { countEnchantments } from "../items/helpers";
 
-import { giveQuestItemNotification, hasQuestItem } from "./helpers";
+import { giveQuestItemNotification, hasQuestItem, setQuestEvent, setQuestLogProgress } from "./helpers";
 import { questEvents } from "./text/washed-up-text";
 
 /*
@@ -102,19 +102,8 @@ function checkPub(context: BaseContext, hero: Hero): Hero {
   hero = giveQuestItemNotification(context, hero, "fishermans-luck");
   hero.gold = Math.round(hero.gold / 2);
 
-  hero.currentQuest = {
-    id: `WashedUp-${hero.id}-pub`,
-    message: questEvents.brewconia,
-    quest: Quest.WashedUp,
-  };
-
-  hero.questLog.washedUp = {
-    id: `WashedUp-${hero.id}`,
-    started: true,
-    finished: false,
-    progress: 8,
-    lastEvent: hero.currentQuest,
-  };
+  hero = setQuestEvent(hero, Quest.WashedUp, "pub", questEvents.brewconia);
+  hero = setQuestLogProgress(hero, Quest.WashedUp, "washedUp", 8);
 
   return hero;
 }
@@ -153,31 +142,31 @@ function checkDock(context: BaseContext, hero: Hero): Hero {
     if (isAtNextDock) {
       if (questLogEntry.lastEvent?.message !== questEvents.startingDock) {
         // at the first fetch quest destination, make them go somewhere else
-        hero.currentQuest = {
-          id: `WashedUp-${hero.id}-dock0`,
-          message: questEvents.startingDock,
-          quest: Quest.WashedUp,
-        };
-        questLogEntry.lastEvent = hero.currentQuest;
+        hero = setQuestEvent(
+          hero,
+          Quest.WashedUp,
+          "dock0",
+          questEvents.startingDock,
+        );
+        hero = setQuestLogProgress(
+          hero,
+          Quest.WashedUp,
+          "washedUp",
+          questLogEntry.progress,
+        );
       }
     } else {
       // at any dock, send off on first fetch quest
       // give old boot
       hero = giveQuestItemNotification(context, hero, "old-boot");
 
-      hero.currentQuest = {
-        id: `WashedUp-${hero.id}-dock1`,
-        message: questEvents.docks[0],
-        quest: Quest.WashedUp,
-      };
-
-      hero.questLog.washedUp = {
-        id: `WashedUp-${hero.id}`,
-        started: true,
-        finished: false,
-        progress: 1,
-        lastEvent: hero.currentQuest,
-      };
+      hero = setQuestEvent(
+        hero,
+        Quest.WashedUp,
+        "dock1",
+        questEvents.docks[0],
+      );
+      hero = setQuestLogProgress(hero, Quest.WashedUp, "washedUp", 1);
     }
     return hero;
   }
@@ -216,19 +205,18 @@ function checkDock(context: BaseContext, hero: Hero): Hero {
 
   hero = getNewAward(context, hero);
 
-  hero.currentQuest = {
-    id: `WashedUp-${hero.id}-dock${questLogEntry.progress}`,
-    message: questEvents.docks[questLogEntry.progress],
-    quest: Quest.WashedUp,
-  };
-
-  hero.questLog.washedUp = {
-    id: `WashedUp-${hero.id}`,
-    started: true,
-    finished: false,
-    progress: questLogEntry.progress + 1,
-    lastEvent: hero.currentQuest,
-  };
+  hero = setQuestEvent(
+    hero,
+    Quest.WashedUp,
+    `dock${questLogEntry.progress}`,
+    questEvents.docks[questLogEntry.progress],
+  );
+  hero = setQuestLogProgress(
+    hero,
+    Quest.WashedUp,
+    "washedUp",
+    questLogEntry.progress + 1,
+  );
 
   return hero;
 }
@@ -259,25 +247,21 @@ function checkInitialWashedUp(context: BaseContext, hero: Hero): Hero {
 
     // overwrites existing currentQuest messages
     // mostly since it kills/moves you
-    hero.currentQuest = {
-      id: `WashedUp-${hero.id}-wakeUp`,
-      message: questEvents.wakeUp,
-      quest: Quest.WashedUp,
-    };
-
-    hero.questLog.washedUp = {
-      id: `WashedUp-${hero.id}`,
-      started: true,
-      finished: false,
-      progress: hero.questLog?.washedUp?.progress || 0,
-      lastEvent: hero.questLog?.washedUp?.lastEvent || hero.currentQuest,
-    };
+    hero = setQuestEvent(hero, Quest.WashedUp, "wakeUp", questEvents.wakeUp);
+    hero = setQuestLogProgress(
+      hero,
+      Quest.WashedUp,
+      "washedUp",
+      hero.questLog?.washedUp?.progress || 0,
+    );
 
     hero.combat.health = 0;
 
     // fix potential past bugs...
     if (hasQuestItem(hero, "fishermans-luck")) {
-      hero.questLog.washedUp.progress = 8;
+      if (hero.questLog.washedUp) {
+        hero.questLog.washedUp.progress = 8;
+      }
     }
   }
 

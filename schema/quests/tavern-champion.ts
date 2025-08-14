@@ -17,6 +17,8 @@ import {
   takeQuestItem,
   hasQuestItem,
   heroLocationName,
+  setQuestEvent,
+  setQuestLogProgress,
 } from "./helpers";
 
 const Hellhound = 0x01 << 0;
@@ -83,24 +85,17 @@ export function checkHeroDrop(
   return hero;
 }
 
-function setProgress(
-  hero: Hero,
-  progress: number,
-  questEvents: string[]
-): Hero {
-  hero.currentQuest = {
-    id: `TavernChampion-${hero.id}-${progress}`,
-    message: questEvents,
-    quest: Quest.TavernChampion,
-  };
-
-  hero.questLog.tavernChampion = {
-    id: `TavernChampion-${hero.id}`,
-    started: true,
-    finished: false,
-    progress: progress | (hero.questLog.tavernChampion?.progress ?? 0),
-    lastEvent: hero.currentQuest,
-  };
-
-  return hero;
+function setProgress(hero: Hero, progress: number, messages: string[]): Hero {
+  hero = setQuestEvent(
+    hero,
+    Quest.TavernChampion,
+    `${progress}`,
+    messages,
+  );
+  return setQuestLogProgress(
+    hero,
+    Quest.TavernChampion,
+    "tavernChampion",
+    progress | (hero.questLog.tavernChampion?.progress ?? 0),
+  );
 }

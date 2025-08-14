@@ -254,16 +254,20 @@ export function setQuestLogProgress(
   }
   const lastEvent =
     hero.currentQuest?.quest === quest ? hero.currentQuest : undefined;
+
+  const existing = hero.questLog[entryName];
+  const priorHistory = existing?.eventHistory ?? [];
+  const shouldAppend =
+    !!lastEvent &&
+    (!priorHistory.length || priorHistory[priorHistory.length - 1].id !== lastEvent.id);
+
   hero.questLog[entryName] = {
     id: `${quest}-${hero.id}`,
     started: true,
     finished,
-    progress: progress || (hero.questLog[entryName]?.progress ?? 0),
+    progress: progress || (existing?.progress ?? 0),
     lastEvent,
-    eventHistory: [
-      ...(hero.questLog[entryName]?.eventHistory ?? []),
-      ...(lastEvent ? [lastEvent] : []),
-    ],
+    eventHistory: shouldAppend ? [...priorHistory, lastEvent!] : priorHistory,
   };
 
   return hero;
