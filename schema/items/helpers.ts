@@ -222,12 +222,10 @@ export function addItemBuiltIns(item: InventoryItem): InventoryItem {
   // pick a random option
   const randomOption = options[Math.floor(Math.random() * options.length)];
   // determine magnitude
-  const magnitude =
-    Math.round(
-      (Math.random() * (randomOption.maxValue - randomOption.minValue) +
-        randomOption.minValue) /
-        randomOption.step,
-    ) * randomOption.step;
+  const raw =
+    Math.random() * (randomOption.maxValue - randomOption.minValue) +
+    randomOption.minValue;
+  const magnitude = Math.round(raw / randomOption.step) * randomOption.step;
 
   item.builtIns.push({
     type: randomOption.affix,
@@ -248,6 +246,7 @@ export function createItemInstance(item: BaseItem, owner: Hero): InventoryItem {
     type: item.type,
     level: item.level,
     enchantment: null,
+    builtIns: [],
   };
 }
 
@@ -282,6 +281,7 @@ export function giveHeroRandomDrop(
 
   const enchantment = randomEnchantment(enchantmentLevel, includeLowerTiers);
 
+  // Delegate built-in gating to the caller (e.g., monster resolver)
   giveHeroItem(context, hero, baseItem, enchantment);
 }
 

@@ -283,9 +283,9 @@ const resolvers: Resolvers = {
               );
 
               // roll for superior version of item
-              // if (Math.random() < 1 / 4) {
-              addItemBuiltIns(itemInstance);
-              // }
+              if (Math.random() < 1 / 4) {
+                addItemBuiltIns(itemInstance);
+              }
 
               droppedItem = itemInstance;
               hero.inventory.push(itemInstance);
@@ -316,20 +316,14 @@ const resolvers: Resolvers = {
       await context.db.hero.put(hero);
 
       // Set delay based on how much combat time elapsed, respecting reducedDelay
-      try {
-        const { COMBAT_DURATION } = await import("../../combat/constants");
-        const durationRemaining = fightResult.durationRemaining ?? COMBAT_DURATION;
-        let elapsed = COMBAT_DURATION - Math.max(0, durationRemaining);
-        // apply reducedDelay modifier
-        const heroUnit = context.db.hero.getUnit(hero);
-        const reducedDelay = heroUnit.stats.reducedDelay;
-        if (reducedDelay < 1) {
-          elapsed *= reducedDelay;
-        }
-        context.delay = Math.max(1, Math.round(elapsed));
-      } catch (e) {
-        // fallback to schema-configured delay if constants import fails
-      }
+      const { COMBAT_DURATION } = await import("../../combat/constants");
+      const durationRemaining =
+        fightResult.durationRemaining ?? COMBAT_DURATION;
+      let elapsed = COMBAT_DURATION - Math.max(0, durationRemaining);
+
+      // reduce delay by up to 1/2 depending on how much time was actually used...
+      context.delay =
+        (context.delay ?? 100) * (0.5 + 0.5 * (elapsed / COMBAT_DURATION));
 
       if (droppedItem) {
         context.io.sendNotification(hero.id, {

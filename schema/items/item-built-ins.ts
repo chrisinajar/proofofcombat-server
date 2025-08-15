@@ -50,10 +50,11 @@ export function getBuiltInOptionsForItem(baseItem: string): BuiltInOption[] {
   ) {
     // any armor
     options.push({
+      // percent bonus to this item's armor only (0.05 - 0.20)
       affix: ArtifactAttributeType.ItemBonusArmor,
-      minValue: 1,
-      maxValue: 20,
-      step: 1,
+      minValue: 0.05,
+      maxValue: 0.2,
+      step: 0.01,
     });
   }
   if (item.type === InventoryItemType.BodyArmor) {
@@ -72,9 +73,17 @@ export function getBuiltInOptionsForItem(baseItem: string): BuiltInOption[] {
   ) {
     // any weapon
     options.push({
+      // percent bonus to this weapon's base damage only (0.05 - 0.20)
       affix: ArtifactAttributeType.ItemBonusDamage,
-      minValue: 1,
-      maxValue: 20,
+      minValue: 0.05,
+      maxValue: 0.2,
+      step: 0.01,
+    });
+    // flat damage added to this weapon's base damage only
+    options.push({
+      affix: ArtifactAttributeType.ItemFlatDamage,
+      minValue: 1 * item.level,
+      maxValue: 10 * item.level,
       step: 1,
     });
   }

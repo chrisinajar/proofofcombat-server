@@ -70,7 +70,8 @@ export function delayDirectiveTransformer(
           }
           runAberrationCheck(context);
           const delay = context.delay || 0;
-          const result = resolve(source, args, context, info);
+          const result = await resolve(source, args, context, info);
+
           if (delay !== context.delay) {
             // resolver edited the delay, persist the data
             // first reload account just in case it changed in the resolver

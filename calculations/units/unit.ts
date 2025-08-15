@@ -272,7 +272,7 @@ export class Unit {
     item:
       | Pick<
           InventoryItemData,
-          "level" | "baseItem" | "enchantment" | "type" | "name" | "imbue"
+          "level" | "baseItem" | "enchantment" | "type" | "name" | "imbue" | "builtIns"
         >
       | null
       | undefined,
@@ -288,6 +288,7 @@ export class Unit {
       type: item.type,
       name: item.name,
       imbue: item.imbue,
+      builtIns: item.builtIns || null,
       unit: this,
     });
 
@@ -453,6 +454,13 @@ export class Unit {
       1,
       Math.pow(1.05, weaponLevel) * weaponLevel * 8 + increasedBaseDamage,
     );
+
+    // Apply built-ins that affect only the selected weapon
+    if (weapon && weapon instanceof InventoryItem) {
+      const bonusMult = weapon.getWeaponBonusDamageMultiplier();
+      const flat = weapon.getWeaponFlatDamageBonus();
+      baseDamage = Math.max(1, baseDamage * bonusMult + flat);
+    }
 
     return baseDamage;
   }

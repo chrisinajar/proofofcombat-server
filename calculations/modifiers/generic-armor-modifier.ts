@@ -6,6 +6,9 @@ export type GenericArmorModifierOptions = {
   tier: number;
   type?: InventoryItemType;
   isDebuff?: boolean;
+  // built-in per-item adjustments
+  builtInFlatArmor?: number;
+  builtInBonusArmor?: number; // 0.05 for +5%, or 1.05 if provided as multiplier
 };
 
 const ArmorSlotPenalties: { [x in InventoryItemType]: number } = {
@@ -26,12 +29,16 @@ const ArmorSlotPenalties: { [x in InventoryItemType]: number } = {
 export class GenericArmorModifier extends Modifier<GenericArmorModifierOptions> {
   tier: number;
   type?: InventoryItemType;
+  builtInFlatArmor: number = 0;
+  builtInBonusArmor: number = 0;
 
   constructor(options: ModifierOptions<GenericArmorModifierOptions>) {
     super(options);
 
     this.tier = options.options.tier;
     this.type = options.options.type;
+    this.builtInFlatArmor = options.options.builtInFlatArmor || 0;
+    this.builtInBonusArmor = options.options.builtInBonusArmor || 0;
 
     if (!this.tier) {
       console.log("Got bad generic armor modifier", this.tier, options.options);
@@ -55,15 +62,29 @@ export class GenericArmorModifier extends Modifier<GenericArmorModifierOptions> 
   }
   getBonus(prop: string): number | void {
     if (prop === "armor") {
-      if (this.type === InventoryItemType.Shield) {
-        return this.armorForTier(
-          this.tier +
-            this.parent.stats.bonusShieldTiers +
-            this.parent.stats.bonusArmorTiers,
-        );
-      } else {
-        return this.armorForTier(this.tier + this.parent.stats.bonusArmorTiers);
-      }
+      const baseArmor = (() => {
+        if (this.type === InventoryItemType.Shield) {
+          return this.armorForTier(
+            this.tier +
+              this.parent.stats.bonusShieldTiers +
+              this.parent.stats.bonusArmorTiers,
+          );
+        } else {
+          return this.armorForTier(
+            this.tier + this.parent.stats.bonusArmorTiers,
+          );
+        }
+      })();
+
+      const bonusMultiplier = this.builtInBonusArmor
+        ? this.builtInBonusArmor >= 1
+          ? this.builtInBonusArmor
+          : 1 + this.builtInBonusArmor
+        : 1;
+
+      const flat = this.builtInFlatArmor || 0;
+
+      return baseArmor * bonusMultiplier + flat;
     }
     return;
   }
