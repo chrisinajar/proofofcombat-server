@@ -11,6 +11,8 @@ import {
 import type { BaseContext } from "schema/context";
 
 import { LocationData, MapNames } from "../../constants";
+import { specialLocations } from "../../helpers";
+import { getBartenderAdvice } from "./text/bartender-advice";
 
 import { getQuestDescription } from "./text/quest-descriptions";
 import { checkHero } from "./helpers";
@@ -42,10 +44,26 @@ const resolvers: Resolvers = {
       let hero = await context.db.hero.get(context.auth.id);
       const account = await context.db.account.get(context.auth.id);
 
+      // Find a tavern at the hero's current location
+      const here = specialLocations(
+        hero.location.x,
+        hero.location.y,
+        hero.location.map as MapNames,
+      );
+      const tavern = here.find((loc) => loc.type === "tavern");
+
+      let message: string;
+      if (!tavern) {
+        message = "Find a tavern if you’re looking for advice.";
+      } else {
+        const lines = getBartenderAdvice(hero, tavern);
+        message = lines.join("\n");
+      }
+
       return {
         hero,
         account,
-        message: "Go away.",
+        message,
       };
     },
     async rebirth(
