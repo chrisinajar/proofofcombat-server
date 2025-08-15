@@ -14,6 +14,7 @@ import questsResolvers from "./quests/resolvers";
 import locationsResolvers from "./locations/resolvers";
 import itemsResolvers from "./items/resolvers";
 import adminResolvers from "./admin/resolvers";
+import graalResolvers from "./graal/resolvers";
 
 import "./aberration";
 
@@ -27,6 +28,7 @@ let schema = makeExecutableSchema({
     locationsResolvers,
     itemsResolvers,
     adminResolvers,
+    graalResolvers,
   ]),
 });
 

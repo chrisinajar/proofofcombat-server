@@ -42,6 +42,10 @@ const MonsterLockoutItems: { [x in string]?: string } = {
   "random-aberration-thornbrute": "essence-of-thorns",
 };
 
+function isAberration(monsterId: string): boolean {
+  return monsterId.includes("aberration");
+}
+
 const resolvers: Resolvers = {
   Mutation: {
     async fight(
@@ -55,7 +59,7 @@ const resolvers: Resolvers = {
       // dynamic delay will be set based on simulated combat duration
       const account = await context.db.account.get(context.auth.id);
       let hero = await context.db.hero.get(context.auth.id);
-      let monster = null;
+      let monster: MonsterInstance | null = null;
 
       try {
         monster = await context.db.monsterInstances.get(args.monster);
@@ -128,7 +132,35 @@ const resolvers: Resolvers = {
       // divide after the curving
       goldReward /= 2;
 
-      const fightResult = await fightMonster(hero, monster, attackType);
+      // Apply Graal loss benefits, if present
+      const ledger = await context.db.graal
+        .get(hero.id)
+        .catch(() => context.db.graal.createDefault(hero.id));
+      const now = Date.now();
+
+      const fightResult = await fightMonster(
+        hero,
+        monster,
+        attackType,
+        ({ attacker, victim }) => {
+          // Shame-Forged: +1% damage to aberrations for next 10 kills
+          if (
+            ledger.lastChosenBenefit === "ShameForged" &&
+            (ledger.benefitBossKillsRemaining ?? 0) > 0 &&
+            isAberration(monster?.monster?.id ?? "")
+          ) {
+            attacker.unit.stats.percentageDamageIncrease *= 1.01;
+          }
+          // Scabsteel: +2% defense for 1 hour
+          if (
+            ledger.lastChosenBenefit === "Scabsteel" &&
+            typeof ledger.benefitExpiresAt === "number" &&
+            ledger.benefitExpiresAt > now
+          ) {
+            attacker.unit.stats.percentageDamageReduction *= 0.98;
+          }
+        },
+      );
       let experienceRewards =
         (monster.monster.level + Math.pow(1.4, monster.monster.level)) * 10;
 
@@ -196,6 +228,23 @@ const resolvers: Resolvers = {
 
       // i am undeath
       fightResult.victimDied = monster.monster.combat.health < 1;
+
+      // Consume Shame-Forged charges on aberration kills
+      if (
+        fightResult.victimDied &&
+        isAberration(monster.monster.id) &&
+        ledger.lastChosenBenefit === "ShameForged" &&
+        (ledger.benefitBossKillsRemaining ?? 0) > 0
+      ) {
+        ledger.benefitBossKillsRemaining = Math.max(
+          0,
+          (ledger.benefitBossKillsRemaining ?? 0) - 1,
+        );
+        if (ledger.benefitBossKillsRemaining === 0) {
+          ledger.lastChosenBenefit = null;
+        }
+        await context.db.graal.put(ledger);
+      }
 
       let droppedItem: null | InventoryItem = null;
 

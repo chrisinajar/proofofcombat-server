@@ -7,6 +7,7 @@ import MonsterInstanceModel from "./models/monster-instance";
 import SystemModel from "./models/system";
 import TradeOfferModel from "./models/trade-offers";
 import PlayerLocationModel from "./models/player-location";
+import GraalLedgerDB from "./models/graal-ledger";
 
 const databases = {
   account: new AccountModel(),
@@ -16,6 +17,7 @@ const databases = {
   system: new SystemModel(),
   trades: new TradeOfferModel(),
   playerLocation: new PlayerLocationModel(),
+  graal: new GraalLedgerDB(),
   start() {
     setInterval(() => (this.playerLocation.upkeepReentrancy = false), 30000);
   },

@@ -9,6 +9,7 @@ import questsTypes from "./quests/type";
 import locationsTypes from "./locations/type";
 import itemsTypes from "./items/type";
 import adminTypes from "./admin/type";
+import graalTypes from "./graal/type";
 
 export default mergeTypeDefs([
   directives,
@@ -20,4 +21,5 @@ export default mergeTypeDefs([
   locationsTypes,
   itemsTypes,
   adminTypes,
+  graalTypes,
 ]);
