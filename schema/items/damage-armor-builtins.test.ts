@@ -9,7 +9,7 @@ import {
 describe("server helpers: built-ins apply correctly", () => {
   it("weaponDamageWithBuiltIns matches curve + built-ins", () => {
     const level = 12;
-    const base = computeBaseWeaponDamage(level);
+    const base = computeBaseWeaponDamage(level, 20);
     const item: any = {
       level,
       type: InventoryItemType.MeleeWeapon,
@@ -19,7 +19,7 @@ describe("server helpers: built-ins apply correctly", () => {
       ],
     };
     const expected = Math.round(base * (1 + 0.15) + 9);
-    const actual = weaponDamageWithBuiltIns(item);
+    const actual = weaponDamageWithBuiltIns(item, 20);
     expect(actual).toBe(expected);
   });
 
@@ -39,4 +39,3 @@ describe("server helpers: built-ins apply correctly", () => {
     expect(actual).toBe(expected);
   });
 });
-

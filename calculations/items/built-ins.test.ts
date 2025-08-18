@@ -10,20 +10,34 @@ describe("item built-ins", () => {
     // Weapon A with built-ins
     new InventoryItem({
       level: 10,
-      baseItem: "weapon-a",
       type: InventoryItemType.MeleeWeapon,
       unit,
-      builtIns: [
-        { type: ArtifactAttributeType.ItemFlatDamage, magnitude: 10 },
-        { type: ArtifactAttributeType.ItemBonusDamage, magnitude: 0.2 }, // +20%
-      ],
+      item: {
+        id: "weapon-a",
+        baseItem: "weapon-a",
+        type: InventoryItemType.MeleeWeapon,
+        level: 10,
+        name: "weapon-a",
+        owner: "hero",
+        builtIns: [
+          { type: ArtifactAttributeType.ItemFlatDamage, magnitude: 10 },
+          { type: ArtifactAttributeType.ItemBonusDamage, magnitude: 0.2 }, // +20%
+        ],
+      },
     });
 
     // Weapon B without built-ins
     new InventoryItem({
       level: 10,
-      baseItem: "weapon-b",
       type: InventoryItemType.MeleeWeapon,
+      item: {
+        id: "weapon-b",
+        level: 10,
+        name: "weapon-b",
+        owner: "hero",
+        baseItem: "weapon-b",
+        type: InventoryItemType.MeleeWeapon,
+      },
       unit,
     });
 
@@ -39,18 +53,24 @@ describe("item built-ins", () => {
     const startingArmor = unit.stats.armor;
 
     new InventoryItem({
-      level: 10,
-      baseItem: "armor-a",
-      type: InventoryItemType.BodyArmor,
       unit,
-      builtIns: [
-        { type: ArtifactAttributeType.ItemFlatArmor, magnitude: 25 },
-        { type: ArtifactAttributeType.ItemBonusArmor, magnitude: 0.1 }, // +10%
-      ],
+      level: 10,
+      type: InventoryItemType.BodyArmor,
+      item: {
+        owner: "hero",
+        id: "armor-a",
+        name: "armor-a",
+        level: 10,
+        baseItem: "armor-a",
+        type: InventoryItemType.BodyArmor,
+        builtIns: [
+          { type: ArtifactAttributeType.ItemFlatArmor, magnitude: 25 },
+          { type: ArtifactAttributeType.ItemBonusArmor, magnitude: 0.1 }, // +10%
+        ],
+      },
     });
 
     const afterArmor = unit.stats.armor;
     expect(afterArmor).toBeGreaterThan(startingArmor);
   });
 });
-

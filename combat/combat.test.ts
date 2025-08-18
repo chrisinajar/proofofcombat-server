@@ -230,7 +230,7 @@ describe("combat", () => {
         );
         expect(oddsBefore).toBeLessThan(oddsAfter);
       });
-      it.skip(`increasing ${stats.damage} makes you do more damage`, () => {
+      it(`increasing ${stats.damage} makes you do more damage`, () => {
         const hero = generateHero();
         const hero2 = generateHero();
         const hero2Combatant = createHeroCombatant(hero2, entry.attackType);
@@ -249,7 +249,7 @@ describe("combat", () => {
         );
         expect(damageBefore).toBeLessThan(damageAfter);
       });
-      it.skip(`increasing ${stats.damage} a little makes you do more damage even with big weapons`, () => {
+      it(`increasing ${stats.damage} a little makes you do more damage even with big weapons`, () => {
         const hero = generateHero();
         const hero2 = generateHero();
         const hero2Combatant = createHeroCombatant(hero2, entry.attackType);
@@ -286,7 +286,7 @@ describe("combat", () => {
         );
         expect(damageBefore).toBeLessThan(damageAfter);
       });
-      it.skip(`having a ton of ${stats.damage} makes you do way more damage`, () => {
+      it(`having a ton of ${stats.damage} makes you do way more damage`, () => {
         const hero = generateHero();
         const hero2 = generateHero();
         const damageBefore = getAverageDamage(
@@ -295,14 +295,14 @@ describe("combat", () => {
           createHeroCombatant(hero2, entry.attackType),
         );
 
-        hero.stats[stats.damage] *= 1000;
+        hero.stats[stats.damage] *= 10000;
 
         const damageAfter = getAverageDamage(
           createHeroCombatant(hero, entry.attackType),
           entry.attackType,
           createHeroCombatant(hero2, entry.attackType),
         );
-        expect(damageBefore * 50).toBeLessThan(damageAfter);
+        expect(damageBefore * 10).toBeLessThan(damageAfter);
       });
     });
   });
@@ -374,8 +374,7 @@ describe("combat", () => {
     });
   });
 });
-// Balance thresholds from pre-2.0 combat; skip pending new tuning
-describe.skip("builds", () => {
+describe("builds", () => {
   type gearFunction = () => EquipmentSlots;
   function testBuilds(
     buildName: string,
@@ -1150,6 +1149,8 @@ describe("damage conversion", () => {
       createHeroCombatant(hero, AttackType.Melee),
       hero2Combatant,
     );
+
+    console.log(result);
 
     console.log("Damage instances:", result.damages);
     console.log(

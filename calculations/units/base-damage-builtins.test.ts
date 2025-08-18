@@ -5,7 +5,9 @@ import { InventoryItem } from "../items/inventory-item";
 
 function baseCurve(level: number): number {
   const increasedBaseDamage = 20;
-  return Math.max(1, Math.pow(1.05, level) * level * 8 + increasedBaseDamage);
+  return Math.round(
+    Math.max(1, Math.pow(1.05, level) * level * 8 + increasedBaseDamage),
+  );
 }
 
 describe("Unit.getBaseDamage applies weapon built-ins exactly once", () => {
@@ -13,11 +15,18 @@ describe("Unit.getBaseDamage applies weapon built-ins exactly once", () => {
     const unit = new Unit();
     const level = 10;
     const item = new InventoryItem({
-      level,
-      baseItem: "dummy",
-      type: InventoryItemType.MeleeWeapon,
       unit,
-      builtIns: [],
+      level,
+      type: InventoryItemType.MeleeWeapon,
+      item: {
+        level,
+        id: "dummy",
+        name: "dummy",
+        owner: "dummy",
+        baseItem: "dummy",
+        type: InventoryItemType.MeleeWeapon,
+        builtIns: [],
+      },
     });
     unit.equipment.push(item);
 
@@ -32,12 +41,20 @@ describe("Unit.getBaseDamage applies weapon built-ins exactly once", () => {
     const flat = 7;
     const item = new InventoryItem({
       level,
-      baseItem: "dummy",
-      type: InventoryItemType.MeleeWeapon,
       unit,
-      builtIns: [
-        { type: ArtifactAttributeType.ItemFlatDamage, magnitude: flat },
-      ],
+      type: InventoryItemType.MeleeWeapon,
+
+      item: {
+        level,
+        id: "dummy",
+        name: "dummy",
+        owner: "dummy",
+        baseItem: "dummy",
+        type: InventoryItemType.MeleeWeapon,
+        builtIns: [
+          { type: ArtifactAttributeType.ItemFlatDamage, magnitude: flat },
+        ],
+      },
     });
     unit.equipment.push(item);
 
@@ -52,12 +69,19 @@ describe("Unit.getBaseDamage applies weapon built-ins exactly once", () => {
     const bonus = 0.2;
     const item = new InventoryItem({
       level,
-      baseItem: "dummy",
-      type: InventoryItemType.MeleeWeapon,
       unit,
-      builtIns: [
-        { type: ArtifactAttributeType.ItemBonusDamage, magnitude: bonus },
-      ],
+      type: InventoryItemType.MeleeWeapon,
+      item: {
+        level,
+        id: "dummy",
+        name: "dummy",
+        owner: "dummy",
+        baseItem: "dummy",
+        type: InventoryItemType.MeleeWeapon,
+        builtIns: [
+          { type: ArtifactAttributeType.ItemBonusDamage, magnitude: bonus },
+        ],
+      },
     });
     unit.equipment.push(item);
 
@@ -73,13 +97,20 @@ describe("Unit.getBaseDamage applies weapon built-ins exactly once", () => {
     const flat = 5;
     const item = new InventoryItem({
       level,
-      baseItem: "dummy",
-      type: InventoryItemType.MeleeWeapon,
       unit,
-      builtIns: [
-        { type: ArtifactAttributeType.ItemBonusDamage, magnitude: bonus },
-        { type: ArtifactAttributeType.ItemFlatDamage, magnitude: flat },
-      ],
+      type: InventoryItemType.MeleeWeapon,
+      item: {
+        level,
+        id: "dummy",
+        name: "dummy",
+        owner: "dummy",
+        baseItem: "dummy",
+        type: InventoryItemType.MeleeWeapon,
+        builtIns: [
+          { type: ArtifactAttributeType.ItemBonusDamage, magnitude: bonus },
+          { type: ArtifactAttributeType.ItemFlatDamage, magnitude: flat },
+        ],
+      },
     });
     unit.equipment.push(item);
 
@@ -88,4 +119,3 @@ describe("Unit.getBaseDamage applies weapon built-ins exactly once", () => {
     expect(actual).toBeCloseTo(expected, 10);
   });
 });
-

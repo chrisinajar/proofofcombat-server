@@ -77,8 +77,11 @@ describe("calculateDamage converted-type resistance caps", () => {
       };
 
       const result = calculateDamage(attacker, victim, false, true);
+      console.log(result);
       // Expect a Fire damage instance present
-      const fireHit = result.damages.find((d) => d.damageType === DamageType.Fire);
+      const fireHit = result.damages.find(
+        (d) => d.damageType === DamageType.Fire,
+      );
       expect(fireHit).toBeTruthy();
 
       // Base damage is 100; 50% converts to Fire => 50 pre-resist/conversion caps
@@ -90,4 +93,3 @@ describe("calculateDamage converted-type resistance caps", () => {
     }
   });
 });
-

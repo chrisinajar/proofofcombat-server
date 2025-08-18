@@ -74,7 +74,7 @@ export function calculateDamageValues(
 
   let baseDamage = attacker.unit.getBaseDamage(isSecondAttack);
 
-  if (armor + 1 >= baseDamage) {
+  if (armor > 0 && armor + 1 >= baseDamage) {
     baseDamage = 1 + baseDamage / armor;
   } else {
     baseDamage = baseDamage - armor;
@@ -179,6 +179,8 @@ export function calculateDamage(
     console.log("final damage", damage);
   }
   damage *= multiplier;
+
+  damage = Math.max(1, damage);
 
   // unit can have stats of damageAsType where type is any of these
   // they'll be any value between 0 and 1, and they'll be used to convert damage to other types

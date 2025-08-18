@@ -423,16 +423,15 @@ export class Unit {
       return true;
     });
 
-    let weaponLevel = weapon?.level ?? 0;
+    const increasedBaseDamage = this.stats.increasedBaseDamage;
 
     if (!weapon || !(weapon instanceof InventoryItem)) {
       if (isSecondAttack) {
         return 0;
       }
-      return 1;
+      return 1 + increasedBaseDamage;
     }
 
-    const increasedBaseDamage = this.stats.increasedBaseDamage;
     return weaponDamageWithBuiltIns(weapon.item, increasedBaseDamage) ?? 0;
   }
 

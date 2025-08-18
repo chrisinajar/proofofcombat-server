@@ -7,18 +7,32 @@ describe("legacy inventory item", () => {
     const baseUnit = new Unit();
     new InventoryItem({
       level: 2,
-      baseItem: "some-item",
       type: InventoryItemType.Quest,
-      enchantment: EnchantmentType.CounterSpell,
+      item: {
+        level: 2,
+        baseItem: "some-item",
+        id: "some-item",
+        name: "some-item",
+        owner: "hero",
+        type: InventoryItemType.Quest,
+        enchantment: EnchantmentType.CounterSpell,
+      },
       unit: baseUnit,
     });
 
     expect(baseUnit.stats.counterSpell).toBe(1);
     new InventoryItem({
       level: 2,
-      baseItem: "some-item",
       type: InventoryItemType.Quest,
-      enchantment: EnchantmentType.CounterSpell,
+      item: {
+        level: 2,
+        baseItem: "some-item",
+        id: "some-item",
+        name: "some-item",
+        owner: "hero",
+        type: InventoryItemType.Quest,
+        enchantment: EnchantmentType.CounterSpell,
+      },
       unit: baseUnit,
     });
 
@@ -28,8 +42,15 @@ describe("legacy inventory item", () => {
     const baseUnit = new Unit();
     new InventoryItem({
       level: 2,
-      baseItem: "naga-scale",
       type: InventoryItemType.Quest,
+      item: {
+        level: 2,
+        baseItem: "naga-scale",
+        id: "naga-scale",
+        name: "naga-scale",
+        owner: "hero",
+        type: InventoryItemType.Quest,
+      },
       unit: baseUnit,
     });
 
