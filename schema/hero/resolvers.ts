@@ -498,8 +498,14 @@ const resolvers: Resolvers = {
         if (!inventoryItem || inventoryItem.owner !== hero.id) return undefined;
         return inventoryItem;
       }
-      const left = findEquippedItem(fullHero as Hero, fullHero.equipment.leftHand);
-      const right = findEquippedItem(fullHero as Hero, fullHero.equipment.rightHand);
+      const left = findEquippedItem(
+        fullHero as Hero,
+        fullHero.equipment.leftHand,
+      );
+      const right = findEquippedItem(
+        fullHero as Hero,
+        fullHero.equipment.rightHand,
+      );
       if (left) equipped.push(left);
       if (right) equipped.push(right);
 
@@ -664,10 +670,10 @@ const resolvers: Resolvers = {
         physicalEvasionRating,
         magicEvasionRating,
 
-        baseDamage: Math.floor(
+        baseDamage: Math.round(
           enchantedStats.attacker.unit.getBaseDamage(false),
         ),
-        secondAttackBaseDamage: Math.floor(
+        secondAttackBaseDamage: Math.round(
           enchantedStats.attacker.unit.getBaseDamage(true),
         ),
 

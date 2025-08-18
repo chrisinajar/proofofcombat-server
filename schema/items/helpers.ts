@@ -13,6 +13,7 @@ import { BaseItem } from "./";
 import { BaseItems } from "./base-items";
 import { type NamedItem, NamedItems } from "./named-items";
 import { getBuiltInOptionsForItem } from "./item-built-ins";
+import { ArtifactAttributeType } from "types/graphql";
 
 export function countEnchantments(
   hero: Hero,
@@ -328,4 +329,71 @@ export function giveHeroArtifact(
   });
 
   return hero;
+}
+
+// Shared calculation helpers to keep UI in sync via server fields
+export function computeBaseWeaponDamage(level: number): number {
+  const increasedBaseDamage = 20;
+  const base = Math.max(1, Math.pow(1.05, level) * level * 8 + increasedBaseDamage);
+  return Math.round(base);
+}
+
+const ArmorSlotPenalties: { [x in string]: number } = {
+  BodyArmor: 1,
+  FootArmor: 3,
+  HandArmor: 3,
+  HeadArmor: 2,
+  LegArmor: 2,
+  Shield: 1,
+};
+
+export function computeBaseArmor(level: number, type: string): number {
+  if (level < 1) return 0;
+  const raw = Math.round((level / 2 + Math.log(level)) * Math.pow(level, 1.3));
+  const penalty = ArmorSlotPenalties[type] ?? 1;
+  const adjusted = penalty > 0 ? (raw + penalty) / penalty : 0;
+  return Math.round(adjusted);
+}
+
+export function weaponDamageWithBuiltIns(item: InventoryItem): number | null {
+  if (!item || !item.type) return null;
+  if (
+    item.type !== ("MeleeWeapon" as any) &&
+    item.type !== ("RangedWeapon" as any) &&
+    item.type !== ("SpellFocus" as any)
+  ) {
+    return null;
+  }
+  const base = computeBaseWeaponDamage(item.level);
+  const flat = (item.builtIns || [])
+    .filter((a) => a.type === ArtifactAttributeType.ItemFlatDamage)
+    .reduce((m, a) => m + a.magnitude, 0);
+  const bonusSum = (item.builtIns || [])
+    .filter((a) => a.type === ArtifactAttributeType.ItemBonusDamage)
+    .reduce((m, a) => m + a.magnitude, 0);
+  const multiplier = bonusSum ? (bonusSum >= 1 ? bonusSum : 1 + bonusSum) : 1;
+  return Math.round(base * multiplier + flat);
+}
+
+export function armorWithBuiltIns(item: InventoryItem): number | null {
+  if (!item || !item.type) return null;
+  if (
+    item.type !== ("BodyArmor" as any) &&
+    item.type !== ("HandArmor" as any) &&
+    item.type !== ("LegArmor" as any) &&
+    item.type !== ("HeadArmor" as any) &&
+    item.type !== ("FootArmor" as any) &&
+    item.type !== ("Shield" as any)
+  ) {
+    return null;
+  }
+  const base = computeBaseArmor(item.level, item.type as any);
+  const flat = (item.builtIns || [])
+    .filter((a) => a.type === ArtifactAttributeType.ItemFlatArmor)
+    .reduce((m, a) => m + a.magnitude, 0);
+  const bonusSum = (item.builtIns || [])
+    .filter((a) => a.type === ArtifactAttributeType.ItemBonusArmor)
+    .reduce((m, a) => m + a.magnitude, 0);
+  const multiplier = bonusSum ? (bonusSum >= 1 ? bonusSum : 1 + bonusSum) : 1;
+  return Math.round(base * multiplier + flat);
 }

@@ -50,6 +50,10 @@ export default gql`
     enchantment: EnchantmentType
     imbue: InventoryItemImbue
     builtIns: [ArtifactAttribute!]
+
+    # server-computed, item-scoped values (no hero bonuses)
+    baseDamage: Int
+    baseArmor: Int
   }
 
   type InventoryItemImbue {

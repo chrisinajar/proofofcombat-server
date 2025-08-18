@@ -17,6 +17,10 @@ import { getEnchantedAttributes } from "../../combat/enchantments";
 import { createHeroCombatant } from "../../combat/hero";
 import { BaseItems } from "../items/base-items";
 import { createItemInstance, countEnchantments } from "../items/helpers";
+import {
+  weaponDamageWithBuiltIns,
+  armorWithBuiltIns,
+} from "../items/helpers";
 import type { BaseItem } from "../items";
 import { hasQuestItem, takeQuestItem, checkHeroPurchase } from "../quests/helpers";
 
@@ -30,6 +34,16 @@ type SlotNameType =
   | "footArmor";
 
 const resolvers: Resolvers = {
+  InventoryItem: {
+    baseDamage(item) {
+      const val = weaponDamageWithBuiltIns(item as any);
+      return val === null ? null : val;
+    },
+    baseArmor(item) {
+      const val = armorWithBuiltIns(item as any);
+      return val === null ? null : val;
+    },
+  },
   Query: {
     async shopItems(parent, args, context: BaseContext): Promise<ShopItem[]> {
       return Object.keys(BaseItems)
