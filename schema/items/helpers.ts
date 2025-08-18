@@ -9,6 +9,8 @@ import { v4 as uuidv4 } from "uuid";
 
 import { BaseContext } from "../context";
 
+import type { InventoryItem as InventoryItemClass } from "../../calculations/items/inventory-item";
+
 import { BaseItem } from "./";
 import { BaseItems } from "./base-items";
 import { type NamedItem, NamedItems } from "./named-items";
@@ -332,9 +334,14 @@ export function giveHeroArtifact(
 }
 
 // Shared calculation helpers to keep UI in sync via server fields
-export function computeBaseWeaponDamage(level: number): number {
-  const increasedBaseDamage = 20;
-  const base = Math.max(1, Math.pow(1.05, level) * level * 8 + increasedBaseDamage);
+export function computeBaseWeaponDamage(
+  level: number,
+  increasedBaseDamage: number,
+): number {
+  const base = Math.max(
+    1,
+    Math.pow(1.05, level) * level * 8 + increasedBaseDamage,
+  );
   return Math.round(base);
 }
 
@@ -348,23 +355,30 @@ const ArmorSlotPenalties: { [x in string]: number } = {
 };
 
 export function computeBaseArmor(level: number, type: string): number {
-  if (level < 1) return 0;
-  const raw = Math.round((level / 2 + Math.log(level)) * Math.pow(level, 1.3));
+  if (level < 1) {
+    return 0;
+  }
+  const raw = Math.round(
+    (level / 8 + Math.log(level)) * Math.pow(level, 1.05) * 2,
+  );
   const penalty = ArmorSlotPenalties[type] ?? 1;
   const adjusted = penalty > 0 ? (raw + penalty) / penalty : 0;
   return Math.round(adjusted);
 }
 
-export function weaponDamageWithBuiltIns(item: InventoryItem): number | null {
+export function weaponDamageWithBuiltIns(
+  item: InventoryItem,
+  increasedBaseDamage: number,
+): number | null {
   if (!item || !item.type) return null;
   if (
-    item.type !== ("MeleeWeapon" as any) &&
-    item.type !== ("RangedWeapon" as any) &&
-    item.type !== ("SpellFocus" as any)
+    item.type !== InventoryItemType.MeleeWeapon &&
+    item.type !== InventoryItemType.RangedWeapon &&
+    item.type !== InventoryItemType.SpellFocus
   ) {
     return null;
   }
-  const base = computeBaseWeaponDamage(item.level);
+  const base = computeBaseWeaponDamage(item.level, increasedBaseDamage);
   const flat = (item.builtIns || [])
     .filter((a) => a.type === ArtifactAttributeType.ItemFlatDamage)
     .reduce((m, a) => m + a.magnitude, 0);
@@ -378,12 +392,12 @@ export function weaponDamageWithBuiltIns(item: InventoryItem): number | null {
 export function armorWithBuiltIns(item: InventoryItem): number | null {
   if (!item || !item.type) return null;
   if (
-    item.type !== ("BodyArmor" as any) &&
-    item.type !== ("HandArmor" as any) &&
-    item.type !== ("LegArmor" as any) &&
-    item.type !== ("HeadArmor" as any) &&
-    item.type !== ("FootArmor" as any) &&
-    item.type !== ("Shield" as any)
+    item.type !== InventoryItemType.BodyArmor &&
+    item.type !== InventoryItemType.HandArmor &&
+    item.type !== InventoryItemType.LegArmor &&
+    item.type !== InventoryItemType.HeadArmor &&
+    item.type !== InventoryItemType.FootArmor &&
+    item.type !== InventoryItemType.Shield
   ) {
     return null;
   }

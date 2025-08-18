@@ -1,5 +1,6 @@
 import { InventoryItemType } from "types/graphql";
 import { Modifier, ModifierOptions } from "./modifier";
+import { computeBaseArmor } from "../../schema/items/helpers";
 
 export type GenericArmorModifierOptions = {
   // ? i dunno something like this
@@ -46,19 +47,7 @@ export class GenericArmorModifier extends Modifier<GenericArmorModifierOptions> 
     }
   }
   armorForTier(tier: number): number {
-    if (tier < 1) {
-      return 0;
-    }
-
-    return this.adjustForSlot(
-      Math.round((tier / 2 + Math.log(tier)) * Math.pow(tier, 1.3)),
-    );
-  }
-
-  adjustForSlot(armor: number): number {
-    const armorAdjustmentValue =
-      ArmorSlotPenalties[this.type || InventoryItemType.BodyArmor];
-    return (armor + armorAdjustmentValue) / armorAdjustmentValue;
+    return computeBaseArmor(tier, this.type || InventoryItemType.BodyArmor);
   }
   getBonus(prop: string): number | void {
     if (prop === "armor") {

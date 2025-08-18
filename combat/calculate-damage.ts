@@ -74,8 +74,8 @@ export function calculateDamageValues(
 
   let baseDamage = attacker.unit.getBaseDamage(isSecondAttack);
 
-  if (armor >= baseDamage) {
-    baseDamage = baseDamage / armor;
+  if (armor + 1 >= baseDamage) {
+    baseDamage = 1 + baseDamage / armor;
   } else {
     baseDamage = baseDamage - armor;
   }

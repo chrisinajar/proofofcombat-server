@@ -17,12 +17,13 @@ import { getEnchantedAttributes } from "../../combat/enchantments";
 import { createHeroCombatant } from "../../combat/hero";
 import { BaseItems } from "../items/base-items";
 import { createItemInstance, countEnchantments } from "../items/helpers";
-import {
-  weaponDamageWithBuiltIns,
-  armorWithBuiltIns,
-} from "../items/helpers";
+import { weaponDamageWithBuiltIns, armorWithBuiltIns } from "../items/helpers";
 import type { BaseItem } from "../items";
-import { hasQuestItem, takeQuestItem, checkHeroPurchase } from "../quests/helpers";
+import {
+  hasQuestItem,
+  takeQuestItem,
+  checkHeroPurchase,
+} from "../quests/helpers";
 
 type SlotNameType =
   | "leftHand"
@@ -36,7 +37,7 @@ type SlotNameType =
 const resolvers: Resolvers = {
   InventoryItem: {
     baseDamage(item) {
-      const val = weaponDamageWithBuiltIns(item as any);
+      const val = weaponDamageWithBuiltIns(item as any, 0);
       return val === null ? null : val;
     },
     baseArmor(item) {
@@ -202,9 +203,9 @@ const resolvers: Resolvers = {
 
       // delete all the offers involving this item
       await Promise.all(
-        (
-          await context.db.trades.offersForItem(offerItem.id)
-        ).map((otherOffers) => context.db.trades.del(offer)),
+        (await context.db.trades.offersForItem(offerItem.id)).map(
+          (otherOffers) => context.db.trades.del(offer),
+        ),
       );
 
       offerHero.inventory = offerHero.inventory.filter(

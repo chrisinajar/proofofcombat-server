@@ -100,6 +100,8 @@ export class Hero extends Unit {
 
   equipEnchantment(blessing: EnchantmentType) {
     this.equipItem({
+      id: "blessing-item",
+      owner: this.hero.id,
       level: 1,
       enchantment: blessing,
       type: InventoryItemType.Quest,
