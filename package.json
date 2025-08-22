@@ -58,15 +58,16 @@
     "eslint": "8.56.0",
     "nodemon": "^3.0.3",
     "prettier": "^3.2.5",
-    "ts-node": "~10.9.2"
+    "ts-node": "~10.9.2",
+    "tsconfig-paths": "^4.2.0"
   },
   "scripts": {
     "prepare": "husky install",
     "generate": "graphql-codegen",
-    "dev": "nodemon --exec ts-node ./index.ts",
+    "dev": "nodemon --exec ts-node -r tsconfig-paths/register ./index.ts",
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "ts": "tsc --noEmit --incremental",
-    "generate-quest-text": "ts-node scripts/generate-quest-text.ts"
+    "generate-quest-text": "ts-node -r tsconfig-paths/register scripts/generate-quest-text.ts"
   }
 }

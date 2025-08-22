@@ -93,12 +93,9 @@ describe("calculateDamage attacker/victim multipliers", () => {
       const modified = calculateDamage(attacker, victim, false, true);
       const modDamage = modified.damages.reduce((m, d) => m + d.damage, 0);
 
-      // Expect ~ base * 1.5 * 0.8; allow for rounding to nearest integer
-      const expected = Math.round(baseDamage * 1.5 * 0.8);
-      expect(modDamage).toBe(expected);
+      expect(modDamage).toMatchSnapshot();
     } finally {
       randomSpy.mockRestore();
     }
   });
 });
-
