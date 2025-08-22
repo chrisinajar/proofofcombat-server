@@ -102,6 +102,16 @@ You release Droop and he sprints into Brewconia's arms, who then walks off while
 
 ---
 
+## Graal the unbroken
+
+### Opener
+
+Graal stands unmoving, eyes on your stance.
+
+"You seek proof? Then offer pain."
+
+---
+
 ## Meet the queen
 
 ### Intro

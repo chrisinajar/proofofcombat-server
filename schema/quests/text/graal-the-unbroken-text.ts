@@ -1,4 +1,4 @@
-export const graalText = {
+export const questEvents = {
   opener: [
     "Graal stands unmoving, eyes on your stance.",
     '"You seek proof? Then offer pain."',

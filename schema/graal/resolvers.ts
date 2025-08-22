@@ -1,6 +1,6 @@
 import { ForbiddenError, UserInputError } from "apollo-server";
 import type { BaseContext } from "schema/context";
-import { graalText } from "../quests/text/graal-the-unbroken-text";
+import { questEvents as graalText } from "../quests/text/graal-the-unbroken-text";
 import { AttackType } from "types/graphql";
 import { createHeroCombatant } from "../../combat/hero";
 import { executeFight } from "../../combat/fight";
@@ -32,7 +32,11 @@ function gateByTavernChampion(hero: any) {
 
 const resolvers: any = {
   Query: {
-    async graalAvailable(_p: any, _a: any, context: BaseContext): Promise<boolean> {
+    async graalAvailable(
+      _p: any,
+      _a: any,
+      context: BaseContext,
+    ): Promise<boolean> {
       if (!context?.auth?.id) throw new ForbiddenError("Missing auth");
       const hero = await context.db.hero.get(context.auth.id);
       if (!gateByTavernChampion(hero)) return false;
@@ -62,11 +66,16 @@ const resolvers: any = {
       if (!context?.auth?.id) throw new ForbiddenError("Missing auth");
       const hero = await context.db.hero.get(context.auth.id);
       if (!gateByTavernChampion(hero)) {
-        throw new UserInputError("Graal ignores you. Become the Tavern Champion first.");
+        throw new UserInputError(
+          "Graal ignores you. Become the Tavern Champion first.",
+        );
       }
 
       const ledger = await getOrCreateLedger(context, hero.id);
-      if (ledger.lastChallengedAt && isSameUTCDate(ledger.lastChallengedAt, Date.now())) {
+      if (
+        ledger.lastChallengedAt &&
+        isSameUTCDate(ledger.lastChallengedAt, Date.now())
+      ) {
         throw new UserInputError("You may only challenge Graal once per day.");
       }
 
@@ -91,11 +100,17 @@ const resolvers: any = {
         ] as const;
         for (const k of resistKeys) {
           // @ts-ignore indexed access on dynamic stat name
-          victim.unit.stats[k] = Math.min(0.95, (victim.unit.stats[k] || 0) + 0.05);
+          victim.unit.stats[k] = Math.min(
+            0.95,
+            (victim.unit.stats[k] || 0) + 0.05,
+          );
         }
         // Slight health bump
         victim.maxHealth = Math.round(victim.maxHealth * 1.05);
-        victim.health = Math.min(victim.maxHealth, Math.round(victim.health * 1.05));
+        victim.health = Math.min(
+          victim.maxHealth,
+          Math.round(victim.health * 1.05),
+        );
       } catch (e) {
         // non-fatal; proceed with base mirror
       }
@@ -140,8 +155,12 @@ const resolvers: any = {
 
       // Hint flavor for loss; pick simple generic now
       const hint = didWin
-        ? graalText.victory.lines[(seed + ledger.wins) % graalText.victory.lines.length]
-        : (Object.values(graalText.loss.hints) as string[])[seed % Object.keys(graalText.loss.hints).length];
+        ? graalText.victory.lines[
+            (seed + ledger.wins) % graalText.victory.lines.length
+          ]
+        : (Object.values(graalText.loss.hints) as string[])[
+            seed % Object.keys(graalText.loss.hints).length
+          ];
 
       return {
         outcome: didWin ? "win" : "loss",
@@ -161,7 +180,11 @@ const resolvers: any = {
         },
       };
     },
-    async chooseGraalLossBenefit(_p: any, args: { benefit: "ShameForged" | "Scabsteel" }, context: BaseContext) {
+    async chooseGraalLossBenefit(
+      _p: any,
+      args: { benefit: "ShameForged" | "Scabsteel" },
+      context: BaseContext,
+    ) {
       if (!context?.auth?.id) throw new ForbiddenError("Missing auth");
       const ledger = await getOrCreateLedger(context, context.auth.id);
       if (ledger.lastResult !== "loss") {
