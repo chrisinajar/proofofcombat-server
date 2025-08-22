@@ -370,9 +370,10 @@ const resolvers: Resolvers = {
         fightResult.durationRemaining ?? COMBAT_DURATION;
       let elapsed = COMBAT_DURATION - Math.max(0, durationRemaining);
 
-      // reduce delay by up to 1/2 depending on how much time was actually used...
+      // reduce delay by up to a cerain amount depending on how much time was actually used...
+      // elapsed / COMBAT_DURATION is the percentage of time actually used
       context.delay =
-        (context.delay ?? 100) * (0.5 + 0.5 * (elapsed / COMBAT_DURATION));
+        (context.delay ?? 100) * (0.2 + 0.8 * (elapsed / COMBAT_DURATION));
 
       if (droppedItem) {
         context.io.sendNotification(hero.id, {

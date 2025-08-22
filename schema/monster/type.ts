@@ -13,7 +13,7 @@ export default gql`
       monster: ID!
       attackType: AttackType
       stance: HeroStance
-    ): MonsterFightResult! @auth @delay(delay: 800)
+    ): MonsterFightResult! @auth @delay(delay: 1600)
   }
 
   type MonsterFightResult {
