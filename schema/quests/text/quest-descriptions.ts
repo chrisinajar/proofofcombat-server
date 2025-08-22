@@ -9,6 +9,7 @@ const Descriptions: { [x in Quest]?: string } = {
   [Quest.NagaScale]:
     "You've found some strange items while fighting. You should see if you can trade your way up to something valuable...",
   [Quest.Settlements]: "Your people grow to respect and obey you.",
+  [Quest.TasteForBusiness]: "The shop keeper has some delicious work for you.",
 };
 
 export function getQuestDescription(quest: Quest): string {

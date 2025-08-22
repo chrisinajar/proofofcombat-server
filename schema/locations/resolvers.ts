@@ -35,6 +35,7 @@ import {
   checkCapital,
   giveBaseItemNotification,
   takeOneQuestItem,
+  checkHeroLocation,
 } from "../quests/helpers";
 import { countEnchantments } from "../items/helpers";
 import { checkTeleport } from "../quests/staff-of-teleportation";
@@ -1546,7 +1547,7 @@ const resolvers: Resolvers = {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
       }
-      const hero = await context.db.hero.get(context.auth.id);
+      let hero = await context.db.hero.get(context.auth.id);
       const account = await context.db.account.get(context.auth.id);
 
       if (hero.combat.health <= 0) {
@@ -1586,6 +1587,8 @@ const resolvers: Resolvers = {
 
       hero.location.x = targetLocation.x;
       hero.location.y = targetLocation.y;
+
+      hero = checkHeroLocation(context, hero);
 
       await context.db.hero.put(hero);
 
@@ -1653,7 +1656,7 @@ const resolvers: Resolvers = {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
       }
-      const hero = await context.db.hero.get(context.auth.id);
+      let hero = await context.db.hero.get(context.auth.id);
       const account = await context.db.account.get(context.auth.id);
 
       if (hero.combat.health <= 0) {
@@ -1701,6 +1704,8 @@ const resolvers: Resolvers = {
       }
 
       hero.location = heroLocation;
+
+      hero = checkHeroLocation(context, hero);
 
       await context.db.hero.put(hero);
 

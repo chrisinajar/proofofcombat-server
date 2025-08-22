@@ -600,6 +600,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.experience = data.experience ?? 0;
     data.attackSpeedRemainder = data.attackSpeedRemainder ?? 0;
 
+    // if (data.questLog?.tasteForBusiness) delete data.questLog?.tasteForBusiness;
+
     data.skillPercent = data.skillPercent ?? 0;
     data.skills = data.skills ?? {
       attackingAccuracy: 0,
