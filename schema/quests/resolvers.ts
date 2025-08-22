@@ -1,16 +1,10 @@
 import { ForbiddenError, UserInputError } from "apollo-server";
 
-import {
-  Resolvers,
-  QuestDescription,
-  Quest,
-  LevelUpResponse,
-  TalkResponse,
-} from "types/graphql";
+import { Resolvers, QuestDescription, LevelUpResponse, TalkResponse } from "types/graphql";
 
 import type { BaseContext } from "schema/context";
 
-import { LocationData, MapNames } from "../../constants";
+import { MapNames } from "../../constants";
 import { specialLocations } from "../../helpers";
 import { getBartenderAdvice } from "./text/bartender-advice";
 
@@ -20,7 +14,7 @@ import { rebirth } from "./rebirth";
 
 const resolvers: Resolvers = {
   Query: {
-    async quest(parent, args, context: BaseContext): Promise<QuestDescription> {
+    async quest(parent, args): Promise<QuestDescription> {
       return {
         id: args.quest,
         description: getQuestDescription(args.quest),
@@ -41,8 +35,10 @@ const resolvers: Resolvers = {
         throw new ForbiddenError("Missing auth");
       }
 
-      let hero = await context.db.hero.get(context.auth.id);
+      const hero = await context.db.hero.get(context.auth.id);
       const account = await context.db.account.get(context.auth.id);
+
+      let message: string;
 
       // Find a tavern at the hero's current location
       const here = specialLocations(
@@ -52,9 +48,11 @@ const resolvers: Resolvers = {
       );
       const tavern = here.find((loc) => loc.type === "tavern");
 
-      let message: string;
       if (!tavern) {
         message = "Find a tavern if you’re looking for advice.";
+      } else if (!hero.questLog.tasteForBusiness?.finished) {
+        // Gossip is only available after Taste for Business completes
+        message = "The bartender ignores you.";
       } else {
         const lines = getBartenderAdvice(hero, tavern);
         message = lines.join("\n");
@@ -69,7 +67,7 @@ const resolvers: Resolvers = {
     async rebirth(
       parent,
       args,
-      context: BaseContext
+      context: BaseContext,
     ): Promise<LevelUpResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
@@ -94,7 +92,7 @@ const resolvers: Resolvers = {
     async dismissQuest(
       parent,
       args,
-      context: BaseContext
+      context: BaseContext,
     ): Promise<LevelUpResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");

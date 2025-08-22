@@ -5,13 +5,28 @@ import {
   MapNames,
 } from "./constants";
 
+export function isAtSpecialLocation(
+  x: number,
+  y: number,
+  map: MapNames,
+  name: string,
+): boolean {
+  const locations: SpecialLocation[] = specialLocations(
+    x,
+    y,
+    map as MapNames,
+  ).filter((loc) => loc.name === name);
+
+  return !!locations.length;
+}
+
 export function specialLocations(
   x: number,
   y: number,
-  map: MapNames
+  map: MapNames,
 ): SpecialLocation[] {
   return LocationData[map].specialLocations.filter(
-    (location) => location.x === x && location.y === y
+    (location) => location.x === x && location.y === y,
   );
 }
 
@@ -21,7 +36,7 @@ export function findTerrainType(
   terrain: TerrainType,
   direction: number = 1,
   maxMagnitude: number = 1,
-  magnitude: number = 1
+  magnitude: number = 1,
 ): [number, number] {
   const checkLocation = LocationData.default.locations[x][y];
   if (checkLocation.terrain === terrain) {

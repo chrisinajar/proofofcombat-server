@@ -6,8 +6,8 @@ import {
   PlayerLocation,
 } from "types/graphql";
 
-import { LocationData, MapNames, SpecialLocation } from "../../constants";
-import { findTerrainType, specialLocations } from "../../helpers";
+import { MapNames, SpecialLocation } from "../../constants";
+import { specialLocations } from "../../helpers";
 
 import { BaseContext } from "../context";
 import { createItemInstance } from "../items/helpers";
@@ -37,7 +37,11 @@ import { checkHeroDrop as checkHeroDropForDroop } from "./droop";
 import { checkHeroDrop as checkHeroDropForTavernChamp } from "./tavern-champion";
 import { checkHeroDrop as checkHeroDropForMinorClasses } from "./minor-class-upgrades";
 import { checkCapital as checkCapitalForSettlements } from "./settlements";
-import { checkHeroPurchase as checkHeroPurchaseForTasteForBusiness } from "./taste-for-business";
+import {
+  checkHeroPurchase as checkHeroPurchaseForTasteForBusiness,
+  checkHeroLocation as checkHeroLocationForTasteForBusiness,
+  checkHero as checkHeroForTasteForBusiness,
+} from "./taste-for-business";
 
 export async function checkSkipDrop(
   context: BaseContext,
@@ -75,6 +79,15 @@ export function checkHeroDrop(
   return hero;
 }
 
+export function checkHeroLocation(context: BaseContext, hero: Hero): Hero {
+  hero = checkHeroLocationForTasteForBusiness(context, hero);
+
+  hero = checkHeroForWashedUp(context, hero);
+  hero = checkHeroForMeetTheQueen(context, hero);
+
+  return hero;
+}
+
 export function checkHero(context: BaseContext, hero: Hero): Hero {
   hero = checkHeroForWashedUp(context, hero);
   hero = checkHeroForRebirth(context, hero);
@@ -83,12 +96,18 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   hero = checkHeroForNagaScale(context, hero);
   hero = checkHeroForClockwork(context, hero);
   hero = checkHeroForMeetTheQueen(context, hero);
+  hero = checkHeroForTasteForBusiness(context, hero);
 
   return hero;
 }
 
-export function checkHeroPurchase(context: BaseContext, hero: Hero, item: InventoryItem, price: number): Hero {
-  // hero = checkHeroPurchaseForTasteForBusiness(context, hero, item, price);
+export function checkHeroPurchase(
+  context: BaseContext,
+  hero: Hero,
+  item: InventoryItem,
+  price: number,
+): Hero {
+  hero = checkHeroPurchaseForTasteForBusiness(context, hero, item, price);
 
   return hero;
 }
@@ -259,7 +278,8 @@ export function setQuestLogProgress(
   const priorHistory = existing?.eventHistory ?? [];
   const shouldAppend =
     !!lastEvent &&
-    (!priorHistory.length || priorHistory[priorHistory.length - 1].id !== lastEvent.id);
+    (!priorHistory.length ||
+      priorHistory[priorHistory.length - 1].id !== lastEvent.id);
 
   hero.questLog[entryName] = {
     id: `${quest}-${hero.id}`,
