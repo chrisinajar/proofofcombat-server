@@ -1,15 +1,12 @@
 import { Location } from "types/graphql";
 import { MAP_DIMENSIONS } from "./index";
 
-// day/night cycle is once every 4 hours
-// timezones are 1 hour apart
-// so the game world is divided into 24 timezones radially
-// and then the timezone in the center, so 25 total
-// the center of the map is always in twilight
+// Day/night cycle is once every 4 hours (real time).
+// Timezones are 1 hour apart (in-game) with 24 radial zones plus a central twilight.
+// The center of the map is always in twilight and is offset-neutral.
 
-// the northmost vertical timezone is +-0 relative to the modulus time
-// the center timezone shares that same offset, being neutral
-// center twilight timezone is the innermost 1/Xth of the radius
+// Orientation: timezone 0 aligns with the right (east) edge; north (top) is 18.
+// Center twilight timezone is the innermost 1/Xth of the radius.
 // using a constant to control X so that we can mechanically interract and also play
 // with the value unitl it gets to where we want it
 
@@ -43,7 +40,6 @@ export function timestampLocationToGameTime(
   timestamp: number,
   location: Location,
 ): FullTimeInfo {
-  const { x, y } = location;
   const timezone = getTimezoneForLocation(location);
   const { offset } = timezone;
   const time =
@@ -54,7 +50,7 @@ export function timestampLocationToGameTime(
   return {
     timezone,
     time: adjustedTime,
-    daytime: time / DAY_NIGHT_LENGTH,
+    daytime: adjustedTime / DAY_NIGHT_LENGTH,
   };
 }
 
@@ -65,7 +61,7 @@ export function getTimezoneForLocation(location: Location): TimeZone {
     return { name: "Twilight", offset: 0 };
   }
   const angle = getAngleFromCenter(location, MAP_DIMENSIONS);
-  const offset = getTimezoneIndex(angle, 24); // 24 timezones
+  const offset = getTimezoneIndex(angle, TIMEZONE_COUNT); // use configured timezone count
   const name = `Timezone ${offset}`;
   return { name, offset };
 }
