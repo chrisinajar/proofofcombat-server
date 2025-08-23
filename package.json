@@ -68,6 +68,7 @@
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "ts": "tsc --noEmit --incremental",
-    "generate-quest-text": "ts-node -r tsconfig-paths/register scripts/generate-quest-text.ts"
+    "generate-quest-text": "ts-node -r tsconfig-paths/register scripts/generate-quest-text.ts",
+    "generate-bartender-advice": "ts-node -r tsconfig-paths/register scripts/generate-bartender-advice.ts"
   }
 }
