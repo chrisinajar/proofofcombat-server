@@ -177,10 +177,6 @@ const resolvers: Resolvers = {
         experienceRewards *= 3;
       }
 
-      experienceRewards = Math.ceil(
-        Math.min(hero.needed / 5, experienceRewards),
-      );
-
       experienceRewards *= Math.pow(2, xpDoublers);
 
       hero.combat.health = Math.round(
