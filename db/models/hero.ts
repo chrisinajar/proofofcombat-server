@@ -12,6 +12,7 @@ import {
   HeroSkill,
   HeroStance,
   HeroClasses,
+  MonsterKillEntry,
 } from "types/graphql";
 import { startingLevelCap } from "../../schema/quests/rebirth";
 import {
@@ -69,6 +70,7 @@ type PartialHero = Optional<
   | "availableAttacks"
   | "buffs"
   | "attackSpeedRemainder"
+  | "monsterKills"
 >;
 
 // actions as strings or enums to represent any given action that might increase a skill
@@ -102,6 +104,30 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
   countEnchantments(hero: Hero, enchantment: EnchantmentType): number {
     return countEnchantments(hero, enchantment);
+  }
+
+  // --- Monster kill helpers ---
+  getMonsterKillEntry(hero: Hero, monsterId: string): MonsterKillEntry | undefined {
+    if (!hero.monsterKills) return undefined;
+    return hero.monsterKills.find((e) => e.monsterId === monsterId);
+  }
+
+  setMonsterKillCount(hero: Hero, monsterId: string, kills: number): Hero {
+    if (!hero.monsterKills) hero.monsterKills = [];
+    const safeKills = Math.max(0, Math.round(kills));
+    const idx = hero.monsterKills.findIndex((e) => e.monsterId === monsterId);
+    if (idx >= 0) {
+      hero.monsterKills[idx] = { monsterId, kills: safeKills };
+    } else {
+      hero.monsterKills.push({ monsterId, kills: safeKills });
+    }
+    return hero;
+  }
+
+  incrementMonsterKill(hero: Hero, monsterId: string, amount: number = 1): Hero {
+    const entry = this.getMonsterKillEntry(hero, monsterId);
+    const current = entry?.kills ?? 0;
+    return this.setMonsterKillCount(hero, monsterId, current + amount);
   }
 
   publicHero(hero: Hero, local: boolean): PublicHero {
@@ -789,6 +815,12 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       data.buffs = {
         blessing: null,
       };
+    }
+
+    // Initialize per-monster kill tracking for legacy records
+    // Keeps GraphQL field non-nullable
+    if (!data.monsterKills) {
+      data.monsterKills = [];
     }
 
     // recalculate stats and turn it into a real hero object

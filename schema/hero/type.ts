@@ -75,6 +75,9 @@ export default gql`
 
     # Which attack types are valid based on current equipment
     availableAttacks: [AttackType!]!
+
+    # Per-monster kill tracking
+    monsterKills: [MonsterKillEntry!]!
   }
 
   # various buffs like blessings, curses, etc not bound to quest items
@@ -259,5 +262,11 @@ export default gql`
     willpower: Float!
 
     luck: Float!
+  }
+
+  # Tracks stats per monster; expandable with more fields later
+  type MonsterKillEntry {
+    monsterId: ID!
+    kills: Int!
   }
 `;

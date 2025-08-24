@@ -294,6 +294,9 @@ const resolvers: Resolvers = {
         context.db.hero.addExperience(context, hero, experienceRewards);
         hero.gold = hero.gold + goldReward;
 
+        // Track kill for this monster
+        hero = context.db.hero.incrementMonsterKill(hero, monster.monster.id, 1);
+
         // drop chances!!
         const luck = hero.stats.luck;
         const dropOdds =
