@@ -8,8 +8,8 @@ export function calculateHitChance(
   defenderRating: number,
 ): number {
   const steepness = 2;
-  const minHit = 0.1;
-  const maxHit = 0.99;
+  const minHit = 0.4;
+  const maxHit = 1;
 
   return opposedSigmoidOdds(
     attackerRating,
