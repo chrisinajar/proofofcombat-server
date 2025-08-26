@@ -17,7 +17,7 @@ export class BasicUnitModifier extends Modifier<undefined> {
         const attackerDamageStat = attributesForAttack(
           this.parent.attackType,
         ).damage;
-        return Math.pow(this.parent.stats[attackerDamageStat], 0.62) / 50;
+        return Math.pow(this.parent.stats[attackerDamageStat], 0.66) / 50;
     }
 
     return;

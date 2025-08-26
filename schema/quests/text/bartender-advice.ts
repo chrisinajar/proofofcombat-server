@@ -1,6 +1,7 @@
-import { Hero, Quest, QuestProgress } from "types/graphql";
-import { SpecialLocation } from "../../../constants";
+import { Hero, Quest, QuestProgress, Location } from "types/graphql";
 import { getQuestDescription } from "./quest-descriptions";
+import { SpecialLocation } from "../../../constants";
+import { timestampLocationToGameTime } from "../../../constants/helpers";
 
 type AdviceContext = {
   hero: Hero;
@@ -19,6 +20,11 @@ type BartenderPersona = {
   rules: AdviceRule[];
   fallback: (ctx: AdviceContext) => string[];
 };
+
+function isNight(location: Location): boolean {
+  const ts = timestampLocationToGameTime(Date.now(), location);
+  return ts.daytime > 0.8 || ts.daytime < 0.3;
+}
 
 function isValidQuestEntry(
   entry: QuestProgress | string | undefined | null,
@@ -62,12 +68,17 @@ const personas: Record<string, BartenderPersona> = {
     tone: "eccentric",
     rules: [
       {
+        id: "night",
+        when: ({ hero }) => isNight(hero.location),
+        lines: ({ hero }) => [pick([])],
+      },
+      {
         id: "washed-up",
         when: ({ hero }) =>
           questStarted(hero, "washedUp") && questProgress(hero, "washedUp") < 8,
         lines: ({ hero }) => [
           pick([
-            "You look like you’ve been through a storm. Docks workers know which way the tide pulls strays.",
+            "You look like you've been through a storm. Docks workers know which way the tide pulls strays.",
             "Salt still on your boots? Check the docks and listen for chatter about shipwrecks.",
           ]),
         ],
@@ -79,8 +90,8 @@ const personas: Record<string, BartenderPersona> = {
           !questFinished(hero, "tavernChampion"),
         lines: () => [
           pick([
-            "If you’re chasing trophies, our regulars whisper about a beast in the roots and another in the machinists’ quarter.",
-            "Champion, hm? Try the hidden stump for a warmup, then Rotherham’s clang and steam for a real test.",
+            "If you're chasing trophies, our regulars whisper about a beast in the roots and another in the machinists' quarter.",
+            "Champion, hm? Try the hidden stump for a warmup, then Rotherham's clang and steam for a real test.",
           ]),
         ],
       },
@@ -92,8 +103,8 @@ const personas: Record<string, BartenderPersona> = {
           questStarted(hero, "tasteForBusiness"),
         lines: () => [
           pick([
-            "Gathering’s half the work. Keep your pack light and your eyes open — ingredients have a way of hiding in plain sight.",
-            "Need parts or scales? Hunt where the locals talk about ‘strange gleam’ or ‘slick shapes under the pier’.",
+            "Gathering's half the work. Keep your pack light and your eyes open — ingredients have a way of hiding in plain sight.",
+            "Need parts or scales? Hunt where the locals talk about ‘strange gleam' or ‘slick shapes under the pier'.",
           ]),
         ],
       },
@@ -102,8 +113,8 @@ const personas: Record<string, BartenderPersona> = {
         when: ({ hero }) => questStarted(hero, "meetTheQueen"),
         lines: () => [
           pick([
-            "If you’re set on courtly halls, perform well where the Queen’s entourage lingers. They like a good story.",
-            "Palace doors open easier for those with a reputation. Stir the city and you’ll find the path.",
+            "If you're set on courtly halls, perform well where the Queen's entourage lingers. They like a good story.",
+            "Palace doors open easier for those with a reputation. Stir the city and you'll find the path.",
           ]),
         ],
       },
@@ -120,13 +131,18 @@ const personas: Record<string, BartenderPersona> = {
     tone: "rustic",
     rules: [
       {
+        id: "night",
+        when: ({ hero }) => isNight(hero.location),
+        lines: ({ hero }) => [pick([])],
+      },
+      {
         id: "hobgoblins",
         when: ({ hero }) =>
           questProgress(hero, "washedUp") >= 8 && !questStarted(hero, "droop"),
         lines: () => [
           pick([
             "That damn goblin is always stealing from my patrons. He keeps the Hobgoblins on payroll, if you kill enough of them you might get an idea where he's hiding out.",
-            "Hobgoblins are a menace, but they’re not the sharpest. If you find their camp, they’ll probably have a stash of stolen goods.",
+            "Hobgoblins are a menace, but they're not the sharpest. If you find their camp, they'll probably have a stash of stolen goods.",
           ]),
         ],
       },
@@ -158,14 +174,14 @@ const personas: Record<string, BartenderPersona> = {
         lines: () => [
           pick([
             "In these woods, loud things die quiet. Move light, strike quick.",
-            "Keep to the roots — the strongest here don’t like open ground.",
+            "Keep to the roots — the strongest here don't like open ground.",
           ]),
         ],
       },
     ],
     fallback: () => [
       pick([
-        "Trail’s warm if you use your senses. Listen more than you look.",
+        "Trail's warm if you use your senses. Listen more than you look.",
         "Plenty pass through. The ones who return walk softly and think ahead.",
       ]),
     ],
@@ -179,7 +195,7 @@ const personas: Record<string, BartenderPersona> = {
         when: ({ hero }) => questStarted(hero, "clockwork"),
         lines: () => [
           pick([
-            "Gears jam where heat builds. Follow the hiss, you’ll find loose parts and mean tempers.",
+            "Gears jam where heat builds. Follow the hiss, you'll find loose parts and mean tempers.",
             "Keep an eye for irregular ticks — broken machines gather broken men.",
           ]),
         ],
@@ -197,7 +213,7 @@ const personas: Record<string, BartenderPersona> = {
     ],
     fallback: () => [
       pick([
-        "If it hisses or clanks, it’s worth a look.",
+        "If it hisses or clanks, it's worth a look.",
         "Work with the flow, not against it. Even brass knows its rhythm.",
       ]),
     ],
@@ -222,7 +238,7 @@ const personas: Record<string, BartenderPersona> = {
           questStarted(hero, "clockwork") || questStarted(hero, "nagaScale"),
         lines: () => [
           pick([
-            "Scales and gears both wash ashore. Low tide’s a scavenger’s feast.",
+            "Scales and gears both wash ashore. Low tide's a scavenger's feast.",
             "Bring a net. The river keeps secrets and trinkets both.",
           ]),
         ],
@@ -231,7 +247,7 @@ const personas: Record<string, BartenderPersona> = {
     fallback: () => [
       pick([
         "Keep your feet beneath you and your eyes on the waterline.",
-        "You’ll learn more listening than talking in a port.",
+        "You'll learn more listening than talking in a port.",
       ]),
     ],
   },
@@ -266,7 +282,7 @@ const personas: Record<string, BartenderPersona> = {
         when: ({ hero }) => questStarted(hero, "nagaScale"),
         lines: () => [
           pick([
-            "Old scales sleep beneath older stones. Unsettle neither unless you’re ready.",
+            "Old scales sleep beneath older stones. Unsettle neither unless you're ready.",
             "The ruins bite back. Bring purpose, not just courage.",
           ]),
         ],
@@ -274,7 +290,7 @@ const personas: Record<string, BartenderPersona> = {
     ],
     fallback: () => [
       pick([
-        "Relics don’t like haste.",
+        "Relics don't like haste.",
         "Patience will uncover more than force here.",
       ]),
     ],
@@ -289,7 +305,7 @@ const genericRules: AdviceRule[] = [
       const q = hero.currentQuest!.quest as Quest;
       const desc = getQuestDescription(q);
       return [
-        pick([`If you’re on ${q}, remember: ${desc}`, `About ${q}: ${desc}`]),
+        pick([`If you're on ${q}, remember: ${desc}`, `About ${q}: ${desc}`]),
       ];
     },
   },

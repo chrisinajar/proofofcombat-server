@@ -358,9 +358,7 @@ export function computeBaseArmor(level: number, type: string): number {
   if (level < 1) {
     return 0;
   }
-  const raw = Math.round(
-    (level / 8 + Math.log(level)) * Math.pow(level, 1.05) * 2,
-  );
+  const raw = Math.round((level / 8 + Math.log(level)) * Math.pow(level, 1.04));
   const penalty = ArmorSlotPenalties[type] ?? 1;
   const adjusted = penalty > 0 ? (raw + penalty) / penalty : 0;
   return Math.round(adjusted);
