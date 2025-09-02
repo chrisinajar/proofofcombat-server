@@ -11,6 +11,7 @@ import {
   MonsterEquipment,
   EnchantmentType,
   HeroStance,
+  DungeonSelectionMode,
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
@@ -74,20 +75,17 @@ const resolvers: Resolvers = {
       }
 
       // Dungeon lock: restrict which monsters can be fought
-      const dungeon = (hero as any).dungeon as
-        | { remaining: string[]; selection: "AnyOrder" | "LockedOrder"; index: number }
-        | null
-        | undefined;
+      const dungeon = hero.dungeon;
       if (dungeon && Array.isArray(dungeon.remaining) && dungeon.remaining.length > 0) {
         const targetId = monster.monster.id;
-        if (dungeon.selection === "LockedOrder") {
+        if (dungeon.selection === DungeonSelectionMode.LockedOrder) {
           const expected = dungeon.remaining[Math.max(0, dungeon.index || 0)];
           if (targetId !== expected) {
             throw new UserInputError(
               "You are in a dungeon and must fight the next required enemy.",
             );
           }
-        } else {
+        } else if (dungeon.selection === DungeonSelectionMode.AnyOrder) {
           // AnyOrder: target must be one of remaining
           if (!dungeon.remaining.includes(targetId)) {
             throw new UserInputError(
@@ -386,20 +384,20 @@ const resolvers: Resolvers = {
         if (dungeon && Array.isArray(dungeon.remaining) && dungeon.remaining.length > 0) {
           const killedId = monster.monster.id;
           const selection = dungeon.selection;
-          if (selection === "LockedOrder") {
-            const nextIndex = Math.max(0, dungeon.index || 0) + 1;
+          if (selection === DungeonSelectionMode.LockedOrder) {
+            const nextIndex = Math.max(0, dungeon.index ?? 0) + 1;
             if (nextIndex >= dungeon.remaining.length) {
-              (hero as any).dungeon = null;
+              hero.dungeon = null;
             } else {
-              (hero as any).dungeon.index = nextIndex;
+              hero.dungeon = { ...dungeon, index: nextIndex };
             }
-          } else {
+          } else if (selection === DungeonSelectionMode.AnyOrder) {
             // Remove killedId from remaining
             const remaining = dungeon.remaining.filter((id) => id !== killedId);
             if (remaining.length === 0) {
-              (hero as any).dungeon = null;
+              hero.dungeon = null;
             } else {
-              (hero as any).dungeon.remaining = remaining;
+              hero.dungeon = { ...dungeon, remaining };
             }
           }
         }

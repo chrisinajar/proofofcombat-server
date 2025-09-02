@@ -71,6 +71,7 @@ type PartialHero = Optional<
   | "buffs"
   | "attackSpeedRemainder"
   | "monsterKills"
+  | "dungeon"
 >;
 
 // actions as strings or enums to represent any given action that might increase a skill
@@ -630,7 +631,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
 
     data.skillPercent = data.skillPercent ?? 0;
     // Default: no active dungeon
-    ;(data as any).dungeon = (data as any).dungeon ?? null;
+    // Ensure legacy records gain the field
+    if (data.dungeon === undefined) data.dungeon = null;
     data.skills = data.skills ?? {
       attackingAccuracy: 0,
       castingAccuracy: 0,
@@ -672,11 +674,9 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     // GraphQL resolver returns the authoritative, equipment-based list
     // This default exists only to satisfy typing for legacy records
     // and is not used by the API response resolver
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore tolerate absence at runtime when upgrading raw data
-    data.availableAttacks = (data as any).availableAttacks ?? [
-      AttackType.Melee,
-    ];
+    if (!data.availableAttacks) {
+      data.availableAttacks = [AttackType.Melee];
+    }
 
     if (!data.combat) {
       data.combat = {
