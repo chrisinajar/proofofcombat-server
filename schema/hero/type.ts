@@ -78,6 +78,9 @@ export default gql`
 
     # Per-monster kill tracking
     monsterKills: [MonsterKillEntry!]!
+
+    # Active dungeon lock state (null when free-roaming)
+    dungeon: DungeonState
   }
 
   # various buffs like blessings, curses, etc not bound to quest items
@@ -268,5 +271,22 @@ export default gql`
   type MonsterKillEntry {
     monsterId: ID!
     kills: Int!
+  }
+
+  # Dungeons
+  enum DungeonSelectionMode {
+    AnyOrder
+    LockedOrder
+  }
+
+  type DungeonState {
+    # Optional dungeon identifier for future content hooks
+    id: ID
+    # Remaining enemy IDs to defeat for this dungeon run
+    remaining: [ID!]!
+    # Selection mode: AnyOrder lets the player pick among remaining; LockedOrder enforces sequence
+    selection: DungeonSelectionMode!
+    # Current index into remaining when LockedOrder; ignored for AnyOrder
+    index: Int!
   }
 `;

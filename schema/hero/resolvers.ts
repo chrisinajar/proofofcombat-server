@@ -95,6 +95,13 @@ const resolvers: Resolvers = {
 
       let hero = await context.db.hero.get(context.auth.id);
 
+      // Disallow PvP while locked in a dungeon
+      if ((hero as any).dungeon && (hero as any).dungeon.remaining?.length > 0) {
+        throw new UserInputError(
+          "You cannot attack other heroes while in a dungeon.",
+        );
+      }
+
       if (hero.combat.health <= 0) {
         throw new UserInputError("You must heal before attacking!");
       }

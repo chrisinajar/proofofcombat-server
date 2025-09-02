@@ -629,6 +629,8 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     // if (data.questLog?.tasteForBusiness) delete data.questLog?.tasteForBusiness;
 
     data.skillPercent = data.skillPercent ?? 0;
+    // Default: no active dungeon
+    ;(data as any).dungeon = (data as any).dungeon ?? null;
     data.skills = data.skills ?? {
       attackingAccuracy: 0,
       castingAccuracy: 0,

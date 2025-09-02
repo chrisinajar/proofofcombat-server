@@ -25,6 +25,16 @@ export default gql`
 
     # Generate an artifact for testing
     generateArtifact(id: ID!, level: Float!): BaseAccount! @auth @admin
+
+    # Dungeons (temporary programmatic controls)
+    startDungeon(
+      id: ID!
+      sequence: [ID!]!
+      selection: DungeonSelectionMode = LockedOrder
+      dungeonId: ID
+    ): BaseAccount! @auth @admin
+
+    clearDungeon(id: ID!): BaseAccount! @auth @admin
   }
 
   type AccountListResponse {

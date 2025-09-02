@@ -73,6 +73,30 @@ const resolvers: Resolvers = {
         throw new UserInputError("You must heal before attacking!");
       }
 
+      // Dungeon lock: restrict which monsters can be fought
+      const dungeon = (hero as any).dungeon as
+        | { remaining: string[]; selection: "AnyOrder" | "LockedOrder"; index: number }
+        | null
+        | undefined;
+      if (dungeon && Array.isArray(dungeon.remaining) && dungeon.remaining.length > 0) {
+        const targetId = monster.monster.id;
+        if (dungeon.selection === "LockedOrder") {
+          const expected = dungeon.remaining[Math.max(0, dungeon.index || 0)];
+          if (targetId !== expected) {
+            throw new UserInputError(
+              "You are in a dungeon and must fight the next required enemy.",
+            );
+          }
+        } else {
+          // AnyOrder: target must be one of remaining
+          if (!dungeon.remaining.includes(targetId)) {
+            throw new UserInputError(
+              "You are in a dungeon and cannot fight that enemy right now.",
+            );
+          }
+        }
+      }
+
       if (
         monster.location.x !== hero.location.x ||
         monster.location.y !== hero.location.y ||
@@ -357,6 +381,28 @@ const resolvers: Resolvers = {
         hero = checkHeroDrop(context, hero, monster);
 
         await context.db.monsterInstances.del(monster);
+
+        // Advance dungeon progression on kill
+        if (dungeon && Array.isArray(dungeon.remaining) && dungeon.remaining.length > 0) {
+          const killedId = monster.monster.id;
+          const selection = dungeon.selection;
+          if (selection === "LockedOrder") {
+            const nextIndex = Math.max(0, dungeon.index || 0) + 1;
+            if (nextIndex >= dungeon.remaining.length) {
+              (hero as any).dungeon = null;
+            } else {
+              (hero as any).dungeon.index = nextIndex;
+            }
+          } else {
+            // Remove killedId from remaining
+            const remaining = dungeon.remaining.filter((id) => id !== killedId);
+            if (remaining.length === 0) {
+              (hero as any).dungeon = null;
+            } else {
+              (hero as any).dungeon.remaining = remaining;
+            }
+          }
+        }
       } else {
         await context.db.monsterInstances.put(monster);
       }

@@ -7,6 +7,7 @@ import { giveHeroItem, giveHeroArtifact } from "../items/helpers";
 import { BaseItems } from "../items/base-items";
 import { NamedItems } from "../items/named-items";
 import { spawnRandomAberration } from "../aberration";
+import { DungeonSelectionMode } from "types/graphql";
 
 const resolvers: Resolvers = {
   Query: {
@@ -141,7 +142,7 @@ const resolvers: Resolvers = {
     async generateArtifact(
       parent: unknown,
       args: { id: string; level: number },
-      context: BaseContext
+      context: BaseContext,
     ): Promise<BaseAccount> {
       let hero = await context.db.hero.get(args.id);
 
@@ -156,11 +157,43 @@ const resolvers: Resolvers = {
         context,
         hero,
         artifact,
-        `Admin generated artifact: ${artifact.name}`
+        `Admin generated artifact: ${artifact.name}`,
       );
 
       await context.db.hero.put(hero);
 
+      return context.db.account.get(args.id);
+    },
+
+    async startDungeon(
+      _parent,
+      args: {
+        id: string;
+        sequence: string[];
+        selection?: DungeonSelectionMode;
+        dungeonId?: string | null;
+      },
+      context: BaseContext,
+    ): Promise<BaseAccount> {
+      const hero = await context.db.hero.get(args.id);
+      hero.dungeon = {
+        id: args.dungeonId ?? null,
+        remaining: [...(args.sequence || [])],
+        selection: args.selection ?? DungeonSelectionMode.LockedOrder,
+        index: 0,
+      };
+      await context.db.hero.put(hero);
+      return context.db.account.get(args.id);
+    },
+
+    async clearDungeon(
+      _parent,
+      args: { id: string },
+      context: BaseContext,
+    ): Promise<BaseAccount> {
+      const hero = await context.db.hero.get(args.id);
+      hero.dungeon = null;
+      await context.db.hero.put(hero);
       return context.db.account.get(args.id);
     },
   },
