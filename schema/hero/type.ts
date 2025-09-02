@@ -288,5 +288,7 @@ export default gql`
     selection: DungeonSelectionMode!
     # Current index into remaining when LockedOrder; ignored for AnyOrder
     index: Int!
+    # Optional: lock the hero to a specific location while in this dungeon
+    lockedLocation: Location
   }
 `;

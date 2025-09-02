@@ -1160,6 +1160,13 @@ const resolvers: Resolvers = {
       }
       const hero = await context.db.hero.get(context.auth.id);
       const account = await context.db.account.get(context.auth.id);
+
+      if ((hero as any)?.dungeon?.lockedLocation) {
+        throw new UserInputError("You cannot move while locked in a dungeon!");
+      }
+      if ((hero as any)?.dungeon?.lockedLocation) {
+        throw new UserInputError("You cannot move while locked in a dungeon!");
+      }
       const targetLocation = args.location;
       const playerLocation = await context.db.playerLocation.get(
         context.db.playerLocation.locationId(targetLocation),
@@ -1549,6 +1556,9 @@ const resolvers: Resolvers = {
       }
       let hero = await context.db.hero.get(context.auth.id);
       const account = await context.db.account.get(context.auth.id);
+      if ((hero as any)?.dungeon?.lockedLocation) {
+        throw new UserInputError("You cannot move while locked in a dungeon!");
+      }
 
       if (hero.combat.health <= 0) {
         throw new UserInputError("You cannot move while dead!");
@@ -1605,6 +1615,9 @@ const resolvers: Resolvers = {
       }
       const hero = await context.db.hero.get(context.auth.id);
       const account = await context.db.account.get(context.auth.id);
+      if ((hero as any)?.dungeon?.lockedLocation) {
+        throw new UserInputError("You cannot move while locked in a dungeon!");
+      }
 
       if (hero.combat.health <= 0) {
         throw new UserInputError("You cannot move while dead!");
@@ -1658,6 +1671,9 @@ const resolvers: Resolvers = {
       }
       let hero = await context.db.hero.get(context.auth.id);
       const account = await context.db.account.get(context.auth.id);
+      if ((hero as any)?.dungeon?.lockedLocation) {
+        throw new UserInputError("You cannot move while locked in a dungeon!");
+      }
 
       if (hero.combat.health <= 0) {
         throw new UserInputError("You cannot move while dead!");

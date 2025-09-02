@@ -32,6 +32,7 @@ export default gql`
       sequence: [ID!]!
       selection: DungeonSelectionMode = LockedOrder
       dungeonId: ID
+      lockAtStart: Boolean
     ): BaseAccount! @auth @admin
 
     clearDungeon(id: ID!): BaseAccount! @auth @admin

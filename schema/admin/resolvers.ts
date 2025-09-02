@@ -172,6 +172,7 @@ const resolvers: Resolvers = {
         sequence: string[];
         selection?: DungeonSelectionMode;
         dungeonId?: string | null;
+        lockAtStart?: boolean | null;
       },
       context: BaseContext,
     ): Promise<BaseAccount> {
@@ -181,6 +182,7 @@ const resolvers: Resolvers = {
         remaining: [...(args.sequence || [])],
         selection: args.selection ?? DungeonSelectionMode.LockedOrder,
         index: 0,
+        lockedLocation: args.lockAtStart ? { ...hero.location } : null,
       };
       await context.db.hero.put(hero);
       return context.db.account.get(args.id);
