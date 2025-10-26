@@ -5,6 +5,7 @@ import { BaseContext } from "../context";
 
 import { questEvents } from "./text/rebirth-text";
 import { giveHeroRandomDrop, getEnchantmentTier } from "../items/helpers";
+import { BaseItems } from "../items/base-items";
 import {
   giveQuestItemNotification,
   heroLocationName,
@@ -51,7 +52,55 @@ export function rebirth(
     }
 
     if (!disableRewards) {
-      giveHeroRandomDrop(context, hero, 33, 4, true);
+      // New mechanic: Upgrade an equipped Soulbound item (level 32) to Ascended (33).
+      // If none equipped, grant a random Soulbound item instead.
+      const equippedItems: InventoryItem[] = [];
+      const slots: (keyof Hero["equipment"])[] = [
+        "leftHand",
+        "rightHand",
+        "bodyArmor",
+        "handArmor",
+        "legArmor",
+        "headArmor",
+        "footArmor",
+      ];
+      const seen = new Set<string>();
+      for (const slot of slots) {
+        const it = (hero.equipment as any)[slot] as InventoryItem | null | undefined;
+        if (it && it.id && !seen.has(it.id)) {
+          seen.add(it.id);
+          if (it.level === 32) {
+            equippedItems.push(it);
+          }
+        }
+      }
+
+      if (equippedItems.length > 0) {
+        const target = equippedItems[Math.floor(Math.random() * equippedItems.length)];
+        // Find corresponding ascended base item for the same type
+        const ascended = Object.values(BaseItems).find(
+          (b) => b.type === target.type && b.level === 33,
+        );
+        if (ascended) {
+          // Preserve enchantment, builtIns, imbue by mutating only identifying fields
+          target.baseItem = ascended.id;
+          target.name = ascended.name;
+          target.level = ascended.level;
+          // Optionally notify the player about the upgrade
+          try {
+            context.io.sendNotification(hero.id, {
+              type: "drop",
+              message: `Your ${target.type} has ascended into ${ascended.name}`,
+              item: target,
+            });
+          } catch (e) {
+            // ignore in tests or non-io contexts
+          }
+        }
+      } else {
+        // No Soulbound gear equipped; grant a random Soulbound item
+        giveHeroRandomDrop(context, hero, 32, 4, true);
+      }
     }
 
     // revert progress so they can rebirth again
