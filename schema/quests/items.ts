@@ -3,6 +3,14 @@ import { InventoryItemType, EnchantmentType } from "types/graphql";
 
 export function getQuestRewards() {
   return {
+    // treasure map quest
+    "treasure-map": {
+      id: "treasure-map",
+      name: "Treasure Map",
+      type: InventoryItemType.Quest,
+      level: 1,
+      canBuy: false,
+    },
     // "taste for business" quest line
     "small-wrapped-package": {
       id: "small-wrapped-package",

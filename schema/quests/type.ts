@@ -8,6 +8,7 @@ export default gql`
     dismissQuest: LevelUpResponse! @auth
     rebirth: LevelUpResponse! @auth @delay(delay: 10000)
     talk: TalkResponse! @auth @delay(delay: 2000)
+    readMap(itemId: ID!): TalkResponse! @auth @delay(delay: 3300)
   }
 
   enum Quest {

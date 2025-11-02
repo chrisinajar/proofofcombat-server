@@ -5,6 +5,7 @@ import {
   QuestDescription,
   LevelUpResponse,
   TalkResponse,
+  InventoryItem,
 } from "types/graphql";
 
 import type { BaseContext } from "schema/context";
@@ -15,11 +16,12 @@ import { getBartenderAdvice } from "./text/bartender-advice";
 
 import { getQuestDescription } from "./text/quest-descriptions";
 import { checkHero, checkHeroGossip } from "./helpers";
+import { getTreasureMapReadMessage } from "./treasure";
 import { rebirth } from "./rebirth";
 
-const resolvers: Resolvers = {
+const resolvers: any = {
   Query: {
-    async quest(parent, args): Promise<QuestDescription> {
+    async quest(parent: unknown, args: any): Promise<QuestDescription> {
       return {
         id: args.quest,
         description: getQuestDescription(args.quest),
@@ -35,7 +37,11 @@ const resolvers: Resolvers = {
       and flavor is cool
       but seriously fuck writing
     */
-    async talk(parent, args, context): Promise<TalkResponse> {
+    async talk(
+      parent: unknown,
+      args: any,
+      context: BaseContext,
+    ): Promise<TalkResponse> {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
       }
@@ -63,6 +69,7 @@ const resolvers: Resolvers = {
         if (lines.length) {
           // check for treasure map and roll for it..
           hero = checkHeroGossip(context, hero, hero.location);
+          await context.db.hero.put(hero);
         }
         message = lines.join("\n");
       }
@@ -73,9 +80,34 @@ const resolvers: Resolvers = {
         message,
       };
     },
+    async readMap(
+      parent: unknown,
+      args: { itemId: string },
+      context: BaseContext,
+    ): Promise<TalkResponse> {
+      if (!context?.auth?.id) {
+        throw new ForbiddenError("Missing auth");
+      }
+
+      const hero = await context.db.hero.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+
+      const itemId = args.itemId as string;
+      const item = hero.inventory.find((i: InventoryItem) => i.id === itemId);
+      if (!item) {
+        throw new UserInputError("You do not have that item.");
+      }
+      if (item.baseItem !== "treasure-map") {
+        throw new UserInputError("That item is not a readable map.");
+      }
+
+      const message = getTreasureMapReadMessage(hero, item.id);
+
+      return { hero, account, message };
+    },
     async rebirth(
-      parent,
-      args,
+      parent: unknown,
+      args: any,
       context: BaseContext,
     ): Promise<LevelUpResponse> {
       if (!context?.auth?.id) {
@@ -99,8 +131,8 @@ const resolvers: Resolvers = {
       };
     },
     async dismissQuest(
-      parent,
-      args,
+      parent: unknown,
+      args: any,
       context: BaseContext,
     ): Promise<LevelUpResponse> {
       if (!context?.auth?.id) {
