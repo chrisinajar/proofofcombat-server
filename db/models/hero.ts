@@ -108,7 +108,10 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   }
 
   // --- Monster kill helpers ---
-  getMonsterKillEntry(hero: Hero, monsterId: string): MonsterKillEntry | undefined {
+  getMonsterKillEntry(
+    hero: Hero,
+    monsterId: string,
+  ): MonsterKillEntry | undefined {
     if (!hero.monsterKills) return undefined;
     return hero.monsterKills.find((e) => e.monsterId === monsterId);
   }
@@ -125,7 +128,11 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     return hero;
   }
 
-  incrementMonsterKill(hero: Hero, monsterId: string, amount: number = 1): Hero {
+  incrementMonsterKill(
+    hero: Hero,
+    monsterId: string,
+    amount: number = 1,
+  ): Hero {
     const entry = this.getMonsterKillEntry(hero, monsterId);
     const current = entry?.kills ?? 0;
     return this.setMonsterKillCount(hero, monsterId, current + amount);
@@ -632,7 +639,9 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     data.skillPercent = data.skillPercent ?? 0;
     // Default: no active dungeon
     // Ensure legacy records gain the field
-    if (data.dungeon === undefined) data.dungeon = null;
+    if (data.dungeon === undefined) {
+      data.dungeon = null;
+    }
     data.skills = data.skills ?? {
       attackingAccuracy: 0,
       castingAccuracy: 0,

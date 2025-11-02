@@ -1,6 +1,11 @@
 import { ForbiddenError, UserInputError } from "apollo-server";
 
-import { Resolvers, QuestDescription, LevelUpResponse, TalkResponse } from "types/graphql";
+import {
+  Resolvers,
+  QuestDescription,
+  LevelUpResponse,
+  TalkResponse,
+} from "types/graphql";
 
 import type { BaseContext } from "schema/context";
 
@@ -9,7 +14,7 @@ import { specialLocations } from "../../helpers";
 import { getBartenderAdvice } from "./text/bartender-advice";
 
 import { getQuestDescription } from "./text/quest-descriptions";
-import { checkHero } from "./helpers";
+import { checkHero, checkHeroGossip } from "./helpers";
 import { rebirth } from "./rebirth";
 
 const resolvers: Resolvers = {
@@ -35,7 +40,7 @@ const resolvers: Resolvers = {
         throw new ForbiddenError("Missing auth");
       }
 
-      const hero = await context.db.hero.get(context.auth.id);
+      let hero = await context.db.hero.get(context.auth.id);
       const account = await context.db.account.get(context.auth.id);
 
       let message: string;
@@ -55,6 +60,10 @@ const resolvers: Resolvers = {
         message = "The bartender ignores you.";
       } else {
         const lines = getBartenderAdvice(hero, tavern);
+        if (lines.length) {
+          // check for treasure map and roll for it..
+          hero = checkHeroGossip(context, hero, hero.location);
+        }
         message = lines.join("\n");
       }
 

@@ -4,6 +4,7 @@ import {
   MonsterInstance,
   Quest,
   PlayerLocation,
+  Location,
 } from "types/graphql";
 
 import { MapNames, SpecialLocation } from "../../constants";
@@ -43,6 +44,8 @@ import {
   checkHero as checkHeroForTasteForBusiness,
 } from "./taste-for-business";
 
+import { checkHeroGossip as checkHeroGossipForTreasure } from "./treasure";
+
 export async function checkSkipDrop(
   context: BaseContext,
   hero: Hero,
@@ -63,6 +66,14 @@ export async function checkCapital(
   await checkCapitalForSettlements(context, capital, hero);
 }
 
+export function checkHeroGossip(
+  context: BaseContext,
+  hero: Hero,
+  location: Location,
+): Hero {
+  hero = checkHeroGossipForTreasure(context, hero, location);
+  return hero;
+}
 export function checkHeroDrop(
   context: BaseContext,
   hero: Hero,

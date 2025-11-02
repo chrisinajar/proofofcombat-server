@@ -36,6 +36,7 @@ export type ResourceDataEntry = {
 const inMemoryLocationMaxLength = 100;
 export const upkeepInterval = 1000 * 60 * 60;
 export const maxStoredUpkeeps = 24;
+export const LOCATION_DISTANCE_SOFTCAP = 8;
 
 const soldierTiers = ["enlisted", "soldier", "veteran", "ghost"];
 
@@ -57,6 +58,20 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     }
 
     return 5;
+  }
+
+  decayFactor(distance: number | false): number {
+    if (distance === false) {
+      return 0;
+    }
+    if (distance <= LOCATION_DISTANCE_SOFTCAP) {
+      return 1;
+    }
+    const extraDistance = distance - LOCATION_DISTANCE_SOFTCAP;
+    return Math.pow(
+      0.5,
+      Math.pow(extraDistance, 1.3) / LOCATION_DISTANCE_SOFTCAP,
+    );
   }
 
   range(capital: PlayerLocation): number {
@@ -566,6 +581,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     let isDecaying = false;
     let queuedForRemoval = false;
     let foodProduction = 0;
+    let distance: number | false = false;
     const capital = await this.getHome(location.owner);
     const capitalPopulation =
       capital?.resources?.find?.((r) => r.name === "population")?.value ?? 0;
@@ -579,7 +595,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
       isDecaying = !capital;
 
       if (capital) {
-        const distance = await this.pathLengthToCapital(location, capital);
+        distance = await this.pathLengthToCapital(location, capital);
         if (!distance) {
           isDecaying = true;
         } else if (this.range(capital) < distance) {
@@ -628,9 +644,11 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
             if (currentResourceSoldierTier === 0) {
               const availableSlots =
                 this.resourceStorage(location, resource.name) - resource.value;
-              const amount = Math.min(
-                availableSlots,
-                Math.floor(odds * 0.5 * totalMilitaryUnits),
+              const amount = Math.floor(
+                Math.min(
+                  availableSlots,
+                  Math.floor(odds * 0.5 * totalMilitaryUnits),
+                ) * this.decayFactor(distance),
               );
               if (amount > 0) {
                 militaryGains[currentResourceSoldierTier] += amount;
@@ -645,9 +663,10 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
                 const availableSlots =
                   this.resourceStorage(location, upgradeTarget.name) -
                   upgradeTarget.value;
-                const amount = Math.min(
-                  availableSlots,
-                  Math.floor(odds * resource.value),
+
+                const amount = Math.floor(
+                  Math.min(availableSlots, Math.floor(odds * resource.value)) *
+                    this.decayFactor(distance),
                 );
                 if (amount > 0) {
                   resource.value -= amount;
@@ -659,21 +678,23 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           }
         }
         // upgrades
+        // passive resource gains
+        let resourceIncrease = 0;
         if (resource.name === "water") {
           if (hasRainCollection) {
-            resource.value += Math.floor(Math.random() * Math.random() * 10);
+            resourceIncrease += Math.floor(Math.random() * Math.random() * 10);
           }
 
-          resource.value += Math.floor(population / 6);
-          resource.value += Math.floor(
+          resourceIncrease += Math.floor(population / 6);
+          resourceIncrease += Math.floor(
             resource.value * 0.005 * (population / (population + 500)),
           );
         } else if (resource.name === "bees") {
-          resource.value += Math.floor(Math.random() * 1.1);
+          resourceIncrease += Math.floor(Math.random() * 1.1);
         } else if (resource.name === "bonds") {
-          resource.value += Math.floor(resource.value * 0.008);
+          resourceIncrease += Math.floor(resource.value * 0.008);
         } else if (resource.name === "honey") {
-          resource.value += Math.floor(
+          resourceIncrease += Math.floor(
             Math.random() *
               Math.random() *
               Math.random() *
@@ -683,7 +704,7 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
         } else if (resource.name === "cattle") {
           // random between 1-3 per cattle
           foodProduction += Math.ceil(resource.value * 3 * Math.random());
-          resource.value += Math.round(
+          resourceIncrease += Math.round(
             Math.random() * Math.random() * Math.log2(resource.value) +
               (Math.random() * Math.random() * resource.value) / 100,
           );
@@ -694,10 +715,10 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
           }
         } else if (resource.name === "food") {
           if (hasGarden) {
-            resource.value += Math.floor(Math.random() * Math.random() * 10);
+            resourceIncrease += Math.floor(Math.random() * Math.random() * 10);
           }
           // bwahahahahaha why
-          resource.value += Math.floor(
+          resourceIncrease += Math.floor(
             (1 /
               (1 +
                 Math.pow(
@@ -719,28 +740,36 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
               settlementDead = true;
             }
           } else if (food > upkeepCosts.food * 100) {
-            resource.value += Math.floor(
+            resourceIncrease += Math.floor(
               (Math.random() * 0.4 + 0.8) * populationGrowth,
             );
           } else if (food < upkeepCosts.food) {
             // people are starving
             resource.value = Math.floor(resource.value * 0.8);
           } else {
-            resource.value += Math.floor(
+            resourceIncrease += Math.floor(
               (Math.random() * Math.random() * 0.6 + 0.5) * populationGrowth,
             );
           }
         } else if (resource.name === "wood" || resource.name === "stone") {
           if (hasHelper) {
-            resource.value += Math.floor(Math.random() * Math.random() * 20);
+            resourceIncrease += Math.floor(Math.random() * Math.random() * 20);
           }
-          resource.value += Math.floor(population / 1000);
+          resourceIncrease += Math.floor(population / 1000);
         }
 
         if (isDecaying) {
           // 10% decay on all resources when decaying
           resource.value -= Math.ceil(resource.value * 0.1);
         }
+
+        // todo: verify processing on resourceIncrease
+        resourceIncrease = Math.floor(
+          resourceIncrease * this.decayFactor(distance),
+        );
+
+        // add increase value to resource value
+        resource.value += resourceIncrease;
 
         // pay upkeep costs
         const cost = upkeepCosts[resource.name as keyof UpkeepCosts];
