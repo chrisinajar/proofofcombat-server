@@ -17,6 +17,7 @@ import db from "./db";
 import { confirm } from "./security";
 
 import { addSocketToServer, loadChatCache } from "./socket";
+import { createClassicProxy, attachClassicUpgradeProxy } from "./classic-proxy";
 
 const port = process.env.HTTP_PORT ?? 8880;
 const httpsPort = process.env.HTTPS_PORT ?? 8443;
@@ -69,6 +70,15 @@ const socketioHttpsServer = getHttpsServer();
 app.use(compression());
 app.use(cors(corsOptions));
 export const io = addSocketToServer(socketioHttpsServer);
+
+// Optional local proxy: route /classic/* to an externally running archived server
+const classicTarget = process.env.CLASSIC_TARGET;
+if (classicTarget) {
+  app.use("/classic", createClassicProxy(classicTarget));
+  // Proxy WebSocket upgrades for classic (e.g., /classic/socket.io/*)
+  attachClassicUpgradeProxy(httpServer, classicTarget);
+  attachClassicUpgradeProxy(httpsServer as unknown as http.Server, classicTarget);
+}
 
 app.get("/external-api/github-ui-release", (req, res) => {
   const auth = req.headers.authorization || "";
