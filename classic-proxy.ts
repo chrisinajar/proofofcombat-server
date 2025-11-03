@@ -18,7 +18,7 @@ export function createClassicProxy(target: string): RequestHandler {
 
     // X-Forwarded-* headers for the upstream
     const xfHost = req.headers["x-forwarded-host"] || req.headers.host || "";
-    const xfProto = req.headers["x-forwarded-proto"] || (req.socket.encrypted ? "https" : "http");
+    const xfProto = req.headers["x-forwarded-proto"] || (req as any).secure ? "https" : "http";
 
     const headers: http.OutgoingHttpHeaders = {
       ...req.headers,
