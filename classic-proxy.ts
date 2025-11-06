@@ -6,30 +6,45 @@ import type { Server as HttpsServer } from "https";
 import type { Socket } from "net";
 import { URL } from "url";
 
-export function createClassicProxy(target: string): RequestHandler {
-  const targetUrl = new URL(target);
-  const isHttps = targetUrl.protocol === "https:";
+type ClassicTargets = string | { http?: string; https?: string };
 
-  const agent = isHttps ? new https.Agent({ keepAlive: true }) : new http.Agent({ keepAlive: true });
+function pickTargetUrl(targets: ClassicTargets, isSecure: boolean): URL {
+  if (typeof targets === "string") return new URL(targets);
+  const chosen = isSecure ? targets.https || targets.http : targets.http || targets.https;
+  if (!chosen) throw new Error("No classic proxy target configured");
+  return new URL(chosen);
+}
 
+export function createClassicProxy(targets: ClassicTargets): RequestHandler {
   return (req, res) => {
+    const isSecure = Boolean((req.socket as any).encrypted) ||
+      String(req.headers["x-forwarded-proto"] || "").toLowerCase().includes("https");
+
+    const targetUrl = pickTargetUrl(targets, isSecure);
+    const isHttps = targetUrl.protocol === "https:";
+    const agent = isHttps ? new https.Agent({ keepAlive: true }) : new http.Agent({ keepAlive: true });
+
     // req.url is already stripped of the mount path ("/classic") when using app.use("/classic", ...)
     const path = `${targetUrl.pathname?.replace(/\/$/, "") || ""}${req.url}` || "/";
 
     // X-Forwarded-* headers for the upstream
     const xfHost = req.headers["x-forwarded-host"] || req.headers.host || "";
-    const xfProto = req.headers["x-forwarded-proto"] || (req as any).secure ? "https" : "http";
+    const xfProtoVal = ((): string => {
+      const h = req.headers["x-forwarded-proto"]; // could be string|string[]
+      if (Array.isArray(h)) return h.join(",");
+      return h ? String(h) : isSecure ? "https" : "http";
+    })();
 
     const headers: http.OutgoingHttpHeaders = {
       ...req.headers,
       host: targetUrl.host,
       "x-forwarded-host": Array.isArray(xfHost) ? xfHost.join(",") : xfHost,
-      "x-forwarded-proto": Array.isArray(xfProto) ? xfProto.join(",") : xfProto,
+      "x-forwarded-proto": xfProtoVal,
       "x-forwarded-for": req.headers["x-forwarded-for"] || req.socket.remoteAddress || "",
     };
 
     // Content-Length is managed by Node when we stream; avoid inconsistencies
-    delete headers["content-length"];
+    delete (headers as any)["content-length"];
 
     const options: https.RequestOptions = {
       protocol: targetUrl.protocol,
@@ -59,11 +74,8 @@ export function createClassicProxy(target: string): RequestHandler {
       proxyRes.pipe(res, { end: true });
     });
 
-    proxyReq.on("error", (err) => {
-      // Surface a concise proxy error without leaking internals
-      if (!res.headersSent) {
-        res.statusCode = 502;
-      }
+    proxyReq.on("error", () => {
+      if (!res.headersSent) res.statusCode = 502;
       res.end("Proxy error");
     });
 
@@ -72,19 +84,32 @@ export function createClassicProxy(target: string): RequestHandler {
   };
 }
 
+type UpgradeTargets = string | { http?: string; https?: string; socket?: string };
+
+function pickUpgradeTarget(targets: UpgradeTargets, isSecure: boolean, isSocketIo: boolean): URL {
+  if (typeof targets === "string") return new URL(targets);
+  if (isSocketIo && targets.socket) return new URL(targets.socket);
+  const chosen = isSecure ? targets.https || targets.http : targets.http || targets.https;
+  if (!chosen) throw new Error("No classic upgrade proxy target configured");
+  return new URL(chosen);
+}
+
 export function attachClassicUpgradeProxy(
   server: HttpServer | HttpsServer,
-  target: string,
+  targets: UpgradeTargets,
 ): void {
-  const targetUrl = new URL(target);
-  const isHttps = targetUrl.protocol === "https:";
-
   server.on("upgrade", (req: http.IncomingMessage, socket: Socket, head: Buffer) => {
     const url = req.url || "/";
     if (!url.startsWith("/classic")) {
-      // Not ours — ignore so other listeners (if any) can handle it
       return;
     }
+
+    const isSecure = Boolean((req.socket as any).encrypted) ||
+      String(req.headers["x-forwarded-proto"] || "").toLowerCase().includes("https");
+    const isSocketIo = /\/socket\.io\//.test(url);
+
+    const targetUrl = pickUpgradeTarget(targets, isSecure, isSocketIo);
+    const isHttps = targetUrl.protocol === "https:";
 
     const path = url === "/classic" ? "/" : url.replace(/^\/classic/, "");
 
@@ -107,25 +132,17 @@ export function attachClassicUpgradeProxy(
     const proxyReq = (isHttps ? https : http).request(options);
 
     proxyReq.on("upgrade", (proxyRes, proxySocket, proxyHead) => {
-      // Send switching protocols response to client
       const headerLines: string[] = [];
       for (const [k, v] of Object.entries(proxyRes.headers)) {
         if (typeof v === "undefined") continue;
-        if (Array.isArray(v)) {
-          headerLines.push(`${k}: ${v.join(", ")}`);
-        } else {
-          headerLines.push(`${k}: ${v}`);
-        }
+        if (Array.isArray(v)) headerLines.push(`${k}: ${v.join(", ")}`);
+        else headerLines.push(`${k}: ${v}`);
       }
-      socket.write(
-        `HTTP/1.1 101 Switching Protocols\r\n${headerLines.join("\r\n")}\r\n\r\n`,
-      );
+      socket.write(`HTTP/1.1 101 Switching Protocols\r\n${headerLines.join("\r\n")}\r\n\r\n`);
 
-      // Forward any buffered data
       if (head && head.length) proxySocket.write(head);
       if (proxyHead && proxyHead.length) socket.write(proxyHead);
 
-      // Bi-directional piping
       proxySocket.pipe(socket).pipe(proxySocket);
 
       const destroyBoth = () => {
@@ -139,9 +156,7 @@ export function attachClassicUpgradeProxy(
     });
 
     proxyReq.on("error", () => {
-      try {
-        socket.write("HTTP/1.1 502 Bad Gateway\r\n\r\n");
-      } catch {}
+      try { socket.write("HTTP/1.1 502 Bad Gateway\r\n\r\n"); } catch {}
       socket.destroy();
     });
 

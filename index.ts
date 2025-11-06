@@ -73,11 +73,33 @@ export const io = addSocketToServer(socketioHttpsServer);
 
 // Optional local proxy: route /classic/* to an externally running archived server
 const classicTarget = process.env.CLASSIC_TARGET;
-if (classicTarget) {
-  app.use("/classic", createClassicProxy(classicTarget));
-  // Proxy WebSocket upgrades for classic (e.g., /classic/socket.io/*)
-  attachClassicUpgradeProxy(httpServer, classicTarget);
-  attachClassicUpgradeProxy(httpsServer as unknown as http.Server, classicTarget);
+const classicHttpTarget = process.env.CLASSIC_HTTP_TARGET;
+const classicHttpsTarget = process.env.CLASSIC_HTTPS_TARGET;
+const classicSocketTarget = process.env.CLASSIC_SOCKET_TARGET;
+
+const hasAnyClassicTarget =
+  Boolean(classicTarget) || Boolean(classicHttpTarget) || Boolean(classicHttpsTarget) || Boolean(classicSocketTarget);
+
+if (hasAnyClassicTarget) {
+  const httpHttpsTargets =
+    classicHttpTarget || classicHttpsTarget
+      ? { http: classicHttpTarget, https: classicHttpsTarget }
+      : classicTarget || undefined;
+
+  if (httpHttpsTargets) {
+    app.use("/classic", createClassicProxy(httpHttpsTargets as any));
+  }
+
+  const upgradeTargets =
+    classicSocketTarget || classicHttpTarget || classicHttpsTarget
+      ? { http: classicHttpTarget, https: classicHttpsTarget, socket: classicSocketTarget }
+      : classicTarget || undefined;
+
+  if (upgradeTargets) {
+    // Proxy WebSocket upgrades for classic (e.g., /classic/socket.io/*)
+    attachClassicUpgradeProxy(httpServer, upgradeTargets as any);
+    attachClassicUpgradeProxy(httpsServer as unknown as http.Server, upgradeTargets as any);
+  }
 }
 
 app.get("/external-api/github-ui-release", (req, res) => {
