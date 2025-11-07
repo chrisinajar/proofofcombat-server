@@ -21,6 +21,11 @@ function pickTargetUrl(targets: ClassicTargets, isSecure: boolean): URL {
   return new URL(chosen);
 }
 
+function isInsecureHttpsAllowed(): boolean {
+  const v = String(process.env.CLASSIC_HTTPS_INSECURE || "").toLowerCase();
+  return v === "1" || v === "true" || v === "yes";
+}
+
 export function createClassicProxy(targets: ClassicTargets): RequestHandler {
   return (req, res) => {
     const isSecure =
@@ -31,8 +36,9 @@ export function createClassicProxy(targets: ClassicTargets): RequestHandler {
 
     const targetUrl = pickTargetUrl(targets, isSecure);
     const isHttps = targetUrl.protocol === "https:";
+    const insecure = isInsecureHttpsAllowed();
     const agent = isHttps
-      ? new https.Agent({ keepAlive: true })
+      ? new https.Agent({ keepAlive: true, rejectUnauthorized: !insecure })
       : new http.Agent({ keepAlive: true });
 
     // req.url is already stripped of the mount path ("/classic") when using app.use("/classic", ...)
@@ -67,6 +73,7 @@ export function createClassicProxy(targets: ClassicTargets): RequestHandler {
       path,
       headers,
       agent,
+      rejectUnauthorized: isHttps ? !insecure : undefined,
     };
 
     const proxyReq = (isHttps ? https : http).request(options, (proxyRes) => {
@@ -143,6 +150,7 @@ export function attachClassicUpgradeProxy(
 
       const targetUrl = pickUpgradeTarget(targets, isSecure, isSocketIo);
       const isHttps = targetUrl.protocol === "https:";
+      const insecure = isInsecureHttpsAllowed();
 
       const path = url === "/classic" ? "/" : url.replace(/^\/classic/, "");
 
@@ -160,6 +168,7 @@ export function attachClassicUpgradeProxy(
         method: req.method || "GET",
         path,
         headers,
+        rejectUnauthorized: isHttps ? !insecure : undefined,
       };
 
       const proxyReq = (isHttps ? https : http).request(options);
@@ -217,7 +226,8 @@ export function createClassicSocketHttpProxy(targets: UpgradeTargets): RequestHa
 
     const targetUrl = pickUpgradeTarget(targets, isSecure, true /* isSocketIo */);
     const isHttps = targetUrl.protocol === "https:";
-    const agent = isHttps ? new https.Agent({ keepAlive: true }) : new http.Agent({ keepAlive: true });
+    const insecure = isInsecureHttpsAllowed();
+    const agent = isHttps ? new https.Agent({ keepAlive: true, rejectUnauthorized: !insecure }) : new http.Agent({ keepAlive: true });
 
     const path = `${targetUrl.pathname?.replace(/\/$/, "") || ""}${req.url}` || "/";
 
@@ -235,6 +245,7 @@ export function createClassicSocketHttpProxy(targets: UpgradeTargets): RequestHa
       path,
       headers,
       agent,
+      rejectUnauthorized: isHttps ? !insecure : undefined,
     };
 
     const proxyReq = (isHttps ? https : http).request(options, (proxyRes) => {

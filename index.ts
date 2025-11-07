@@ -17,11 +17,7 @@ import db from "./db";
 import { confirm } from "./security";
 
 import { addSocketToServer, loadChatCache } from "./socket";
-import {
-  createClassicProxy,
-  attachClassicUpgradeProxy,
-  createClassicSocketHttpProxy,
-} from "./classic-proxy";
+import { createProxyMiddleware } from "http-proxy-middleware";
 
 const port = process.env.HTTP_PORT ?? 8880;
 const httpsPort = process.env.HTTPS_PORT ?? 8443;
@@ -88,30 +84,87 @@ const hasAnyClassicTarget =
   Boolean(classicSocketTarget);
 
 if (hasAnyClassicTarget) {
-  const httpHttpsTargets =
-    classicHttpTarget || classicHttpsTarget
-      ? { http: classicHttpTarget, https: classicHttpsTarget }
-      : classicTarget || undefined;
+  const insecure = String(process.env.CLASSIC_HTTPS_INSECURE || "").toLowerCase();
+  const allowInsecure = insecure === "1" || insecure === "true" || insecure === "yes";
+  const tlsServername = process.env.CLASSIC_TLS_SERVERNAME || undefined;
 
-  if (httpHttpsTargets) {
-    app.use("/classic", createClassicProxy(httpHttpsTargets));
-  }
+  // Helper to choose classic HTTP/HTTPS target based on request
+  const pickHttpHttpsTarget = (req: express.Request) => {
+    const forwarded = String(req.headers["x-forwarded-proto"] || "").toLowerCase();
+    const isSecure = (req as any).secure || forwarded.includes("https");
+    const httpsT = classicHttpsTarget || classicTarget;
+    const httpT = classicHttpTarget || classicTarget;
+    const chosen = isSecure ? httpsT : httpT;
+    return chosen || classicTarget || "";
+  };
 
-  const upgradeTargets =
-    classicSocketTarget || classicHttpTarget || classicHttpsTarget
-      ? {
-          http: classicHttpTarget,
-          https: classicHttpsTarget,
-          socket: classicSocketTarget,
-        }
-      : classicTarget || undefined;
+  // HTTPS Agent for SNI and validation; used for HTTPS targets
+  const httpsAgent = new (require("https").Agent)({
+    keepAlive: true,
+    rejectUnauthorized: !allowInsecure,
+    servername: tlsServername,
+  });
 
-  if (upgradeTargets) {
-    // Proxy Socket.IO long-polling requests that may hit '/socket.io/*' at root
-    app.use(/^\/socket\.io(\/|$)/, createClassicSocketHttpProxy(upgradeTargets as any));
-    // Proxy WebSocket upgrades for classic (e.g., /classic/socket.io/*)
-    attachClassicUpgradeProxy(httpServer, upgradeTargets as any);
-    attachClassicUpgradeProxy(httpsServer, upgradeTargets as any);
+  // /classic -> classic target (strip prefix). Supports HTTP and HTTPS backends.
+  app.use(
+    "/classic",
+    createProxyMiddleware({
+      router: pickHttpHttpsTarget,
+      target: classicTarget || classicHttpTarget || classicHttpsTarget || "http://127.0.0.1",
+      changeOrigin: true,
+      xfwd: true,
+      ws: true,
+      secure: !allowInsecure,
+      pathRewrite: { "^/classic": "" },
+      agent: httpsAgent,
+      onProxyReq: (proxyReq, req) => {
+        if (tlsServername) proxyReq.setHeader("host", tlsServername);
+      },
+    }),
+  );
+
+  // Socket.IO long-polling and upgrades at root '/socket.io/*'
+  if (classicSocketTarget || classicTarget) {
+    const socketTarget = classicSocketTarget || classicTarget!;
+    app.use(
+      /^\/socket\.io(\/|$)/,
+      createProxyMiddleware({
+        target: socketTarget,
+        changeOrigin: true,
+        xfwd: true,
+        ws: true,
+        secure: !allowInsecure,
+        agent: httpsAgent,
+        onProxyReq: (proxyReq) => {
+          if (tlsServername) proxyReq.setHeader("host", tlsServername);
+        },
+        onProxyReqWs: (_proxyReq, _req, _socket, options) => {
+          // Ensure Host header matches SNI domain for some backends
+          (options.headers as any) = options.headers || {};
+          if (tlsServername) (options.headers as any).host = tlsServername;
+        },
+      }),
+    );
+    // Also support '/classic/socket.io/*' by rewriting to target '/socket.io/*'
+    app.use(
+      /^\/classic\/socket\.io(\/|$)/,
+      createProxyMiddleware({
+        target: socketTarget,
+        changeOrigin: true,
+        xfwd: true,
+        ws: true,
+        secure: !allowInsecure,
+        agent: httpsAgent,
+        pathRewrite: { "^/classic": "" },
+        onProxyReq: (proxyReq) => {
+          if (tlsServername) proxyReq.setHeader("host", tlsServername);
+        },
+        onProxyReqWs: (_proxyReq, _req, _socket, options) => {
+          (options.headers as any) = options.headers || {};
+          if (tlsServername) (options.headers as any).host = tlsServername;
+        },
+      }),
+    );
   }
 }
 

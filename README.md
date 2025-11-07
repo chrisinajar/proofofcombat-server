@@ -11,3 +11,14 @@ Environment
 - `CLASSIC_HTTPS_TARGET`: Origin for classic over HTTPS (e.g., `https://127.0.0.1:9443`).
 - `CLASSIC_SOCKET_TARGET`: Origin for classic Socket.IO upgrades (use http/https form; e.g., `https://127.0.0.1:9096`).
 - `CLASSIC_TARGET`: Fallback origin used for all three if the above are not set.
+
+TLS options
+
+- `CLASSIC_HTTPS_INSECURE`: Set to `true`/`1` to allow the proxy to connect to a classic HTTPS target with a self-signed or otherwise untrusted certificate. Use only for local development.
+- `CLASSIC_TLS_SERVERNAME`: Sets the SNI servername for HTTPS connections to the classic target (e.g., your origin domain). This fixes TLS hostname validation when targeting `127.0.0.1` with a certificate issued for a domain name.
+
+Implementation notes
+
+- The server uses `http-proxy-middleware` to safely proxy fixed paths only: `/classic/*`, `/socket.io/*`, and `/classic/socket.io/*`.
+- Requests under `/classic` have the prefix stripped before forwarding.
+- Proxying enables `xfwd` and `changeOrigin`, and supports WebSocket upgrades.
