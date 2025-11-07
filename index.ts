@@ -18,6 +18,8 @@ import { confirm } from "./security";
 
 import { addSocketToServer, loadChatCache } from "./socket";
 import { createProxyMiddleware } from "http-proxy-middleware";
+import type { RequestHandler as ProxyRequestHandler } from "http-proxy-middleware";
+import type * as net from "net";
 
 const port = process.env.HTTP_PORT ?? 8880;
 const httpsPort = process.env.HTTPS_PORT ?? 8443;
@@ -69,6 +71,8 @@ const socketioHttpsServer = getHttpsServer();
 
 app.use(compression());
 app.use(cors(corsOptions));
+// Ensure preflight is handled for all routes
+app.options("*", cors(corsOptions));
 export const io = addSocketToServer(socketioHttpsServer);
 
 // Optional local proxy: route /classic/* to an externally running archived server
@@ -84,18 +88,26 @@ const hasAnyClassicTarget =
   Boolean(classicSocketTarget);
 
 if (hasAnyClassicTarget) {
-  const insecure = String(process.env.CLASSIC_HTTPS_INSECURE || "").toLowerCase();
-  const allowInsecure = insecure === "1" || insecure === "true" || insecure === "yes";
+  const insecure = String(
+    process.env.CLASSIC_HTTPS_INSECURE || "",
+  ).toLowerCase();
+  const allowInsecure =
+    insecure === "1" || insecure === "true" || insecure === "yes";
   const tlsServername = process.env.CLASSIC_TLS_SERVERNAME || undefined;
 
   // Optional custom CA bundle for verifying classic HTTPS endpoint
   let ca: string | undefined;
   try {
     if (process.env.CLASSIC_HTTPS_CA_FILE) {
-      ca = require("fs").readFileSync(process.env.CLASSIC_HTTPS_CA_FILE, "utf8");
+      ca = require("fs").readFileSync(
+        process.env.CLASSIC_HTTPS_CA_FILE,
+        "utf8",
+      );
     } else if (process.env.CLASSIC_HTTPS_CA) {
       const raw = process.env.CLASSIC_HTTPS_CA;
-      ca = raw!.includes("-----BEGIN") ? raw! : Buffer.from(raw!, "base64").toString("utf8");
+      ca = raw!.includes("-----BEGIN")
+        ? raw!
+        : Buffer.from(raw!, "base64").toString("utf8");
     }
   } catch (e) {
     console.warn("Warning: failed to load CLASSIC_HTTPS_CA[_FILE]", e);
@@ -103,8 +115,10 @@ if (hasAnyClassicTarget) {
 
   // Helper to choose classic HTTP/HTTPS target based on request
   const pickHttpHttpsTarget = (req: express.Request) => {
-    const forwarded = String(req.headers["x-forwarded-proto"] || "").toLowerCase();
-    const isSecure = (req as any).secure || forwarded.includes("https");
+    const forwarded = String(
+      req.headers["x-forwarded-proto"] || "",
+    ).toLowerCase();
+    const isSecure = req.secure || forwarded.includes("https");
     const httpsT = classicHttpsTarget || classicTarget;
     const httpT = classicHttpTarget || classicTarget;
     const chosen = isSecure ? httpsT : httpT;
@@ -120,9 +134,13 @@ if (hasAnyClassicTarget) {
   });
 
   // /classic -> classic target (strip prefix). Supports HTTP and HTTPS backends.
-  const classicProxy = createProxyMiddleware({
+  const classicProxy: ProxyRequestHandler = createProxyMiddleware({
     router: pickHttpHttpsTarget,
-    target: classicTarget || classicHttpTarget || classicHttpsTarget || "http://127.0.0.1",
+    target:
+      classicTarget ||
+      classicHttpTarget ||
+      classicHttpsTarget ||
+      "http://127.0.0.1",
     changeOrigin: true,
     xfwd: true,
     ws: true,
@@ -134,50 +152,99 @@ if (hasAnyClassicTarget) {
     },
   });
   app.use("/classic", classicProxy);
-  httpServer.on("upgrade", classicProxy.upgrade);
-  httpsServer.on("upgrade", classicProxy.upgrade);
+  if (typeof classicProxy.upgrade === "function") {
+    const upgradeHandler = (
+      req: http.IncomingMessage,
+      socket: net.Socket,
+      head: Buffer,
+    ) => {
+      // classicProxy.upgrade expects compatible arguments; non-null after typeof check
+      classicProxy.upgrade!(req as any, socket, head);
+    };
+    httpServer.on("upgrade", upgradeHandler);
+    httpsServer.on("upgrade", upgradeHandler);
+  }
 
   // Socket.IO long-polling and upgrades at root '/socket.io/*'
   if (classicSocketTarget || classicTarget) {
     const socketTarget = classicSocketTarget || classicTarget!;
-    const socketProxyRoot = createProxyMiddleware("/socket.io", {
-      target: socketTarget,
-      changeOrigin: true,
-      xfwd: true,
-      ws: true,
-      secure: !allowInsecure,
-      agent: httpsAgent,
-      onProxyReq: (proxyReq) => {
-        if (tlsServername) proxyReq.setHeader("host", tlsServername);
+    const socketProxyRoot: ProxyRequestHandler = createProxyMiddleware(
+      "/socket.io",
+      {
+        target: socketTarget,
+        changeOrigin: true,
+        xfwd: true,
+        ws: true,
+        secure: !allowInsecure,
+        agent: httpsAgent,
+        onProxyReq: (proxyReq) => {
+          if (tlsServername) proxyReq.setHeader("host", tlsServername);
+        },
+        onProxyReqWs: (_proxyReq, _req, _socket, options) => {
+          let headers: typeof options.headers;
+          if (!options.headers || Array.isArray(options.headers)) {
+            headers = {};
+          } else {
+            headers = options.headers;
+          }
+          if (tlsServername) {
+            headers["host"] = tlsServername;
+          }
+          // handle typeScript strictness
+          options.headers = headers;
+        },
       },
-      onProxyReqWs: (_proxyReq, _req, _socket, options) => {
-        (options.headers as any) = options.headers || {};
-        if (tlsServername) (options.headers as any).host = tlsServername;
-      },
-    });
+    );
     app.use("/socket.io", socketProxyRoot);
-    httpServer.on("upgrade", socketProxyRoot.upgrade);
-    httpsServer.on("upgrade", socketProxyRoot.upgrade);
+    if (typeof socketProxyRoot.upgrade === "function") {
+      const upgradeHandler = (
+        req: http.IncomingMessage,
+        socket: net.Socket,
+        head: Buffer,
+      ) => {
+        socketProxyRoot.upgrade!(req as any, socket, head);
+      };
+      httpServer.on("upgrade", upgradeHandler);
+      httpsServer.on("upgrade", upgradeHandler);
+    }
     // Also support '/classic/socket.io/*' by rewriting to target '/socket.io/*'
-    const socketProxyClassic = createProxyMiddleware("/classic/socket.io", {
-      target: socketTarget,
-      changeOrigin: true,
-      xfwd: true,
-      ws: true,
-      secure: !allowInsecure,
-      agent: httpsAgent,
-      pathRewrite: { "^/classic": "" },
-      onProxyReq: (proxyReq) => {
-        if (tlsServername) proxyReq.setHeader("host", tlsServername);
+    const socketProxyClassic: ProxyRequestHandler = createProxyMiddleware(
+      "/classic/socket.io",
+      {
+        target: socketTarget,
+        changeOrigin: true,
+        xfwd: true,
+        ws: true,
+        secure: !allowInsecure,
+        agent: httpsAgent,
+        pathRewrite: { "^/classic": "" },
+        onProxyReq: (proxyReq) => {
+          if (tlsServername) proxyReq.setHeader("host", tlsServername);
+        },
+        onProxyReqWs: (_proxyReq, _req, _socket, options) => {
+          let headers: typeof options.headers;
+          if (!options.headers || Array.isArray(options.headers)) {
+            headers = {};
+          } else {
+            headers = options.headers;
+          }
+          if (tlsServername) headers["host"] = tlsServername;
+          options.headers = headers;
+        },
       },
-      onProxyReqWs: (_proxyReq, _req, _socket, options) => {
-        (options.headers as any) = options.headers || {};
-        if (tlsServername) (options.headers as any).host = tlsServername;
-      },
-    });
+    );
     app.use("/classic/socket.io", socketProxyClassic);
-    httpServer.on("upgrade", socketProxyClassic.upgrade);
-    httpsServer.on("upgrade", socketProxyClassic.upgrade);
+    if (typeof socketProxyClassic.upgrade === "function") {
+      const upgradeHandler = (
+        req: http.IncomingMessage,
+        socket: net.Socket,
+        head: Buffer,
+      ) => {
+        socketProxyClassic.upgrade!(req as any, socket, head);
+      };
+      httpServer.on("upgrade", upgradeHandler);
+      httpsServer.on("upgrade", upgradeHandler);
+    }
   }
 }
 
