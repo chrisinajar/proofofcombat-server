@@ -16,6 +16,8 @@ TLS options
 
 - `CLASSIC_HTTPS_INSECURE`: Set to `true`/`1` to allow the proxy to connect to a classic HTTPS target with a self-signed or otherwise untrusted certificate. Use only for local development.
 - `CLASSIC_TLS_SERVERNAME`: Sets the SNI servername for HTTPS connections to the classic target (e.g., your origin domain). This fixes TLS hostname validation when targeting `127.0.0.1` with a certificate issued for a domain name.
+- `CLASSIC_HTTPS_CA_FILE`: Path to a PEM bundle with the issuing CA(s) for the classic HTTPS certificate (e.g., a fullchain). Recommended instead of disabling verification when running with a private CA.
+- `CLASSIC_HTTPS_CA`: Inline CA bundle in PEM or base64-encoded PEM. Used if `CLASSIC_HTTPS_CA_FILE` is not set.
 
 Implementation notes
 

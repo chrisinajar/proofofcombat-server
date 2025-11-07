@@ -88,6 +88,19 @@ if (hasAnyClassicTarget) {
   const allowInsecure = insecure === "1" || insecure === "true" || insecure === "yes";
   const tlsServername = process.env.CLASSIC_TLS_SERVERNAME || undefined;
 
+  // Optional custom CA bundle for verifying classic HTTPS endpoint
+  let ca: string | undefined;
+  try {
+    if (process.env.CLASSIC_HTTPS_CA_FILE) {
+      ca = require("fs").readFileSync(process.env.CLASSIC_HTTPS_CA_FILE, "utf8");
+    } else if (process.env.CLASSIC_HTTPS_CA) {
+      const raw = process.env.CLASSIC_HTTPS_CA;
+      ca = raw!.includes("-----BEGIN") ? raw! : Buffer.from(raw!, "base64").toString("utf8");
+    }
+  } catch (e) {
+    console.warn("Warning: failed to load CLASSIC_HTTPS_CA[_FILE]", e);
+  }
+
   // Helper to choose classic HTTP/HTTPS target based on request
   const pickHttpHttpsTarget = (req: express.Request) => {
     const forwarded = String(req.headers["x-forwarded-proto"] || "").toLowerCase();
@@ -103,6 +116,7 @@ if (hasAnyClassicTarget) {
     keepAlive: true,
     rejectUnauthorized: !allowInsecure,
     servername: tlsServername,
+    ca,
   });
 
   // /classic -> classic target (strip prefix). Supports HTTP and HTTPS backends.
