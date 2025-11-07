@@ -17,7 +17,11 @@ import db from "./db";
 import { confirm } from "./security";
 
 import { addSocketToServer, loadChatCache } from "./socket";
-import { createClassicProxy, attachClassicUpgradeProxy } from "./classic-proxy";
+import {
+  createClassicProxy,
+  attachClassicUpgradeProxy,
+  createClassicSocketHttpProxy,
+} from "./classic-proxy";
 
 const port = process.env.HTTP_PORT ?? 8880;
 const httpsPort = process.env.HTTPS_PORT ?? 8443;
@@ -78,7 +82,10 @@ const classicHttpsTarget = process.env.CLASSIC_HTTPS_TARGET;
 const classicSocketTarget = process.env.CLASSIC_SOCKET_TARGET;
 
 const hasAnyClassicTarget =
-  Boolean(classicTarget) || Boolean(classicHttpTarget) || Boolean(classicHttpsTarget) || Boolean(classicSocketTarget);
+  Boolean(classicTarget) ||
+  Boolean(classicHttpTarget) ||
+  Boolean(classicHttpsTarget) ||
+  Boolean(classicSocketTarget);
 
 if (hasAnyClassicTarget) {
   const httpHttpsTargets =
@@ -87,18 +94,24 @@ if (hasAnyClassicTarget) {
       : classicTarget || undefined;
 
   if (httpHttpsTargets) {
-    app.use("/classic", createClassicProxy(httpHttpsTargets as any));
+    app.use("/classic", createClassicProxy(httpHttpsTargets));
   }
 
   const upgradeTargets =
     classicSocketTarget || classicHttpTarget || classicHttpsTarget
-      ? { http: classicHttpTarget, https: classicHttpsTarget, socket: classicSocketTarget }
+      ? {
+          http: classicHttpTarget,
+          https: classicHttpsTarget,
+          socket: classicSocketTarget,
+        }
       : classicTarget || undefined;
 
   if (upgradeTargets) {
+    // Proxy Socket.IO long-polling requests that may hit '/socket.io/*' at root
+    app.use(/^\/socket\.io(\/|$)/, createClassicSocketHttpProxy(upgradeTargets as any));
     // Proxy WebSocket upgrades for classic (e.g., /classic/socket.io/*)
     attachClassicUpgradeProxy(httpServer, upgradeTargets as any);
-    attachClassicUpgradeProxy(httpsServer as unknown as http.Server, upgradeTargets as any);
+    attachClassicUpgradeProxy(httpsServer, upgradeTargets as any);
   }
 }
 
