@@ -17,7 +17,9 @@ import db from "./db";
 import { confirm } from "./security";
 
 import { addSocketToServer, loadChatCache } from "./socket";
-import { createClassicProxy, attachClassicUpgradeProxy } from "./classic-proxy";
+import { createProxyMiddleware } from "http-proxy-middleware";
+import type { RequestHandler as ProxyRequestHandler } from "http-proxy-middleware";
+import type * as net from "net";
 
 const port = process.env.HTTP_PORT ?? 8880;
 const httpsPort = process.env.HTTPS_PORT ?? 8443;
@@ -69,16 +71,196 @@ const socketioHttpsServer = getHttpsServer();
 
 app.use(compression());
 app.use(cors(corsOptions));
-export const io = addSocketToServer(socketioHttpsServer);
+// Ensure preflight is handled for all routes
+app.options("*", cors(corsOptions));
 
 // Optional local proxy: route /classic/* to an externally running archived server
 const classicTarget = process.env.CLASSIC_TARGET;
-if (classicTarget) {
-  app.use("/classic", createClassicProxy(classicTarget));
-  // Proxy WebSocket upgrades for classic (e.g., /classic/socket.io/*)
-  attachClassicUpgradeProxy(httpServer, classicTarget);
-  attachClassicUpgradeProxy(httpsServer as unknown as http.Server, classicTarget);
+const classicHttpTarget = process.env.CLASSIC_HTTP_TARGET;
+const classicHttpsTarget = process.env.CLASSIC_HTTPS_TARGET;
+const classicSocketTarget = process.env.CLASSIC_SOCKET_TARGET;
+
+const hasAnyClassicTarget =
+  Boolean(classicTarget) ||
+  Boolean(classicHttpTarget) ||
+  Boolean(classicHttpsTarget) ||
+  Boolean(classicSocketTarget);
+
+if (hasAnyClassicTarget) {
+  const insecure = String(
+    process.env.CLASSIC_HTTPS_INSECURE || "",
+  ).toLowerCase();
+  const allowInsecure =
+    insecure === "1" || insecure === "true" || insecure === "yes";
+  const tlsServername = process.env.CLASSIC_TLS_SERVERNAME || undefined;
+
+  // Optional custom CA bundle for verifying classic HTTPS endpoint
+  let ca: string | undefined;
+  try {
+    if (process.env.CLASSIC_HTTPS_CA_FILE) {
+      ca = require("fs").readFileSync(
+        process.env.CLASSIC_HTTPS_CA_FILE,
+        "utf8",
+      );
+    } else if (process.env.CLASSIC_HTTPS_CA) {
+      const raw = process.env.CLASSIC_HTTPS_CA;
+      ca = raw!.includes("-----BEGIN")
+        ? raw!
+        : Buffer.from(raw!, "base64").toString("utf8");
+    }
+  } catch (e) {
+    console.warn("Warning: failed to load CLASSIC_HTTPS_CA[_FILE]", e);
+  }
+
+  // Helper to choose classic HTTP/HTTPS target based on request
+  const pickHttpHttpsTarget = (req: express.Request) => {
+    const forwarded = String(
+      req.headers["x-forwarded-proto"] || "",
+    ).toLowerCase();
+    const isSecure = req.secure || forwarded.includes("https");
+    const httpsT = classicHttpsTarget || classicTarget;
+    const httpT = classicHttpTarget || classicTarget;
+    const chosen = isSecure ? httpsT : httpT;
+    return chosen || classicTarget || "";
+  };
+
+  // HTTPS Agent for SNI and validation; used for HTTPS targets
+  const httpsAgent = new (require("https").Agent)({
+    keepAlive: true,
+    rejectUnauthorized: !allowInsecure,
+    servername: tlsServername,
+    ca,
+  });
+
+  // /classic -> classic target (strip prefix). Supports HTTP and HTTPS backends.
+  const classicProxy: ProxyRequestHandler = createProxyMiddleware({
+    router: pickHttpHttpsTarget,
+    target:
+      classicTarget ||
+      classicHttpTarget ||
+      classicHttpsTarget ||
+      "http://127.0.0.1",
+    changeOrigin: true,
+    xfwd: true,
+    ws: false, // handled by dedicated socket proxies
+    secure: !allowInsecure,
+    pathRewrite: { "^/classic": "" },
+    agent: httpsAgent,
+    onProxyReq: (proxyReq, _req) => {
+      if (tlsServername) proxyReq.setHeader("host", tlsServername);
+    },
+  });
+
+  // Socket.IO long-polling and upgrades at root '/socket.io/*'
+  if (classicSocketTarget || classicTarget) {
+    const socketTarget = classicSocketTarget || classicTarget!;
+    const socketProxyRoot: ProxyRequestHandler = createProxyMiddleware(
+      "/socket.io",
+      {
+        target: socketTarget,
+        changeOrigin: true,
+        xfwd: true,
+        ws: true,
+        secure: !allowInsecure,
+        agent: httpsAgent,
+        onProxyReq: (proxyReq) => {
+          if (tlsServername) proxyReq.setHeader("host", tlsServername);
+        },
+        onProxyReqWs: (_proxyReq, _req, _socket, options) => {
+          let headers: typeof options.headers;
+          if (!options.headers || Array.isArray(options.headers)) {
+            headers = {};
+          } else {
+            headers = options.headers;
+          }
+          if (tlsServername) {
+            headers["host"] = tlsServername;
+          }
+          // handle typeScript strictness
+          options.headers = headers;
+        },
+      },
+    );
+    app.use("/socket.io", socketProxyRoot);
+    if (typeof socketProxyRoot.upgrade === "function") {
+      const upgradeHandler = (
+        req: http.IncomingMessage,
+        socket: net.Socket,
+        head: Buffer,
+      ) => {
+        socketProxyRoot.upgrade!(req as any, socket, head);
+      };
+      httpServer.on("upgrade", upgradeHandler);
+      httpsServer.on("upgrade", upgradeHandler);
+    }
+    // Also support '/classic/socket.io/*' by rewriting to target '/socket.io/*'
+    const socketProxyClassic: ProxyRequestHandler = createProxyMiddleware(
+      "/classic/socket.io",
+      {
+        target: socketTarget,
+        changeOrigin: true,
+        xfwd: true,
+        ws: true,
+        secure: !allowInsecure,
+        agent: httpsAgent,
+        pathRewrite: { "^/classic": "" },
+        onProxyReq: (proxyReq) => {
+          if (tlsServername) proxyReq.setHeader("host", tlsServername);
+        },
+        onProxyReqWs: (_proxyReq, _req, _socket, options) => {
+          let headers: typeof options.headers;
+          if (!options.headers || Array.isArray(options.headers)) {
+            headers = {};
+          } else {
+            headers = options.headers;
+          }
+          if (tlsServername) headers["host"] = tlsServername;
+          options.headers = headers;
+        },
+      },
+    );
+    app.use("/classic/socket.io", socketProxyClassic);
+    if (typeof socketProxyClassic.upgrade === "function") {
+      const upgradeHandler = (
+        req: http.IncomingMessage,
+        socket: net.Socket,
+        head: Buffer,
+      ) => {
+        socketProxyClassic.upgrade!(req as any, socket, head);
+      };
+      httpServer.on("upgrade", upgradeHandler);
+      httpsServer.on("upgrade", upgradeHandler);
+    }
+    // Attach classic socket proxy on the dedicated socket server (port SOCKET_PORT)
+    if (typeof socketProxyClassic.upgrade === "function") {
+      const upgradeHandler = (
+        req: http.IncomingMessage,
+        socket: net.Socket,
+        head: Buffer,
+      ) => {
+        const url = req.url || "";
+        if (url.startsWith("/classic/socket.io")) {
+          socketProxyClassic.upgrade!(req as any, socket, head);
+        }
+      };
+      socketioHttpsServer.on("upgrade", upgradeHandler);
+    }
+    // Intercept HTTP long-polling on the socket server for classic path
+    const classicSocketHttpHandler = (req: any, res: any) => {
+      socketProxyClassic(req, res, () => {});
+    };
+    socketioHttpsServer.on("request", (req, res) => {
+      const url = req.url || "";
+      if (url.startsWith("/classic/socket.io")) {
+        classicSocketHttpHandler(req, res);
+      }
+    });
+    // Mount the generic /classic proxy after the specific classic socket handlers
+    app.use("/classic", classicProxy);
+  }
 }
+
+export const io = addSocketToServer(socketioHttpsServer);
 
 app.get("/external-api/github-ui-release", (req, res) => {
   const auth = req.headers.authorization || "";
