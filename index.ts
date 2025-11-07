@@ -73,7 +73,6 @@ app.use(compression());
 app.use(cors(corsOptions));
 // Ensure preflight is handled for all routes
 app.options("*", cors(corsOptions));
-export const io = addSocketToServer(socketioHttpsServer);
 
 // Optional local proxy: route /classic/* to an externally running archived server
 const classicTarget = process.env.CLASSIC_TARGET;
@@ -143,7 +142,7 @@ if (hasAnyClassicTarget) {
       "http://127.0.0.1",
     changeOrigin: true,
     xfwd: true,
-    ws: true,
+    ws: false, // handled by dedicated socket proxies
     secure: !allowInsecure,
     pathRewrite: { "^/classic": "" },
     agent: httpsAgent,
@@ -151,19 +150,6 @@ if (hasAnyClassicTarget) {
       if (tlsServername) proxyReq.setHeader("host", tlsServername);
     },
   });
-  app.use("/classic", classicProxy);
-  if (typeof classicProxy.upgrade === "function") {
-    const upgradeHandler = (
-      req: http.IncomingMessage,
-      socket: net.Socket,
-      head: Buffer,
-    ) => {
-      // classicProxy.upgrade expects compatible arguments; non-null after typeof check
-      classicProxy.upgrade!(req as any, socket, head);
-    };
-    httpServer.on("upgrade", upgradeHandler);
-    httpsServer.on("upgrade", upgradeHandler);
-  }
 
   // Socket.IO long-polling and upgrades at root '/socket.io/*'
   if (classicSocketTarget || classicTarget) {
@@ -245,8 +231,36 @@ if (hasAnyClassicTarget) {
       httpServer.on("upgrade", upgradeHandler);
       httpsServer.on("upgrade", upgradeHandler);
     }
+    // Attach classic socket proxy on the dedicated socket server (port SOCKET_PORT)
+    if (typeof socketProxyClassic.upgrade === "function") {
+      const upgradeHandler = (
+        req: http.IncomingMessage,
+        socket: net.Socket,
+        head: Buffer,
+      ) => {
+        const url = req.url || "";
+        if (url.startsWith("/classic/socket.io")) {
+          socketProxyClassic.upgrade!(req as any, socket, head);
+        }
+      };
+      socketioHttpsServer.on("upgrade", upgradeHandler);
+    }
+    // Intercept HTTP long-polling on the socket server for classic path
+    const classicSocketHttpHandler = (req: any, res: any) => {
+      socketProxyClassic(req, res, () => {});
+    };
+    socketioHttpsServer.on("request", (req, res) => {
+      const url = req.url || "";
+      if (url.startsWith("/classic/socket.io")) {
+        classicSocketHttpHandler(req, res);
+      }
+    });
+    // Mount the generic /classic proxy after the specific classic socket handlers
+    app.use("/classic", classicProxy);
   }
 }
+
+export const io = addSocketToServer(socketioHttpsServer);
 
 app.get("/external-api/github-ui-release", (req, res) => {
   const auth = req.headers.authorization || "";
