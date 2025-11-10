@@ -200,5 +200,15 @@ export function createHeroCombatant(
     heroCombatant.attackSpeed = singleAttackInterval;
   }
 
+  // Blood magic is also a single-hit style like bows
+  if (
+    heroCombatant.attackType === AttackType.Blood &&
+    (heroCombatant.class === HeroClasses.BloodMage ||
+      heroCombatant.class === HeroClasses.Vampire)
+  ) {
+    // Use the same base single-attack cadence as ranged (no speed multiplier for blood)
+    heroCombatant.attackSpeed = BASE_ATTACK_SPEED * 2;
+  }
+
   return heroCombatant;
 }
