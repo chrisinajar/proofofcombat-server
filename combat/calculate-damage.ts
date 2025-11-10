@@ -178,9 +178,11 @@ export function calculateDamage(
   if (debug) {
     console.log("final damage", damage);
   }
+  // Apply amplification/reduction first
+  damage *= multiplier;
 
-  // Integrate Blood percent-of-health as part of base damage so it follows
-  // all normal rules: amplification/reduction, conversion, resistances, clamps.
+  // Then add Blood percent-of-health flat so it is not amplified,
+  // but still participates in conversion/resistances/clamps.
   if (attackerInput.attackType === AttackType.Blood) {
     const isBloodSpecialist =
       attacker.class === HeroClasses.BloodMage ||
@@ -188,8 +190,6 @@ export function calculateDamage(
     const percent = isBloodSpecialist ? 0.05 : 0.01;
     damage += Math.max(0, attackerInput.health * percent);
   }
-
-  damage *= multiplier;
 
   damage = Math.max(1, damage);
 
