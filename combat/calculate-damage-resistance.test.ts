@@ -84,10 +84,11 @@ describe("calculateDamage converted-type resistance caps", () => {
       );
       expect(fireHit).toBeTruthy();
 
-      // Base damage is 100; 50% converts to Fire => 50 pre-resist/conversion caps
+      // Base damage is ~101; Blood adds +5% of 1000 health = +50 => ~151 base before conversion
+      // 50% converts to Fire => ~75 pre-resist/conversion caps
       // With correct cap (maxFireResistance=0.2) and vulnerability making term 1.5, min(1.5, 0.2)=0.2
-      // Expected Fire damage: 50 * 0.2 = 10 (rounded already by implementation)
-      expect(fireHit?.damage).toBe(10);
+      // Expected Fire damage: 75 * 0.2 = 15 (rounded already by implementation)
+      expect(fireHit?.damage).toBe(15);
     } finally {
       randomSpy.mockRestore();
     }
