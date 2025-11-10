@@ -178,6 +178,17 @@ export function calculateDamage(
   if (debug) {
     console.log("final damage", damage);
   }
+
+  // Integrate Blood percent-of-health as part of base damage so it follows
+  // all normal rules: amplification/reduction, conversion, resistances, clamps.
+  if (attackerInput.attackType === AttackType.Blood) {
+    const isBloodSpecialist =
+      attacker.class === HeroClasses.BloodMage ||
+      attacker.class === HeroClasses.Vampire;
+    const percent = isBloodSpecialist ? 0.05 : 0.01;
+    damage += Math.max(0, attackerInput.health * percent);
+  }
+
   damage *= multiplier;
 
   damage = Math.max(1, damage);
@@ -273,24 +284,7 @@ export function calculateDamage(
     overDamage = 0;
   }
 
-  // Post-mitigation blood percent damage (previously unlogged in fight.ts).
-  // Preserve original behavior: bypass resistances and canOnlyTakeOneDamage.
-  // Merge into the Magical damage instance when possible to simplify output as a single hit.
-  if (attackerInput.attackType === AttackType.Blood) {
-    const isBloodSpecialist =
-      attacker.class === HeroClasses.BloodMage ||
-      attacker.class === HeroClasses.Vampire;
-    const percent = isBloodSpecialist ? 0.05 : 0.01;
-    const bloodBonus = Math.max(0, Math.round(attackerInput.health * percent));
-    if (bloodBonus > 0) {
-      const magical = damages.find((d) => d.damageType === DamageType.Magical);
-      if (magical) {
-        magical.damage += bloodBonus;
-      } else {
-        damages.push({ damage: bloodBonus, damageType: DamageType.Magical });
-      }
-    }
-  }
+  // Blood bonus has been incorporated into damage above; no special-case here
 
   return {
     overDamage,

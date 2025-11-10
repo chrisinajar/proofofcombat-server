@@ -37,10 +37,7 @@ function hasTwoAttacks(combatant: Combatant): boolean {
     }
   }
 
-  if (
-    combatant.attackType === AttackType.Ranged ||
-    combatant.attackType === AttackType.Blood
-  ) {
+  if (combatant.attackType === AttackType.Ranged) {
     // Ranged and Blood are single-hit styles with a single-attack cadence.
     // Treat as "has two attacks" to avoid doubling cooldown mechanics.
     return true;
@@ -345,10 +342,7 @@ export function attackCombatant(
   let { attackType } = attacker;
   // Ranged: always a single-shot attack; ignore the alternating "second hit" flag
   const useSecondAttack =
-    attacker.attackType === AttackType.Ranged ||
-    attacker.attackType === AttackType.Blood
-      ? false
-      : isSecondAttack;
+    attacker.attackType === AttackType.Ranged ? false : isSecondAttack;
 
   // Determine effective attack type (for BattleMage/DemonHunter true alternation)
   let effectiveAttackType: AttackType = attacker.attackType;
