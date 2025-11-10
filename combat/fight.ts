@@ -271,15 +271,6 @@ export function executeFight(
         );
       }
 
-      const bloodMageDamage =
-        attackerCombatant.class === HeroClasses.BloodMage ||
-        attackerCombatant.class === HeroClasses.Vampire
-          ? attackerCombatant.health * 0.01
-          : attackerCombatant.health * 0.05;
-
-      result.victimDamage +=
-        attackerCombatant.attackType === AttackType.Blood ? bloodMageDamage : 0;
-
       result.log = result.log.concat(attackerAttack.combatLog);
     }
 
@@ -311,16 +302,6 @@ export function executeFight(
         );
       }
 
-      if (victimCombatant.class !== HeroClasses.Monster) {
-        const bloodMageDamage =
-          victimCombatant.class === HeroClasses.BloodMage ||
-          victimCombatant.class === HeroClasses.Vampire
-            ? victimCombatant.health * 0.01
-            : victimCombatant.health * 0.05;
-
-        result.attackerDamage +=
-          victimCombatant.attackType === AttackType.Blood ? bloodMageDamage : 0;
-      }
       result.log = result.log.concat(victimAttack.combatLog);
     }
 

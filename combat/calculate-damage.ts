@@ -273,6 +273,20 @@ export function calculateDamage(
     overDamage = 0;
   }
 
+  // Post-mitigation blood percent damage (previously unlogged in fight.ts).
+  // Preserve original behavior: bypass resistances and canOnlyTakeOneDamage.
+  if (attackerInput.attackType === AttackType.Blood) {
+    const isBloodSpecialist =
+      attacker.class === HeroClasses.BloodMage ||
+      attacker.class === HeroClasses.Vampire;
+    // Flip the previous backwards logic: specialists deal more.
+    const percent = isBloodSpecialist ? 0.05 : 0.01;
+    const bloodBonus = Math.max(0, Math.round(attackerInput.health * percent));
+    if (bloodBonus > 0) {
+      damages.push({ damage: bloodBonus, damageType: DamageType.Magical });
+    }
+  }
+
   return {
     overDamage,
     damages,
