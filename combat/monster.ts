@@ -6,7 +6,6 @@ import {
   MonsterInstance,
   MonsterEquipment,
   InventoryItemType,
-  CombatEntry,
 } from "types/graphql";
 import { CombatantGear, Combatant } from "./types";
 import { createLuck, attributesForAttack } from "./helpers";

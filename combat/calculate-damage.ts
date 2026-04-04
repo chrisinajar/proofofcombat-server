@@ -2,13 +2,12 @@ import {
   AttackType,
   InventoryItemType,
   HeroClasses,
-  EnchantmentType,
   DamageType,
   HeroStance,
 } from "types/graphql";
 
 import { Combatant } from "./types";
-import { attributesForAttack, getItemPassiveUpgradeTier } from "./helpers";
+import { attributesForAttack } from "./helpers";
 import { getEnchantedAttributes } from "./enchantments";
 
 import { Hero } from "../calculations/units/hero";

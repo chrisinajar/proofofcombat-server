@@ -3,7 +3,6 @@ import {
   AttackType,
   CombatEntry,
   InventoryItemType,
-  EnchantmentType,
 } from "types/graphql";
 
 import { Combatant, CombatResult } from "./types";

@@ -1,7 +1,4 @@
-import { AttackType, EnchantmentType, HeroClasses } from "types/graphql";
-
 import { Combatant, EnchantedCombatant } from "./types";
-import { attributesForAttack } from "./helpers";
 import { getEnchantedAttributes } from "./enchantments";
 
 import { Unit } from "../calculations/units/unit";
