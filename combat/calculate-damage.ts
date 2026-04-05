@@ -6,7 +6,7 @@ import {
   HeroStance,
 } from "types/graphql";
 
-import { Combatant } from "./types";
+import { Combatant, EnchantedCombatant } from "./types";
 import { getEnchantedAttributes } from "./enchantments";
 
 import { Hero } from "../calculations/units/hero";
@@ -26,13 +26,12 @@ export function calculateDamageValues(
   victimInput: Combatant,
   isSecondAttack: boolean = false,
   debug: boolean = false,
+  enchanted?: { attacker: EnchantedCombatant; victim: EnchantedCombatant },
 ) {
   const { attackType } = attackerInput;
 
-  const { attacker, victim } = getEnchantedAttributes(
-    attackerInput,
-    victimInput,
-  );
+  const { attacker, victim } =
+    enchanted ?? getEnchantedAttributes(attackerInput, victimInput);
 
   let damageType = DamageType.Physical;
 
@@ -132,6 +131,7 @@ export function calculateDamage(
   if (debug) {
     console.log({ isSecondAttack });
   }
+  const enchanted = getEnchantedAttributes(attackerInput, victimInput);
   const {
     baseDamage,
     variation,
@@ -141,13 +141,16 @@ export function calculateDamage(
     trippleCriticalChance,
     canOnlyTakeOneDamage,
     multiplier,
-  } = calculateDamageValues(attackerInput, victimInput, isSecondAttack, debug);
-  const damages: DamageInstance[] = [];
-
-  const { attacker, victim } = getEnchantedAttributes(
+  } = calculateDamageValues(
     attackerInput,
     victimInput,
+    isSecondAttack,
+    debug,
+    enchanted,
   );
+  const damages: DamageInstance[] = [];
+
+  const { attacker, victim } = enchanted;
 
   let damage = Math.max(1, baseDamage - variation * Math.random());
 
