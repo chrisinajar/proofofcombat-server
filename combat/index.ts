@@ -6,6 +6,7 @@ export * from "./enchantments";
 export * from "./fight-monster";
 export * from "./fight";
 export * from "./helpers";
+export * from "./item-helpers";
 export * from "./hero";
 export * from "./monster";
 export * from "./types";
