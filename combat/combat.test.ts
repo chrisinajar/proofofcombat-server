@@ -74,7 +74,7 @@ function getHitOdds(
   heroB: Combatant,
   debug: boolean = false,
 ) {
-  return calculateOdds(heroA, heroB, false);
+  return calculateOdds(heroA, heroB);
 }
 
 type StatDistribution = { [x in Attribute]?: number };

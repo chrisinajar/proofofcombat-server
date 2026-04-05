@@ -5,10 +5,7 @@ import { calculateHitChance } from "../maths";
 export function calculateOdds(
   attackerInput: Combatant,
   victimInput: Combatant,
-  isSecondAttack: boolean,
 ): number {
-  const { attackType } = attackerInput;
-
   const { attacker, victim } = getEnchantedAttributes(
     attackerInput,
     victimInput,
@@ -23,9 +20,6 @@ export function calculateOdds(
 export function calculateHit(
   attackerInput: Combatant,
   victimInput: Combatant,
-  isSecondAttack: boolean,
 ): boolean {
-  return (
-    Math.random() < calculateOdds(attackerInput, victimInput, isSecondAttack)
-  );
+  return Math.random() < calculateOdds(attackerInput, victimInput);
 }

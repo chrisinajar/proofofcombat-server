@@ -366,7 +366,7 @@ export function attackCombatant(
   attacker.unit.attackType = effectiveAttackType;
   attacker.attackType = effectiveAttackType;
 
-  const hit = calculateHit(attacker, victim, useSecondAttack);
+  const hit = calculateHit(attacker, victim);
   let damage = 0;
   let overDamage = 0;
   let critical = false;
