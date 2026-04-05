@@ -25,20 +25,6 @@ function createMonsterStatsByLevel(level: number): HeroStats {
   };
 }
 
-function createMonsterLuck(monster: Monster) {
-  // damage spread
-  const smallModifier =
-    monster.combat.maxHealth / (monster.combat.maxHealth + 20);
-  // critical
-  const largeModifier =
-    monster.combat.maxHealth / (monster.combat.maxHealth + 100);
-  // super crit
-  const ultraModifier =
-    monster.combat.maxHealth / (monster.combat.maxHealth + 500);
-
-  return { smallModifier, largeModifier, ultraModifier };
-}
-
 export function createMonsterEquipment(
   monster: Partial<Monster> & Pick<Monster, "level">,
   equipmentOverride?: MonsterEquipment | null,
