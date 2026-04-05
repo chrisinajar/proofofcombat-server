@@ -323,7 +323,7 @@ export function executeFight(
   return executeFight(attackerCombatant, victimCombatant, duration, result);
 }
 
-type AttackCombcatantResult = {
+type AttackCombatantResult = {
   hit: boolean;
   damage: number;
   overDamage: number;
@@ -337,7 +337,7 @@ export function attackCombatant(
   victim: Combatant,
   isSecondAttack: boolean = false,
   time: number = 0,
-): AttackCombcatantResult {
+): AttackCombatantResult {
   let { attackType } = attacker;
   // Ranged: always a single-shot attack; ignore the alternating "second hit" flag
   const useSecondAttack =
