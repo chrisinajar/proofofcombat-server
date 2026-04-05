@@ -156,7 +156,6 @@ export function calculateDamage(
 
   let critical = false;
   let doubleCritical = false;
-  let trippleCritical = false;
 
   if (Math.random() < criticalChance) {
     critical = true;
@@ -165,7 +164,6 @@ export function calculateDamage(
       doubleCritical = true;
       damage = damage * 3;
       if (Math.random() < trippleCriticalChance) {
-        trippleCritical = true;
         damage = damage * 3;
       }
     }
