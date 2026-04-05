@@ -7,7 +7,6 @@ import {
 } from "types/graphql";
 
 import { Combatant } from "./types";
-import { attributesForAttack } from "./helpers";
 import { getEnchantedAttributes } from "./enchantments";
 
 import { Hero } from "../calculations/units/hero";
@@ -29,14 +28,12 @@ export function calculateDamageValues(
   debug: boolean = false,
 ) {
   const { attackType } = attackerInput;
-  let damage = 0;
 
   const { attacker, victim } = getEnchantedAttributes(
     attackerInput,
     victimInput,
   );
 
-  const attributeTypes = attributesForAttack(attackType);
   let damageType = DamageType.Physical;
 
   switch (attackType) {
@@ -65,9 +62,6 @@ export function calculateDamageValues(
   let { percentageArmorReduction, armor } = victim.unit.stats;
   const attackerAmplification = attacker.unit.stats.percentageDamageIncrease;
   const victimDamageReduction = victim.unit.stats.percentageDamageReduction;
-  let baseDamageDecrease = 1;
-  const attackerDamageStat = attacker.attributes[attributeTypes.damage];
-  let victimReductionStat = victim.attributes[attributeTypes.damageReduction];
 
   armor *= percentageArmorReduction;
 
