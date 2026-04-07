@@ -23,7 +23,6 @@ describe("calculateDamage attacker/victim multipliers", () => {
         level: 1,
         name: "attacker",
         equipment: { armor: [], weapons: [], quests: [] },
-        damageReduction: 0,
         health: 1000,
         maxHealth: 1000,
         attributes: {
@@ -52,7 +51,6 @@ describe("calculateDamage attacker/victim multipliers", () => {
         level: 1,
         name: "victim",
         equipment: { armor: [], weapons: [], quests: [] },
-        damageReduction: 0,
         health: 1000,
         maxHealth: 1000,
         attributes: {

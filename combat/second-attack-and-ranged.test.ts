@@ -20,7 +20,6 @@ function makeBaseCombatant(
     level: 1,
     name,
     equipment: { armor: [], weapons: [], quests: [] },
-    damageReduction: 0,
     health: 1000,
     maxHealth: 1000,
     attributes: {

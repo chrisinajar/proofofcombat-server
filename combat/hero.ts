@@ -139,7 +139,6 @@ export function createHeroCombatant(
       quests: hero.inventory.filter((i) => i.type === InventoryItemType.Quest),
       artifact: hero.equipment.artifact ?? undefined,
     },
-    damageReduction: hero.level,
     attributes: {
       strength: heroUnit.baseValues.strength,
       dexterity: heroUnit.baseValues.dexterity,

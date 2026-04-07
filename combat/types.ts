@@ -22,7 +22,6 @@ export type Combatant = {
   equipment: CombatantGear;
   attributes: HeroStats;
   skills?: HeroSkills;
-  damageReduction: number;
   health: number;
   maxHealth: number;
   luck: {

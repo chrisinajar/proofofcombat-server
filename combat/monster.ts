@@ -106,7 +106,6 @@ export function createMonsterCombatant(monster: MonsterInstance): Combatant {
           monster.equipment,
         )
       : createMonsterEquipment({ level: monster.monster.level }),
-    damageReduction: monsterAttributes.constitution / 2,
     attributes: monsterAttributes,
     luck: createLuck(monsterAttributes.luck),
     health: monster.monster.combat.health,

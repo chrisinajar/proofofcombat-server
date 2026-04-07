@@ -619,7 +619,6 @@ const resolvers: Resolvers = {
         level: 1,
         name: "System",
         equipment: { armor: [], weapons: [], quests: [] },
-        damageReduction: 1,
         health: 1000000,
         maxHealth: 1000000,
         attributes: {
