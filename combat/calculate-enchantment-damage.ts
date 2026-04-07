@@ -36,11 +36,11 @@ export function getOneSidedData(
 
   victimDamage /= Math.max(
     1,
-    enchantDamageResist * victim.percentageEnchantmentDamageReduction,
+    enchantDamageResist * victim.unit.stats.percentageEnchantmentDamageReduction,
   );
   attackerLeech /= Math.max(
     1,
-    enchantDamageResist * victim.percentageEnchantmentDamageReduction,
+    enchantDamageResist * victim.unit.stats.percentageEnchantmentDamageReduction,
   );
   attackerLeech = Math.min(1000000000, attackerLeech);
 

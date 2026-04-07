@@ -666,9 +666,11 @@ const resolvers: Resolvers = {
         enchantedStats.attacker.unit.stats.evasionRating;
 
       return {
-        damageAmplification: enchantedStats.attacker.percentageDamageIncrease,
+        damageAmplification:
+          enchantedStats.attacker.unit.stats.percentageDamageIncrease,
         armor: enchantedStats.attacker.unit.stats.armor,
-        armorReduction: enchantedStats.victim.percentageDamageReduction,
+        armorReduction:
+          enchantedStats.victim.unit.stats.percentageDamageReduction,
         enemyStats: enchantedStats.victim.attributes,
         stats: enchantedStats.attacker.attributes,
 

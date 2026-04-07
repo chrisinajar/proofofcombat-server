@@ -361,7 +361,8 @@ describe("combat", () => {
       let result = getEnchantedAttributes(heroCombatant, hero2Combatant);
       calculateEnchantmentDamage(result.attacker, result.victim);
 
-      const percentBefore = result.victim.percentageEnchantmentDamageReduction;
+      const percentBefore =
+        result.victim.unit.stats.percentageEnchantmentDamageReduction;
 
       expect(percentBefore).toBe(1);
 
@@ -370,7 +371,9 @@ describe("combat", () => {
       result = getEnchantedAttributes(heroCombatant, hero2Combatant);
       calculateEnchantmentDamage(result.attacker, result.victim);
 
-      expect(result.victim.percentageEnchantmentDamageReduction).toBe(0.75);
+      expect(result.victim.unit.stats.percentageEnchantmentDamageReduction).toBe(
+        0.75,
+      );
     });
   });
 });

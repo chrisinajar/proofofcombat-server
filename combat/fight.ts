@@ -143,10 +143,12 @@ export function executeFight(
     );
 
     const attackerDidMesmerize =
-      Math.random() > enchantedAttacker.mesmerizeChance;
-    const victimDidMesmerize = Math.random() > enchantedVictim.mesmerizeChance;
-    const attackerDidFocus = Math.random() > enchantedAttacker.focusChance;
-    const victimDidFocus = Math.random() > enchantedVictim.focusChance;
+      Math.random() > enchantedAttacker.unit.stats.mesmerizeChance;
+    const victimDidMesmerize =
+      Math.random() > enchantedVictim.unit.stats.mesmerizeChance;
+    const attackerDidFocus =
+      Math.random() > enchantedAttacker.unit.stats.focusChance;
+    const victimDidFocus = Math.random() > enchantedVictim.unit.stats.focusChance;
 
     result.attackerIsMesmerized = !attackerDidFocus && victimDidMesmerize;
     result.victimIsMesmerized = !victimDidFocus && attackerDidMesmerize;

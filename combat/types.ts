@@ -36,21 +36,8 @@ export type Combatant = {
   attackSpeedRemainder: number;
 };
 
-export type EnchantedCombatant = Combatant & {
-  percentageDamageIncrease: number;
-  percentageDamageReduction: number;
-  percentageEnchantmentDamageReduction: number;
-  enchanted: true;
-  bonusAccuracy: number;
-  bonusDodge: number;
-  bonusWeaponTiers: number;
-  bonusShieldTiers: number;
-  bonusArmorTiers: number;
-  lifesteal: number;
-  // inverse for MATHS
-  mesmerizeChance: number;
-  focusChance: number;
-};
+/** After `getEnchantedAttributes`, use `unit.stats` for modifier fields (no duplicate flats on the object). */
+export type EnchantedCombatant = Combatant;
 
 export type AttackAttributes = {
   toHit: Attribute;
