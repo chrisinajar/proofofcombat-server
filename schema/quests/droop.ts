@@ -88,9 +88,6 @@ export function checkHeroDrop(
     "droop",
     (hero.questLog.droop?.progress ?? 0) + 1,
   );
-  // const secret
-  // const eastWest =
-
   return hero;
 }
 
