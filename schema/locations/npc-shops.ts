@@ -29,6 +29,14 @@ import { spawnRandomAberration } from "../aberration";
 
 type NpcTradeResult = { success: boolean; message: string };
 
+function unrecognizedTradeResult(
+  tradeId: string,
+  vendor: string,
+): NpcTradeResult {
+  console.warn(`Unrecognized tradeId in ${vendor}: "${tradeId}"`);
+  return { success: false, message: `Trade not recognized: ${tradeId}` };
+}
+
 let purificationToday = Math.floor(Date.now() / 1000 / 60 / 60 / 24);
 let purificationTomorrowTime = 0;
 
@@ -91,7 +99,7 @@ export async function executeNpcTrade(
     return executeAltarBlessing(context, hero, tradeId);
   }
 
-  return { success: false, message: "not implemented" };
+  return unrecognizedTradeResult(tradeId, "executeNpcTrade");
 }
 export function getShopData(
   context: BaseContext,
@@ -328,7 +336,7 @@ async function executeAltarBlessing(
     return { success: true, message: "You have been blessed" };
   }
 
-  return { success: false, message: "not implemented" };
+  return unrecognizedTradeResult(tradeId, "executeAltarBlessing");
 }
 
 async function executeTranscendenceTrade(
@@ -453,7 +461,7 @@ async function executeTranscendenceTrade(
       message: `Your ${pureAscendedItem.name} fuses with the essences and transforms into ${newItem.name}`,
     };
   }
-  return { success: false, message: "not implemented" };
+  return unrecognizedTradeResult(tradeId, "executeTranscendenceTrade");
 }
 
 async function executeAmixeaTrade(
@@ -578,7 +586,7 @@ async function executeAmixeaTrade(
     await context.db.hero.put(hero);
     return { success: true, message: "Amixea combines the items into one" };
   }
-  return { success: false, message: "not implemented" };
+  return unrecognizedTradeResult(tradeId, "executeAmixeaTrade");
 }
 
 function getAmixeaTrades(context: BaseContext, hero: Hero): NpcShop | null {
@@ -1014,7 +1022,7 @@ async function executeTrimarimTrade(
 ): Promise<NpcTradeResult> {
   const trade = TrimarimTrades[tradeId];
   if (!trade) {
-    return { success: false, message: "not implemented" };
+    return unrecognizedTradeResult(tradeId, "executeTrimarimTrade");
   }
 
   const priceResult = payForTrimarim(hero, trade.price);
@@ -1362,7 +1370,7 @@ async function executeNaxxremisTrade(
       message: "His power amazes you.",
     };
   }
-  return { success: false, message: "not implemented" };
+  return unrecognizedTradeResult(tradeId, "executeNaxxremisTrade");
 }
 
 type SummoningCost = {
@@ -1412,7 +1420,7 @@ async function executeDomariTrade(
   }
 
   if (tradeIndex === -1) {
-    return { success: false, message: `Trade not implemented: ${tradeId}` };
+    return unrecognizedTradeResult(tradeId, "executeDomariTrade");
   }
   const costs = domariAberrationCosts[tradeIndex];
   const aberration = domariAberrations[tradeIndex];
@@ -1457,7 +1465,10 @@ async function executeDomariTrade(
       message: `The ${aberration.monster.name} has been summoned at ${location[0]}, ${location[1]}`,
     };
   }
-  return { success: false, message: "not implemented" };
+  console.warn(
+    `executeDomariTrade: aberration data missing for index ${tradeIndex} (tradeId: "${tradeId}")`,
+  );
+  return { success: false, message: "Trade could not be completed" };
 }
 
 function getRandomTerrainLocation(
