@@ -1,7 +1,6 @@
 import Level from "level-ts";
 import LRU from "lru-cache";
 
-// import { uuid } from 'uuidv4';
 import { BaseModel } from "types/graphql";
 
 // Allow custom DB path for E2E tests
@@ -47,8 +46,4 @@ export default class DatabaseInterface<Model extends BaseModel> {
     this.cache.delete(data.id);
     return this.db.del(data.id);
   }
-
-  // async create(data: Omit<Model, "id">) {
-  //   const id = uuid();
-  // }
 }
