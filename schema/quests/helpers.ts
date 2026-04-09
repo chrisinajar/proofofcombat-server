@@ -3,6 +3,7 @@ import {
   InventoryItem,
   MonsterInstance,
   Quest,
+  QuestLog,
   PlayerLocation,
   Location,
 } from "types/graphql";
@@ -272,16 +273,37 @@ export function setQuestEvent(
   return hero;
 }
 
+/**
+ * Canonical mapping from Quest enum → QuestLog field name.
+ *
+ * Three pairs intentionally diverge from simple camelCase of the enum:
+ *  - DroopsQuest   → droop             (shortened; "Droop" is the NPC)
+ *  - MysteriousAutomation → clockwork  (in-game flavour rename)
+ *  - EssencePurification  → dailyPurification (tracks the daily cooldown)
+ */
+export type QuestLogField = Exclude<keyof QuestLog, "id">;
+
+export const QUEST_LOG_FIELD: Record<Quest, QuestLogField> = {
+  [Quest.TasteForBusiness]: "tasteForBusiness",
+  [Quest.WashedUp]: "washedUp",
+  [Quest.Rebirth]: "rebirth",
+  [Quest.DroopsQuest]: "droop",
+  [Quest.NagaScale]: "nagaScale",
+  [Quest.MysteriousAutomation]: "clockwork",
+  [Quest.TavernChampion]: "tavernChampion",
+  [Quest.MinorClassUpgrades]: "minorClassUpgrades",
+  [Quest.Settlements]: "settlements",
+  [Quest.MeetTheQueen]: "meetTheQueen",
+  [Quest.EssencePurification]: "dailyPurification",
+};
+
 export function setQuestLogProgress(
   hero: Hero,
   quest: Quest,
-  entryName: keyof Hero["questLog"],
   progress: number,
   finished: boolean = false,
 ): Hero {
-  if (entryName === "id") {
-    return hero;
-  }
+  const entryName = QUEST_LOG_FIELD[quest];
   const lastEvent =
     hero.currentQuest?.quest === quest ? hero.currentQuest : undefined;
 

@@ -65,7 +65,6 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     hero = setQuestLogProgress(
       hero,
       Quest.MeetTheQueen,
-      "meetTheQueen",
       1,
       false,
     );
@@ -83,7 +82,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
         "intro",
         questEvents.intro,
       );
-      hero = setQuestLogProgress(hero, Quest.MeetTheQueen, "meetTheQueen", 1);
+      hero = setQuestLogProgress(hero, Quest.MeetTheQueen, 1);
     }
 
     return hero;
@@ -103,7 +102,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
         "notHere",
         questEvents.notHere,
       );
-      hero = setQuestLogProgress(hero, Quest.MeetTheQueen, "meetTheQueen", 2);
+      hero = setQuestLogProgress(hero, Quest.MeetTheQueen, 2);
 
       return hero;
     }
@@ -118,7 +117,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
         "brewconiaIsTheQueen",
         questEvents.brewconiaIsTheQueen,
       );
-      hero = setQuestLogProgress(hero, Quest.MeetTheQueen, "meetTheQueen", 3);
+      hero = setQuestLogProgress(hero, Quest.MeetTheQueen, 3);
 
       return hero;
     }
@@ -130,7 +129,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
         "brewconiasFavor",
         questEvents.brewconiasFavor,
       );
-      hero = setQuestLogProgress(hero, Quest.MeetTheQueen, "meetTheQueen", 10);
+      hero = setQuestLogProgress(hero, Quest.MeetTheQueen, 10);
 
       giveQuestItemQuantityNotification(context, hero, "clean-rag", 10);
       return hero;
@@ -233,7 +232,6 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   hero = setQuestLogProgress(
     hero,
     Quest.MeetTheQueen,
-    "meetTheQueen",
     20,
     true,
   );

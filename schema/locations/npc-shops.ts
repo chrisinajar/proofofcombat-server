@@ -379,7 +379,6 @@ async function executeTranscendenceTrade(
     hero = setQuestLogProgress(
       hero,
       Quest.EssencePurification,
-      "dailyPurification",
       purificationToday,
     );
 

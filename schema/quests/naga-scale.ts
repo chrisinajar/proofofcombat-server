@@ -166,7 +166,6 @@ function setProgress(hero: Hero, progress: number): Hero {
   return setQuestLogProgress(
     hero,
     Quest.NagaScale,
-    "nagaScale",
     progress | (hero.questLog.nagaScale?.progress ?? 0),
   );
 }

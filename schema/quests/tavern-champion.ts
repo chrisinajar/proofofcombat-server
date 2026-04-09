@@ -95,7 +95,6 @@ function setProgress(hero: Hero, progress: number, messages: string[]): Hero {
   return setQuestLogProgress(
     hero,
     Quest.TavernChampion,
-    "tavernChampion",
     progress | (hero.questLog.tavernChampion?.progress ?? 0),
   );
 }

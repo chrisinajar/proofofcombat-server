@@ -25,20 +25,25 @@ export default gql`
     EssencePurification # tracking daily essense purges
   }
 
+  # Field names are camelCase of the Quest enum EXCEPT:
+  #   DroopsQuest        → droop             (shortened; "Droop" is the NPC)
+  #   MysteriousAutomation → clockwork       (in-game flavour rename)
+  #   EssencePurification  → dailyPurification (tracks the daily cooldown)
+  # Canonical map: QUEST_LOG_FIELD in schema/quests/helpers.ts
   type QuestLog {
     id: ID!
 
-    tasteForBusiness: QuestProgress
-    washedUp: QuestProgress
-    rebirth: QuestProgress
-    droop: QuestProgress
-    nagaScale: QuestProgress
-    clockwork: QuestProgress
-    tavernChampion: QuestProgress
-    minorClassUpgrades: QuestProgress
-    settlements: QuestProgress
-    meetTheQueen: QuestProgress
-    dailyPurification: QuestProgress
+    tasteForBusiness: QuestProgress     # Quest.TasteForBusiness
+    washedUp: QuestProgress             # Quest.WashedUp
+    rebirth: QuestProgress              # Quest.Rebirth
+    droop: QuestProgress                # Quest.DroopsQuest
+    nagaScale: QuestProgress            # Quest.NagaScale
+    clockwork: QuestProgress            # Quest.MysteriousAutomation
+    tavernChampion: QuestProgress       # Quest.TavernChampion
+    minorClassUpgrades: QuestProgress   # Quest.MinorClassUpgrades
+    settlements: QuestProgress          # Quest.Settlements
+    meetTheQueen: QuestProgress         # Quest.MeetTheQueen
+    dailyPurification: QuestProgress    # Quest.EssencePurification
   }
 
   type QuestEvent {

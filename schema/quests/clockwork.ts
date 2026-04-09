@@ -54,7 +54,6 @@ export function checkHeroDrop(
     hero = setQuestLogProgress(
       hero,
       Quest.MysteriousAutomation,
-      "clockwork",
       1
     );
   }
@@ -82,7 +81,6 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     hero = setQuestLogProgress(
       hero,
       Quest.MysteriousAutomation,
-      "clockwork",
       2
     );
   }

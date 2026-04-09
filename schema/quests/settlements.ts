@@ -36,7 +36,7 @@ export async function checkCapital(
         "governor",
         questEvents.governor,
       );
-      hero = setQuestLogProgress(hero, Quest.Settlements, "settlements", 1);
+      hero = setQuestLogProgress(hero, Quest.Settlements, 1);
       hasGovernorsTitle = true;
 
       await context.db.hero.put(hero);

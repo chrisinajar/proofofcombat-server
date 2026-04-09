@@ -85,7 +85,6 @@ export function checkHeroDrop(
   hero = setQuestLogProgress(
     hero,
     Quest.DroopsQuest,
-    "droop",
     (hero.questLog.droop?.progress ?? 0) + 1,
   );
   return hero;
@@ -101,7 +100,6 @@ function weFoundDroop(context: BaseContext, hero: Hero): Hero {
   hero = setQuestLogProgress(
     hero,
     Quest.DroopsQuest,
-    "droop",
     (hero.questLog.droop?.progress ?? 0) + 1,
     true,
   );

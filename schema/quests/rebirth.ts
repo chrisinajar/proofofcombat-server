@@ -257,7 +257,7 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   }
 
   console.log("Setting rebirth quest log");
-  hero = setQuestLogProgress(hero, Quest.Rebirth, "rebirth", hero.levelCap);
+  hero = setQuestLogProgress(hero, Quest.Rebirth, hero.levelCap);
 
   return hero;
 }

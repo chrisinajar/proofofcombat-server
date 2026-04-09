@@ -103,7 +103,7 @@ function checkPub(context: BaseContext, hero: Hero): Hero {
   hero.gold = Math.round(hero.gold / 2);
 
   hero = setQuestEvent(hero, Quest.WashedUp, "pub", questEvents.brewconia);
-  hero = setQuestLogProgress(hero, Quest.WashedUp, "washedUp", 8);
+  hero = setQuestLogProgress(hero, Quest.WashedUp, 8);
 
   return hero;
 }
@@ -151,7 +151,6 @@ function checkDock(context: BaseContext, hero: Hero): Hero {
         hero = setQuestLogProgress(
           hero,
           Quest.WashedUp,
-          "washedUp",
           questLogEntry.progress,
         );
       }
@@ -166,7 +165,7 @@ function checkDock(context: BaseContext, hero: Hero): Hero {
         "dock1",
         questEvents.docks[0],
       );
-      hero = setQuestLogProgress(hero, Quest.WashedUp, "washedUp", 1);
+      hero = setQuestLogProgress(hero, Quest.WashedUp, 1);
     }
     return hero;
   }
@@ -214,7 +213,6 @@ function checkDock(context: BaseContext, hero: Hero): Hero {
   hero = setQuestLogProgress(
     hero,
     Quest.WashedUp,
-    "washedUp",
     questLogEntry.progress + 1,
   );
 
@@ -250,7 +248,6 @@ function checkInitialWashedUp(context: BaseContext, hero: Hero): Hero {
     hero = setQuestLogProgress(
       hero,
       Quest.WashedUp,
-      "washedUp",
       hero.questLog?.washedUp?.progress || 0,
     );
 

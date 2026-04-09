@@ -53,7 +53,6 @@ export function checkHeroPurchase(
     hero = setQuestLogProgress(
       hero,
       Quest.TasteForBusiness,
-      "tasteForBusiness",
       1001,
     );
   }
@@ -73,7 +72,6 @@ export function checkHeroPurchase(
     hero = setQuestLogProgress(
       hero,
       Quest.TasteForBusiness,
-      "tasteForBusiness",
       2001,
     );
 
@@ -106,7 +104,6 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
     hero = setQuestLogProgress(
       hero,
       Quest.TasteForBusiness,
-      "tasteForBusiness",
       2005,
     );
 
@@ -148,7 +145,6 @@ export function checkHeroLocation(
     hero = setQuestLogProgress(
       hero,
       Quest.TasteForBusiness,
-      "tasteForBusiness",
       2002,
     );
   }
