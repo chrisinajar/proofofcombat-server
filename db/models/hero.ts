@@ -1,6 +1,4 @@
 import {
-  ArtifactAttribute,
-  ArtifactAttributeType,
   AttackType,
   Hero,
   BaseAccount,
@@ -279,30 +277,7 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   recalculateStats(hero: Hero): Hero {
     const healthPercentBefore = hero.combat.health / hero.combat.maxHealth;
 
-    ///@TODO redo with modifiers
-    // if (hero.equipment.artifact) {
-    //   const { artifact } = hero.equipment;
-
-    //   const artifactBuffs: ArtifactAttribute[] = [
-    //     artifact.attributes.namePrefix,
-    //     artifact.attributes.namePostfix,
-    //     ...artifact.attributes.bonusAffixes,
-    //   ];
-
-    //   if (artifact.attributes.titlePrefix) {
-    //     artifactBuffs.push(artifact.attributes.titlePrefix);
-    //   }
-    //   if (artifact.attributes.titlePostfix) {
-    //     artifactBuffs.push(artifact.attributes.titlePostfix);
-    //   }
-
-    //   artifactBuffs.forEach((buff) => {
-    //     if (buff.type === ArtifactAttributeType.BonusHealth) {
-    //       bonusHealth *= buff.magnitude;
-    //     }
-    //   });
-    // }
-
+    // Artifact and modifier bonuses are applied via getUnit (modifier pipeline)
     const heroUnit = this.getUnit(hero);
 
     hero.combat.maxHealth = heroUnit.stats.health;
