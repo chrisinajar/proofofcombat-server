@@ -96,6 +96,9 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
       }
     });
 
+    // Private messages are intentionally ephemeral: the chat cache is a
+    // shared global ring buffer, so persisting here would leak messages to
+    // all users on reconnect. A per-user message store would be needed first.
     socket.on("private-chat", async (data, callback) => {
       if (!socket.name) {
         return;
@@ -124,14 +127,6 @@ export function addSocketToServer(httpServer: HttpServer): SocketServerAPI {
         }
       });
       console.log(socket.name, toName, data.message);
-
-      // const message = await addChatMessage({
-      //   message: data.message.trim(),
-      //   from: socket.name,
-      //   heroId: socket.heroId,
-      //   type: "chat",
-      // });
-      // socket.broadcast.emit("chat", message);
 
       callback(message);
     });
