@@ -1,19 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
 
-import {
-  Hero,
-  BaseModel,
-  TradeOffer,
-  TradeOfferInput,
-  InventoryItem,
-} from "types/graphql";
+import { Hero, TradeOffer, InventoryItem } from "types/graphql";
 
 import DatabaseInterface from "../interface";
-
-type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
-
-// type PartialChatMessage = Optional<ChatMessage, "type">;
-// type PartialTradeOffer = Optional<TradeOffer>;
 
 export default class TradeOfferModel extends DatabaseInterface<TradeOffer> {
   constructor() {
@@ -67,15 +56,4 @@ export default class TradeOfferModel extends DatabaseInterface<TradeOffer> {
       item,
     });
   }
-
-  // upgrade(data: PartialTradeOffer): TradeOffer {
-  //   data.chat = data.chat.map((entry) => {
-  //     if (!entry.type) {
-  //       entry.type = "chat";
-  //     }
-  //     return entry;
-  //   });
-
-  //   return data as TradeOffer;
-  // }
 }
