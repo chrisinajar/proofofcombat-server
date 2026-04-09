@@ -268,8 +268,6 @@ const resolvers: Resolvers = {
 
       // victory
       if (fightResult.victimDied) {
-        // if (location.terrain === "water") {
-
         const location =
           LocationData[hero.location.map as MapNames]?.locations[
             hero.location.x
