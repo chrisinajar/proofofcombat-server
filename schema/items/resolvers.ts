@@ -13,7 +13,6 @@ import {
 } from "types/graphql";
 import type { BaseContext } from "schema/context";
 
-import { getEnchantedAttributes } from "../../combat/enchantments";
 import { createHeroCombatant } from "../../combat/hero";
 import { BaseItems } from "../items/base-items";
 import { createItemInstance, countEnchantments } from "../items/helpers";
