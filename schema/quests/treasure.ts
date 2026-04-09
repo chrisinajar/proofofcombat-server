@@ -14,36 +14,17 @@ import {
   TerrainType,
 } from "../../constants";
 import { getRandomizer } from "../../random";
-import {
-  hasQuestItem,
-  getOrCreateQuestItem,
-  giveQuestItemNotification,
-} from "./helpers";
+import { hasQuestItem, giveQuestItemNotification } from "./helpers";
 
 export function checkHeroGossip(
   context: BaseContext,
   hero: Hero,
   location: Location,
 ): Hero {
-  /**
-   * @TODO: randomly give a treasure map when gossipping
-
-    don't give a treasure map if they already have one.
-    create some silly deterministic random location sort of like the droop quest
-    get to location, there's a dungeon there. Upon completing the dungeon, they get a reward
-
-
-    to figure out/decide:
-    if you should be able to do it multiple times or not
-    what the rewards should be
-  */
-  // For now: if the hero does not have a Treasure Map, give exactly one.
+  // Grant a single treasure map on first gossip; reading it (readMap mutation)
+  // generates a deterministic destination and directional hints.
   if (!hasQuestItem(hero, "treasure-map")) {
     giveQuestItemNotification(context, hero, "treasure-map");
-    const item = getOrCreateQuestItem(hero, "treasure-map");
-    // Testing: log the granted item instance
-    // eslint-disable-next-line no-console
-    console.log("Granted treasure map:", item);
   }
   return hero;
 }
