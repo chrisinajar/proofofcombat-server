@@ -222,7 +222,6 @@ function checkDock(context: BaseContext, hero: Hero): Hero {
 }
 
 function checkInitialWashedUp(context: BaseContext, hero: Hero): Hero {
-  // return hero;
   const location =
     LocationData[hero.location.map as MapNames]?.locations[hero.location.x][
       hero.location.y
