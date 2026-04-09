@@ -1,75 +1,8 @@
 import { BaseContext } from "../context";
 import { getRandomizer } from "../../random";
-import { LocationData, MapNames, MAP_DIMENSIONS } from "../../constants";
-import {
-  MonsterInstance,
-  PlayerLocation,
-  PlayerLocationType,
-  Location,
-} from "types/graphql";
+import { MAP_DIMENSIONS } from "../../constants";
+import { MonsterInstance, Location } from "types/graphql";
 import { io } from "../../index";
-import {
-  gatherTargetResources,
-  calculateCombatAttributes,
-} from "../locations/helpers";
-
-async function handleAberrationSettlementBattle(
-  context: BaseContext,
-  aberration: MonsterInstance,
-  settlement: PlayerLocation,
-): Promise<void> {
-  // calculate both army and defensive power
-  // get base power as health * level
-  const aberrationAttackPower =
-    (aberration.monster.combat.health * aberration.monster.level) / 1000;
-
-  // Calculate defensive resources and power
-  const defensiveResources = await gatherTargetResources(
-    context,
-    settlement,
-    0, // builtInFortifications - assuming none for now
-  );
-
-  const defensiveAttributes = calculateCombatAttributes(
-    defensiveResources,
-    settlement.health,
-  );
-
-  // Determine battle outcome
-  if (aberrationAttackPower > defensiveAttributes.health) {
-    // Aberration wins
-    await context.db.playerLocation.del(settlement);
-    io.sendGlobalMessage({
-      color: "error",
-      message: `The aberration at ${aberration.location.x}, ${aberration.location.y} has destroyed the settlement!`,
-    });
-  } else {
-    // Settlement survives
-    await context.db.playerLocation.put(settlement);
-    io.sendGlobalMessage({
-      color: "primary",
-      message: `The aberration at ${aberration.location.x}, ${aberration.location.y} is attacking a settlement!`,
-    });
-  }
-}
-
-async function checkSettlementOwnership(
-  context: BaseContext,
-  location: Location,
-): Promise<PlayerLocation | null> {
-  try {
-    const settlement = await context.db.playerLocation.get(
-      context.db.playerLocation.locationId(location),
-    );
-
-    if (settlement?.type === PlayerLocationType.Settlement) {
-      return settlement;
-    }
-  } catch (e) {
-    // No settlement found at this location
-  }
-  return null;
-}
 
 export async function roamAberrations(
   context: BaseContext,
@@ -129,9 +62,6 @@ async function handleAberrationRoam(
   // grab the first aberration for single monster events, use the array in multi-monster events
   const aberration = aberrations[0];
   const { x, y } = location;
-
-  // Check if current location has a settlement
-  const currentSettlement = await checkSettlementOwnership(context, location);
 
   let roamMessage = `A forgotten aberration stirs at ${x}, ${y}...`;
 
@@ -194,22 +124,6 @@ async function handleAberrationRoam(
     return;
   }
 
-  // update their location regardless
   aberration.location = newLocation;
-
-  // Check if new location has a settlement
-  const newSettlement = await checkSettlementOwnership(context, newLocation);
-
-  // If we're moving from non-settlement to settlement, or between settlements with different owners
-  if (
-    (!currentSettlement && newSettlement) ||
-    (currentSettlement &&
-      newSettlement &&
-      currentSettlement.owner !== newSettlement.owner)
-  ) {
-    // don't attack yet, the mechanic isn't done
-    // await handleAberrationSettlementBattle(context, aberration, newSettlement);
-  }
-
   await context.db.monsterInstances.put(aberration, true);
 }
