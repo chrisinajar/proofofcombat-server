@@ -297,15 +297,15 @@ async function executeAltarBlessing(
     return { success: true, message: "You have been blessed" };
   }
 
-  if (tradeId === "altar-blessing-emerald") {
-    if (hero.buffs.blessing === EnchantmentType.EmeraldBlessing) {
+  if (tradeId === "altar-blessing-sapphire") {
+    if (hero.buffs.blessing === EnchantmentType.SapphireBlessing) {
       return { success: false, message: "You already have this blessing" };
     }
     if (hero.gold < 1000000000) {
       return { success: false, message: "You do not have enough gold" };
     }
     hero.gold -= 1000000000;
-    hero.buffs.blessing = EnchantmentType.EmeraldBlessing;
+    hero.buffs.blessing = EnchantmentType.SapphireBlessing;
     await context.db.hero.put(hero);
     return { success: true, message: "You have been blessed" };
   }
