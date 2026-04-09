@@ -10,7 +10,6 @@ import {
   randomEnchantment,
   giveHeroArtifact,
 } from "../items/helpers";
-import { rebirth } from "../quests/rebirth";
 import { endVoidTravel } from "../void-travel";
 
 export async function checkAberrationDrop(
@@ -58,18 +57,10 @@ async function voidMonsterReward(
   // you go there, kill it, and return
   // if you have a cracked orb and kill it them amixea can help
 
-  // send them back to the mortal plane
   await endVoidTravel(context, hero);
-  // hero.location.map = "default";
-  // hero = rebirth(context, hero);
 
-  // should we get some sort of void thingy then you then use to repair the orb?
-  // maybe it becomes an "orb of the void" or something like that...
-  // if (hasQuestItem(hero, "cracked-orb-of-forbidden-power")) {
-  //   hero = takeQuestItem(hero, "cracked-orb-of-forbidden-power");
-  //   hero = giveQuestItemNotification(context, hero, "orb-of-forbidden-power");
-  // }
-  // just give them a useless essence for now lolololol
+  // Essence-of-void is combined with cracked-orb at Amixea's Hut (rebirth.ts)
+  // to restore the orb-of-forbidden-power.
   if (!hasQuestItem(hero, "essence-of-void")) {
     hero = giveQuestItemNotification(context, hero, "essence-of-void");
     if (hasQuestItem(hero, "cracked-orb-of-forbidden-power")) {
