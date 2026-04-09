@@ -162,12 +162,6 @@ export function getBaseClass(hero: Hero): HeroClasses {
     return HeroClasses.BloodMage;
   }
 
-  if (!leftWeaponType && !rightWeaponType) {
-    // no weapons!
-    // no monks yet
-    // return HeroClasses.Monk;
-  }
-
   if (
     leftWeaponType === InventoryItemType.RangedWeapon ||
     rightWeaponType === InventoryItemType.RangedWeapon
