@@ -1946,13 +1946,8 @@ const resolvers: Resolvers = {
       if (location.name === "Altar of Transcendence") {
         return true;
       }
-      // todo:
-      // others?
 
       return false;
-
-      // all altars
-      // return location.type === "altar";
     },
     async players(parent, args, context): Promise<PublicHero[]> {
       const heroList = await context.db.hero.getHeroesInLocation(
