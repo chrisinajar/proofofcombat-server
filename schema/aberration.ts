@@ -8,14 +8,9 @@ import Databases from "../db";
 import { getRandomizer } from "../random";
 import { io } from "../index";
 
-// at least 1 minute between spawns
 const minSpawnTime = 90000;
-// const minSpawnTime = 10000;
 const maxSpawnTime = 48 * 60 * 60 * 1000;
-// const maxSpawnTime = 120 * 1000;
-
 const idealSpawnTime = 1.2 * 60 * 60 * 1000;
-// const idealSpawnTime = 30 * 1000;
 const changeWindow = 600;
 
 let lastAberrationSpawn = Date.now();
@@ -140,7 +135,6 @@ export function getCurrentOdds() {
     return 0;
   }
   const ellapsedTime = now - nextMinSpawnTime;
-  // console.log({ now, ellapsedTime });
   if (ellapsedTime >= maxSpawnTime) {
     return 1;
   }
