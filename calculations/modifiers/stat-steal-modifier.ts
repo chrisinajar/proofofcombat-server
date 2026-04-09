@@ -65,8 +65,6 @@ export class StatStealVictimModifier extends Modifier<StatStealVictimModifierOpt
       return;
     }
 
-    // (1 - stolenAmount) * 0.8;
-
     // get the value of the stat before any steals or other extra bonuses
     const attackerBaseValue = attacker.getMultiplierValue(prop);
     const myBaseValue = this.parent.getMultiplierValue(prop);
@@ -76,8 +74,6 @@ export class StatStealVictimModifier extends Modifier<StatStealVictimModifierOpt
     return (
       0 - (1 - stolenAmount) * 0.8 * Math.min(attackerBaseValue, myBaseValue)
     );
-
-    // return 0 - (1 - stolenAmount) * attackerBaseValue;
   }
 }
 

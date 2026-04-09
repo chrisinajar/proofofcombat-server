@@ -197,5 +197,3 @@ describe("createStatStealModifiers", () => {
     expect(victim.getModifiedValue("strength")).toBeGreaterThanOrEqual(200);
   });
 });
-
-// createStatStealModifiers
