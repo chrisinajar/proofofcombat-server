@@ -44,6 +44,11 @@ function generateHero(): Hero {
   return hero;
 }
 
+/**
+ * Expected damage for one swing (uniform roll for variation; no Blood flat bonus).
+ * Crit expectation matches the **nested** rolls in `calculateDamage` (first crit ×2,
+ * then ×3, then ×3) — not three independent ×3 factors.
+ */
 function getAverageDamage(
   heroA: Combatant,
   attackType: AttackType,
@@ -59,13 +64,14 @@ function getAverageDamage(
     multiplier,
   } = calculateDamageValues(heroA, heroB, false, debug);
 
-  return (
-    (baseDamage - variation / 2) *
-    ((1 + criticalChance * 3) *
-      (1 + criticalChance * doubleCriticalChance * 3) *
-      (1 + criticalChance * doubleCriticalChance * trippleCriticalChance * 3)) *
-    multiplier
-  );
+  const c = criticalChance;
+  const d = doubleCriticalChance;
+  const t = trippleCriticalChance;
+  // E[multiplier | crit path] = 2(1-d) + 6d(1-t) + 18dt = 2 + 4d + 12dt
+  const expectedCritMultiplier =
+    (1 - c) + c * (2 + 4 * d + 12 * d * t);
+
+  return (baseDamage - variation / 2) * expectedCritMultiplier * multiplier;
 }
 
 function getHitOdds(
