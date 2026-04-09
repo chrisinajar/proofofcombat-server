@@ -28,8 +28,10 @@ const resolvers: Resolvers = {
       if (!context?.auth?.id) {
         throw new ForbiddenError("Missing auth");
       }
-      // todo: check banned
-      // const account = await context.db.account.get(context.auth.id);
+      const account = await context.db.account.get(context.auth.id);
+      if (account.banned) {
+        throw new ForbiddenError("Missing auth");
+      }
       const hero = await context.db.hero.get(context.auth.id);
 
       const chatToken = sign({
