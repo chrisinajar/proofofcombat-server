@@ -54,7 +54,7 @@ export async function startVoidTravel(
     location[1] = Math.floor(Math.random() * 96);
   }
 
-  // if we still can't find one, then reset the void and trigger catacalism
+  // if we still can't find one, then reset the void
   if (!didFindSpace) {
     await resetVoid(context);
     return;
@@ -114,5 +114,5 @@ async function resetVoid(context: BaseContext) {
     }
   }
 
-  ///@TODO trigger cataclysm event, whatever that means...
+  // No follow-up event is triggered; void reset is self-contained.
 }
