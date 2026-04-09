@@ -29,33 +29,6 @@ export class Mob extends Unit {
 
     this.applyModifier(BasicMobModifier, undefined);
 
-    // class: HeroClasses.Monster,
-    // attackType: monster.attackType,
-    // level: monster.level,
-    // name: monster.name,
-    // equipment: equipment
-    //   ? createMonsterEquipment({ level: monster.level }, equipment)
-    //   : createMonsterEquipment({ level: monster.level }),
-    // damageReduction: monsterAttributes.constitution / 2,
-    // attributes: monsterAttributes,
-    // luck: createLuck(monsterAttributes.luck),
-    // health: monster.combat.health,
-    // maxHealth: monster.combat.maxHealth,
-
-    /*
-        {
-      armor: [
-        { level: 32, type: 'BodyArmor' },
-        { level: 32, type: 'HandArmor' },
-        { level: 32, type: 'LegArmor' },
-        { level: 32, type: 'HeadArmor' },
-        { level: 32, type: 'FootArmor' }
-      ],
-      weapons: [ { level: 32 }, { level: 32 } ],
-      quests: []
-    }
-    */
-
     monsterData.equipment.armor.forEach((armor) =>
       this.equipMonsterItem(armor, InventoryItemType.BodyArmor),
     );
