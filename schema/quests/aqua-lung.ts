@@ -1,10 +1,4 @@
-import {
-  Hero,
-  InventoryItem,
-  MonsterInstance,
-  HeroClasses,
-  Quest,
-} from "types/graphql";
+import { Hero, MonsterInstance, Quest } from "types/graphql";
 import { BaseContext } from "../context";
 
 import {
