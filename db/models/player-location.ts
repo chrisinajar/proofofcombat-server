@@ -152,14 +152,8 @@ export default class PlayerLocationModel extends DatabaseInterface<PlayerLocatio
     home: PlayerLocation,
     resourceType: string,
     amount: number,
-    maxDistance: number = -1,
   ) {
-    let data = await this.getResourceData(home, resourceType);
-    // if (maxDistance > 0) {
-    //   data = data.filter(({ location }) => {
-    //     return true;
-    //   });
-    // }
+    const data = await this.getResourceData(home, resourceType);
     return this.spendResourcesFromData(data, amount);
   }
 
