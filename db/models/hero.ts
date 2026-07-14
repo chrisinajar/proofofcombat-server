@@ -23,6 +23,7 @@ import { BaseContext } from "../../schema/context";
 import { LocationData } from "../../constants";
 import { Hero as HeroUnit } from "../../calculations/units/hero";
 import { ModifierPersistancyData } from "../../calculations/modifiers/modifier";
+import { isModifierExpired } from "../../calculations/modifiers/duration";
 import DatabaseInterface from "../interface";
 
 const SkillDisplayNames: { [x in HeroSkill]: string } = {
@@ -867,17 +868,14 @@ export default class HeroModel extends DatabaseInterface<Hero> {
   async put(data: Hero) {
     const heroUnit = this.getUnit(data);
     const heroData = data as HeroData;
-    heroData.persistedModifiers = heroUnit.getPersistentModifiers();
+    heroData.persistedModifiers = heroUnit
+      .getPersistentModifiers()
+      .filter((m) => !isModifierExpired(m));
     return super.put(heroData);
   }
 
   async get(id: string): Promise<Hero> {
-    // console.log("get", id);
     const data = (await super.get(id)) as HeroData;
-    // console.log(data.persistedModifiers);
-    const heroUnit = this.getUnit(data);
-    // console.log(heroUnit.getPersistentModifiers());
-    // console.log(data);
     return data;
   }
 }

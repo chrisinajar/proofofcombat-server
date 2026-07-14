@@ -31,6 +31,8 @@ import { attributesForAttack } from "../../combat/constants";
 import { getItemPassiveUpgradeTier } from "../../combat/item-helpers";
 import { calculateRating } from "../../maths";
 import { weaponDamageWithBuiltIns } from "../../schema/items/helpers";
+import { shouldRestoreModifier } from "../modifiers/duration";
+import { getModifierById } from "../modifiers/registry";
 
 declare global {
   interface ProxyConstructor {
@@ -234,6 +236,25 @@ export class Unit {
           persistency: false | ModifierPersistancyData<any>,
         ): persistency is ModifierPersistancyData<any> => !!persistency,
       );
+  }
+
+  restorePersistedModifiers(entries: ModifierPersistancyData<any>[]) {
+    for (const entry of entries) {
+      if (!shouldRestoreModifier(entry)) continue;
+      const ModifierCtor = getModifierById(entry.modifierId);
+      if (!ModifierCtor) continue;
+      this.applyModifier(ModifierCtor, entry.options);
+    }
+  }
+
+  tickAndRemoveExpiredModifiers(elapsedMs: number) {
+    const toRemove: Modifier<any>[] = [];
+    for (const m of this.modifiers) {
+      if (m.tickDuration(elapsedMs)) {
+        toRemove.push(m);
+      }
+    }
+    toRemove.forEach((m) => m.remove());
   }
 
   enterCombat(victim: Unit) {

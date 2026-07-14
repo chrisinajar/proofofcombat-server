@@ -6,7 +6,8 @@ import type { ModifierDefinition } from "./enchantments";
 import type { ModifierClass } from "./index";
 
 export type ModifierPersistancyData<O> = {
-  expireTime: number;
+  modifierId: string;
+  remainingDuration: number; // in-game ms remaining, 0 = permanent
   options: O;
 };
 
@@ -126,6 +127,10 @@ export abstract class Modifier<O> {
     return false;
   }
   isPersistent(): ModifierPersistancyData<O> | false {
+    return false;
+  }
+
+  tickDuration(_elapsedMs: number): boolean {
     return false;
   }
 }

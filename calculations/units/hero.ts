@@ -13,6 +13,7 @@ import { HeroStanceModifier } from "../modifiers/hero-stance-modifier";
 import { GenericArmorModifier } from "../modifiers/generic-armor-modifier";
 import { InventoryItem } from "../items/inventory-item";
 
+import type { ModifierPersistancyData } from "../modifiers/modifier";
 import { Unit } from "./unit";
 
 export class Hero extends Unit {
@@ -95,6 +96,13 @@ export class Hero extends Unit {
 
     if (this.hero.buffs.blessing) {
       this.equipEnchantment(this.hero.buffs.blessing);
+    }
+
+    const heroData = hero as Record<string, unknown>;
+    if (Array.isArray(heroData.persistedModifiers)) {
+      this.restorePersistedModifiers(
+        heroData.persistedModifiers as ModifierPersistancyData<any>[],
+      );
     }
   }
 

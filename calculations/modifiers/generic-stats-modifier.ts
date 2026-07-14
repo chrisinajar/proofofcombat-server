@@ -1,4 +1,4 @@
-import { Modifier, ModifierOptions } from "./modifier";
+import { Modifier, ModifierOptions, ModifierPersistancyData } from "./modifier";
 
 type StatsEntry = Record<string, number>;
 
@@ -8,6 +8,7 @@ export type GenericStatsModifierOptions = {
   extraBonus?: StatsEntry;
   isDebuff?: boolean;
   stackMultiplicatively?: boolean;
+  remainingDuration?: number;
 };
 
 export class GenericStatsModifier extends Modifier<GenericStatsModifierOptions> {
@@ -47,5 +48,32 @@ export class GenericStatsModifier extends Modifier<GenericStatsModifierOptions> 
       return this.options.extraBonus[prop];
     }
     return;
+  }
+
+  isPersistent():
+    | ModifierPersistancyData<GenericStatsModifierOptions>
+    | false {
+    if (this.options.remainingDuration === undefined) return false;
+    return {
+      modifierId: "generic-stats",
+      remainingDuration: this.options.remainingDuration,
+      options: this.options,
+    };
+  }
+
+  tickDuration(elapsedMs: number): boolean {
+    if (
+      this.options.remainingDuration === undefined ||
+      this.options.remainingDuration <= 0
+    ) {
+      return false;
+    }
+    const next = this.options.remainingDuration - elapsedMs;
+    if (next <= 0) {
+      this.options.remainingDuration = -1;
+      return true;
+    }
+    this.options.remainingDuration = next;
+    return false;
   }
 }

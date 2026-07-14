@@ -11,6 +11,7 @@ import { calculateDamage } from "./calculate-damage";
 import { calculateEnchantmentDamage } from "./calculate-enchantment-damage";
 import { getEnchantedAttributes } from "./enchantments";
 import { ENCHANTMENT_INTERVAL, COMBAT_DURATION } from "./constants";
+import { getNextModifierExpiry } from "../calculations/modifiers/duration";
 
 function hasTwoAttacks(combatant: Combatant): boolean {
   let hasTwoAttacks = false;
@@ -121,11 +122,38 @@ export function executeFight(
 
   if (duration < attackerNextAttack && duration < victimNextAttack) {
     // no one can attack
-    // use the rest of the duration up
+    // tick modifier durations with remaining time before returning
+    attackerCombatant.unit.tickAndRemoveExpiredModifiers(duration);
+    victimCombatant.unit.tickAndRemoveExpiredModifiers(duration);
     attackerCombatant.attackSpeedRemainder += duration;
     victimCombatant.attackSpeedRemainder += duration;
     result.durationRemaining = 0;
     return result;
+  }
+
+  const attackerExpiry = getNextModifierExpiry(
+    attackerCombatant.unit.getPersistentModifiers(),
+  );
+  const victimExpiry = getNextModifierExpiry(
+    victimCombatant.unit.getPersistentModifiers(),
+  );
+  const nextExpiry = Math.min(
+    attackerExpiry ?? Infinity,
+    victimExpiry ?? Infinity,
+  );
+
+  if (
+    nextExpiry < Infinity &&
+    nextExpiry <= attackerNextAttack &&
+    nextExpiry <= victimNextAttack &&
+    (enchantmentNextAttack <= 0 || nextExpiry <= enchantmentNextAttack)
+  ) {
+    duration -= nextExpiry;
+    attackerCombatant.attackSpeedRemainder += nextExpiry;
+    victimCombatant.attackSpeedRemainder += nextExpiry;
+    attackerCombatant.unit.tickAndRemoveExpiredModifiers(nextExpiry);
+    victimCombatant.unit.tickAndRemoveExpiredModifiers(nextExpiry);
+    return executeFight(attackerCombatant, victimCombatant, duration, result);
   }
 
   const { attacker: enchantedAttacker, victim: enchantedVictim } =
@@ -245,6 +273,8 @@ export function executeFight(
     duration -= enchantmentNextAttack;
     attackerCombatant.attackSpeedRemainder += enchantmentNextAttack;
     victimCombatant.attackSpeedRemainder += enchantmentNextAttack;
+    attackerCombatant.unit.tickAndRemoveExpiredModifiers(enchantmentNextAttack);
+    victimCombatant.unit.tickAndRemoveExpiredModifiers(enchantmentNextAttack);
 
     // short circuit for enchantment before attacks start
     return executeFight(attackerCombatant, victimCombatant, duration, result);
@@ -282,6 +312,8 @@ export function executeFight(
       ? 0
       : 0 - attackerCombatant.attackSpeed;
     victimCombatant.attackSpeedRemainder += attackerNextAttack;
+    attackerCombatant.unit.tickAndRemoveExpiredModifiers(attackerNextAttack);
+    victimCombatant.unit.tickAndRemoveExpiredModifiers(attackerNextAttack);
   } else if (victimNextAttack >= 0) {
     // do victim attack
     if (!result.victimIsMesmerized && !result.victimIsDead) {
@@ -313,6 +345,8 @@ export function executeFight(
     victimCombatant.attackSpeedRemainder = victimHasTwoAttacks
       ? 0
       : 0 - victimCombatant.attackSpeed;
+    attackerCombatant.unit.tickAndRemoveExpiredModifiers(victimNextAttack);
+    victimCombatant.unit.tickAndRemoveExpiredModifiers(victimNextAttack);
   } else {
     console.error("Failed to figure out next action in combat", {
       duration,

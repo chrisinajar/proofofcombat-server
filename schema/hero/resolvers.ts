@@ -201,6 +201,11 @@ const resolvers: Resolvers = {
       fightResult.victimDied = victim.combat.health < 1;
       fightResult.attackerDied = hero.combat.health < 1;
 
+      (hero as any).persistedModifiers =
+        fightResult.attackerCombatant.unit.getPersistentModifiers();
+      (victim as any).persistedModifiers =
+        fightResult.victimCombatant.unit.getPersistentModifiers();
+
       await Promise.all([
         context.db.hero.put(hero),
         context.db.hero.put(victim),

@@ -190,6 +190,8 @@ const resolvers: Resolvers = {
         fightResult.attackerCombatant.attackSpeedRemainder;
       monster.attackSpeedRemainder =
         fightResult.victimCombatant.attackSpeedRemainder;
+      (hero as any).persistedModifiers =
+        fightResult.attackerCombatant.unit.getPersistentModifiers();
 
       const xpDoublers = context.db.hero.countEnchantments(
         hero,
