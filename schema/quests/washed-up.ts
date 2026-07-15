@@ -97,8 +97,6 @@ function checkPub(context: BaseContext, hero: Hero): Hero {
     return hero;
   }
 
-  console.log(hero.name, "is at pub location!!");
-
   hero = giveQuestItemNotification(context, hero, "fishermans-luck");
   hero.gold = Math.round(hero.gold / 2);
 
@@ -175,8 +173,6 @@ function checkDock(context: BaseContext, hero: Hero): Hero {
     return hero;
   }
 
-  console.log(hero.name, "AT THE NEXT DOCK!");
-
   const questItems = [
     "old-boot",
     "old-pocket-watch",
@@ -230,7 +226,6 @@ function checkInitialWashedUp(context: BaseContext, hero: Hero): Hero {
       return hero;
     }
 
-    console.log("Washed up!");
     const [newX, newY] = findTerrainType(
       hero.location.x,
       hero.location.y,

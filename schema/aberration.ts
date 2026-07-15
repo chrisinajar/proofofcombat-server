@@ -27,7 +27,6 @@ export async function spawnRandomAberration(context: BaseContext) {
     0,
   );
   let roll = Math.floor(totalWeight * Math.random());
-  console.log({ totalWeight, roll });
   const aberration = Aberrations.find((abby) => {
     if (abby.weight > roll) {
       return true;
@@ -45,7 +44,6 @@ export async function spawnRandomAberration(context: BaseContext) {
     );
     return;
   }
-  console.log("ABERRATION SPAWN EVENT!?", aberration);
   let spawnMessage = "A forgotten aberration is rampaging near {{loc}}";
 
   // always use wording like "near" because we don't give the exact location, we give a spot near it.

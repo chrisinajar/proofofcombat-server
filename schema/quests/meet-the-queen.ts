@@ -31,8 +31,6 @@ export async function checkSkipDrop(
     return true;
   }
 
-  console.log("checking skip drop!");
-
   takeOneQuestItem(hero, "clean-rag");
 
   const baseItem = BaseItems["bloody-rag"];
@@ -174,8 +172,6 @@ export function checkHero(context: BaseContext, hero: Hero): Hero {
   }
 
   const bloodQuality = totalLevels / rags.length;
-
-  console.log(hero.name, "turning in droop blood", bloodQuality);
 
   // aberrations = lvl 30-40
   // demilichs = lvl 39

@@ -15,7 +15,6 @@ import {
 import { startingLevelCap } from "../../schema/quests/rebirth";
 import {
   hasQuestItem,
-  heroLocationName,
   takeQuestItem,
 } from "../../schema/quests/helpers";
 import { BaseItems } from "../../schema/items/base-items";
@@ -95,8 +94,6 @@ export default class HeroModel extends DatabaseInterface<Hero> {
       this.heroUnitMap.get(hero);
     }
     const heroUnit = new HeroUnit(hero);
-    // console.log(heroUnit.baseValues);
-    // console.log(heroUnit.stats.health);
     this.heroUnitMap.set(hero, heroUnit);
 
     return heroUnit;
@@ -376,8 +373,6 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     if (bonusSkillChance > 1) {
       odds *= bonusSkillChance;
     }
-    // this happens kind of a lot
-    // console.log("rolling skill", skillName, odds);
     // odds are between 0-1, where 1 is 100%
     if (Math.random() < odds) {
       hero = this.levelUpSkill(context, hero, skillName);
@@ -390,8 +385,6 @@ export default class HeroModel extends DatabaseInterface<Hero> {
     if (currentSkillLevel >= 99) {
       return hero;
     }
-
-    console.log(hero.name, "Skill leveled up!!", currentSkillLevel);
 
     hero.skills[skillName] += 1;
     if (hero.skillPercent === 69) {

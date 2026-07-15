@@ -84,7 +84,6 @@ async function movingMountainReward(
 
   if (Math.random() < 1 / 4) {
     giveHeroRandomDrop(context, hero, 33, 3, false, false);
-    // asdf asdf
     context.io.sendGlobalNotification({
       message: `${hero.name} has received great rewards for their task`,
       type: "quest",
