@@ -38,9 +38,7 @@ export function delayDirectiveTransformer(
           let account = await context.db.account.get(context.auth.id);
 
           if (account.banned) {
-            if (!context?.auth?.id) {
-              throw new ForbiddenError("You are banned");
-            }
+            throw new ForbiddenError("You are banned");
           }
           if (!process.env.MAX_LEVEL_TESTING) {
             const nextAllowedAction = Number(account.nextAllowedAction);
