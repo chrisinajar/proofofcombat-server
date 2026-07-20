@@ -62,6 +62,15 @@ function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+// Rules may return a single line or an array of lines, and a stubbed or
+// placeholder rule can yield empty/undefined entries. Normalize to non-empty
+// trimmed strings so the bartender never emits a blank or "undefined" line.
+function toLines(l: string[] | string): string[] {
+  return (Array.isArray(l) ? l : [l]).filter(
+    (s): s is string => typeof s === "string" && s.trim().length > 0,
+  );
+}
+
 const personas: Record<string, BartenderPersona> = {
   "The Hellhound's Fur": {
     name: "Trimarim",
@@ -70,7 +79,12 @@ const personas: Record<string, BartenderPersona> = {
       {
         id: "night",
         when: ({ hero }) => isNight(hero.location),
-        lines: ({ hero }) => [pick([])],
+        lines: () => [
+          pick([
+            "Night already? The Hellhound stirs when the lamps burn low. Mind the shadows on your way out.",
+            "You keep odd hours, friend — so do the things that hunt past dusk. Keep your blade where your hand can find it.",
+          ]),
+        ],
       },
       {
         id: "washed-up",
@@ -133,7 +147,12 @@ const personas: Record<string, BartenderPersona> = {
       {
         id: "night",
         when: ({ hero }) => isNight(hero.location),
-        lines: ({ hero }) => [pick([])],
+        lines: () => [
+          pick([
+            "Dark already? The roots drink deep at night. Step careful — the woods don't forgive a stumble after dusk.",
+            "Owls are talking, which means something bigger's awake out there. Rest here till light if you've any sense.",
+          ]),
+        ],
       },
       {
         id: "hobgoblins",
@@ -325,9 +344,7 @@ export function getBartenderAdvice(
     for (const rule of persona.rules) {
       try {
         if (rule.when(ctx)) {
-          const l = rule.lines(ctx);
-          if (Array.isArray(l)) lines.push(...l);
-          else lines.push(l);
+          lines.push(...toLines(rule.lines(ctx)));
         }
       } catch {
         // ignore rule errors to avoid disrupting gameplay
@@ -339,9 +356,7 @@ export function getBartenderAdvice(
       // add one generic nudge if available
       for (const rule of genericRules) {
         if (rule.when(ctx)) {
-          const l = rule.lines(ctx);
-          if (Array.isArray(l)) lines.push(...l);
-          else lines.push(l);
+          lines.push(...toLines(rule.lines(ctx)));
           break;
         }
       }
@@ -357,9 +372,7 @@ export function getBartenderAdvice(
   // Unknown tavern: default generic advice
   for (const rule of genericRules) {
     if (rule.when(ctx)) {
-      const l = rule.lines(ctx);
-      if (Array.isArray(l)) lines.push(...l);
-      else lines.push(l);
+      lines.push(...toLines(rule.lines(ctx)));
       break;
     }
   }
